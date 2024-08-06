@@ -1,8 +1,12 @@
 use strum_macros::EnumIter;
 use crate::enharmonic::EnharmonicEq;
+use crate::interval::Interval;
+use crate::interval::quality::IntervalQuality;
+use crate::interval::size::IntervalSize;
 use crate::note::accidental::AccidentalSign;
 use crate::note::letter::Letter;
 use crate::note::pitch_class::PitchClass;
+use crate::semitone::Semitone;
 
 #[repr(i8)]
 #[derive(Copy, Clone, Eq, PartialEq, Debug, EnumIter)]
@@ -131,6 +135,89 @@ impl Pitch {
 
         PitchClass::try_from(semitones_from_c)
             .expect("i8::rem_euclid(12) must be [0, 12)")
+    }
+
+    pub fn semitones_between(&self, rhs: Self) -> Semitone {
+        let lhs = self.as_pitch_class() as u8 as i8;
+        let rhs = rhs.as_pitch_class() as u8 as i8;
+
+        Semitone((rhs - lhs) as _)
+    }
+
+    pub fn apply_interval(&self, interval: &Interval) -> Option<Self> {
+        use IntervalSize as S;
+        use IntervalQuality as Q;
+
+        let offset = match (interval.quality(), interval.size().as_simple()) {
+            // 0 semitones
+            (Q::Perfect, S::Unison) => 0,
+            (Q::Diminished, S::Second) => -12,
+
+            // 1 semitone
+            (Q::Minor, S::Second) => -5,
+            (Q::Augmented, S::Unison) => 7,
+
+            // 2 semitones
+            (Q::Major, S::Second) => 2,
+            (Q::Diminished, S::Third) => -10,
+
+            // 3 semitones
+            (Q::Minor, S::Third) => -3,
+            (Q::Augmented, S::Second) => 9,
+
+            // 4 semitones
+            (Q::Major, S::Third) => 4,
+            (Q::Diminished, S::Fourth) => -8,
+
+            // 5 semitones
+            (Q::Perfect, S::Fourth) => -1,
+            (Q::Augmented, S::Third) => 11,
+
+            // 6 semitones
+            (Q::Augmented, S::Fourth) => 6,
+            (Q::Diminished, S::Fifth) => -6,
+
+            // 7 semitones
+            (Q::Perfect, S::Fifth) => 1,
+            (Q::Diminished, S::Sixth) => -11,
+
+            // 8 semitones
+            (Q::Minor, S::Sixth) => -4,
+            (Q::Augmented, S::Fifth) => 8,
+
+            // 9 semitones
+            (Q::Major, S::Sixth) => 3,
+            (Q::Diminished, S::Seventh) => -9,
+
+            // 10 semitones
+            (Q::Minor, S::Seventh) => -2,
+            (Q::Augmented, S::Sixth) => 10,
+
+            // 11 semitones
+            (Q::Major, S::Seventh) => 5,
+            (Q::Diminished, S::Octave) => -7,
+
+            // 12 semitones
+            (Q::Perfect, S::Octave) => 0,
+            (Q::Augmented, S::Seventh) => 12,
+
+            // 13 semitones
+            (Q::Augmented, S::Octave) => 7,
+
+            _ => return None,
+        };
+
+        let res = Self::from_fifths_from_c(self.as_fifths_from_c() + offset);
+
+        if let Some(res) = &res {
+            assert_eq!(
+                self.semitones_between(*res).0.rem_euclid(12), interval.semitones().0 % 12,
+                "pitch: {:?}, + interval: {} = res: {:?} \nRes semitone diff: {}, expected: {}",
+                self, interval.shorthand(), res, self.semitones_between(*res).0, interval.semitones().0 % 12
+            );
+        }
+
+        res
     }
 }
 

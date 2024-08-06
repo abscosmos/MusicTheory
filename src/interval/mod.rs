@@ -8,15 +8,16 @@ pub mod size;
 
 #[derive(Clone, Eq, PartialEq, Debug)]
 pub struct Interval {
+    quality: IntervalQuality,
     size: IntervalSize,
-    quality: IntervalQuality
 }
 
 impl Interval {
-    pub fn from_size_and_quality(size: IntervalSize, quality: IntervalQuality) -> Option<Interval> {
+    pub fn from_quality_and_size(quality: IntervalQuality, size: IntervalSize) -> Option<Interval> {
         use IntervalSize as S;
         use IntervalQuality as Q;
 
+        // TODO: size::can_be_perfect(), etc.
         match (quality, size) {
             (Q::Perfect, S::Unison) |
             (Q::Perfect, S::Fourth) |
@@ -119,13 +120,13 @@ impl Interval {
 
             Q::Diminished => match self.size {
                 S::Fourth | S::Fifth | S::Octave |
-                S::Eleventh | S::Twelfth => -1,
+                S::Eleventh | S::Twelfth | S::Fifteenth => -1,
                 _ => -2
             },
 
             Q::DoublyDiminished => match self.size {
                 S::Fourth | S::Fifth | S::Octave |
-                S::Eleventh | S::Twelfth => -2,
+                S::Eleventh | S::Twelfth | S::Fifteenth => -2,
                 _ => -3
             }
 
@@ -134,6 +135,10 @@ impl Interval {
         };
 
         Semitone(base_semitones + quality_adjustment)
+    }
+
+    pub fn shorthand(&self) -> String {
+        format!("{}{}", self.quality.shorthand(), self.size.shorthand())
     }
 }
 
