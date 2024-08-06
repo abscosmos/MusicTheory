@@ -25,4 +25,18 @@ impl IntervalQuality {
             Q::DoublyAugmented => "AA",
         }
     }
+
+    pub fn inverted(&self) -> Self {
+        use IntervalQuality as Q;
+
+        match self {
+            Q::Perfect => Q::Perfect,
+            Q::Major => Q::Minor,
+            Q::Minor => Q::Major,
+            Q::Augmented => Q::Diminished,
+            Q::Diminished => Q::Augmented,
+            Q::DoublyAugmented => Q::DoublyDiminished,
+            Q::DoublyDiminished => Q::DoublyAugmented,
+        }
+    }
 }

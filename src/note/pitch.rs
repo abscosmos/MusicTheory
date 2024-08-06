@@ -144,80 +144,51 @@ impl Pitch {
         Semitone((rhs - lhs) as _)
     }
 
+    pub fn accidental_sign(&self) -> AccidentalSign {
+        match (self.as_fifths_from_c() + 1).div_euclid(7) {
+            -2 => AccidentalSign::DoubleFlat,
+            -1 => AccidentalSign::Flat,
+            0 => AccidentalSign::Natural,
+            1 => AccidentalSign::Sharp,
+            2 => AccidentalSign::DoubleSharp,
+            _ => unreachable!("Pitch doesn't support more than 2 flats or sharps")
+        }
+    }
+
+    // TODO: inverse of this method
     pub fn apply_interval(&self, interval: &Interval) -> Option<Self> {
         use IntervalSize as S;
         use IntervalQuality as Q;
 
-        let offset = match (interval.quality(), interval.size().as_simple()) {
-            // 0 semitones
-            (Q::Perfect, S::Unison) => 0,
-            (Q::Diminished, S::Second) => -12,
-
-            // 1 semitone
-            (Q::Minor, S::Second) => -5,
-            (Q::Augmented, S::Unison) => 7,
-
-            // 2 semitones
-            (Q::Major, S::Second) => 2,
-            (Q::Diminished, S::Third) => -10,
-
-            // 3 semitones
-            (Q::Minor, S::Third) => -3,
-            (Q::Augmented, S::Second) => 9,
-
-            // 4 semitones
-            (Q::Major, S::Third) => 4,
-            (Q::Diminished, S::Fourth) => -8,
-
-            // 5 semitones
-            (Q::Perfect, S::Fourth) => -1,
-            (Q::Augmented, S::Third) => 11,
-
-            // 6 semitones
-            (Q::Augmented, S::Fourth) => 6,
-            (Q::Diminished, S::Fifth) => -6,
-
-            // 7 semitones
-            (Q::Perfect, S::Fifth) => 1,
-            (Q::Diminished, S::Sixth) => -11,
-
-            // 8 semitones
-            (Q::Minor, S::Sixth) => -4,
-            (Q::Augmented, S::Fifth) => 8,
-
-            // 9 semitones
-            (Q::Major, S::Sixth) => 3,
-            (Q::Diminished, S::Seventh) => -9,
-
-            // 10 semitones
-            (Q::Minor, S::Seventh) => -2,
-            (Q::Augmented, S::Sixth) => 10,
-
-            // 11 semitones
-            (Q::Major, S::Seventh) => 5,
-            (Q::Diminished, S::Octave) => -7,
-
-            // 12 semitones
-            (Q::Perfect, S::Octave) => 0,
-            (Q::Augmented, S::Seventh) => 12,
-
-            // 13 semitones
-            (Q::Augmented, S::Octave) => 7,
-
-            _ => return None,
+        let start = match interval.size().as_simple() {
+            S::Unison | S::Octave => 7,
+            S::Second => 9,
+            S::Third => 11,
+            S::Fourth => 6,
+            S::Fifth => 8,
+            S::Sixth => 10,
+            S::Seventh => 12,
+            _ => unreachable!("a simple interval can't be bigger than a octave")
         };
 
-        let res = Self::from_fifths_from_c(self.as_fifths_from_c() + offset);
+        let quality_offset = match interval.quality() {
+            Q::DoublyAugmented => -1,
+            Q::Augmented => 0,
+            Q::Perfect | Q::Major => 1,
+            Q::Minor => 2,
+            Q::Diminished => match interval.size().is_perfect() {
+                true => 2,
+                false => 3,
+            }
+            Q::DoublyDiminished => match interval.size().is_perfect() {
+                true => 3,
+                false => 4,
+            }
+        };
 
-        if let Some(res) = &res {
-            assert_eq!(
-                self.semitones_between(*res).0.rem_euclid(12), interval.semitones().0 % 12,
-                "pitch: {:?}, + interval: {} = res: {:?} \nRes semitone diff: {}, expected: {}",
-                self, interval.shorthand(), res, self.semitones_between(*res).0, interval.semitones().0 % 12
-            );
-        }
+        let offset = start - 7 * quality_offset;
 
-        res
+        Self::from_fifths_from_c(self.as_fifths_from_c() + offset)
     }
 }
 

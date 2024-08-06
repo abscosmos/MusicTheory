@@ -14,71 +14,20 @@ pub struct Interval {
 
 impl Interval {
     pub fn from_quality_and_size(quality: IntervalQuality, size: IntervalSize) -> Option<Interval> {
-        use IntervalSize as S;
         use IntervalQuality as Q;
 
-        // TODO: size::can_be_perfect(), etc.
-        match (quality, size) {
-            (Q::Perfect, S::Unison) |
-            (Q::Perfect, S::Fourth) |
-            (Q::Perfect, S::Fifth) |
-            (Q::Perfect, S::Octave) |
-            (Q::Perfect, S::Eleventh) |
-            (Q::Perfect, S::Twelfth) |
-            (Q::Perfect, S::Fifteenth) |
+        let unchecked = Self { quality, size };
 
-            (Q::Major, S::Second) |
-            (Q::Major, S::Third) |
-            (Q::Major, S::Sixth) |
-            (Q::Major, S::Seventh) |
-            (Q::Major, S::Ninth) |
-            (Q::Major, S::Tenth) |
-            (Q::Major, S::Thirteenth) |
-            (Q::Major, S::Fourteenth) |
+        match quality {
+            Q::Perfect => size.is_perfect().then_some(unchecked),
 
-            (Q::Minor, S::Second) |
-            (Q::Minor, S::Third) |
-            (Q::Minor, S::Sixth) |
-            (Q::Minor, S::Seventh) |
-            (Q::Minor, S::Ninth) |
-            (Q::Minor, S::Tenth) |
-            (Q::Minor, S::Thirteenth) |
-            (Q::Minor, S::Fourteenth) |
+            Q::Major | Q::Minor => (!size.is_perfect()).then_some(unchecked),
 
-            (Q::Diminished, S::Second) |
-            (Q::Diminished, S::Third) |
-            (Q::Diminished, S::Fourth) |
-            (Q::Diminished, S::Fifth) |
-            (Q::Diminished, S::Sixth) |
-            (Q::Diminished, S::Seventh) |
-            (Q::Diminished, S::Octave) |
-            (Q::Diminished, S::Ninth) |
-            (Q::Diminished, S::Tenth) |
-            (Q::Diminished, S::Eleventh) |
-            (Q::Diminished, S::Twelfth) |
-            (Q::Diminished, S::Thirteenth) |
-            (Q::Diminished, S::Fourteenth) |
-            (Q::Diminished, S::Fifteenth) |
+            Q::Diminished => (size as u8 > 1).then_some(unchecked),
 
-            (Q::Augmented, _) |
+            Q::DoublyDiminished => (size as u8 > 2).then_some(unchecked),
 
-            (Q::DoublyDiminished, S::Third) |
-            (Q::DoublyDiminished, S::Fourth) |
-            (Q::DoublyDiminished, S::Fifth) |
-            (Q::DoublyDiminished, S::Sixth) |
-            (Q::DoublyDiminished, S::Seventh) |
-            (Q::DoublyDiminished, S::Octave) |
-            (Q::DoublyDiminished, S::Ninth) |
-            (Q::DoublyDiminished, S::Tenth) |
-            (Q::DoublyDiminished, S::Eleventh) |
-            (Q::DoublyDiminished, S::Twelfth) |
-            (Q::DoublyDiminished, S::Thirteenth) |
-            (Q::DoublyDiminished, S::Fourteenth) |
-            (Q::DoublyDiminished, S::Fifteenth) |
-
-            (Q::DoublyAugmented, _) => Some(Self { size, quality }),
-
-            _ => None
+            Q::Augmented | Q::DoublyAugmented => Some(unchecked),
         }
     }
 
@@ -139,6 +88,13 @@ impl Interval {
 
     pub fn shorthand(&self) -> String {
         format!("{}{}", self.quality.shorthand(), self.size.shorthand())
+    }
+
+    pub fn inverted(&self) -> Self {
+        Interval {
+            size: self.size.inverted(),
+            quality: self.quality.inverted(),
+        }
     }
 }
 

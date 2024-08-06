@@ -37,4 +37,37 @@ impl IntervalSize {
     pub fn shorthand(&self) -> u8 {
         *self as _
     }
+
+    pub fn is_perfect(&self) -> bool {
+        match self.as_simple() {
+            IntervalSize::Unison => true,
+            IntervalSize::Fourth => true,
+            IntervalSize::Fifth => true,
+            IntervalSize::Octave => true,
+            _ => false,
+        }
+    }
+
+    pub fn inverted(&self) -> Self {
+        use IntervalSize as S;
+
+        match self {
+            S::Unison => S::Unison,
+            S::Second => S::Seventh,
+            S::Third => S::Sixth,
+            S::Fourth => S::Fifth,
+            S::Fifth => S::Fourth,
+            S::Sixth => S::Third,
+            S::Seventh => S::Second,
+            S::Octave => S::Octave,
+
+            S::Ninth => S::Fourteenth,
+            S::Tenth => S::Thirteenth,
+            S::Eleventh => S::Twelfth,
+            S::Twelfth => S::Eleventh,
+            S::Thirteenth => S::Tenth,
+            S::Fourteenth => S::Ninth,
+            S::Fifteenth => S::Fifteenth,
+        }
+    }
 }
