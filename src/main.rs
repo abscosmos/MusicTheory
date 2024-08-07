@@ -2,7 +2,7 @@ pub mod note;
 pub mod enharmonic;
 pub mod interval;
 pub mod semitone;
-mod chord;
+pub mod chord;
 
 use strum::IntoEnumIterator;
 use crate::enharmonic::EnharmonicEq;
