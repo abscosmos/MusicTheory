@@ -51,12 +51,6 @@ impl TryFrom<u8> for PitchClass {
     }
 }
 
-impl fmt::Display for PitchClass {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        todo!()
-    }
-}
-
 impl EnharmonicEq for PitchClass {
     fn eq_enharmonic(&self, rhs: &Self) -> bool {
         self == rhs

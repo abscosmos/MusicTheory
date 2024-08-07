@@ -90,6 +90,7 @@ impl Interval {
         format!("{}{}", self.quality.shorthand(), self.size.shorthand())
     }
 
+    // TODO: this method breaks the invariance of the Interval (can create invalid diminished intervals)
     pub fn inverted(&self) -> Self {
         Interval {
             size: self.size.inverted(),

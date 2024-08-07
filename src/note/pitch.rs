@@ -156,7 +156,15 @@ impl Pitch {
     }
 
     // TODO: inverse of this method
-    pub fn apply_interval(&self, interval: &Interval) -> Option<Self> {
+    pub fn apply_interval_ascending(&self, interval: &Interval) -> Option<Self> {
+        self.apply_interval(interval, true)
+    }
+
+    pub fn apply_interval_descending(&self, interval: &Interval) -> Option<Self> {
+        self.apply_interval(interval, false)
+    }
+
+    pub fn apply_interval(&self, interval: &Interval, ascending: bool) -> Option<Self> {
         use IntervalSize as S;
         use IntervalQuality as Q;
 
@@ -188,7 +196,9 @@ impl Pitch {
 
         let offset = start - 7 * quality_offset;
 
-        Self::from_fifths_from_c(self.as_fifths_from_c() + offset)
+        let dir_offset = if ascending { offset } else { -offset };
+
+        Self::from_fifths_from_c(self.as_fifths_from_c() + dir_offset)
     }
 }
 

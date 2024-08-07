@@ -15,14 +15,17 @@ fn main() {
     for s in IntervalSize::iter() {
         for q in IntervalQuality::iter() {
             if let Some(i) = Interval::from_quality_and_size(q, s) {
-                let p = Pitch::CFlat;
-                let p2 = p.apply_interval(&i);
+                let p = Pitch::ESharp;
 
-                let Some(p2) = p2 else {
-                    continue;
+                if let Some(p2) = p.apply_interval_ascending(&i) {
+                    println!("{p:?} + {} = {p2:?} ({:?})", i.shorthand(), p2.as_pitch_class());
                 };
 
-                println!("{p:?} + {} = {p2:?} ({:?})", i.shorthand(), p2.as_pitch_class());
+                if let Some(p2) = p.apply_interval_descending(&i) {
+                    println!("{p:?} - {} = {p2:?} ({:?})", i.shorthand(), p2.as_pitch_class());
+                };
+
+                assert_eq!(p.apply_interval_descending(&i), p.apply_interval_ascending(&i.inverted()))
             }
         }
 
