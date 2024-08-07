@@ -1,10 +1,12 @@
-use crate::enharmonic::EnharmonicEq;
+use std::cmp::Ordering;
+use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
 use crate::interval::quality::IntervalQuality;
 use crate::interval::size::IntervalSize;
 use crate::semitone::Semitone;
 
 pub mod quality;
 pub mod size;
+pub mod helper;
 
 #[derive(Clone, Eq, PartialEq, Debug)]
 pub struct Interval {
@@ -102,5 +104,11 @@ impl Interval {
 impl EnharmonicEq for Interval {
     fn eq_enharmonic(&self, rhs: &Self) -> bool {
         self.semitones() == rhs.semitones()
+    }
+}
+
+impl EnharmonicOrd for Interval {
+    fn cmp_enharmonic(&self, rhs: &Self) -> Ordering {
+        self.semitones().0.cmp(&rhs.semitones().0)
     }
 }
