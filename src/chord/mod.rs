@@ -2,37 +2,44 @@ use crate::chord::types::ChordType;
 use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
 use crate::interval::Interval;
 use crate::note::pitch::Pitch;
-use crate::note::pitch_class::PitchClass;
 
 pub mod quality;
 pub mod size;
 pub mod types;
+mod eq;
+
+#[derive(Debug, thiserror::Error)]
+#[error("Can't have a {attempted}th inversion on a chord with only {intervals} note(s).")]
+pub struct InvalidInversion {
+    pub intervals: u8,
+    pub attempted: u8,
+}
 
 #[derive(Clone, Debug, Eq)]
 pub struct Chord {
+    pub root: Pitch,
     intervals: Vec<Interval>,
     ty: Option<ChordType>,
-    root: Pitch,
     inversion: u8,
 }
 
 impl Chord {
-    pub fn from_type(chord_type: ChordType, root: Pitch, inversion: u8) -> Option<Self>{
+    pub fn from_type(chord_type: ChordType, root: Pitch, inversion: u8) -> Result<Self, InvalidInversion> {
         Self::from_intervals_inner(Some(chord_type), chord_type.intervals(), root, inversion)
     }
 
-    pub fn from_intervals(intervals: Vec<Interval>, root: Pitch, inversion: u8) -> Option<Self> {
+    pub fn from_intervals(intervals: Vec<Interval>, root: Pitch, inversion: u8) -> Result<Self, InvalidInversion> {
         Self::from_intervals_inner(None, intervals, root, inversion)
     }
 
-    fn from_intervals_inner(ty: Option<ChordType>, mut intervals: Vec<Interval>, root: Pitch, inversion: u8) -> Option<Self> {
+    fn from_intervals_inner(ty: Option<ChordType>, mut intervals: Vec<Interval>, root: Pitch, inversion: u8) -> Result<Self, InvalidInversion> {
         if inversion as usize >= intervals.len() {
-            return None;
+            return Err(InvalidInversion { intervals: intervals.len() as _, attempted: inversion });
         }
 
         intervals.sort_by(|a, b| a.cmp_enharmonic(b));
 
-        Some(
+        Ok(
             Self {
                 intervals,
                 ty,
@@ -40,6 +47,19 @@ impl Chord {
                 inversion,
             }
         )
+    }
+
+    pub fn inversion(&self) -> u8 {
+        self.inversion
+    }
+
+    pub fn set_inversion(&mut self, inversion: u8) -> Result<(), InvalidInversion> {
+        if inversion as usize >= self.intervals.len() {
+            return Err(InvalidInversion { intervals: self.intervals.len() as _, attempted: inversion });
+        } else {
+            self.inversion = inversion as _;
+            Ok(())
+        }
     }
 
     pub fn chord_type(&self) -> Option<ChordType> {
@@ -68,34 +88,5 @@ impl PartialEq for Chord {
         self.intervals == other.intervals &&
             self.root == other.root &&
             self.inversion == other.inversion
-    }
-}
-
-impl EnharmonicEq for Chord {
-    // TODO: is there a more efficient way of doing this?
-    fn eq_enharmonic(&self, rhs: &Self) -> bool {
-        if self.intervals.len() != rhs.intervals().len() {
-            return false;
-        }
-
-        let Some(lhs) = self.pitches() else {
-            return false;
-        };
-
-        let Some(rhs) = rhs.pitches() else {
-            return false;
-        };
-
-        let to_pc = |p: Pitch| p.as_pitch_class();
-
-        let mut lhs = lhs.into_iter().map(to_pc).collect::<Vec<_>>();
-        let mut rhs = rhs.into_iter().map(to_pc).collect::<Vec<_>>();
-
-        let sort_pc = |a: &PitchClass, b: &PitchClass| (*a as u8).cmp(&(*b as u8));
-
-        lhs.sort_by(sort_pc);
-        rhs.sort_by(sort_pc);
-
-        rhs == lhs
     }
 }
