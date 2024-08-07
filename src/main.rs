@@ -11,17 +11,11 @@ use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
 use crate::note::pitch::Pitch;
 
 fn main() {
-    for pt in Pitch::iter() {
-        for ty in ChordType::iter() {
-            let c = Chord::from_type(ty, pt, 0).expect("valid inversion");
+    let cmaj6 = Chord::from_type(ChordType::MajorSixth, Pitch::C, 0).unwrap();
+    let am7 = Chord::from_type(ChordType::DiminishedSeventh, Pitch::A, 0).unwrap();
 
-            if let Some(p) = c.pitches() {
-                println!("{pt:?} {ty:?} = {p:?}");
-            } else {
-                // println!("Can't make a {pt:?} {ty:?}, since it requires more than a double flat/sharp");
-            }
-        }
+    println!("cmaj6 {:?}", cmaj6.pitches().unwrap());
+    println!("Am7 {:?}", am7.pitches().unwrap());
 
-        println!();
-    }
+    println!("{:?}", cmaj6.eq_enharmonic(&am7));
 }

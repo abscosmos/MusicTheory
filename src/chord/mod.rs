@@ -1,7 +1,8 @@
 use crate::chord::types::ChordType;
-use crate::enharmonic::EnharmonicOrd;
+use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
 use crate::interval::Interval;
 use crate::note::pitch::Pitch;
+use crate::note::pitch_class::PitchClass;
 
 pub mod quality;
 pub mod size;
@@ -67,5 +68,34 @@ impl PartialEq for Chord {
         self.intervals == other.intervals &&
             self.root == other.root &&
             self.inversion == other.inversion
+    }
+}
+
+impl EnharmonicEq for Chord {
+    // TODO: is there a more efficient way of doing this?
+    fn eq_enharmonic(&self, rhs: &Self) -> bool {
+        if self.intervals.len() != rhs.intervals().len() {
+            return false;
+        }
+
+        let Some(lhs) = self.pitches() else {
+            return false;
+        };
+
+        let Some(rhs) = rhs.pitches() else {
+            return false;
+        };
+
+        let to_pc = |p: Pitch| p.as_pitch_class();
+
+        let mut lhs = lhs.into_iter().map(to_pc).collect::<Vec<_>>();
+        let mut rhs = rhs.into_iter().map(to_pc).collect::<Vec<_>>();
+
+        let sort_pc = |a: &PitchClass, b: &PitchClass| (*a as u8).cmp(&(*b as u8));
+
+        lhs.sort_by(sort_pc);
+        rhs.sort_by(sort_pc);
+
+        rhs == lhs
     }
 }
