@@ -30,6 +30,9 @@ pub enum ChordType {
     DominantEleventh,
     DominantThirteenth,
 
+    Lydian,
+    LydianAugmented,
+
     SeventhAugmentedFifth,
     SeventhMinorNinth,
     SeventhSharpNinth,
@@ -79,6 +82,10 @@ impl ChordType {
             C::DominantNinth => ivls!(Perfect Unison, Major Third, Perfect Fifth, Minor Seventh, Major Ninth),
             C::DominantEleventh => ivls!(Perfect Unison, Major Third, Perfect Fifth, Minor Seventh, Major Ninth, Perfect Eleventh),
             C::DominantThirteenth => ivls!(Perfect Unison, Major Third, Perfect Fifth, Minor Seventh, Major Ninth, Perfect Eleventh, Major Thirteenth),
+
+            C::Lydian => ivls!(Perfect Unison, Major Third, Perfect Fifth, Major Seventh, Augmented Eleventh),
+            C::LydianAugmented => ivls!(Perfect Unison, Major Third, Augmented Fifth, Minor Seventh, Augmented Eleventh),
+
             C::SeventhMinorNinth => ivls!(Perfect Unison, Major Third, Perfect Fifth, Minor Seventh, Minor Ninth),
             C::SeventhSharpNinth => ivls!(Perfect Unison, Major Third, Perfect Fifth, Minor Seventh, Augmented Ninth),
             C::SeventhAugmentedEleventh => ivls!(Perfect Unison, Major Third, Perfect Fifth, Minor Seventh, Major Ninth, Augmented Eleventh),
