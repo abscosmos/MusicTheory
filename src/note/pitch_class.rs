@@ -7,7 +7,7 @@ use crate::semitone::Semitone;
 #[repr(u8)]
 #[derive(Copy, Clone, Eq, PartialEq, Debug, EnumIter)]
 pub enum PitchClass {
-    C,  /* C /B# */
+    C = 0,  /* C /B# */
     Cs, /* C#/D♭ */
     D,
     Ds, /* D#/E♭ */
