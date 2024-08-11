@@ -3,36 +3,92 @@ pub mod enharmonic;
 pub mod interval;
 pub mod semitone;
 pub mod chord;
+pub mod placed;
 
 use strum::IntoEnumIterator;
-use crate::chord::Chord;
-use crate::chord::types::ChordType;
 use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
+use crate::interval::Interval;
+use crate::interval::quality::IntervalQuality;
+use crate::interval::size::IntervalSize;
+use crate::note::Note;
 use crate::note::pitch::Pitch;
 
 fn main() {
-    let mut possible_chords = Vec::new();
+    // let mut possible_chords = Vec::new();
 
-    for pt in Pitch::iter() {
-        for ty in ChordType::iter() {
-            let c = Chord::from_type(ty, pt, 0).expect("valid inversion");
+    // for pt in Pitch::iter() {
+    //     for ty in ChordType::iter() {
+    //         let c = Chord::from_type(ty, pt, 0).expect("valid inversion");
+    //
+    //         if let Some(p) = c.pitches() {
+    //             println!("{pt:?} {ty:?} = {p:?}");
+    //             possible_chords.push(c);
+    //         }
+    //     }
+    //     // println!();
+    // }
 
-            if let Some(p) = c.pitches() {
-                // println!("{pt:?} {ty:?} = {p:?}");
-                possible_chords.push(c);
+    // for c in &possible_chords {
+    //     println!("The chords equivalent with {:?} {:?} {:?}:", c.root, c.chord_type().unwrap(), c.pitches().unwrap());
+    //
+    //     for cc in &possible_chords {
+    //         if c != cc && c.eq_enharmonic_strict(cc) {
+    //             println!("\t{:?} {:?} {:?}", cc.root, cc.chord_type().unwrap(), cc.pitches().unwrap());
+    //         }
+    //     }
+    //     println!();
+    // }
+
+    for p in Pitch::iter() {
+        for o in -2..2 {
+            let note = Note { base: p, octave: o };
+
+            for q in IntervalQuality::iter() {
+                for s in IntervalSize::iter() {
+                    if let Some(i) = Interval::from_quality_and_size(q, s) {
+
+                        if let Some(nn) = note.apply_interval_descending(&i) {
+                            assert_eq!(
+                                note.distance_from(&nn),
+                                -i.semitones(),
+                                "{:?}, {:?}, {:?}",
+                                note, i, nn
+                            )
+                        }
+
+                        if let Some(nn) = note.apply_interval_ascending(&i) {
+                            assert_eq!(
+                                note.distance_from(&nn),
+                                i.semitones(),
+                                "{:?}, {:?}, {:?}",
+                                note, i, nn
+                            )
+                        }
+
+                    }
+                }
             }
         }
-        // println!();
     }
 
-    for c in &possible_chords {
-        println!("The chords equivalent with {:?} {:?} {:?}:", c.root, c.chord_type().unwrap(), c.pitches().unwrap());
+    let a = Note { base: Pitch::CDoubleFlat, octave: 4 };
+    let interval = Interval::from_quality_and_size(IntervalQuality::Major, IntervalSize::Seventh).unwrap();
 
-        for cc in &possible_chords {
-            if c != cc && c.eq_enharmonic_strict(cc) {
-                println!("\t{:?} {:?} {:?}", cc.root, cc.chord_type().unwrap(), cc.pitches().unwrap());
-            }
-        }
-        println!();
-    }
+    println!("{:?}", a.apply_interval_ascending(&interval));
+    // let a = Note { base: Pitch::D, octave: 4 };
+
+    // let bs3 = Note { base: Pitch::BFlat, octave: 3 };
+    // let c4 = Note { base: Pitch::CDoubleFlat, octave: 4 };
+    //
+    // println!("{:?}", c4.base.semitones_offset_from_c());
+    //
+    // println!("{:?}", bs3.distance_from(&c4));
+
+    //     println!("{p:?}: {:?}", p.set_natural())
+    // }
+
+    // let c = Note { base: Pitch::C, octave: 1 };
+    // let d = Note { base: Pitch::CSharp, octave: 1 };
+
+    // println!("{:?}", c.distance_from(&d));
 }

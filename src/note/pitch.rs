@@ -137,6 +137,7 @@ impl Pitch {
             .expect("i8::rem_euclid(12) must be [0, 12)")
     }
 
+    // TODO: is this right?
     pub fn semitones_between(&self, rhs: Self) -> Semitone {
         let lhs = self.as_pitch_class() as u8 as i8;
         let rhs = rhs.as_pitch_class() as u8 as i8;
@@ -153,6 +154,23 @@ impl Pitch {
             2 => AccidentalSign::DoubleSharp,
             _ => unreachable!("Pitch doesn't support more than 2 flats or sharps")
         }
+    }
+
+    pub fn semitones_offset_from_c(&self) -> Semitone {
+        let fifths_plus_one = self.as_fifths_from_c() + 1;
+
+        let n = match fifths_plus_one.rem_euclid(7) {
+            0 => 5, // F
+            1 => 0, // C
+            2 => 7, // G
+            3 => 2, // D
+            4 => 9, // A
+            5 => 4, // E
+            6 => 11, // B
+            _ => unreachable!("i8::rem_euclid(7) must be [0, 7)")
+        } + fifths_plus_one.div_euclid(7);
+
+        Semitone(n as _)
     }
 
     // TODO: inverse of this method
@@ -200,10 +218,37 @@ impl Pitch {
 
         Self::from_fifths_from_c(self.as_fifths_from_c() + dir_offset)
     }
+
+    pub fn set_natural(&self) -> Self {
+        let fifths = (self.as_fifths_from_c() + 1).rem_euclid(7) - 1;
+
+
+        Self::from_fifths_from_c(fifths)
+            .expect("must be in range")
+    }
 }
 
 impl EnharmonicEq for Pitch {
     fn eq_enharmonic(&self, rhs: &Self) -> bool {
         self.as_pitch_class() == rhs.as_pitch_class()
+    }
+}
+
+impl From<PitchClass> for Pitch {
+    fn from(value: PitchClass) -> Self {
+        match value {
+            PitchClass::C => Pitch::C,
+            PitchClass::Cs => Pitch::CSharp,
+            PitchClass::D => Pitch::D,
+            PitchClass::Ds => Pitch::DSharp,
+            PitchClass::E => Pitch::E,
+            PitchClass::F => Pitch::F,
+            PitchClass::Fs => Pitch::FSharp,
+            PitchClass::G => Pitch::G,
+            PitchClass::Gs => Pitch::GSharp,
+            PitchClass::A => Pitch::A,
+            PitchClass::As => Pitch::ASharp,
+            PitchClass::B => Pitch::B,
+        }
     }
 }
