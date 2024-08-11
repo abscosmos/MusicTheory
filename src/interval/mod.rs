@@ -92,6 +92,10 @@ impl Interval {
         format!("{}{}", self.quality.shorthand(), self.size.shorthand())
     }
 
+    pub fn from_semitones_preferred(semitones: Semitone) -> Option<Self> {
+        todo!()
+    }
+
     // TODO: this method breaks the invariance of the Interval (can create invalid diminished intervals)
     pub fn inverted(&self) -> Self {
         Interval {

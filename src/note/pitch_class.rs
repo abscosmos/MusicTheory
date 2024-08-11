@@ -1,7 +1,9 @@
 use std::fmt;
 use std::ops::{Add, Sub};
+use std::str::FromStr;
 use strum_macros::EnumIter;
 use crate::enharmonic::EnharmonicEq;
+use crate::interval::Interval;
 use crate::semitone::Semitone;
 
 #[repr(u8)]
@@ -22,7 +24,17 @@ pub enum PitchClass {
 }
 
 impl PitchClass {
+    pub fn apply_interval(&self, interval: &Interval, ascending: bool) -> Self {
+        todo!()
+    }
 
+    pub fn apply_interval_ascending(&self, interval: &Interval) -> Self {
+        self.apply_interval(interval, true)
+    }
+
+    pub fn apply_interval_descending(&self, interval: &Interval) -> Self {
+        self.apply_interval(interval, true)
+    }
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, thiserror::Error)]
@@ -76,5 +88,19 @@ impl Sub<Semitone> for PitchClass {
 
     fn sub(self, rhs: Semitone) -> Self::Output {
         self + (-rhs)
+    }
+}
+
+impl FromStr for PitchClass {
+    type Err = InvalidPitch;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        todo!()
+    }
+}
+
+impl fmt::Display for PitchClass {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        todo!()
     }
 }

@@ -226,6 +226,10 @@ impl Pitch {
         Self::from_fifths_from_c(fifths)
             .expect("must be in range")
     }
+
+    pub fn to_note_in_key(&self, key: ()) {
+        todo!()
+    }
 }
 
 impl EnharmonicEq for Pitch {
