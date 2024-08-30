@@ -9,16 +9,15 @@ impl Chord {
             return false;
         }
 
-        let Some(lhs) = self.pitches() else {
-            return false;
-        };
+        let mut lhs = self.pitches()
+            .into_iter()
+            .map(&map)
+            .collect::<Vec<_>>();
 
-        let Some(rhs) = rhs.pitches() else {
-            return false;
-        };
-
-        let mut lhs = lhs.into_iter().map(&map).collect::<Vec<_>>();
-        let mut rhs = rhs.into_iter().map(&map).collect::<Vec<_>>();
+        let mut rhs = rhs.pitches()
+            .into_iter()
+            .map(&map)
+            .collect::<Vec<_>>();
 
         lhs.sort_unstable_by_key(&mut sort_by_key);
         rhs.sort_unstable_by_key(&mut sort_by_key);
@@ -30,7 +29,7 @@ impl Chord {
         self.eq_helper(
             rhs,
             &std::convert::identity,
-            &mut |p| *p as i8
+            &mut Pitch::as_fifths_from_c
         )
     }
 }

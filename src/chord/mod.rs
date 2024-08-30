@@ -70,16 +70,13 @@ impl Chord {
         &self.intervals
     }
 
-    pub fn pitches(&self) -> Option<Vec<Pitch>> {
-        let mut pitches = self.intervals
-            .iter()
+    pub fn pitches(&self) -> Vec<Pitch> {
+        self.intervals.iter()
             .map(|ivl| self.root.apply_interval_ascending(ivl))
-            .collect::<Option<Vec<_>>>();
-
-        pitches.as_mut()
-            .map(|v| v.rotate_left(self.inversion as _));
-
-        pitches
+            .cycle()
+            .skip(self.inversion as _)
+            .take(self.intervals.len())
+            .collect()
     }
 }
 

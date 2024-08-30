@@ -1,4 +1,4 @@
-use strum_macros::EnumIter;
+use std::fmt;
 use crate::enharmonic::EnharmonicEq;
 use crate::interval::Interval;
 use crate::interval::quality::IntervalQuality;
@@ -8,53 +8,12 @@ use crate::note::letter::Letter;
 use crate::note::pitch_class::PitchClass;
 use crate::semitone::Semitone;
 
-#[repr(i8)]
-#[derive(Copy, Clone, Eq, PartialEq, Debug, EnumIter)]
-pub enum Pitch {
-    FDoubleFlat = -15,
-    CDoubleFlat = -14,
-    GDoubleFlat = -13,
-    DDoubleFlat = -12,
-    ADoubleFlat = -11,
-    EDoubleFlat = -10,
-    BDoubleFlat = -9,
-
-    FFlat = -8,
-    CFlat = -7,
-    GFlat = -6,
-    DFlat = -5,
-    AFlat = -4,
-    EFlat = -3,
-    BFlat = -2,
-
-    F = -1,
-    C = 0,
-    G = 1,
-    D = 2,
-    A = 3,
-    E = 4,
-    B = 5,
-
-    FSharp = 6,
-    CSharp = 7,
-    GSharp = 8,
-    DSharp = 9,
-    ASharp = 10,
-    ESharp = 11,
-    BSharp = 12,
-
-    FDoubleSharp = 13,
-    CDoubleSharp = 14,
-    GDoubleSharp = 15,
-    DDoubleSharp = 16,
-    ADoubleSharp = 17,
-    EDoubleSharp = 18,
-    BDoubleSharp = 19,
-}
+#[derive(Copy, Clone, Eq, PartialEq)]
+pub struct Pitch(pub(super) i16);
 
 impl Pitch {
     pub fn from_letter_and_accidental(letter: Letter, accidental_sign: AccidentalSign) -> Self {
-        let col_offset = accidental_sign.as_offset().0 as i8;
+        let col_offset = accidental_sign.as_offset().0;
 
         let row_offset = match letter {
             Letter::C => 0,
@@ -69,53 +28,14 @@ impl Pitch {
         let pitch = row_offset + 7 * col_offset;
 
         Self::from_fifths_from_c(pitch)
-            .expect("should be within [-15,19]")
     }
 
-    pub fn as_fifths_from_c(&self) -> i8 {
-        *self as _
+    pub fn as_fifths_from_c(&self) -> i16 {
+        self.0
     }
 
-    // TODO: how does wrapping work?
-    pub fn from_fifths_from_c(fifths: i8) -> Option<Self> {
-        match fifths {
-            -15 => Some(Pitch::FDoubleFlat),
-            -14 => Some(Pitch::CDoubleFlat),
-            -13 => Some(Pitch::GDoubleFlat),
-            -12 => Some(Pitch::DDoubleFlat),
-            -11 => Some(Pitch::ADoubleFlat),
-            -10 => Some(Pitch::EDoubleFlat),
-            -9 => Some(Pitch::BDoubleFlat),
-            -8 => Some(Pitch::FFlat),
-            -7 => Some(Pitch::CFlat),
-            -6 => Some(Pitch::GFlat),
-            -5 => Some(Pitch::DFlat),
-            -4 => Some(Pitch::AFlat),
-            -3 => Some(Pitch::EFlat),
-            -2 => Some(Pitch::BFlat),
-            -1 => Some(Pitch::F),
-            0 => Some(Pitch::C),
-            1 => Some(Pitch::G),
-            2 => Some(Pitch::D),
-            3 => Some(Pitch::A),
-            4 => Some(Pitch::E),
-            5 => Some(Pitch::B),
-            6 => Some(Pitch::FSharp),
-            7 => Some(Pitch::CSharp),
-            8 => Some(Pitch::GSharp),
-            9 => Some(Pitch::DSharp),
-            10 => Some(Pitch::ASharp),
-            11 => Some(Pitch::ESharp),
-            12 => Some(Pitch::BSharp),
-            13 => Some(Pitch::FDoubleSharp),
-            14 => Some(Pitch::CDoubleSharp),
-            15 => Some(Pitch::GDoubleSharp),
-            16 => Some(Pitch::DDoubleSharp),
-            17 => Some(Pitch::ADoubleSharp),
-            18 => Some(Pitch::EDoubleSharp),
-            19 => Some(Pitch::BDoubleSharp),
-            _ => None,
-        }
+    pub fn from_fifths_from_c(fifths: i16) -> Self {
+        Self(fifths)
     }
 
     pub fn as_pitch_class(&self) -> PitchClass {
@@ -145,16 +65,16 @@ impl Pitch {
         Semitone((rhs - lhs) as _)
     }
 
-    pub fn accidental_sign(&self) -> AccidentalSign {
-        match (self.as_fifths_from_c() + 1).div_euclid(7) {
-            -2 => AccidentalSign::DoubleFlat,
-            -1 => AccidentalSign::Flat,
-            0 => AccidentalSign::Natural,
-            1 => AccidentalSign::Sharp,
-            2 => AccidentalSign::DoubleSharp,
-            _ => unreachable!("Pitch doesn't support more than 2 flats or sharps")
-        }
-    }
+    // pub fn accidental_sign(&self) -> AccidentalSign {
+    //     match (self.as_fifths_from_c() + 1).div_euclid(7) {
+    //         -2 => AccidentalSign::DoubleFlat,
+    //         -1 => AccidentalSign::Flat,
+    //         0 => AccidentalSign::Natural,
+    //         1 => AccidentalSign::Sharp,
+    //         2 => AccidentalSign::DoubleSharp,
+    //         _ => unreachable!("Pitch doesn't support more than 2 flats or sharps")
+    //     }
+    // }
 
     pub fn semitones_offset_from_c(&self) -> Semitone {
         let fifths_plus_one = self.as_fifths_from_c() + 1;
@@ -174,15 +94,15 @@ impl Pitch {
     }
 
     // TODO: inverse of this method
-    pub fn apply_interval_ascending(&self, interval: &Interval) -> Option<Self> {
+    pub fn apply_interval_ascending(&self, interval: &Interval) -> Self {
         self.apply_interval(interval, true)
     }
 
-    pub fn apply_interval_descending(&self, interval: &Interval) -> Option<Self> {
+    pub fn apply_interval_descending(&self, interval: &Interval) -> Self {
         self.apply_interval(interval, false)
     }
 
-    pub fn apply_interval(&self, interval: &Interval, ascending: bool) -> Option<Self> {
+    pub fn apply_interval(&self, interval: &Interval, ascending: bool) -> Self {
         use IntervalSize as S;
         use IntervalQuality as Q;
 
@@ -222,13 +142,18 @@ impl Pitch {
     pub fn set_natural(&self) -> Self {
         let fifths = (self.as_fifths_from_c() + 1).rem_euclid(7) - 1;
 
-
         Self::from_fifths_from_c(fifths)
-            .expect("must be in range")
     }
 
     pub fn to_note_in_key(&self, key: ()) {
         todo!()
+    }
+}
+
+impl fmt::Debug for Pitch {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        // TODO: fix debug
+        write!(f, "{}", self.temp_debug())
     }
 }
 
@@ -242,16 +167,16 @@ impl From<PitchClass> for Pitch {
     fn from(value: PitchClass) -> Self {
         match value {
             PitchClass::C => Pitch::C,
-            PitchClass::Cs => Pitch::CSharp,
+            PitchClass::Cs => Pitch::C_SHARP,
             PitchClass::D => Pitch::D,
-            PitchClass::Ds => Pitch::DSharp,
+            PitchClass::Ds => Pitch::D_SHARP,
             PitchClass::E => Pitch::E,
             PitchClass::F => Pitch::F,
-            PitchClass::Fs => Pitch::FSharp,
+            PitchClass::Fs => Pitch::F_SHARP,
             PitchClass::G => Pitch::G,
-            PitchClass::Gs => Pitch::GSharp,
+            PitchClass::Gs => Pitch::G_SHARP,
             PitchClass::A => Pitch::A,
-            PitchClass::As => Pitch::ASharp,
+            PitchClass::As => Pitch::A_SHARP,
             PitchClass::B => Pitch::B,
         }
     }

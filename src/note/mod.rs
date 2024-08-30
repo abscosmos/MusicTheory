@@ -6,6 +6,7 @@ use crate::placed::Placed;
 use crate::semitone::Semitone;
 
 pub mod pitch_class;
+pub mod pitch_const;
 pub mod accidental;
 pub mod pitch;
 pub mod letter;
@@ -58,16 +59,16 @@ impl Note {
         440.0 * 2.0_f32.powf(semitones_from_a4.0 as f32 / 12.0)
     }
 
-    pub fn apply_interval_ascending(&self, interval: &Interval) -> Option<Self> {
+    pub fn apply_interval_ascending(&self, interval: &Interval) -> Self {
         self.apply_interval(interval, true)
     }
 
-    pub fn apply_interval_descending(&self, interval: &Interval) -> Option<Self> {
+    pub fn apply_interval_descending(&self, interval: &Interval) -> Self {
         self.apply_interval(interval, false)
     }
 
-    pub fn apply_interval(&self, interval: &Interval, ascending: bool) -> Option<Self> {
-        let new_pitch = self.base.apply_interval(interval, ascending)?;
+    pub fn apply_interval(&self, interval: &Interval, ascending: bool) -> Self {
+        let new_pitch = self.base.apply_interval(interval, ascending);
 
         let unchecked = Self {
             base: new_pitch,
@@ -82,12 +83,10 @@ impl Note {
 
         let edit = self.distance_from(&unchecked) - interval_semi;
 
-        Some(
-            Self {
-                octave: unchecked.octave - edit.0.div_euclid(12),
-                .. unchecked
-            }
-        )
+        Self {
+            octave: unchecked.octave - edit.0.div_euclid(12),
+            .. unchecked
+        }
     }
 }
 

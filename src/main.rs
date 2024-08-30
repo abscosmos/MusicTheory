@@ -6,6 +6,8 @@ pub mod chord;
 pub mod placed;
 
 use strum::IntoEnumIterator;
+use crate::chord::Chord;
+use crate::chord::types::ChordType;
 use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
 use crate::interval::Interval;
 use crate::interval::quality::IntervalQuality;
@@ -39,31 +41,30 @@ fn main() {
     //     println!();
     // }
 
-    for p in Pitch::iter() {
+    for p in Pitch::ALL_CONSTS {
         for o in -2..2 {
-            let note = Note { base: p, octave: o };
+            let note = Note { base: *p, octave: o };
 
             for q in IntervalQuality::iter() {
                 for s in IntervalSize::iter() {
                     if let Some(i) = Interval::from_quality_and_size(q, s) {
+                        let descending_note = note.apply_interval_descending(&i);
 
-                        if let Some(nn) = note.apply_interval_descending(&i) {
-                            assert_eq!(
-                                note.distance_from(&nn),
-                                -i.semitones(),
-                                "{:?}, {:?}, {:?}",
-                                note, i, nn
-                            )
-                        }
+                        assert_eq!(
+                            note.distance_from(&descending_note),
+                            -i.semitones(),
+                            "{:?}, {:?}, {:?}",
+                            note, i, descending_note
+                        );
 
-                        if let Some(nn) = note.apply_interval_ascending(&i) {
-                            assert_eq!(
-                                note.distance_from(&nn),
-                                i.semitones(),
-                                "{:?}, {:?}, {:?}",
-                                note, i, nn
-                            )
-                        }
+                        let ascending_note = note.apply_interval_ascending(&i);
+
+                        assert_eq!(
+                            note.distance_from(&ascending_note),
+                            i.semitones(),
+                            "{:?}, {:?}, {:?}",
+                            note, i, ascending_note
+                        );
 
                     }
                 }
@@ -71,10 +72,15 @@ fn main() {
         }
     }
 
-    let a = Note { base: Pitch::CDoubleFlat, octave: 4 };
-    let interval = Interval::from_quality_and_size(IntervalQuality::Major, IntervalSize::Seventh).unwrap();
+    let a = Note { base: Pitch::C_DOUBLE_FLAT, octave: 4 };
+    let interval = Interval::from_quality_and_size(IntervalQuality::Major, IntervalSize::Third).unwrap();
 
     println!("{:?}", a.apply_interval_ascending(&interval));
+
+    let c = Chord::from_type(ChordType::MinorMajorSeventh, Pitch::B_DOUBLE_SHARP, 0).unwrap();
+    let c = c.pitches();
+
+    println!("{c:?}");
     // let a = Note { base: Pitch::D, octave: 4 };
 
     // let bs3 = Note { base: Pitch::BFlat, octave: 3 };
