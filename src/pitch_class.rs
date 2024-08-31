@@ -4,6 +4,7 @@ use std::str::FromStr;
 use strum_macros::EnumIter;
 use crate::enharmonic::EnharmonicEq;
 use crate::interval::Interval;
+use crate::pitch::Pitch;
 use crate::semitone::Semitone;
 
 #[repr(u8)]
@@ -107,6 +108,7 @@ impl FromStr for PitchClass {
 
 impl fmt::Display for PitchClass {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        todo!()
+        let pitch = Pitch::from(*self);
+        write!(f, "{pitch}")
     }
 }
