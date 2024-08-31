@@ -37,7 +37,7 @@ impl Chord {
             return Err(InvalidInversion { intervals: intervals.len() as _, attempted: inversion });
         }
 
-        intervals.sort_by(|a, b| a.cmp_enharmonic(b));
+        intervals.sort_by(Interval::cmp_enharmonic);
 
         Ok(
             Self {
