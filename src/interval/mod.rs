@@ -92,8 +92,42 @@ impl Interval {
         format!("{}{}", self.quality.shorthand(), self.size.shorthand())
     }
 
+    // TODO: there's probably a better way to do this
     pub fn from_semitones_preferred(semitones: Semitone) -> Option<Self> {
-        todo!()
+        use Interval as I;
+        use IntervalSize as S;
+        use IntervalQuality as Q;
+
+        match semitones.0 {
+            0 => Some(I::from_quality_and_size(Q::Perfect, S::Unison).expect("valid interval")),
+            1 => Some(I::from_quality_and_size(Q::Minor, S::Second).expect("valid interval")),
+            2 => Some(I::from_quality_and_size(Q::Major, S::Second).expect("valid interval")),
+            3 => Some(I::from_quality_and_size(Q::Minor, S::Third).expect("valid interval")),
+            4 => Some(I::from_quality_and_size(Q::Major, S::Third).expect("valid interval")),
+            5 => Some(I::from_quality_and_size(Q::Perfect, S::Fourth).expect("valid interval")),
+            6 => Some(I::from_quality_and_size(Q::Diminished, S::Fifth).expect("valid interval")),
+            7 => Some(I::from_quality_and_size(Q::Perfect, S::Fifth).expect("valid interval")),
+            8 => Some(I::from_quality_and_size(Q::Minor, S::Sixth).expect("valid interval")),
+            9 => Some(I::from_quality_and_size(Q::Major, S::Sixth).expect("valid interval")),
+            10 => Some(I::from_quality_and_size(Q::Minor, S::Seventh).expect("valid interval")),
+            11 => Some(I::from_quality_and_size(Q::Major, S::Seventh).expect("valid interval")),
+            12 => Some(I::from_quality_and_size(Q::Perfect, S::Octave).expect("valid interval")),
+
+            13 => Some(I::from_quality_and_size(Q::Minor, S::Ninth).expect("valid interval")),
+            14 => Some(I::from_quality_and_size(Q::Major, S::Ninth).expect("valid interval")),
+            15 => Some(I::from_quality_and_size(Q::Minor, S::Tenth).expect("valid interval")),
+            16 => Some(I::from_quality_and_size(Q::Major, S::Tenth).expect("valid interval")),
+            17 => Some(I::from_quality_and_size(Q::Perfect, S::Eleventh).expect("valid interval")),
+            18 => Some(I::from_quality_and_size(Q::Diminished, S::Twelfth).expect("valid interval")),
+            19 => Some(I::from_quality_and_size(Q::Perfect, S::Twelfth).expect("valid interval")),
+            20 => Some(I::from_quality_and_size(Q::Minor, S::Thirteenth).expect("valid interval")),
+            21 => Some(I::from_quality_and_size(Q::Major, S::Thirteenth).expect("valid interval")),
+            22 => Some(I::from_quality_and_size(Q::Minor, S::Fourteenth).expect("valid interval")),
+            23 => Some(I::from_quality_and_size(Q::Major, S::Fourteenth).expect("valid interval")),
+            24 => Some(I::from_quality_and_size(Q::Perfect, S::Fifteenth).expect("valid interval")),
+
+            _ => None,
+        }
     }
 
     // TODO: this method breaks the invariance of the Interval (can create invalid diminished intervals)
