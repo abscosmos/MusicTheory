@@ -20,6 +20,7 @@ use crate::accidental::AccidentalSign;
 use crate::letter::Letter;
 use crate::note::Note;
 use crate::pitch::Pitch;
+use crate::pitch_class::PitchClass;
 
 fn main() {
     // let mut possible_chords = Vec::new();
@@ -95,6 +96,8 @@ fn main() {
     for p in Pitch::ALL_CONSTS {
         println!("Pitch: \"{p:}\" ({p:?}), Letter: {:?}", p.letter());
     }
+
+    println!("{:?}", PitchClass::A.apply_interval_descending(&interval!(Major Third)));
     // let a = Note { base: Pitch::D, octave: 4 };
 
     // let bs3 = Note { base: Pitch::BFlat, octave: 3 };

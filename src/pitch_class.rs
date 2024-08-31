@@ -25,7 +25,13 @@ pub enum PitchClass {
 
 impl PitchClass {
     pub fn apply_interval(&self, interval: &Interval, ascending: bool) -> Self {
-        todo!()
+        let offset = if ascending {
+            interval.semitones()
+        } else {
+            -interval.semitones()
+        };
+
+        *self + offset
     }
 
     pub fn apply_interval_ascending(&self, interval: &Interval) -> Self {
@@ -33,7 +39,7 @@ impl PitchClass {
     }
 
     pub fn apply_interval_descending(&self, interval: &Interval) -> Self {
-        self.apply_interval(interval, true)
+        self.apply_interval(interval, false)
     }
 }
 
