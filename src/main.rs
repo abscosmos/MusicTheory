@@ -4,6 +4,10 @@ pub mod interval;
 pub mod semitone;
 pub mod chord;
 pub mod placed;
+pub mod pitch_class;
+pub mod accidental;
+pub mod pitch;
+pub mod letter;
 
 use strum::IntoEnumIterator;
 use crate::chord::Chord;
@@ -12,10 +16,10 @@ use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
 use crate::interval::Interval;
 use crate::interval::quality::IntervalQuality;
 use crate::interval::size::IntervalSize;
-use crate::note::accidental::AccidentalSign;
-use crate::note::letter::Letter;
+use crate::accidental::AccidentalSign;
+use crate::letter::Letter;
 use crate::note::Note;
-use crate::note::pitch::Pitch;
+use crate::pitch::Pitch;
 
 fn main() {
     // let mut possible_chords = Vec::new();

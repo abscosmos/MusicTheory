@@ -3,9 +3,9 @@ use crate::enharmonic::EnharmonicEq;
 use crate::interval::Interval;
 use crate::interval::quality::IntervalQuality;
 use crate::interval::size::IntervalSize;
-use crate::note::accidental::AccidentalSign;
-use crate::note::letter::Letter;
-use crate::note::pitch_class::PitchClass;
+use crate::accidental::AccidentalSign;
+use crate::letter::Letter;
+use crate::pitch_class::PitchClass;
 use crate::semitone::Semitone;
 
 pub mod consts;

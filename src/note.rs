@@ -1,14 +1,8 @@
-use std::ops::Add;
 use crate::interval::Interval;
-use crate::note::pitch::Pitch;
-use crate::note::pitch_class::PitchClass;
+use crate::pitch::Pitch;
+use crate::pitch_class::PitchClass;
 use crate::placed::Placed;
 use crate::semitone::Semitone;
-
-pub mod pitch_class;
-pub mod accidental;
-pub mod pitch;
-pub mod letter;
 
 // TODO: Placed<T>
 
