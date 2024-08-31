@@ -4,7 +4,7 @@ use std::str::FromStr;
 use strum_macros::EnumIter;
 use crate::enharmonic::EnharmonicEq;
 use crate::interval::Interval;
-use crate::pitch::Pitch;
+use crate::pitch::{Pitch, PitchFromStrError};
 use crate::semitone::Semitone;
 
 #[repr(u8)]
@@ -99,10 +99,10 @@ impl Sub<Semitone> for PitchClass {
 }
 
 impl FromStr for PitchClass {
-    type Err = InvalidPitch;
+    type Err = PitchFromStrError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        todo!()
+        Ok(Pitch::from_str(s)?.into())
     }
 }
 

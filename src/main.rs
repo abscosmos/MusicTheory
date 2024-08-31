@@ -9,6 +9,7 @@ pub mod accidental;
 pub mod pitch;
 pub mod letter;
 
+use std::str::FromStr;
 use strum::IntoEnumIterator;
 use crate::chord::Chord;
 use crate::chord::types::ChordType;
@@ -98,6 +99,7 @@ fn main() {
     }
 
     println!("{:?}", PitchClass::A.apply_interval_descending(&interval!(Major Third)));
+    println!("{:?}", PitchClass::from_str("Bbb"));
     // let a = Note { base: Pitch::D, octave: 4 };
 
     // let bs3 = Note { base: Pitch::BFlat, octave: 3 };

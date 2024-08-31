@@ -1,4 +1,6 @@
 use std::fmt;
+use std::str::FromStr;
+use regex::Regex;
 use crate::enharmonic::EnharmonicEq;
 use crate::interval::Interval;
 use crate::interval::quality::IntervalQuality;
@@ -214,5 +216,53 @@ impl From<PitchClass> for Pitch {
 impl From<Letter> for Pitch {
     fn from(letter: Letter) -> Self {
         Self::from_letter_and_accidental(letter, AccidentalSign::NATURAL)
+    }
+}
+
+impl From<Pitch> for PitchClass {
+    fn from(pitch: Pitch) -> Self {
+        pitch.as_pitch_class()
+    }
+}
+
+#[derive(Debug, thiserror::Error)]
+#[error("The string could not be converted to a pitch")]
+pub struct PitchFromStrError;
+
+impl FromStr for Pitch {
+    type Err = PitchFromStrError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let re = Regex::new(r"(?i)^([A-G])\s?((?-i)b|(?-i)bb|(?i)sharp|♯|\+|\++|#|##|♯♯|𝄪|flat|♭|-|--|♭♭|𝄫|double\s?sharp|double\s?flat)?$")
+            .expect("valid regex");
+
+        let caps = re.captures(s)
+            .ok_or(PitchFromStrError)?;
+
+        let letter = caps.get(1)
+            .ok_or(PitchFromStrError)?
+            .as_str()
+            .parse()
+            .map_err(|_| PitchFromStrError)?;
+
+        let accidental = caps.get(2);
+
+        let acc = match accidental {
+            None => AccidentalSign::NATURAL,
+            Some(acc) => match acc
+                .as_str()
+                .trim()
+                .to_lowercase()
+                .as_str()
+            {
+                "+" | "#" | "♯" | "sharp" => AccidentalSign::SHARP,
+                "-" | "b" | "♭" | "flat" => AccidentalSign::FLAT,
+                "++" | "##" | "♯♯" | "𝄪" | "double sharp" | "doublesharp" => AccidentalSign::DOUBLE_SHARP,
+                "--" | "bb" | "♭♭" | "𝄫" | "double flat" | "doubleflat" => AccidentalSign::DOUBLE_FLAT,
+                _ => unreachable!("all cases should be covered"),
+            }
+        };
+
+        Ok(Self::from_letter_and_accidental(letter, acc))
     }
 }
