@@ -1,4 +1,3 @@
-#[derive(Debug)]
 pub struct Placed<T> {
     pub base: T,
     pub octave: i16,

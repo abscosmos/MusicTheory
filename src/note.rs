@@ -1,3 +1,4 @@
+use std::fmt;
 use crate::interval::Interval;
 use crate::pitch::Pitch;
 use crate::pitch_class::PitchClass;
@@ -83,5 +84,18 @@ impl Note {
     }
 }
 
+impl fmt::Display for Note {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}{}", self.base, self.octave)
+    }
+}
 
+impl fmt::Debug for Note {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Note")
+            .field("pitch", &self.base)
+            .field("octave", &self.octave)
+            .finish()
+    }
+}
 
