@@ -210,3 +210,9 @@ impl From<PitchClass> for Pitch {
         }
     }
 }
+
+impl From<Letter> for Pitch {
+    fn from(letter: Letter) -> Self {
+        Self::from_letter_and_accidental(letter, AccidentalSign::NATURAL)
+    }
+}
