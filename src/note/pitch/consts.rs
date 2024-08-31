@@ -7,13 +7,6 @@ macro_rules! define_pitches {
         pub const ALL_CONSTS: &'static [Self] = &[
             $(Self::$name),*
         ];
-
-        pub fn temp_debug(&self) -> String {
-            match self.as_fifths_from_c() {
-                $($value => stringify!($name).into(),)*
-                n => format!("Pitch({n})"),
-            }
-        }
     };
 }
 

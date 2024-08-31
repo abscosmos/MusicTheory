@@ -6,7 +6,6 @@ use crate::placed::Placed;
 use crate::semitone::Semitone;
 
 pub mod pitch_class;
-pub mod pitch_const;
 pub mod accidental;
 pub mod pitch;
 pub mod letter;

@@ -8,12 +8,14 @@ use crate::note::letter::Letter;
 use crate::note::pitch_class::PitchClass;
 use crate::semitone::Semitone;
 
+pub mod consts;
+
 #[derive(Copy, Clone, Eq, PartialEq)]
-pub struct Pitch(pub(super) i16);
+pub struct Pitch(pub i16);
 
 impl Pitch {
     pub fn from_letter_and_accidental(letter: Letter, accidental_sign: AccidentalSign) -> Self {
-        let col_offset = accidental_sign.as_offset().0;
+        let col_offset = accidental_sign.offset;
 
         let row_offset = match letter {
             Letter::C => 0,
@@ -65,16 +67,24 @@ impl Pitch {
         Semitone((rhs - lhs) as _)
     }
 
-    // pub fn accidental_sign(&self) -> AccidentalSign {
-    //     match (self.as_fifths_from_c() + 1).div_euclid(7) {
-    //         -2 => AccidentalSign::DoubleFlat,
-    //         -1 => AccidentalSign::Flat,
-    //         0 => AccidentalSign::Natural,
-    //         1 => AccidentalSign::Sharp,
-    //         2 => AccidentalSign::DoubleSharp,
-    //         _ => unreachable!("Pitch doesn't support more than 2 flats or sharps")
-    //     }
-    // }
+    pub fn letter(&self) -> Letter {
+        match (self.as_fifths_from_c() + 1).rem_euclid(7) {
+            0 => Letter::F,
+            1 => Letter::C,
+            2 => Letter::G,
+            3 => Letter::D,
+            4 => Letter::A,
+            5 => Letter::E,
+            6 => Letter::B,
+            _ => unreachable!("i8::rem_euclid(7) must be [0, 7)"),
+        }
+    }
+
+    pub fn accidental(&self) -> AccidentalSign {
+        AccidentalSign {
+            offset: (self.as_fifths_from_c() + 1).div_euclid(7)
+        }
+    }
 
     pub fn semitones_offset_from_c(&self) -> Semitone {
         let fifths_plus_one = self.as_fifths_from_c() + 1;
@@ -152,8 +162,27 @@ impl Pitch {
 
 impl fmt::Debug for Pitch {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        // TODO: fix debug
-        write!(f, "{}", self.temp_debug())
+        let letter = self.letter();
+        let accidental = self.accidental();
+
+        if accidental != AccidentalSign::NATURAL {
+            write!(f, "{letter:?}{accidental:?}")
+        } else {
+            write!(f, "{letter:?}")
+        }
+    }
+}
+
+impl fmt::Display for Pitch {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let letter = self.letter();
+        let accidental = self.accidental();
+
+        if accidental != AccidentalSign::NATURAL {
+            write!(f, "{letter}{accidental}")
+        } else {
+            write!(f, "{letter}")
+        }
     }
 }
 

@@ -1,60 +1,81 @@
 use std::fmt;
 use crate::semitone::Semitone;
 
-#[derive(Copy, Clone, Eq, PartialEq, Debug)]
-pub enum AccidentalSign {
-    Natural, // ♮
-    Sharp, // #
-    Flat, // ♭
-    DoubleSharp, // 𝄪
-    DoubleFlat, // 𝄫
+#[derive(Copy, Clone, Eq, PartialEq)]
+pub struct AccidentalSign {
+    pub offset: i16,
 }
 
 impl AccidentalSign {
-    pub fn as_char(&self) -> char {
-        use AccidentalSign as AS;
+    pub const DOUBLE_FLAT: Self = Self { offset: -2 };
+    pub const FLAT: Self = Self { offset: -1 };
+    pub const NATURAL: Self = Self { offset: 0 };
+    pub const SHARP: Self = Self { offset: 1 };
+    pub const DOUBLE_SHARP: Self = Self { offset: 2 };
 
-        match self {
-            AS::Natural => '♮',
-            AS::Sharp => '#',
-            AS::Flat => '♭',
-            AS::DoubleSharp => '𝄪',
-            AS::DoubleFlat => '𝄫'
-        }
+    pub fn as_semitone_offset(&self) -> Semitone {
+        Semitone(self.offset)
     }
 
-    pub fn as_offset(&self) -> Semitone {
-        use AccidentalSign as AS;
-
-        match self {
-            AS::Natural => Semitone(0),
-            AS::Sharp => Semitone(1),
-            AS::Flat => Semitone(-1),
-            AS::DoubleSharp => Semitone(2),
-            AS::DoubleFlat => Semitone(-2),
-        }
+    pub fn from_semitone_offset(offset: Semitone) -> Self {
+        Self { offset: offset.0 }
     }
+}
 
-    pub fn from_offset(semitones: Semitone) -> Option<Self> {
-        match semitones {
-            Semitone(-2) => Some(Self::DoubleFlat),
-            Semitone(-1) => Some(Self::Flat),
-            Semitone(0) => Some(Self::Natural),
-            Semitone(1) => Some(Self::Sharp),
-            Semitone(2) => Some(Self::DoubleSharp),
-            _ => None,
-        }
+impl fmt::Debug for AccidentalSign {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let num = match self.offset.abs() {
+            0 | 1 => "".to_owned(),
+            2 => "Double".to_owned(),
+            3 => "Triple".to_owned(),
+            4 => "Quadruple".to_owned(),
+            5 => "Quintuple".to_owned(),
+            n => format!("({n}x)"),
+        };
+
+        let ty = match self.offset.signum() {
+            0 => "Natural",
+            1 => "Sharp",
+            -1 => "Flat",
+            _ => unreachable!(".signum() only returns -1, 0, 1")
+        };
+
+        write!(f, "{num}{ty}")
     }
 }
 
 impl fmt::Display for AccidentalSign {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.as_char())
+        let offset = self.offset;
+
+        if offset == 0 {
+            write!(f, "♮")
+        } else {
+            let num_double = offset.abs() / 2;
+            let add_single = offset.abs() % 2 == 1;
+
+            let (d, s) = if offset > 0 {
+                ("𝄪", "♯")
+            } else {
+                ("𝄫", "♭")
+            };
+
+            let single = if add_single { s } else { "" };
+            let double = d.repeat(num_double as _);
+
+            write!(f, "{single}{double}")
+        }
     }
 }
 
-impl From<AccidentalSign> for char {
+impl From<Semitone> for AccidentalSign {
+    fn from(value: Semitone) -> Self {
+        Self::from_semitone_offset(value)
+    }
+}
+
+impl From<AccidentalSign> for Semitone {
     fn from(value: AccidentalSign) -> Self {
-        value.as_char()
+        value.as_semitone_offset()
     }
 }

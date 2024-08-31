@@ -12,6 +12,8 @@ use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
 use crate::interval::Interval;
 use crate::interval::quality::IntervalQuality;
 use crate::interval::size::IntervalSize;
+use crate::note::accidental::AccidentalSign;
+use crate::note::letter::Letter;
 use crate::note::Note;
 use crate::note::pitch::Pitch;
 
@@ -81,6 +83,14 @@ fn main() {
     let c = c.pitches();
 
     println!("{c:?}");
+
+    let p = Pitch::from_letter_and_accidental(Letter::C, AccidentalSign { offset: -287 });
+
+    println!("Pitch: \"{p:}\" ({p:?}), Letter: {:?}", p.letter());
+
+    for p in Pitch::ALL_CONSTS {
+        println!("Pitch: \"{p:}\" ({p:?}), Letter: {:?}", p.letter());
+    }
     // let a = Note { base: Pitch::D, octave: 4 };
 
     // let bs3 = Note { base: Pitch::BFlat, octave: 3 };
