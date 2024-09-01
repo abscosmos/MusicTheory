@@ -151,10 +151,16 @@ impl Pitch {
         Self::from_fifths_from_c(self.as_fifths_from_c() + dir_offset)
     }
 
-    pub fn set_natural(&self) -> Self {
-        let fifths = (self.as_fifths_from_c() + 1).rem_euclid(7) - 1;
+    pub fn with_accidental(&self, accidental: AccidentalSign) -> Self {
+        let letter = self.letter();
 
-        Self::from_fifths_from_c(fifths)
+        Self::from_letter_and_accidental(letter, accidental)
+    }
+
+    pub fn with_letter(&self, letter: Letter) -> Self {
+        let accidental = self.accidental();
+
+        Self::from_letter_and_accidental(letter, accidental)
     }
 
     pub fn to_note_in_key(&self, key: ()) {
