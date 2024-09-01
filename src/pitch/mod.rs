@@ -229,6 +229,7 @@ impl From<Pitch> for PitchClass {
 #[error("The string could not be converted to a pitch")]
 pub struct PitchFromStrError;
 
+// TODO: add support for pitches like F(25x)Flat
 impl FromStr for Pitch {
     type Err = PitchFromStrError;
 

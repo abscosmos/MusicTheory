@@ -5,8 +5,6 @@ use crate::pitch_class::PitchClass;
 use crate::placed::Placed;
 use crate::semitone::Semitone;
 
-// TODO: Placed<T>
-
 pub type Note = Placed<Pitch>;
 
 impl Note {
