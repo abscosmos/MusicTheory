@@ -82,6 +82,19 @@ impl Note {
         }
     }
 
+    pub fn simplified(&self) -> Self {
+        let base = self.base.simplified();
+
+        let unchecked = Self { base, .. *self };
+
+        let octave_offset = self.distance_from(&unchecked).0.div_euclid(12);
+
+        Self {
+            octave: unchecked.octave - octave_offset,
+            .. unchecked
+        }
+    }
+
     pub fn as_midi(&self) -> Option<u8> {
         let zero = Note { base: Pitch::C, octave: -1 };
 
