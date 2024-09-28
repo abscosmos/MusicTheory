@@ -12,3 +12,11 @@ impl<T> Placed<T> {
         &self.base
     }
 }
+
+impl<T: PartialEq> PartialEq for Placed<T> {
+    fn eq(&self, other: &Self) -> bool {
+        self.base == other.base && self.octave == other.octave
+    }
+}
+
+impl<T: Eq> Eq for Placed<T> {}
