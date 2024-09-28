@@ -68,6 +68,19 @@ impl PitchClass {
             _ => AccidentalSign::NATURAL,
         }
     }
+
+    // TODO: better name?
+    pub fn bias(&self, sharp: bool) -> Pitch {
+        if self.accidental() == AccidentalSign::NATURAL || sharp {
+            (*self).into()
+        } else {
+            let base = Self::try_from(*self as u8 + 1)
+                .expect("must be <= 11")
+                .letter();
+
+            Pitch::from_letter_and_accidental(base, AccidentalSign::FLAT)
+        }
+    }
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, thiserror::Error)]
