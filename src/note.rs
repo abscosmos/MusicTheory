@@ -1,4 +1,5 @@
 use std::fmt;
+use crate::enharmonic::EnharmonicEq;
 use crate::interval::Interval;
 use crate::pitch::Pitch;
 use crate::pitch_class::PitchClass;
@@ -99,6 +100,12 @@ impl Note {
             base: pitch.into(),
             octave: oct as i16 - 1,
         }
+    }
+}
+
+impl EnharmonicEq for Note {
+    fn eq_enharmonic(&self, rhs: &Self) -> bool {
+        self.distance_from(rhs).0 == 0
     }
 }
 
