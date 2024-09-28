@@ -2,8 +2,10 @@ use std::fmt;
 use std::ops::{Add, Sub};
 use std::str::FromStr;
 use strum_macros::EnumIter;
+use crate::accidental::AccidentalSign;
 use crate::enharmonic::EnharmonicEq;
 use crate::interval::Interval;
+use crate::letter::Letter;
 use crate::pitch::{Pitch, PitchFromStrError};
 use crate::semitone::Semitone;
 
@@ -41,6 +43,30 @@ impl PitchClass {
 
     pub fn apply_interval_descending(&self, interval: &Interval) -> Self {
         self.apply_interval(interval, false)
+    }
+
+    pub fn letter(&self) -> Letter {
+        use PitchClass as PC;
+        use Letter as L;
+
+        match *self {
+            PC::C | PC::Cs => L::C,
+            PC::D | PC::Ds => L::D,
+            PC::E => L::E,
+            PC::F | PC::Fs => L::F,
+            PC::G | PC::Gs => L::G,
+            PC::A | PC::As => L::A,
+            PC::B => L::B,
+        }
+    }
+
+    pub fn accidental(&self) -> AccidentalSign {
+        use PitchClass as PC;
+
+        match *self {
+            PC::Cs | PC::Ds | PC::Fs | PC::Gs | PC::As => AccidentalSign::SHARP,
+            _ => AccidentalSign::NATURAL,
+        }
     }
 }
 
