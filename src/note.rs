@@ -35,11 +35,11 @@ impl Note {
 
         let octave = semitones_from_c0.div_euclid(12);
 
-        let pitch: u8 = semitones_from_c0.rem_euclid(12)
+        let pitch = semitones_from_c0.rem_euclid(12)
             .try_into()
             .expect("i32::rem_euclid(12) must be within [0,12)");
 
-        let pitch: PitchClass = pitch.try_into()
+        let pitch = PitchClass::from_repr(pitch)
             .expect("i32::rem_euclid(12) must be within [0,12)");
 
         Some( Self { base: Pitch::from(pitch), octave } )
@@ -91,7 +91,7 @@ impl Note {
     }
 
     pub fn from_midi(midi: u8) -> Note {
-        let pitch = PitchClass::try_from(midi % 12)
+        let pitch = PitchClass::from_repr(midi % 12)
             .expect("% 12 must be [0, 11]");
         let oct = midi / 12;
 
