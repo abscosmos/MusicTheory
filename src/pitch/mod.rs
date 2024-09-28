@@ -105,6 +105,10 @@ impl Pitch {
         Semitone(n as _)
     }
 
+    pub fn simplified(&self) -> Self {
+        self.as_pitch_class().bias(self.accidental().offset > 0)
+    }
+
     // TODO: inverse of this method
     pub fn apply_interval_ascending(&self, interval: &Interval) -> Self {
         self.apply_interval(interval, true)
@@ -271,5 +275,34 @@ impl FromStr for Pitch {
         };
 
         Ok(Self::from_letter_and_accidental(letter, acc))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use strum::IntoEnumIterator;
+    use crate::accidental::AccidentalSign;
+    use crate::enharmonic::EnharmonicEq;
+    use crate::letter::Letter;
+    use crate::pitch::Pitch;
+
+    #[test]
+    fn simplify() {
+        for offset in -5..5 {
+            for letter in Letter::iter() {
+                let acc = AccidentalSign { offset };
+
+                let pitch = Pitch::from_letter_and_accidental(letter, acc);
+
+                let simplified = pitch.simplified();
+
+                assert!(
+                    pitch.eq_enharmonic(&simplified),
+                    "{pitch:?} ({:?}), {simplified:?} ({:?})",
+                    pitch.as_pitch_class(),
+                    simplified.as_pitch_class()
+                );
+            }
+        }
     }
 }
