@@ -1,10 +1,11 @@
 use std::fmt;
 use std::str::FromStr;
-use strum_macros::EnumIter;
+use strum_macros::{EnumIter, FromRepr};
 
-#[derive(Copy, Clone, Eq, PartialEq, Debug, EnumIter)]
+#[repr(u8)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug, EnumIter, FromRepr)]
 pub enum Letter {
-    C,
+    C = 0,
     D,
     E,
     F,
