@@ -80,6 +80,26 @@ impl Note {
             .. unchecked
         }
     }
+
+    pub fn as_midi(&self) -> Option<u8> {
+        let zero = Note { base: Pitch::C, octave: -1 };
+
+        zero.distance_from(self)
+            .0
+            .try_into()
+            .ok()
+    }
+
+    pub fn from_midi(midi: u8) -> Note {
+        let pitch = PitchClass::try_from(midi % 12)
+            .expect("% 12 must be [0, 11]");
+        let oct = midi / 12;
+
+        Self {
+            base: pitch.into(),
+            octave: oct as i16 - 1,
+        }
+    }
 }
 
 impl fmt::Display for Note {
@@ -97,3 +117,14 @@ impl fmt::Debug for Note {
     }
 }
 
+#[cfg(test)]
+pub mod tests {
+    use super::*;
+
+    #[test]
+    fn midi() {
+        for n in 0..=255u8 {
+            assert_eq!(Some(n), Note::from_midi(n).as_midi())
+        }
+    }
+}
