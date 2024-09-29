@@ -109,6 +109,10 @@ impl Pitch {
         self.as_pitch_class().bias(self.accidental().offset > 0)
     }
 
+    pub fn enharmonic(&self) -> Self {
+        self.as_pitch_class().bias(self.accidental().offset < 0)
+    }
+
     // TODO: inverse of this method
     pub fn apply_interval_ascending(&self, interval: &Interval) -> Self {
         self.apply_interval(interval, true)
