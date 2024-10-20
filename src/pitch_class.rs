@@ -69,6 +69,10 @@ impl PitchClass {
         }
     }
 
+    pub fn chroma(&self) -> u8 {
+        *self as u8
+    }
+
     // TODO: better name?
     pub fn bias(&self, sharp: bool) -> Pitch {
         if self.accidental() == AccidentalSign::NATURAL || sharp {

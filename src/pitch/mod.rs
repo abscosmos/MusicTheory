@@ -61,6 +61,10 @@ impl Pitch {
             .expect("i8::rem_euclid(12) must be [0, 12)")
     }
 
+    pub fn chroma(&self) -> u8 {
+        self.as_pitch_class().chroma()
+    }
+
     // TODO: is this right?
     pub fn semitones_between(&self, rhs: Self) -> Semitone {
         let lhs = self.as_pitch_class() as u8 as i8;
