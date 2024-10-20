@@ -114,6 +114,24 @@ impl Note {
             octave: oct as i16 - 1,
         }
     }
+
+    pub fn transpose_fifths(&self, fifths: i16) -> Self {
+        let new_pitch = self.base.transpose_fifths(fifths);
+
+        let unchecked = Self {
+            base: new_pitch,
+            octave: self.octave,
+        };
+
+        let interval_semi = Semitone(7 * fifths);
+
+        let edit = self.distance_from(&unchecked) - interval_semi;
+
+        Self {
+            octave: unchecked.octave - edit.0.div_euclid(12),
+            .. unchecked
+        }
+    }
 }
 
 impl EnharmonicEq for Note {

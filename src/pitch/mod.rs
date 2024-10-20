@@ -174,6 +174,12 @@ impl Pitch {
     pub fn to_note_in_key(&self, key: ()) {
         todo!()
     }
+
+    pub fn transpose_fifths(&self, fifths: i16) -> Self {
+        let curr = self.as_fifths_from_c();
+
+        Self::from_fifths_from_c(curr + fifths)
+    }
 }
 
 impl fmt::Debug for Pitch {
