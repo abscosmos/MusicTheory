@@ -52,16 +52,16 @@ impl Note {
         440.0 * 2.0_f32.powf(semitones_from_a4.0 as f32 / 12.0)
     }
 
-    pub fn apply_interval_ascending(&self, interval: &Interval) -> Self {
-        self.apply_interval(interval, true)
+    pub fn transpose_ascending(&self, interval: &Interval) -> Self {
+        self.transpose(interval, true)
     }
 
-    pub fn apply_interval_descending(&self, interval: &Interval) -> Self {
-        self.apply_interval(interval, false)
+    pub fn transpose_descending(&self, interval: &Interval) -> Self {
+        self.transpose(interval, false)
     }
 
-    pub fn apply_interval(&self, interval: &Interval, ascending: bool) -> Self {
-        let new_pitch = self.base.apply_interval(interval, ascending);
+    pub fn transpose(&self, interval: &Interval, ascending: bool) -> Self {
+        let new_pitch = self.base.transpose(interval, ascending);
 
         let unchecked = Self {
             base: new_pitch,
