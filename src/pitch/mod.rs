@@ -70,7 +70,7 @@ impl Pitch {
         let lhs = self.as_pitch_class() as u8 as i8;
         let rhs = rhs.as_pitch_class() as u8 as i8;
 
-        Semitone((rhs - lhs) as _)
+        Semitone((rhs - lhs).rem_euclid(12) as _)
     }
 
     pub fn letter(&self) -> Letter {
