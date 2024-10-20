@@ -12,12 +12,16 @@ impl Note {
     pub const MIDDLE_C: Self = Self { base: Pitch::C, octave: 4 };
     pub const A4: Self = Self { base: Pitch::A, octave: 4 };
     
-    pub fn distance_from(&self, other: &Self) -> Semitone {
+    pub fn semitones_to(&self, other: &Self) -> Semitone {
         let lhs = self.base.semitones_offset_from_c() + Semitone(self.octave * 12);
 
         let rhs = other.base.semitones_offset_from_c() + Semitone(other.octave * 12);
 
         rhs - lhs
+    }
+
+    pub fn distance_to(&self, other: &Self) -> Interval {
+        todo!()
     }
 
     // TODO: should this return Placed<PitchClass>?
@@ -47,7 +51,7 @@ impl Note {
     }
 
     pub fn as_frequency_hz(&self) -> f32 {
-        let semitones_from_a4 = Self::A4.distance_from(self);
+        let semitones_from_a4 = Self::A4.semitones_to(self);
 
         440.0 * 2.0_f32.powf(semitones_from_a4.0 as f32 / 12.0)
     }
@@ -74,7 +78,7 @@ impl Note {
             -interval.semitones()
         };
 
-        let edit = self.distance_from(&unchecked) - interval_semi;
+        let edit = self.semitones_to(&unchecked) - interval_semi;
 
         Self {
             octave: unchecked.octave - edit.0.div_euclid(12),
@@ -87,7 +91,7 @@ impl Note {
 
         let unchecked = Self { base, .. *self };
 
-        let octave_offset = self.distance_from(&unchecked).0.div_euclid(12);
+        let octave_offset = self.semitones_to(&unchecked).0.div_euclid(12);
 
         Self {
             octave: unchecked.octave - octave_offset,
@@ -98,7 +102,7 @@ impl Note {
     pub fn as_midi(&self) -> Option<u8> {
         let zero = Note { base: Pitch::C, octave: -1 };
 
-        zero.distance_from(self)
+        zero.semitones_to(self)
             .0
             .try_into()
             .ok()
@@ -125,7 +129,7 @@ impl Note {
 
         let interval_semi = Semitone(7 * fifths);
 
-        let edit = self.distance_from(&unchecked) - interval_semi;
+        let edit = self.semitones_to(&unchecked) - interval_semi;
 
         Self {
             octave: unchecked.octave - edit.0.div_euclid(12),
@@ -136,7 +140,7 @@ impl Note {
 
 impl EnharmonicEq for Note {
     fn eq_enharmonic(&self, rhs: &Self) -> bool {
-        self.distance_from(rhs).0 == 0
+        self.semitones_to(rhs).0 == 0
     }
 }
 

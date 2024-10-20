@@ -66,7 +66,7 @@ impl Pitch {
     }
 
     // TODO: is this right?
-    pub fn semitones_between(&self, rhs: Self) -> Semitone {
+    pub fn semitones_to(&self, rhs: Self) -> Semitone {
         let lhs = self.as_pitch_class() as u8 as i8;
         let rhs = rhs.as_pitch_class() as u8 as i8;
 
