@@ -14,6 +14,16 @@ pub enum Letter {
     B,
 }
 
+impl Letter {
+    pub fn step(&self) -> u8 {
+        *self as _
+    }
+    
+    pub fn from_step(step: u8) -> Option<Self> {
+        Self::from_repr(step)
+    }
+}
+
 impl fmt::Display for Letter {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{self:?}")
