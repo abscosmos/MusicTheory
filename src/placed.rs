@@ -1,3 +1,5 @@
+use std::ops::Deref;
+
 pub struct Placed<T> {
     pub base: T,
     pub octave: i16,
@@ -20,3 +22,11 @@ impl<T: PartialEq> PartialEq for Placed<T> {
 }
 
 impl<T: Eq> Eq for Placed<T> {}
+
+impl<T> Deref for Placed<T> {
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        &self.base
+    }
+}
