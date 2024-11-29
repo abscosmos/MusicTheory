@@ -107,6 +107,10 @@ impl Note {
             .try_into()
             .ok()
     }
+    
+    pub fn as_midi_strict(&self) -> Option<u8> {
+        self.as_midi().filter(|&m| m < 128)
+    }
 
     pub fn from_midi(midi: u8) -> Note {
         let pitch = PitchClass::from_repr(midi % 12)
