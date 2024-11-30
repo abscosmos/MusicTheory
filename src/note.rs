@@ -86,6 +86,19 @@ impl Note {
         }
     }
 
+    pub fn bias(&self, sharp: bool) -> Self {
+        let base = self.base.bias(sharp);
+
+        let unchecked = Self { base, .. *self };
+
+        let octave_offset = self.semitones_to(&unchecked).0.div_euclid(12);
+
+        Self {
+            octave: unchecked.octave - octave_offset,
+            .. unchecked
+        }
+    }
+    
     pub fn simplified(&self) -> Self {
         let base = self.base.simplified();
 
