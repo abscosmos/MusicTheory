@@ -1,4 +1,5 @@
 use std::cmp::Ordering;
+use std::fmt;
 use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
 use crate::interval::quality::IntervalQuality;
 use crate::interval::size::IntervalSize;
@@ -134,6 +135,12 @@ impl Interval {
             size: self.size.inverted(),
             quality: self.quality.inverted(),
         }
+    }
+}
+
+impl fmt::Display for Interval {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.shorthand())
     }
 }
 
