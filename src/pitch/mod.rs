@@ -116,6 +116,11 @@ impl Pitch {
     pub fn enharmonic(&self) -> Self {
         self.as_pitch_class().bias(self.accidental().offset < 0)
     }
+    
+    // TODO: should this function simplify if called with G## & true?
+    pub fn bias(&self, sharp: bool) -> Self {
+        self.as_pitch_class().bias(sharp)
+    }
 
     // TODO: inverse of this method
     pub fn transpose_ascending(&self, interval: &Interval) -> Self {
@@ -254,6 +259,7 @@ impl From<Pitch> for PitchClass {
 pub struct PitchFromStrError;
 
 // TODO: add support for pitches like F(25x)Flat
+// TODO: change to make more like tonaljs/note's Note::name
 impl FromStr for Pitch {
     type Err = PitchFromStrError;
 
