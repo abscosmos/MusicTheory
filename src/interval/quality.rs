@@ -39,3 +39,42 @@ impl fmt::Display for IntervalQuality {
         write!(f, "{}", self.shorthand())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use IntervalQuality as IQ;
+
+    const FOUR: NonZeroU16 = NonZeroU16::new(4).expect("nonzero");
+    const SIX: NonZeroU16 = NonZeroU16::new(6).expect("nonzero");
+    
+    #[test]
+    fn shorthand() {
+        assert_eq!(IQ::Perfect.shorthand(), "P");
+        assert_eq!(IQ::Minor.shorthand(), "m");
+        assert_eq!(IQ::Major.shorthand(), "M");
+        assert_eq!(IQ::AUGMENTED.shorthand(), "A");
+        assert_eq!(IQ::DIMINISHED.shorthand(), "d");
+        assert_eq!(IQ::Diminished(FOUR).shorthand(), "dddd");
+        assert_eq!(IQ::Augmented(SIX).shorthand(), "AAAAAA");
+    }
+    
+    #[test]
+    fn display() {
+        assert_eq!(IQ::Major.to_string(), "M");
+        assert_eq!(format!("{}", IQ::DIMINISHED), "d");
+    }
+    
+    #[test]
+    fn inverted() {
+        assert_eq!(IQ::Perfect.inverted(), IQ::Perfect);
+        assert_eq!(IQ::Major.inverted(), IQ::Minor);
+        assert_eq!(IQ::Minor.inverted(), IQ::Major);
+        
+        assert_eq!(IQ::DIMINISHED.inverted(), IQ::AUGMENTED);
+        assert_eq!(IQ::AUGMENTED.inverted(), IQ::DIMINISHED);
+        
+        assert_eq!(IQ::Augmented(FOUR).inverted(), IQ::Diminished(FOUR));
+        assert_eq!(IQ::Diminished(SIX).inverted(), IQ::Augmented(SIX));
+    }
+}
