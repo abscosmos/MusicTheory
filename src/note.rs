@@ -56,29 +56,15 @@ impl Note {
         440.0 * 2.0_f32.powf(semitones_from_a4.0 as f32 / 12.0)
     }
 
-    pub fn transpose_ascending(&self, interval: &Interval) -> Self {
-        self.transpose(interval, true)
-    }
-
-    pub fn transpose_descending(&self, interval: &Interval) -> Self {
-        self.transpose(interval, false)
-    }
-
-    pub fn transpose(&self, interval: &Interval, ascending: bool) -> Self {
-        let new_pitch = self.base.transpose(interval, ascending);
+    pub fn transpose(&self, interval: &Interval) -> Self {
+        let new_pitch = self.base.transpose(interval);
 
         let unchecked = Self {
             base: new_pitch,
             octave: self.octave,
         };
 
-        let interval_semi = if ascending {
-            interval.semitones()
-        } else {
-            -interval.semitones()
-        };
-
-        let edit = self.semitones_to(&unchecked) - interval_semi;
+        let edit = self.semitones_to(&unchecked) - interval.semitones();
 
         Self {
             octave: unchecked.octave - edit.0.div_euclid(12),

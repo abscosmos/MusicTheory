@@ -1,139 +1,143 @@
 use std::cmp::Ordering;
 use std::fmt;
 use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
+use crate::interval::number::IntervalNumber;
 use crate::interval::quality::IntervalQuality;
-use crate::interval::size::IntervalSize;
 use crate::semitone::Semitone;
 
 pub mod quality;
-pub mod size;
-pub mod helper;
+pub mod number;
+pub mod consts;
 
 #[derive(Clone, Eq, PartialEq, Debug)]
 pub struct Interval {
     quality: IntervalQuality,
-    size: IntervalSize,
+    number: IntervalNumber,
 }
 
 impl Interval {
-    pub fn from_quality_and_size(quality: IntervalQuality, size: IntervalSize) -> Option<Interval> {
+    pub fn new(quality: IntervalQuality, number: IntervalNumber) -> Option<Self> {
         use IntervalQuality as Q;
 
-        let unchecked = Self { quality, size };
+        let unchecked = Some(Self { quality, number });
 
         match quality {
-            Q::Perfect => size.is_perfect().then_some(unchecked),
-
-            Q::Major | Q::Minor => (!size.is_perfect()).then_some(unchecked),
-
-            Q::Diminished => (size as u8 > 1).then_some(unchecked),
-
-            Q::DoublyDiminished => (size as u8 > 2).then_some(unchecked),
-
-            Q::Augmented | Q::DoublyAugmented => Some(unchecked),
+            Q::Diminished(_) | Q::Augmented(_) => unchecked,
+            Q::Perfect if number.is_perfect() => unchecked,
+            Q::Minor | Q::Major if !number.is_perfect() => unchecked,
+            _ => None,
         }
     }
 
-    pub fn size(&self) -> IntervalSize {
-        self.size
+    pub fn strict_non_subzero(quality: IntervalQuality, number: IntervalNumber) -> Option<Self> {
+        match Self::new(quality, number)? {
+            Interval { quality: IntervalQuality::Diminished(n), .. } if number.number().abs() <= n.get() as _ => None,
+            ivl => Some(ivl),
+        }
     }
 
     pub fn quality(&self) -> IntervalQuality {
         self.quality
     }
 
+    pub fn number(&self) -> IntervalNumber {
+        self.number
+    }
+
     pub fn semitones(&self) -> Semitone {
-        use IntervalSize as S;
+        let base_semis = match self.number.as_simple().number().abs() {
+            1 => 0,
+            2 => 2,
+            3 => 4,
+            4 => 5,
+            5 => 7,
+            6 => 9,
+            7 => 11,
+            8 => 12,
+            _ => unreachable!("abs of as_simple must be within [1,8]"),
+        };
+
+        let with_octave = base_semis + self.number.octave_unsigned() * 12;
+
         use IntervalQuality as Q;
 
-        let base_semitones = match self.size {
-            S::Unison => 0,
-            S::Second => 2,
-            S::Third => 4,
-            S::Fourth => 5,
-            S::Fifth => 7,
-            S::Sixth => 9,
-            S::Seventh => 11,
-            S::Octave => 12,
-
-            S::Ninth => 14,
-            S::Tenth => 16,
-            S::Eleventh => 17,
-            S::Twelfth => 19,
-            S::Thirteenth => 21,
-            S::Fourteenth => 23,
-            S::Fifteenth => 24,
-        };
-
-        let quality_adjustment = match self.quality {
-            Q::Perfect => 0,
-            Q::Major => 0,
+        let quality_adjust = match self.quality {
+            Q::Perfect | Q::Major => 0,
             Q::Minor => -1,
 
-            Q::Diminished => match self.size {
-                S::Fourth | S::Fifth | S::Octave |
-                S::Eleventh | S::Twelfth | S::Fifteenth => -1,
-                _ => -2
-            },
-
-            Q::DoublyDiminished => match self.size {
-                S::Fourth | S::Fifth | S::Octave |
-                S::Eleventh | S::Twelfth | S::Fifteenth => -2,
-                _ => -3
+            Q::Diminished(n) => if self.number.is_perfect() {
+                -(n.get() as i16)
+            } else {
+                -(n.get() as i16 + 1)
             }
 
-            Q::Augmented => 1,
-            Q::DoublyAugmented => 2,
+            Q::Augmented(n) => n.get() as i16,
         };
 
-        Semitone(base_semitones + quality_adjustment)
+        let unsigned = with_octave + quality_adjust;
+
+        Semitone(unsigned * self.number.number().signum())
     }
 
     pub fn shorthand(&self) -> String {
-        format!("{}{}", self.quality.shorthand(), self.size.shorthand())
+        format!("{}{}", self.quality.shorthand(), self.number.shorthand())
     }
 
-    // TODO: there's probably a better way to do this
-    pub fn from_semitones_preferred(semitones: Semitone) -> Option<Self> {
-        use crate::interval as ivl;
-
-        match semitones.0 {
-            0 => Some(ivl!(Perfect Unison)),
-            1 => Some(ivl!(Minor Second)),
-            2 => Some(ivl!(Major Second)),
-            3 => Some(ivl!(Minor Third)),
-            4 => Some(ivl!(Major Third)),
-            5 => Some(ivl!(Perfect Fourth)),
-            6 => Some(ivl!(Diminished Fifth)),
-            7 => Some(ivl!(Perfect Fifth)),
-            8 => Some(ivl!(Minor Sixth)),
-            9 => Some(ivl!(Major Sixth)),
-            10 => Some(ivl!(Minor Seventh)),
-            11 => Some(ivl!(Major Seventh)),
-            12 => Some(ivl!(Perfect Octave)),
-
-            13 => Some(ivl!(Minor Ninth)),
-            14 => Some(ivl!(Major Ninth)),
-            15 => Some(ivl!(Minor Tenth)),
-            16 => Some(ivl!(Major Tenth)),
-            17 => Some(ivl!(Perfect Eleventh)),
-            18 => Some(ivl!(Diminished Twelfth)),
-            19 => Some(ivl!(Perfect Twelfth)),
-            20 => Some(ivl!(Minor Thirteenth)),
-            21 => Some(ivl!(Major Thirteenth)),
-            22 => Some(ivl!(Minor Fourteenth)),
-            23 => Some(ivl!(Major Fourteenth)),
-            24 => Some(ivl!(Perfect Fifteenth)),
-
-            _ => None,
-        }
-    }
-
-    // TODO: this method breaks the invariance of the Interval (can create invalid diminished intervals)
     pub fn inverted(&self) -> Self {
-        Interval {
-            size: self.size.inverted(),
-            quality: self.quality.inverted(),
+        Self::new(self.quality.inverted(), self.number.inverted())
+            .expect("valid quality")
+    }
+
+    pub fn inverted_strict_non_subzero(&self) -> Option<Self> {
+        let inv = self.inverted();
+
+        Self::strict_non_subzero(inv.quality, inv.number)
+    }
+
+    pub fn from_semitones_preferred(semitones: Semitone) -> Self {
+        let semi = semitones.0;
+
+        if semi == 0 {
+            return Self::PERFECT_UNISON;
+        }
+
+        let semi_adj = (semi.abs() - 1) % 12;
+
+        use IntervalQuality as Q;
+
+        let (quality, base_num) = match semi_adj + 1 {
+            1 => (Q::Minor, 2),
+            2 => (Q::Major, 2),
+            3 => (Q::Minor, 3),
+            4 => (Q::Major, 3),
+            5 => (Q::Perfect, 4),
+            6 => (Q::DIMINISHED, 5),
+            7 => (Q::Perfect, 5),
+            8 => (Q::Minor, 6),
+            9 => (Q::Major, 6),
+            10 => (Q::Minor, 7),
+            11 => (Q::Major, 7),
+            12 => (Q::Perfect, 8),
+            _ => unreachable!("should be in range [1,12]"),
+        };
+
+        let oct = semi_adj / 12;
+
+        let number = IntervalNumber::new(base_num + oct * 7)
+            .expect("non zero");
+
+        Self::new(quality, number)
+            .expect("valid quality")
+    }
+    
+    pub fn is_ascending(&self) -> bool {
+        self.number.is_ascending()
+    }
+    
+    pub fn with_direction(&self, ascending: bool) -> Self {
+        Self {
+            number: self.number.with_direction(ascending),
+            .. *self
         }
     }
 }

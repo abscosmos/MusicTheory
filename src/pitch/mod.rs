@@ -4,7 +4,6 @@ use regex::Regex;
 use crate::enharmonic::EnharmonicEq;
 use crate::interval::Interval;
 use crate::interval::quality::IntervalQuality;
-use crate::interval::size::IntervalSize;
 use crate::accidental::AccidentalSign;
 use crate::letter::Letter;
 use crate::pitch_class::PitchClass;
@@ -122,48 +121,34 @@ impl Pitch {
         self.as_pitch_class().bias(sharp)
     }
 
-    // TODO: inverse of this method
-    pub fn transpose_ascending(&self, interval: &Interval) -> Self {
-        self.transpose(interval, true)
-    }
-
-    pub fn transpose_descending(&self, interval: &Interval) -> Self {
-        self.transpose(interval, false)
-    }
-
-    pub fn transpose(&self, interval: &Interval, ascending: bool) -> Self {
-        use IntervalSize as S;
+    pub fn transpose(&self, interval: &Interval) -> Self {
         use IntervalQuality as Q;
-
-        let start = match interval.size().as_simple() {
-            S::Unison | S::Octave => 7,
-            S::Second => 9,
-            S::Third => 11,
-            S::Fourth => 6,
-            S::Fifth => 8,
-            S::Sixth => 10,
-            S::Seventh => 12,
+        
+        let start = match interval.number().as_simple().number().abs() {
+            1 | 8 => 7,
+            2 => 9,
+            3 => 11,
+            4 => 6,
+            5 => 8,
+            6 => 10,
+            7 => 12,
             _ => unreachable!("a simple interval can't be bigger than a octave")
         };
 
         let quality_offset = match interval.quality() {
-            Q::DoublyAugmented => -1,
-            Q::Augmented => 0,
+            Q::Augmented(n) => -(n.get() as i16 - 1),
             Q::Perfect | Q::Major => 1,
             Q::Minor => 2,
-            Q::Diminished => match interval.size().is_perfect() {
-                true => 2,
-                false => 3,
-            }
-            Q::DoublyDiminished => match interval.size().is_perfect() {
-                true => 3,
-                false => 4,
+            
+            Q::Diminished(n) => match interval.number().is_perfect() {
+                true => n.get() as i16 + 1,
+                false => n.get() as i16 + 2,
             }
         };
 
         let offset = start - 7 * quality_offset;
 
-        let dir_offset = if ascending { offset } else { -offset };
+        let dir_offset = if interval.is_ascending() { offset } else { -offset };
 
         Self::from_fifths_from_c(self.as_fifths_from_c() + dir_offset)
     }

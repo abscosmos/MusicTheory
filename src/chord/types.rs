@@ -52,51 +52,51 @@ pub enum ChordType {
 
 impl ChordType {
     pub fn intervals(&self) -> Vec<Interval> {
-        use crate::intervals_vec as ivls;
         use ChordType as C;
+        use Interval as I;
 
         match self {
-            C::MajorTriad => ivls!(Perfect Unison, Major Third, Perfect Fifth),
-            C::MinorTriad => ivls!(Perfect Unison, Minor Third, Perfect Fifth),
-            C::AugmentedTriad => ivls!(Perfect Unison, Major Third, Augmented Fifth),
-            C::DiminishedTriad => ivls!(Perfect Unison, Minor Third, Diminished Fifth),
-            C::Suspended2Triad => ivls!(Perfect Unison, Major Second, Perfect Fifth),
-            C::Suspended4Triad => ivls!(Perfect Unison, Perfect Fourth, Perfect Fifth),
+            C::MajorTriad => vec![I::PERFECT_UNISON, I::MAJOR_THIRD, I::PERFECT_FIFTH],
+            C::MinorTriad => vec![I::PERFECT_UNISON, I::MINOR_THIRD, I::PERFECT_FIFTH],
+            C::AugmentedTriad => vec![I::PERFECT_UNISON, I::MAJOR_THIRD, I::AUGMENTED_FIFTH],
+            C::DiminishedTriad => vec![I::PERFECT_UNISON, I::MINOR_THIRD, I::DIMINISHED_FIFTH],
+            C::Suspended2Triad => vec![I::PERFECT_UNISON, I::MAJOR_SECOND, I::PERFECT_FIFTH],
+            C::Suspended4Triad => vec![I::PERFECT_UNISON, I::PERFECT_FOURTH, I::PERFECT_FIFTH],
 
-            C::Fifth => ivls!(Perfect Unison, Perfect Fifth),
+            C::Fifth => vec![I::PERFECT_UNISON, I::PERFECT_FIFTH],
 
-            C::MajorSixth | C::AddSixth => ivls!(Perfect Unison, Major Third, Perfect Fifth, Major Sixth),
-            C::MinorSixth => ivls!(Perfect Unison, Minor Third, Perfect Fifth, Major Sixth),
-            C::MinorFlatSixth => ivls!(Perfect Unison, Minor Third, Perfect Fifth, Minor Sixth),
+            C::MajorSixth | C::AddSixth => vec![I::PERFECT_UNISON, I::MAJOR_THIRD, I::PERFECT_FIFTH, I::MAJOR_SIXTH],
+            C::MinorSixth => vec![I::PERFECT_UNISON, I::MINOR_THIRD, I::PERFECT_FIFTH, I::MAJOR_SIXTH],
+            C::MinorFlatSixth => vec![I::PERFECT_UNISON, I::MINOR_THIRD, I::PERFECT_FIFTH, I::MINOR_SIXTH],
 
-            C::DiminishedSeventh => ivls!(Perfect Unison, Minor Third, Diminished Fifth, Diminished Seventh),
-            C::HalfDiminishedSeventh => ivls!(Perfect Unison, Minor Third, Diminished Fifth, Minor Seventh),
-            C::MinorSeventh => ivls!(Perfect Unison, Minor Third, Perfect Fifth, Minor Seventh),
-            C::MinorMajorSeventh => ivls!(Perfect Unison, Minor Third, Perfect Fifth, Major Seventh),
-            C::DominantSeventh => ivls!(Perfect Unison, Major Third, Perfect Fifth, Minor Seventh),
-            C::MajorSeventh => ivls!(Perfect Unison, Major Third, Perfect Fifth, Major Seventh),
-            C::AugmentedSeventh | C::SeventhAugmentedFifth => ivls!(Perfect Unison, Major Third, Augmented Fifth, Minor Seventh),
-            C::AugmentedMajorSeventh => ivls!(Perfect Unison, Major Third, Augmented Fifth, Major Seventh),
-            C::DominantSeventhFlatFive => ivls!(Perfect Unison, Major Third, Diminished Fifth, Minor Seventh),
+            C::DiminishedSeventh => vec![I::PERFECT_UNISON, I::MINOR_THIRD, I::DIMINISHED_FIFTH, I::DIMINISHED_SEVENTH],
+            C::HalfDiminishedSeventh => vec![I::PERFECT_UNISON, I::MINOR_THIRD, I::DIMINISHED_FIFTH, I::MINOR_SEVENTH],
+            C::MinorSeventh => vec![I::PERFECT_UNISON, I::MINOR_THIRD, I::PERFECT_FIFTH, I::MINOR_SEVENTH],
+            C::MinorMajorSeventh => vec![I::PERFECT_UNISON, I::MINOR_THIRD, I::PERFECT_FIFTH, I::MAJOR_SEVENTH],
+            C::DominantSeventh => vec![I::PERFECT_UNISON, I::MAJOR_THIRD, I::PERFECT_FIFTH, I::MINOR_SEVENTH],
+            C::MajorSeventh => vec![I::PERFECT_UNISON, I::MAJOR_THIRD, I::PERFECT_FIFTH, I::MAJOR_SEVENTH],
+            C::AugmentedSeventh | C::SeventhAugmentedFifth => vec![I::PERFECT_UNISON, I::MAJOR_THIRD, I::AUGMENTED_FIFTH, I::MINOR_SEVENTH],
+            C::AugmentedMajorSeventh => vec![I::PERFECT_UNISON, I::MAJOR_THIRD, I::AUGMENTED_FIFTH, I::MAJOR_SEVENTH],
+            C::DominantSeventhFlatFive => vec![I::PERFECT_UNISON, I::MAJOR_THIRD, I::DIMINISHED_FIFTH, I::MINOR_SEVENTH],
 
-            C::DominantNinth => ivls!(Perfect Unison, Major Third, Perfect Fifth, Minor Seventh, Major Ninth),
-            C::DominantEleventh => ivls!(Perfect Unison, Major Third, Perfect Fifth, Minor Seventh, Major Ninth, Perfect Eleventh),
-            C::DominantThirteenth => ivls!(Perfect Unison, Major Third, Perfect Fifth, Minor Seventh, Major Ninth, Perfect Eleventh, Major Thirteenth),
+            C::DominantNinth => vec![I::PERFECT_UNISON, I::MAJOR_THIRD, I::PERFECT_FIFTH, I::MINOR_SEVENTH, I::MAJOR_NINTH],
+            C::DominantEleventh => vec![I::PERFECT_UNISON, I::MAJOR_THIRD, I::PERFECT_FIFTH, I::MINOR_SEVENTH, I::MAJOR_NINTH, I::PERFECT_ELEVENTH],
+            C::DominantThirteenth => vec![I::PERFECT_UNISON, I::MAJOR_THIRD, I::PERFECT_FIFTH, I::MINOR_SEVENTH, I::MAJOR_NINTH, I::PERFECT_ELEVENTH, I::MAJOR_THIRTEENTH],
 
-            C::Lydian => ivls!(Perfect Unison, Major Third, Perfect Fifth, Major Seventh, Augmented Eleventh),
-            C::LydianAugmented => ivls!(Perfect Unison, Major Third, Augmented Fifth, Minor Seventh, Augmented Eleventh),
+            C::Lydian => vec![I::PERFECT_UNISON, I::MAJOR_THIRD, I::PERFECT_FIFTH, I::MAJOR_SEVENTH, I::AUGMENTED_ELEVENTH],
+            C::LydianAugmented => vec![I::PERFECT_UNISON, I::MAJOR_THIRD, I::AUGMENTED_FIFTH, I::MINOR_SEVENTH, I::AUGMENTED_ELEVENTH],
 
-            C::SeventhMinorNinth => ivls!(Perfect Unison, Major Third, Perfect Fifth, Minor Seventh, Minor Ninth),
-            C::SeventhSharpNinth => ivls!(Perfect Unison, Major Third, Perfect Fifth, Minor Seventh, Augmented Ninth),
-            C::SeventhAugmentedEleventh => ivls!(Perfect Unison, Major Third, Perfect Fifth, Minor Seventh, Major Ninth, Augmented Eleventh),
-            C::SeventhDiminishedThirteenth => ivls!(Perfect Unison, Major Third, Perfect Fifth, Minor Seventh, Major Ninth, Perfect Eleventh, Minor Thirteenth),
-            C::AddTwo => ivls!(Perfect Unison, Major Second, Major Third, Perfect Fifth),
-            C::AddFourth => ivls!(Perfect Unison, Major Third, Perfect Fourth, Perfect Fifth),
-            C::AddNine => ivls!(Perfect Unison, Major Third, Perfect Fifth, Major Ninth),
-            C::SixNine => ivls!(Perfect Unison, Major Third, Perfect Fifth, Major Sixth, Major Ninth),
-            C::SevenSix => ivls!(Perfect Unison, Major Third, Perfect Fifth, Major Sixth, Minor Seventh),
-            C::MixedThird => ivls!(Perfect Unison, Minor Third, Major Third, Perfect Fifth),
-            C::JazzSus => ivls!(Perfect Unison, Perfect Fourth, Perfect Fifth, Minor Seventh, Major Ninth),
+            C::SeventhMinorNinth => vec![I::PERFECT_UNISON, I::MAJOR_THIRD, I::PERFECT_FIFTH, I::MINOR_SEVENTH, I::MINOR_NINTH],
+            C::SeventhSharpNinth => vec![I::PERFECT_UNISON, I::MAJOR_THIRD, I::PERFECT_FIFTH, I::MINOR_SEVENTH, I::AUGMENTED_NINTH],
+            C::SeventhAugmentedEleventh => vec![I::PERFECT_UNISON, I::MAJOR_THIRD, I::PERFECT_FIFTH, I::MINOR_SEVENTH, I::MAJOR_NINTH, I::AUGMENTED_ELEVENTH],
+            C::SeventhDiminishedThirteenth => vec![I::PERFECT_UNISON, I::MAJOR_THIRD, I::PERFECT_FIFTH, I::MINOR_SEVENTH, I::MAJOR_NINTH, I::PERFECT_ELEVENTH, I::MINOR_THIRTEENTH],
+            C::AddTwo => vec![I::PERFECT_UNISON, I::MAJOR_SECOND, I::MAJOR_THIRD, I::PERFECT_FIFTH],
+            C::AddFourth => vec![I::PERFECT_UNISON, I::MAJOR_THIRD, I::PERFECT_FOURTH, I::PERFECT_FIFTH],
+            C::AddNine => vec![I::PERFECT_UNISON, I::MAJOR_THIRD, I::PERFECT_FIFTH, I::MAJOR_NINTH],
+            C::SixNine => vec![I::PERFECT_UNISON, I::MAJOR_THIRD, I::PERFECT_FIFTH, I::MAJOR_SIXTH, I::MAJOR_NINTH],
+            C::SevenSix => vec![I::PERFECT_UNISON, I::MAJOR_THIRD, I::PERFECT_FIFTH, I::MAJOR_SIXTH, I::MINOR_SEVENTH],
+            C::MixedThird => vec![I::PERFECT_UNISON, I::MINOR_THIRD, I::MAJOR_THIRD, I::PERFECT_FIFTH],
+            C::JazzSus => vec![I::PERFECT_UNISON, I::PERFECT_FOURTH, I::PERFECT_FIFTH, I::MINOR_SEVENTH, I::MAJOR_NINTH],
         }
     }
 }

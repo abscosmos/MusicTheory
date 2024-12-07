@@ -1,42 +1,41 @@
-use strum_macros::EnumIter;
+use std::fmt;
+use std::num::NonZeroU16;
 
-#[derive(Copy, Clone, Eq, PartialEq, Debug, EnumIter)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub enum IntervalQuality {
+    Diminished(NonZeroU16),
+    Minor,
     Perfect,
     Major,
-    Minor,
-    Diminished,
-    Augmented,
-    DoublyDiminished,
-    DoublyAugmented,
+    Augmented(NonZeroU16),
 }
 
 impl IntervalQuality {
-    pub fn shorthand(&self) -> &'static str {
-        use IntervalQuality as Q;
-
+    pub fn shorthand(&self) -> String {
         match self {
-            Q::Perfect => "P",
-            Q::Major => "M",
-            Q::Minor => "m",
-            Q::Diminished => "d",
-            Q::Augmented => "A",
-            Q::DoublyDiminished => "dd",
-            Q::DoublyAugmented => "AA",
+            IntervalQuality::Perfect => "P".to_owned(),
+            IntervalQuality::Major => "M".to_owned(),
+            IntervalQuality::Minor => "m".to_owned(),
+            IntervalQuality::Diminished(n) => "d".repeat(n.get() as _),
+            IntervalQuality::Augmented(n) => "A".repeat(n.get() as _),
         }
     }
 
     pub fn inverted(&self) -> Self {
         use IntervalQuality as Q;
 
-        match self {
+        match *self {
             Q::Perfect => Q::Perfect,
             Q::Major => Q::Minor,
             Q::Minor => Q::Major,
-            Q::Augmented => Q::Diminished,
-            Q::Diminished => Q::Augmented,
-            Q::DoublyAugmented => Q::DoublyDiminished,
-            Q::DoublyDiminished => Q::DoublyAugmented,
+            Q::Diminished(n) => Q::Augmented(n),
+            Q::Augmented(n) => Q::Diminished(n),
         }
+    }
+}
+
+impl fmt::Display for IntervalQuality {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.shorthand())
     }
 }
