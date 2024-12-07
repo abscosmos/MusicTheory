@@ -10,7 +10,3 @@ pub mod pitch;
 pub mod letter;
 
 // TODO: add pcset
-
-fn main() {
-    
-}
