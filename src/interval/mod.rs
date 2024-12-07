@@ -9,7 +9,7 @@ pub mod quality;
 pub mod number;
 pub mod consts;
 
-#[derive(Clone, Eq, PartialEq, Debug)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub struct Interval {
     quality: IntervalQuality,
     number: IntervalNumber,
