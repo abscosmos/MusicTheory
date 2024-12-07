@@ -1,5 +1,6 @@
 use std::fmt;
 use std::num::NonZeroI16;
+use std::ops::Neg;
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub struct IntervalNumber(NonZeroI16);
@@ -80,6 +81,14 @@ impl IntervalNumber {
 
         Self::new(num * self.number().signum())
             .expect("can't be zero")
+    }
+}
+
+impl Neg for IntervalNumber {
+    type Output = Self;
+
+    fn neg(self) -> Self::Output {
+        Self(-self.0)
     }
 }
 
