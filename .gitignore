@@ -20,3 +20,4 @@ rust-project.json
 
 .idea/
 logs/
+mutants.out*/
