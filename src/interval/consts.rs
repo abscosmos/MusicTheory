@@ -7,6 +7,7 @@ use IntervalQuality as IQ;
 macro_rules! define_consts {
     ($($quality:ident $num:ident),* $(,)?) => {
         $(
+            // TODO: std::concat_idents is nightly only
             paste::paste! { pub const [<$quality _ $num>]: Self = unsafe { Self::new_unchecked(IQ::$quality, IN::$num) }; }
         )*
     };
