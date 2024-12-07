@@ -46,14 +46,13 @@ impl Interval {
 
     pub fn semitones(&self) -> Semitone {
         let base_semis = match self.number.as_simple().number().abs() {
-            1 => 0,
+            1 | 8 => 0,
             2 => 2,
             3 => 4,
             4 => 5,
             5 => 7,
             6 => 9,
             7 => 11,
-            8 => 12,
             _ => unreachable!("abs of as_simple must be within [1,8]"),
         };
 
