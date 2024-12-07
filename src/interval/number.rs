@@ -13,17 +13,20 @@ impl IntervalNumber {
         }
     }
 
-    pub fn number(&self) -> i16 {
+    pub fn number(self) -> i16 {
         self.0.get()
     }
 
-    pub fn shorthand(&self) -> i16 {
+    pub fn shorthand(self) -> i16 {
         self.number()
     }
 
-    pub fn as_simple(&self) -> Self {
+    pub fn as_simple(self) -> Self {
         if self.number().abs() != 1 && (self.number().abs() - 1) % 7 == 0 {
-            Self::OCTAVE
+            match self.number().is_positive() {
+                true => Self::OCTAVE,
+                false => -Self::OCTAVE,
+            }
         } else {
             let num = (self.number().abs() - 1) % 7 + 1;
             
@@ -32,7 +35,7 @@ impl IntervalNumber {
         }
     }
 
-    pub fn is_perfect(&self) -> bool {
+    pub fn is_perfect(self) -> bool {
         match self.as_simple().number().abs() {
             1 | 4 | 5 | 8 => true,
             2 | 3 | 6 | 7 => false,
@@ -40,27 +43,27 @@ impl IntervalNumber {
         }
     }
 
-    pub fn is_ascending(&self) -> bool {
+    pub fn is_ascending(self) -> bool {
         self.number().is_positive()
     }
 
-    pub fn with_direction(&self, ascending: bool) -> Self {
-        if self.number().is_positive() == ascending {
-            *self
+    pub fn with_direction(self, ascending: bool) -> Self {
+        if self.is_ascending() == ascending {
+            self
         } else {
-            Self(-self.0)
+            -self
         }
     }
 
-    pub fn octave_unsigned(&self) -> i16 { // TODO: make this return u16
+    pub fn octave_unsigned(self) -> i16 { // TODO: make this return u16
         (self.number().abs() - 1) / 7
     }
 
-    pub fn octave_signed(&self) -> i16 {
+    pub fn octave_signed(self) -> i16 {
         self.octave_unsigned() * self.number().signum()
     }
 
-    pub fn inverted(&self) -> Self {
+    pub fn inverted(self) -> Self {
         let simple_abs = self.as_simple().number().abs();
 
         let n = match simple_abs {
