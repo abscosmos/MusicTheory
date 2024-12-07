@@ -159,3 +159,148 @@ impl EnharmonicOrd for Interval {
         self.semitones().0.cmp(&rhs.semitones().0)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use std::num::NonZeroU16;
+    use super::*;
+    use Interval as I;
+    use IntervalQuality as IQ;
+    use IntervalNumber as IN;
+
+    #[test]
+    fn new() {
+        for num in 1..25 {
+            let num = IN::new(num).expect("nonzero");
+
+            assert!(I::new(IQ::DIMINISHED, num).is_some());
+            assert!(I::new(IQ::AUGMENTED, num).is_some());
+
+            for adj in 1..12 {
+                assert!(I::new(IQ::Diminished(NonZeroU16::new(adj).expect("nonzero")), num).is_some());
+                assert!(I::new(IQ::Augmented(NonZeroU16::new(adj).expect("nonzero")), num).is_some());
+            }
+        }
+
+        assert!(I::new(IQ::Major, IN::THIRD).is_some());
+        assert!(I::new(IQ::Major, IN::THIRTEENTH).is_some());
+        assert!(I::new(IQ::Major, IN::SECOND).is_some());
+
+        assert!(I::new(IQ::Major, IN::FOURTH).is_none());
+        assert!(I::new(IQ::Major, IN::TWELFTH).is_none());
+        assert!(I::new(IQ::Major, IN::OCTAVE).is_none());
+
+        assert!(I::new(IQ::Minor, IN::SIXTH).is_some());
+        assert!(I::new(IQ::Minor, IN::NINTH).is_some());
+        
+        assert!(I::new(IQ::Minor, IN::ELEVENTH).is_none());
+        assert!(I::new(IQ::Minor, IN::UNISON).is_none());
+        
+        assert!(I::new(IQ::Perfect, IN::FOURTH).is_some());
+        assert!(I::new(IQ::Perfect, IN::FIFTEENTH).is_some());
+        
+        assert!(I::new(IQ::Perfect, IN::SECOND).is_none());
+        assert!(I::new(IQ::Perfect, IN::SEVENTH).is_none());
+    }
+    
+    #[test]
+    fn non_subzero() {
+        assert!(I::strict_non_subzero(IQ::DIMINISHED, IN::UNISON).is_none());
+        
+        for num in 2..15 {
+            let num = IN::new(num).expect("nonzero");
+            assert!(I::strict_non_subzero(IQ::DIMINISHED, num).is_some());
+        }
+
+        let doubly_diminished = IQ::Diminished(NonZeroU16::new(2).expect("nonzero"));
+        
+        assert!(I::strict_non_subzero(doubly_diminished, IN::UNISON).is_none());
+        assert!(I::strict_non_subzero(doubly_diminished, IN::SECOND).is_none());
+
+        for num in 3..15 {
+            let num = IN::new(num).expect("nonzero");
+            assert!(I::strict_non_subzero(doubly_diminished, num).is_some());
+        }
+    }
+    
+    #[test]
+    fn semitones_constants() {
+        let semi = |ivl: I| ivl.semitones().0;
+        
+        assert_eq!(semi(I::PERFECT_UNISON), 0);
+        assert_eq!(semi(I::DIMINISHED_SECOND), 0);
+        
+        assert_eq!(semi(I::MINOR_SECOND), 1);
+        assert_eq!(semi(I::AUGMENTED_UNISON), 1);
+        
+        assert_eq!(semi(I::MAJOR_SECOND), 2);
+        assert_eq!(semi(I::DIMINISHED_THIRD), 2);
+        
+        assert_eq!(semi(I::MINOR_THIRD), 3);
+        assert_eq!(semi(I::AUGMENTED_SECOND), 3);
+        
+        assert_eq!(semi(I::MAJOR_THIRD), 4);
+        assert_eq!(semi(I::DIMINISHED_FOURTH), 4);
+        
+        assert_eq!(semi(I::PERFECT_FOURTH), 5);
+        assert_eq!(semi(I::AUGMENTED_THIRD), 5);
+        
+        assert_eq!(semi(I::DIMINISHED_FIFTH), 6);
+        assert_eq!(semi(I::AUGMENTED_FOURTH), 6);
+        
+        assert_eq!(semi(I::PERFECT_FIFTH), 7);
+        assert_eq!(semi(I::DIMINISHED_SIXTH), 7);
+        
+        assert_eq!(semi(I::MINOR_SIXTH), 8);
+        assert_eq!(semi(I::AUGMENTED_FIFTH), 8);
+        
+        assert_eq!(semi(I::MAJOR_SIXTH), 9);
+        assert_eq!(semi(I::DIMINISHED_SEVENTH), 9);
+        
+        assert_eq!(semi(I::MINOR_SEVENTH), 10);
+        assert_eq!(semi(I::AUGMENTED_SIXTH), 10);
+        
+        assert_eq!(semi(I::MAJOR_SEVENTH), 11);
+        assert_eq!(semi(I::DIMINISHED_OCTAVE), 11);
+        
+        assert_eq!(semi(I::PERFECT_OCTAVE), 12);
+        assert_eq!(semi(I::AUGMENTED_SEVENTH), 12);
+        assert_eq!(semi(I::DIMINISHED_NINTH), 12);
+        
+        assert_eq!(semi(I::MINOR_NINTH), 13);
+        assert_eq!(semi(I::AUGMENTED_OCTAVE), 13);
+        
+        assert_eq!(semi(I::MAJOR_NINTH), 14);
+        assert_eq!(semi(I::DIMINISHED_TENTH), 14);
+        
+        assert_eq!(semi(I::MINOR_TENTH), 15);
+        assert_eq!(semi(I::AUGMENTED_NINTH), 15);
+        
+        assert_eq!(semi(I::MAJOR_TENTH), 16);
+        assert_eq!(semi(I::DIMINISHED_ELEVENTH), 16);
+        
+        assert_eq!(semi(I::PERFECT_ELEVENTH), 17);
+        assert_eq!(semi(I::AUGMENTED_TENTH), 17);
+        
+        assert_eq!(semi(I::DIMINISHED_TWELFTH), 18);
+        assert_eq!(semi(I::AUGMENTED_ELEVENTH), 18);
+        
+        assert_eq!(semi(I::PERFECT_TWELFTH), 19);
+        assert_eq!(semi(I::DIMINISHED_THIRTEENTH), 19);
+        
+        assert_eq!(semi(I::MINOR_THIRTEENTH), 20);
+        assert_eq!(semi(I::AUGMENTED_TWELFTH), 20);
+        
+        assert_eq!(semi(I::MAJOR_THIRTEENTH), 21);
+        assert_eq!(semi(I::DIMINISHED_FOURTEENTH), 21);
+        
+        assert_eq!(semi(I::MINOR_FOURTEENTH), 22);
+        assert_eq!(semi(I::AUGMENTED_THIRTEENTH), 22);
+        
+        assert_eq!(semi(I::MAJOR_FOURTEENTH), 23);
+        assert_eq!(semi(I::DIMINISHED_FIFTEENTH), 23);
+        
+        assert_eq!(semi(I::PERFECT_FIFTEENTH), 24);
+        assert_eq!(semi(I::AUGMENTED_FOURTEENTH), 24);
+    }
+}
