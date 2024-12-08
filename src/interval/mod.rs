@@ -1,5 +1,6 @@
 use std::cmp::Ordering;
 use std::fmt;
+use std::ops::Neg;
 use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
 use crate::interval::number::IntervalNumber;
 use crate::interval::quality::IntervalQuality;
@@ -137,6 +138,17 @@ impl Interval {
         Self {
             number: self.number.with_direction(ascending),
             .. *self
+        }
+    }
+}
+
+impl Neg for Interval {
+    type Output = Self;
+
+    fn neg(self) -> Self::Output {
+        Self {
+            number: -self.number,
+            .. self
         }
     }
 }
