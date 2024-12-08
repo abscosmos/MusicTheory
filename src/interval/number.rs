@@ -240,6 +240,7 @@ mod tests {
     #[test]
     fn neg() {
         assert_eq!((-IN::FIFTEENTH).number(), -15);
+        assert_eq!(-(-IN::NINTH), IN::NINTH);
     }
     
     #[test]
