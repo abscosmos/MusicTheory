@@ -76,5 +76,11 @@ mod tests {
         
         assert_eq!(IQ::Augmented(FOUR).inverted(), IQ::Diminished(FOUR));
         assert_eq!(IQ::Diminished(SIX).inverted(), IQ::Augmented(SIX));
+
+        assert_eq!(IQ::Major.inverted().inverted(), IQ::Major);
+        assert_eq!(IQ::Minor.inverted().inverted(), IQ::Minor);
+        assert_eq!(IQ::Perfect.inverted().inverted(), IQ::Perfect);
+        assert_eq!(IQ::DIMINISHED.inverted().inverted(), IQ::DIMINISHED);
+        assert_eq!(IQ::AUGMENTED.inverted().inverted(), IQ::AUGMENTED);
     }
 }

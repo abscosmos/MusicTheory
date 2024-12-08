@@ -235,6 +235,11 @@ mod tests {
         assert_eq!((-IN::OCTAVE).inverted(), -IN::OCTAVE);
         assert_eq!(IN::FIFTEENTH.inverted(), IN::FIFTEENTH);
         assert_eq!((-IN::FIFTEENTH).inverted(), -IN::FIFTEENTH);
+
+        assert_eq!(IN::THIRD.inverted().inverted(), IN::THIRD);
+        assert_eq!(IN::FOURTH.inverted().inverted(), IN::FOURTH);
+        assert_eq!(IN::NINTH.inverted().inverted(), IN::NINTH);
+        assert_eq!(IN::FOURTEENTH.inverted().inverted(), IN::FOURTEENTH);
     }
     
     #[test]
