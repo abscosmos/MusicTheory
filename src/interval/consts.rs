@@ -10,6 +10,12 @@ macro_rules! define_consts {
             // TODO: std::concat_idents is nightly only
             paste::paste! { pub const [<$quality _ $num>]: Self = unsafe { Self::new_unchecked(IQ::$quality, IN::$num) }; }
         )*
+        
+        pub const ALL_CONSTS: &[Self] = &[ // TODO: use count metavar when stabilized
+            $(
+                paste::paste! { Self::[<$quality _ $num>] }
+            ),*
+        ];
     };
 }
 
