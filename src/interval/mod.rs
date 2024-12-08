@@ -31,10 +31,11 @@ impl Interval {
     }
 
     pub fn strict_non_subzero(quality: IntervalQuality, number: IntervalNumber) -> Option<Self> {
-        match Self::new(quality, number)? {
-            Interval { quality: IntervalQuality::Diminished(n), .. } if number.number().abs() <= n.get() as _ => None,
-            ivl => Some(ivl),
-        }
+         Self::new(quality, number).filter(|ivl| !ivl.is_subzero())
+    }
+
+    pub fn is_subzero(&self) -> bool {
+        matches!(self.quality, IntervalQuality::Diminished(n) if self.number.number().abs() <= n.get() as _)
     }
 
     pub fn quality(&self) -> IntervalQuality {
@@ -89,9 +90,10 @@ impl Interval {
     }
 
     pub fn inverted_strict_non_subzero(&self) -> Option<Self> {
-        let inv = self.inverted();
-
-        Self::strict_non_subzero(inv.quality, inv.number)
+        match self.inverted() {
+            ivl if !ivl.is_subzero() => Some(ivl),
+            _ => None,
+        }
     }
 
     pub fn from_semitones_preferred(semitones: Semitone) -> Self {
