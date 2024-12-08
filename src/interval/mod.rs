@@ -123,9 +123,11 @@ impl Interval {
             _ => unreachable!("should be in range [1,12]"),
         };
 
-        let oct = semi_adj / 12;
+        let oct = (semi.abs() - 1) / 12;
 
-        let number = IntervalNumber::new(base_num + oct * 7)
+        let unsigned = base_num + oct * 7;
+
+        let number = IntervalNumber::new(unsigned * semi.signum())
             .expect("non zero");
 
         Self::new(quality, number)
