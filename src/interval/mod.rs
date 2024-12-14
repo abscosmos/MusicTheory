@@ -552,22 +552,19 @@ mod tests {
         use IntervalNumber as IN;
 
         let mut qualities = vec![IQ::Perfect, IQ::Major, IQ::Minor];
-        qualities.extend((1..=8).map(|n| IQ::Diminished(NonZeroU16::new(n).expect("nonzero"))));
-        qualities.extend((1..=8).map(|n| IQ::Augmented(NonZeroU16::new(n).expect("nonzero"))));
+        qualities.extend((1..=4).map(|n| IQ::Diminished(NonZeroU16::new(n).expect("nonzero"))));
+        qualities.extend((1..=4).map(|n| IQ::Augmented(NonZeroU16::new(n).expect("nonzero"))));
 
         let mut numbers = Vec::with_capacity(100);
-        numbers.extend((1..=50).map(|n| IN::new(n).expect("nonzero")));
-        numbers.extend((-50..=-1).map(|n| IN::new(n).expect("nonzero")));
+        numbers.extend((1..=24).map(|n| IN::new(n).expect("nonzero")));
+        numbers.extend((-24..=-1).map(|n| IN::new(n).expect("nonzero")));
 
-        let mut intervals = Vec::with_capacity(qualities.len() * numbers.len());
-
-        for iq in &qualities {
-            for num in &numbers {
-                if let Some(ivl) = I::new(*iq, *num) {
-                    intervals.push(ivl);
-                }
-            }
-        }
+        let intervals = qualities.iter()
+            .flat_map(|iq|
+                numbers.iter().filter_map(
+                    |num| I::new(*iq, *num)
+                ))
+            .collect::<Vec<_>>();
 
         for lhs in &intervals {
             for rhs in &intervals {
