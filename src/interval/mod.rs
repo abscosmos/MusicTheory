@@ -1,9 +1,11 @@
 use std::cmp::Ordering;
 use std::fmt;
+use std::num::NonZeroU16;
 use std::ops::Neg;
 use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
 use crate::interval::number::IntervalNumber;
 use crate::interval::quality::IntervalQuality;
+use crate::note::Note;
 use crate::semitone::Semitone;
 
 pub mod quality;
@@ -136,6 +138,57 @@ impl Interval {
 
     pub fn abs(&self) -> Self {
         self.with_direction(true)
+    }
+
+    pub fn add(&self, rhs: Self) -> Self {
+        let lhs_num = self.number.number();
+        let rhs_num = rhs.number.number();
+        /*
+            + + => lhs + rhs - 1
+            + - => lhs + rhs + 1
+            - + => lhs + rhs - 1
+            - - => lhs + rhs + 1
+        */
+
+        if self.abs() == Self::PERFECT_UNISON {
+            return rhs;
+        } else if rhs.abs() == Self::PERFECT_UNISON {
+            return *self;
+        }
+
+        let adj = !(self.quality == IntervalQuality::Perfect && rhs.quality == IntervalQuality::Perfect) as u8;
+
+        // TODO: ensure this can't be zero (zero for -A1 + 2m)
+        let num = IntervalNumber::new(lhs_num + rhs_num - rhs_num.signum() * adj as i16)
+            .unwrap_or(
+                IntervalNumber::new(2 * rhs_num.signum())
+                    .expect("can't be zero")
+            );
+
+        let distance = self.semitones().0 + rhs.semitones().0;
+
+        let difference = distance - num.base_semitones_with_octave_unsigned() * num.number().signum();
+
+        use IntervalQuality as IQ;
+
+        let quality = match difference {
+            0 if num.is_perfect() => IQ::Perfect,
+            0 if !num.is_perfect() => IQ::Major,
+            -1 => IQ::Minor,
+            n if n.is_positive() => IQ::Augmented(NonZeroU16::new(n as u16).expect("zero was handled already")),
+            n if n.is_negative() && num.is_perfect() => IQ::Diminished(NonZeroU16::new(-n as u16).expect("nonzero")),
+            n if n.is_negative() && !num.is_perfect() => IQ::Diminished(NonZeroU16::new(-(n + 1) as u16).expect("nonzero")),
+            _ => unreachable!("all cases covered"),
+        };
+
+        let ret = Self::new(quality, num).expect("valid quality");
+
+        debug_assert_eq!(Note::MIDDLE_C.transpose(self).transpose(&rhs), Note::MIDDLE_C.transpose(&ret), "{self} + {rhs} =? {ret}");
+        ret
+    }
+
+    pub fn subtract(&self, rhs: Self) -> Self {
+        Self::add(self, -rhs)
     }
 }
 
@@ -496,6 +549,40 @@ mod tests {
         assert_eq!(I::AUGMENTED_FOURTH.cmp_enharmonic(&I::PERFECT_FIFTH), Ordering::Less);
         assert_eq!(I::MAJOR_NINTH.cmp_enharmonic(&I::DIMINISHED_TENTH), Ordering::Equal);
         assert_eq!(I::PERFECT_FIFTEENTH.cmp_enharmonic(&I::DIMINISHED_FIFTEENTH), Ordering::Greater);
+    }
+
+    #[test]
+    fn add_subtract() {
+        use IntervalQuality as IQ;
+        use IntervalNumber as IN;
+
+        let mut qualities = vec![IQ::Perfect, IQ::Major, IQ::Minor];
+        qualities.extend((1..=8).map(|n| IQ::Diminished(NonZeroU16::new(n).expect("nonzero"))));
+        qualities.extend((1..=8).map(|n| IQ::Augmented(NonZeroU16::new(n).expect("nonzero"))));
+
+        let mut numbers = Vec::with_capacity(100);
+        numbers.extend((1..=50).map(|n| IN::new(n).expect("nonzero")));
+        numbers.extend((-50..-1).map(|n| IN::new(n).expect("nonzero")));
+
+        let mut intervals = Vec::with_capacity(qualities.len() * numbers.len());
+
+        for iq in &qualities {
+            for num in &numbers {
+                if let Some(ivl) = I::new(*iq, *num) {
+                    intervals.push(ivl);
+                }
+            }
+        }
+
+        for lhs in &intervals {
+            for rhs in &intervals {
+                let add = lhs.add(*rhs);
+                let sub = lhs.subtract(*rhs);
+
+                assert_eq!(Note::MIDDLE_C.transpose(lhs).transpose(rhs), Note::MIDDLE_C.transpose(&add), "lhs: {lhs}, rhs: {rhs} add: {add}");
+                assert_eq!(Note::MIDDLE_C.transpose(lhs).transpose(&-(*rhs)), Note::MIDDLE_C.transpose(&sub), "lhs: {lhs}, rhs: {rhs} add: {sub}");
+            }
+        }
     }
 
     #[test]
