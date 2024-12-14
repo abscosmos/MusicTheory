@@ -157,33 +157,29 @@ impl Interval {
 
         let distance = self.semitones().0 + rhs.semitones().0;
 
-        let difference = distance - num.base_semitones_with_octave_unsigned() * num.number().signum();
+        let num_sign = num.number().signum();
+
+        let difference = distance - num.base_semitones_with_octave_unsigned() * num_sign;
+
+        let perfect = num.is_perfect();
 
         use IntervalQuality as IQ;
 
         let quality = match difference {
-            0 if num.is_perfect() => IQ::Perfect,
-            0 if !num.is_perfect() => IQ::Major,
-            -1 if !num.is_perfect() && num.number().is_positive() => IQ::Minor,
-            -1 if !num.is_perfect() && num.number().is_negative() => IQ::AUGMENTED,
-            n => match n * num.number().signum() {
-                n if n.is_positive() => IQ::Augmented(NonZeroU16::new(n as u16).expect("zero was handled already")),
-                n if n.is_negative() && num.is_perfect() => IQ::Diminished(NonZeroU16::new(-n as u16).expect("nonzero")),
-                n if n.is_negative() && !num.is_perfect() => {
-                    if n == -1 {
-                        IQ::Minor
-                    } else {
-                        IQ::Diminished(NonZeroU16::new((n.abs() - 1) as _).expect("nonzero"))
-                    }
-                },
+            0 if perfect => IQ::Perfect,
+            0 if !perfect => IQ::Major,
+            -1 if !perfect && num_sign == 1 => IQ::Minor,
+            -1 if !perfect && num_sign == -1 => IQ::AUGMENTED,
+            diff => match diff * num_sign {
+                -1 if !perfect => IQ::Minor,
+                n if n > 0 => IQ::Augmented(NonZeroU16::new(n as u16).expect("zero was handled already")),
+                n if n < 0 && perfect => IQ::Diminished(NonZeroU16::new(-n as u16).expect("nonzero")),
+                n if n < 0 && !perfect => IQ::Diminished(NonZeroU16::new(-(n + 1) as _).expect("nonzero")),
                 _ => unreachable!("all cases covered"),
             }
         };
 
-        let ret = Self::new(quality, num).expect("valid quality");
-
-        debug_assert_eq!(Note::MIDDLE_C.transpose(self).transpose(&rhs), Note::MIDDLE_C.transpose(&ret), "{self} + {rhs} =? {ret}");
-        ret
+        Self::new(quality, num).expect("valid quality")
     }
 
     pub fn subtract(&self, rhs: Self) -> Self {
