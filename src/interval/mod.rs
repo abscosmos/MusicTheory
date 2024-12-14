@@ -133,6 +133,10 @@ impl Interval {
             .. *self
         }
     }
+
+    pub fn abs(&self) -> Self {
+        self.with_direction(true)
+    }
 }
 
 impl Neg for Interval {
