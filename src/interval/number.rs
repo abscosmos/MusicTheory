@@ -82,6 +82,21 @@ impl IntervalNumber {
         Self::new(num * self.number().signum())
             .expect("can't be zero")
     }
+
+    pub(super) fn base_semitones_with_octave_unsigned(self) -> i16 {
+        let without_octave = match self.as_simple().number().abs() {
+            1 | 8 => 0,
+            2 => 2,
+            3 => 4,
+            4 => 5,
+            5 => 7,
+            6 => 9,
+            7 => 11,
+            _ => unreachable!("abs of as_simple must be within [1,8]"),
+        };
+
+        without_octave + self.octave_unsigned() * 12
+    }
 }
 
 impl Neg for IntervalNumber {

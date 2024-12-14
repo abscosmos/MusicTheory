@@ -47,18 +47,7 @@ impl Interval {
     }
 
     pub fn semitones(&self) -> Semitone {
-        let base_semis = match self.number.as_simple().number().abs() {
-            1 | 8 => 0,
-            2 => 2,
-            3 => 4,
-            4 => 5,
-            5 => 7,
-            6 => 9,
-            7 => 11,
-            _ => unreachable!("abs of as_simple must be within [1,8]"),
-        };
-
-        let with_octave = base_semis + self.number.octave_unsigned() * 12;
+        let base_oct_semitones = self.number.base_semitones_with_octave_unsigned();
 
         use IntervalQuality as Q;
 
@@ -75,7 +64,7 @@ impl Interval {
             Q::Augmented(n) => n.get() as i16,
         };
 
-        let unsigned = with_octave + quality_adjust;
+        let unsigned = base_oct_semitones + quality_adjust;
 
         Semitone(unsigned * self.number.number().signum())
     }
