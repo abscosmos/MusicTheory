@@ -141,35 +141,19 @@ impl Interval {
     }
 
     pub fn add(&self, rhs: Self) -> Self {
-        let lhs_num = self.number.number();
-        let rhs_num = rhs.number.number();
-        /*
-            + + => lhs + rhs - 1
-            + - => lhs + rhs + 1
-            - + => lhs + rhs - 1
-            - - => lhs + rhs + 1
-        */
+        let ln = self.number.number();
+        let rn = rhs.number.number();
 
-        if self.abs() == Self::PERFECT_UNISON {
-            return rhs;
-        } else if rhs.abs() == Self::PERFECT_UNISON {
-            return *self;
-        }
+        let offset = {
+            let ls = ln.signum();
+            let rs = rn.signum();
+            let ss = (ln + rn).signum();
 
-        // TODO: simplify
-        let offset = match (lhs_num.signum(), rhs_num.signum(), (lhs_num + rhs_num).signum()) {
-            (_, _, 0) => 1,
-            (a, b, c) if a == -b => c,
-            (a, b, c) if a == b => -c,
-            _ => unreachable!(),
+            -ls * rs * ss + (ss == 0) as i16
         };
 
-        // TODO: ensure this can't be zero (zero for -A1 + 2m)
-        let num = IntervalNumber::new(lhs_num + rhs_num + offset)
-            .unwrap_or(
-                IntervalNumber::new(2 * rhs_num.signum())
-                    .expect("can't be zero")
-            );
+        let num = IntervalNumber::new(ln + rn + offset)
+            .expect("nonzero");
 
         let distance = self.semitones().0 + rhs.semitones().0;
 
