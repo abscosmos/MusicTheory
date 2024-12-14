@@ -156,10 +156,16 @@ impl Interval {
             return *self;
         }
 
-        let adj = !(self.quality == IntervalQuality::Perfect && rhs.quality == IntervalQuality::Perfect) as u8;
+        // TODO: simplify
+        let offset = match (lhs_num.signum(), rhs_num.signum(), (lhs_num + rhs_num).signum()) {
+            (_, _, 0) => 1,
+            (a, b, c) if a == -b => c,
+            (a, b, c) if a == b => -c,
+            _ => unreachable!(),
+        };
 
         // TODO: ensure this can't be zero (zero for -A1 + 2m)
-        let num = IntervalNumber::new(lhs_num + rhs_num - rhs_num.signum() * adj as i16)
+        let num = IntervalNumber::new(lhs_num + rhs_num + offset)
             .unwrap_or(
                 IntervalNumber::new(2 * rhs_num.signum())
                     .expect("can't be zero")
@@ -174,11 +180,20 @@ impl Interval {
         let quality = match difference {
             0 if num.is_perfect() => IQ::Perfect,
             0 if !num.is_perfect() => IQ::Major,
-            -1 => IQ::Minor,
-            n if n.is_positive() => IQ::Augmented(NonZeroU16::new(n as u16).expect("zero was handled already")),
-            n if n.is_negative() && num.is_perfect() => IQ::Diminished(NonZeroU16::new(-n as u16).expect("nonzero")),
-            n if n.is_negative() && !num.is_perfect() => IQ::Diminished(NonZeroU16::new(-(n + 1) as u16).expect("nonzero")),
-            _ => unreachable!("all cases covered"),
+            -1 if !num.is_perfect() && num.number().is_positive() => IQ::Minor,
+            -1 if !num.is_perfect() && num.number().is_negative() => IQ::AUGMENTED,
+            n => match n * num.number().signum() {
+                n if n.is_positive() => IQ::Augmented(NonZeroU16::new(n as u16).expect("zero was handled already")),
+                n if n.is_negative() && num.is_perfect() => IQ::Diminished(NonZeroU16::new(-n as u16).expect("nonzero")),
+                n if n.is_negative() && !num.is_perfect() => {
+                    if n == -1 {
+                        IQ::Minor
+                    } else {
+                        IQ::Diminished(NonZeroU16::new((n.abs() - 1) as _).expect("nonzero"))
+                    }
+                },
+                _ => unreachable!("all cases covered"),
+            }
         };
 
         let ret = Self::new(quality, num).expect("valid quality");
@@ -562,7 +577,7 @@ mod tests {
 
         let mut numbers = Vec::with_capacity(100);
         numbers.extend((1..=50).map(|n| IN::new(n).expect("nonzero")));
-        numbers.extend((-50..-1).map(|n| IN::new(n).expect("nonzero")));
+        numbers.extend((-50..=-1).map(|n| IN::new(n).expect("nonzero")));
 
         let mut intervals = Vec::with_capacity(qualities.len() * numbers.len());
 
