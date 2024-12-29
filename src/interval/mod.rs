@@ -36,6 +36,10 @@ impl Interval {
          Self::new(quality, number).filter(|ivl| !ivl.is_subzero())
     }
 
+    pub fn between_notes(lhs: Note, rhs: Note) -> Self {
+        todo!()
+    }
+
     pub fn is_subzero(&self) -> bool {
         matches!(self.quality, IntervalQuality::Diminished(n) if self.number.number().abs() <= n.get() as _)
     }
