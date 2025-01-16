@@ -1,3 +1,4 @@
+use itertools::Itertools;
 use crate::chord::interval_set::IntervalSet;
 use crate::interval::Interval;
 use crate::note::Note;
@@ -30,6 +31,15 @@ impl Chord {
 
     pub fn len(&self) -> usize {
         self.notes().len()
+    }
+
+    pub fn cardinality(&self) -> usize {
+        self.intervals.iter()
+            .map(|ivl| self.root.transpose(ivl).as_pitch_class())
+            // faster than using Itertools::unique for small sequences
+            .sorted_by_key(|pc| *pc as u8)
+            .dedup()
+            .count()
     }
 
     pub fn intervals(&self) -> &[Interval] {
