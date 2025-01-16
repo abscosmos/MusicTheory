@@ -1,89 +1,54 @@
-use crate::chord::types::ChordType;
-use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
+use crate::chord::interval_set::IntervalSet;
 use crate::interval::Interval;
-use crate::pitch::Pitch;
+use crate::note::Note;
 
-pub mod quality;
-pub mod size;
-pub mod types;
-mod eq;
+mod interval_set;
 
-#[derive(Debug, thiserror::Error)]
-#[error("Can't have a {attempted}th inversion on a chord with only {intervals} note(s).")]
-pub struct InvalidInversion {
-    pub intervals: u8,
-    pub attempted: u8,
-}
-
-#[derive(Clone, Debug, Eq)]
+#[derive(Clone, Debug)]
 pub struct Chord {
-    pub root: Pitch,
-    intervals: Vec<Interval>,
-    ty: Option<ChordType>,
-    inversion: u8,
+    // TODO: should root be a note or pitch; do we want a Placed<Chord>?
+    root: Note,
+    intervals: IntervalSet,
 }
 
 impl Chord {
-    pub fn from_type(chord_type: ChordType, root: Pitch, inversion: u8) -> Result<Self, InvalidInversion> {
-        Self::from_intervals_inner(Some(chord_type), chord_type.intervals(), root, inversion)
-    }
+    pub fn new(root: Note, intervals: impl IntoIterator<Item = Interval>) -> Option<Self> {
+        // TODO: sort intervals first
 
-    pub fn from_intervals(intervals: Vec<Interval>, root: Pitch, inversion: u8) -> Result<Self, InvalidInversion> {
-        Self::from_intervals_inner(None, intervals, root, inversion)
-    }
+        let intervals = intervals.into_iter().collect::<IntervalSet>();
 
-    fn from_intervals_inner(ty: Option<ChordType>, mut intervals: Vec<Interval>, root: Pitch, inversion: u8) -> Result<Self, InvalidInversion> {
-        if inversion as usize >= intervals.len() {
-            return Err(InvalidInversion { intervals: intervals.len() as _, attempted: inversion });
+        if intervals.is_empty() {
+            return None;
         }
 
-        intervals.sort_by(Interval::cmp_enharmonic);
-
-        Ok(
-            Self {
-                intervals,
-                ty,
-                root,
-                inversion,
-            }
-        )
+        Some(Self { root, intervals })
     }
 
-    pub fn inversion(&self) -> u8 {
-        self.inversion
+    pub fn bass(&self) -> Note {
+        let root_ivl = self.intervals.first().expect("chords must have at least one note");
+
+        self.root.transpose(root_ivl)
     }
 
-    pub fn set_inversion(&mut self, inversion: u8) -> Result<(), InvalidInversion> {
-        if inversion as usize >= self.intervals.len() {
-            return Err(InvalidInversion { intervals: self.intervals.len() as _, attempted: inversion });
-        } else {
-            self.inversion = inversion as _;
-            Ok(())
-        }
-    }
-
-    pub fn chord_type(&self) -> Option<ChordType> {
-        self.ty
-    }
-
-    pub fn intervals(&self) -> &[Interval] {
-        &self.intervals
-    }
-
-    pub fn pitches(&self) -> Vec<Pitch> {
+    pub fn notes(&self) -> Vec<Note> {
         self.intervals.iter()
             .map(|ivl| self.root.transpose(ivl))
-            .cycle()
-            .skip(self.inversion as _)
-            .take(self.intervals.len())
             .collect()
     }
 }
 
-impl PartialEq for Chord {
-    fn eq(&self, other: &Self) -> bool {
-        self.intervals == other.intervals &&
-            self.root == other.root &&
-            self.inversion == other.inversion
+pub use ivl_sets::*;
+
+// TODO: will be removed in the future once it's easier to build chords
+pub mod ivl_sets {
+    use crate::chord::interval_set::IntervalSet;
+    use crate::interval::Interval as I;
+
+    pub fn major_triad() -> IntervalSet {
+        vec![I::PERFECT_UNISON, I::MAJOR_THIRD, I::PERFECT_FIFTH]
+    }
+
+    pub fn maj_first_inversion() -> IntervalSet {
+        vec![-I::PERFECT_FOURTH, I::PERFECT_UNISON, I::MAJOR_THIRD]
     }
 }
