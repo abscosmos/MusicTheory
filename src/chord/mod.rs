@@ -24,6 +24,18 @@ impl Chord {
         Some(Self { root, intervals })
     }
 
+    pub fn root(&self) -> Note {
+        self.root
+    }
+
+    pub fn len(&self) -> usize {
+        self.notes().len()
+    }
+
+    pub fn intervals(&self) -> &[Interval] {
+        &self.intervals
+    }
+
     pub fn bass(&self) -> Note {
         let root_ivl = self.intervals.first().expect("chords must have at least one note");
 
