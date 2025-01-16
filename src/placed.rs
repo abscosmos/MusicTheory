@@ -32,6 +32,8 @@ impl<T: Clone> Clone for Placed<T> {
     }
 }
 
+impl<T: Copy> Copy for Placed<T> {}
+
 impl<T> Deref for Placed<T> {
     type Target = T;
 
