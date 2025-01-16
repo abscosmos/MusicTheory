@@ -23,6 +23,15 @@ impl<T: PartialEq> PartialEq for Placed<T> {
 
 impl<T: Eq> Eq for Placed<T> {}
 
+impl<T: Clone> Clone for Placed<T> {
+    fn clone(&self) -> Self {
+        Self {
+            base: self.base.clone(),
+            octave: self.octave.clone(),
+        }
+    }
+}
+
 impl<T> Deref for Placed<T> {
     type Target = T;
 
