@@ -1,5 +1,6 @@
 use std::fmt;
 use std::num::NonZeroU16;
+use std::str::FromStr;
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub enum IntervalQuality {
@@ -34,9 +35,39 @@ impl IntervalQuality {
     }
 }
 
+#[derive(Debug, thiserror::Error, Eq, PartialEq, Hash, Copy, Clone)]
+#[error("The provided &str could not be converted into a IntervalQuality")]
+pub struct ParseIntervalQualityErr;
+
 impl fmt::Display for IntervalQuality {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.shorthand())
+    }
+}
+
+impl FromStr for IntervalQuality {
+    type Err = ParseIntervalQualityErr;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "P" => Ok(Self::Perfect),
+            "M" => Ok(Self::Major),
+            "m" => Ok(Self::Minor),
+
+            "d" => Ok(Self::DIMINISHED),
+            "A" => Ok(Self::AUGMENTED),
+
+            "" => Err(ParseIntervalQualityErr),
+
+            s if s.chars().all(|c| c == 'd') => Ok(
+                Self::Diminished(NonZeroU16::new(s.len() as _).expect("cannot be zero"))
+            ),
+            s if s.chars().all(|c| c == 'A') => Ok(
+                Self::Augmented(NonZeroU16::new(s.len() as _).expect("cannot be zero"))
+            ),
+
+            _ => Err(ParseIntervalQualityErr),
+        }
     }
 }
 
@@ -57,6 +88,21 @@ mod tests {
         assert_eq!(IQ::DIMINISHED.shorthand(), "d");
         assert_eq!(IQ::Diminished(FOUR).shorthand(), "dddd");
         assert_eq!(IQ::Augmented(SIX).shorthand(), "AAAAAA");
+    }
+
+    #[test]
+    fn from_str() {
+        assert_eq!("P".parse(), Ok(IQ::Perfect));
+        assert_eq!("M".parse(), Ok(IQ::Major));
+        assert_eq!("m".parse(), Ok(IQ::Minor));
+        assert_eq!("A".parse(), Ok(IQ::AUGMENTED));
+        assert_eq!("d".parse(), Ok(IQ::DIMINISHED));
+        assert_eq!("dddddd".parse(), Ok(IQ::Diminished(SIX)));
+        assert_eq!("AAAA".parse(), Ok(IQ::Augmented(FOUR)));
+
+        assert_eq!("".parse::<IQ>(), Err(ParseIntervalQualityErr));
+        assert_eq!("c".parse::<IQ>(), Err(ParseIntervalQualityErr));
+        assert_eq!("MM".parse::<IQ>(), Err(ParseIntervalQualityErr));
     }
     
     #[test]
