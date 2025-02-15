@@ -1,10 +1,11 @@
 use std::cmp::Ordering;
 use std::fmt;
-use std::num::NonZeroU16;
+use std::num::{NonZeroU16, ParseIntError};
 use std::ops::Neg;
+use std::str::FromStr;
 use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
 use crate::interval::number::IntervalNumber;
-use crate::interval::quality::IntervalQuality;
+use crate::interval::quality::{IntervalQuality, ParseIntervalQualityErr};
 use crate::note::Note;
 use crate::semitone::Semitone;
 
@@ -220,6 +221,64 @@ impl EnharmonicOrd for Interval {
     }
 }
 
+#[derive(Debug, thiserror::Error, Eq, PartialEq, Clone)]
+pub enum ParseIntervalError {
+    #[error("The input was in an invalid format")]
+    InvalidFormat,
+    #[error("The interval wasn't a valid interval")]
+    InvalidInterval,
+    #[error(transparent)]
+    QualityErr(#[from] ParseIntervalQualityErr),
+    #[error("Failed to parse number: {0}")]
+    NumberErr(#[from] ParseIntError),
+}
+
+impl FromStr for Interval {
+    type Err = ParseIntervalError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        if s.chars()
+            .last()
+            .ok_or(ParseIntervalError::InvalidFormat)?
+            .is_ascii_digit()
+        {
+            let leading_negative = s.starts_with('-');
+
+            let start = leading_negative as usize;
+
+            let s = &s[start..];
+
+            let split = s.find(|c: char| c.is_ascii_digit() || c == '-')
+                .ok_or(ParseIntervalError::InvalidFormat)?;
+
+            let (quality_str, num_str) = s.split_at(split);
+
+            let quality = quality_str.parse()?;
+
+            let number = num_str.parse()?;
+
+            let ivl = Self::new(quality, number).ok_or(ParseIntervalError::InvalidInterval)?;
+
+            if leading_negative {
+                Ok(-ivl)
+            } else {
+                Ok(ivl)
+            }
+        } else {
+            let split = s.find(|c: char| !c.is_ascii_digit() && c != '-')
+                .ok_or(ParseIntervalError::InvalidFormat)?;
+
+            let (num_str, quality_str) = s.split_at(split);
+
+            Ok(
+                Self::new(quality_str.parse()?, num_str.parse()?)
+                    .ok_or(ParseIntervalError::InvalidInterval)?
+            )
+        }
+    }
+}
+
+
 #[cfg(test)]
 mod tests {
     use std::num::NonZeroU16;
@@ -227,6 +286,9 @@ mod tests {
     use Interval as I;
     use IntervalQuality as IQ;
     use IntervalNumber as IN;
+
+    const FOUR: NonZeroU16 = NonZeroU16::new(4).expect("nonzero");
+    const SIX: NonZeroU16 = NonZeroU16::new(6).expect("nonzero");
 
     // helper fns
     fn semi(ivl: I) -> i16 {
@@ -271,7 +333,33 @@ mod tests {
         assert!(I::new(IQ::Perfect, IN::SECOND).is_none());
         assert!(I::new(IQ::Perfect, IN::SEVENTH).is_none());
     }
-    
+
+    #[test]
+    fn from_str() {
+        assert_eq!("P1".parse(), Ok(I::PERFECT_UNISON));
+        assert_eq!("-M7".parse(), Ok(-I::MAJOR_SEVENTH));
+        assert_eq!("m-13".parse(), Ok(-I::MINOR_THIRTEENTH));
+        assert_eq!("A6".parse(), Ok(I::AUGMENTED_SIXTH));
+        assert_eq!("d15".parse(), Ok(I::DIMINISHED_FIFTEENTH));
+
+        assert_eq!("dddd-5".parse(), Ok(I::new(IQ::Diminished(FOUR), -IN::FIFTH).expect("valid interval")));
+        assert_eq!("-AAAAAA2".parse(), Ok(I::new(IQ::Augmented(SIX), -IN::SECOND).expect("valid interval")));
+
+        assert_eq!("1P".parse(), Ok(I::PERFECT_UNISON));
+        assert_eq!("-7M".parse(), Ok(-I::MAJOR_SEVENTH));
+        assert_eq!("-13m".parse(), Ok(-I::MINOR_THIRTEENTH));
+        assert_eq!("A6".parse(), Ok(I::AUGMENTED_SIXTH));
+        assert_eq!("d15".parse(), Ok(I::DIMINISHED_FIFTEENTH));
+
+        assert_eq!("-5dddd".parse(), Ok(I::new(IQ::Diminished(FOUR), -IN::FIFTH).expect("valid interval")));
+        assert_eq!("-2AAAAAA".parse(), Ok(I::new(IQ::Augmented(SIX), -IN::SECOND).expect("valid interval")));
+
+        assert_eq!("".parse::<I>(), Err(ParseIntervalError::InvalidFormat));
+        assert_eq!("P3".parse::<I>(), Err(ParseIntervalError::InvalidInterval));
+        assert_eq!("q3".parse::<I>(), Err(ParseIntervalError::QualityErr(ParseIntervalQualityErr)));
+        assert!(matches!("m0".parse::<I>(), Err(ParseIntervalError::NumberErr(..))));
+    }
+
     #[test]
     fn subzero() {
         assert!(I::strict_non_subzero(IQ::DIMINISHED, IN::UNISON).is_none());
