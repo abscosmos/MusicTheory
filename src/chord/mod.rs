@@ -4,6 +4,7 @@ use crate::interval::Interval;
 use crate::note::Note;
 
 mod interval_set;
+mod parse;
 
 #[derive(Clone, Debug)]
 pub struct Chord {
