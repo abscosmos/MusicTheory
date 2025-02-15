@@ -1,6 +1,7 @@
 use std::fmt;
-use std::num::NonZeroI16;
+use std::num::{NonZeroI16, ParseIntError};
 use std::ops::Neg;
+use std::str::FromStr;
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub struct IntervalNumber(NonZeroI16);
@@ -110,6 +111,14 @@ impl Neg for IntervalNumber {
 impl fmt::Display for IntervalNumber {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.shorthand())
+    }
+}
+
+impl FromStr for IntervalNumber {
+    type Err = ParseIntError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        NonZeroI16::from_str(s).map(Self)
     }
 }
 
