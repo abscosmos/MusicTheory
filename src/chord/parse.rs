@@ -94,8 +94,13 @@ fn interpret(tokens: &[ChordTk]) -> Option<Vec<Interval>> {
 
                     upper_chord_ext(&mut cursor, IntervalQuality::Major, &mut intervals)?; // ? since the next token MUST be a number
                 } else {
-                    // ignore option result since next token doesn't NEED to be a number
-                    let _consumed_number = upper_chord_ext(&mut cursor, IntervalQuality::Minor, &mut intervals).is_some();
+                    if let Some(T::Six) = cursor.curr() {
+                        intervals.push(I::MAJOR_SIXTH);
+                        cursor.consume(1);
+                    } else {
+                        // ignore option result since next token doesn't NEED to be a number
+                        let _consumed_number = upper_chord_ext(&mut cursor, IntervalQuality::Minor, &mut intervals).is_some();
+                    }
                 }
             }
             T::Maj => {
@@ -105,7 +110,13 @@ fn interpret(tokens: &[ChordTk]) -> Option<Vec<Interval>> {
 
                 cursor.consume(1);
 
-                let _consumed_number = upper_chord_ext(&mut cursor, IntervalQuality::Major, &mut intervals).is_some();
+                if let Some(T::Six) = cursor.curr() {
+                    intervals.push(I::MAJOR_SIXTH);
+                    cursor.consume(1);
+                } else {
+                    // ignore option result since next token doesn't NEED to be a number
+                    let _consumed_number = upper_chord_ext(&mut cursor, IntervalQuality::Minor, &mut intervals).is_some();
+                }
             }
             T::Dim => {
                 ensure! { cursor.consumed() == 0 }
@@ -150,6 +161,13 @@ fn interpret(tokens: &[ChordTk]) -> Option<Vec<Interval>> {
                 ensure! { cursor.consumed() == 0 }
 
                 intervals.extend([I::PERFECT_UNISON, I::PERFECT_FIFTH]);
+
+                cursor.consume(1);
+            }
+            T::Six => {
+                ensure! { cursor.consumed() == 0 }
+
+                intervals.extend([I::PERFECT_UNISON, I::MAJOR_THIRD, I::PERFECT_FIFTH, I::MAJOR_SIXTH]);
 
                 cursor.consume(1);
             }
@@ -275,8 +293,8 @@ mod tests {
 
         test_interpret!("C5" => [T::Five]; "P1, P5");
 
-        // test_interpret!("C6" => [T::Six], "Cmaj6" => [T::Maj, T::Six]; "P1, M3, P5, M6");
+        test_interpret!("C6" => [T::Six], "Cmaj6" => [T::Maj, T::Six]; "P1, M3, P5, M6");
 
-        // test_interpret!("Cmin6" => [T::Min, T::Six]; "P1, m3, P5, M6");
+        test_interpret!("Cmin6" => [T::Min, T::Six]; "P1, m3, P5, M6");
     }
 }
