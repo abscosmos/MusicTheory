@@ -1,3 +1,4 @@
+use std::num::NonZeroI16;
 use std::slice;
 use crate::accidental::AccidentalSign;
 use crate::interval::Interval;
@@ -19,7 +20,8 @@ enum ChordTk {
     Eleven,
     Thirteen,
     Add(u8),
-    Omit(u8), // (omit5)
+    // this technically should be unsigned, but this is to prevent u16 -> i16 overflow
+    Omit(NonZeroI16), // (omit5) 
     Alt(AccidentalSign, u8),
 }
 
@@ -175,7 +177,21 @@ fn interpret(tokens: &[ChordTk]) -> Option<Vec<Interval>> {
                 upper_chord_ext(&mut cursor, IntervalQuality::Minor, &mut intervals)
                     .expect("token must be number due to match")
             }
-            _ => todo!()
+            ChordTk::Add(_) => todo!(),
+            ChordTk::Omit(num) => {
+                let index = intervals.iter()
+                    .position(|ivl| ivl.number() == IntervalNumber(num))?; // degree must exist in chord
+
+                let _omitted = intervals.remove(index);
+                
+                cursor.consume(1);
+
+                assert!(
+                    !intervals.iter().any(|ivl| ivl.number() == IntervalNumber(num)),
+                    "should only have been one interval of omitted degree; TODO: is this right?"
+                );
+            }
+            ChordTk::Alt(_, _) => todo!(),
         }
     }
 
@@ -223,6 +239,7 @@ impl<'a> TkCursor<'a> {
 
 #[cfg(test)]
 mod tests {
+    use std::num::NonZero;
     use super::*;
     use ChordTk as T;
     use Interval as I;
@@ -251,6 +268,12 @@ mod tests {
                 );
             )*
         };
+    }
+    
+    macro_rules! nz {
+        ($n:expr) => {            
+            NonZero::new( $n ).expect("nonzero")
+        }
     }
 
     #[test]
@@ -327,5 +350,25 @@ mod tests {
         test_interpret!("C11" => [T::Eleven]; "P1, M3, P5, m7, M9, P11");
 
         test_interpret!("C13" => [T::Eleven]; "P1, M3, P5, m7, M9, P11, M13");
+    }
+
+    #[test]
+    fn interpret_omit() {
+        test_interpret!("Cdim omit3" => [T::Dim, T::Omit(nz!(3))]; "P1, d5");
+
+        test_interpret!("Cmaj6 omit5" => [T::Maj, T::Six, T::Omit(nz!(5))]; "P1, M3, M6");
+
+        test_interpret!("Cdim7 omit3" => [T::Dim, T::Seven, T::Omit(nz!(3))]; "P1, d5, d7");
+
+        test_interpret!("Caug9 omit3 omit3" => [T::Aug, T::Nine, T::Omit(nz!(3)), T::Omit(nz!(3))]; fail);
+        
+        test_interpret!("C7 omit3" => [T::Seven, T::Omit(nz!(3))]; "P1, P5, m7");
+        
+        test_interpret!(
+            "C11 omit3 omit9 omit7" => [T::Eleven, T::Omit(nz!(3)), T::Omit(nz!(9)), T::Omit(nz!(7))];
+            "P1, P5, P11"
+        );
+
+        test_interpret!("C5 omit7" => [T::Five, T::Omit(nz!(7))]; fail);
     }
 }
