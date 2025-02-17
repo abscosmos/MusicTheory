@@ -182,8 +182,7 @@ fn interpret(tokens: &[ChordTk]) -> Option<Vec<Interval>> {
     Some(intervals)
 }
 
-struct TkCursor<'a> {
-    len_remaining: usize, // can be much smaller
+struct TkCursor<'a> { // TODO: maybe this can just be replaced with a peekable iterator?
     consumed: usize,
     curr: Option<ChordTk>,
     tks: slice::Iter<'a, ChordTk>,
@@ -195,7 +194,7 @@ impl<'a> TkCursor<'a> {
 
         let curr = tks.next().copied();
 
-        Self { len_remaining: input.len(), consumed: 0, curr, tks }
+        Self { consumed: 0, curr, tks }
     }
 
     pub fn curr(&self) -> Option<ChordTk> {
