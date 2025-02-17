@@ -71,6 +71,18 @@ fn upper_chord_ext(cursor: &mut TkCursor, seventh_quality: IntervalQuality, inte
     Some(())
 }
 
+fn potential_num(cursor: &mut TkCursor, seventh_quality: IntervalQuality, intervals: &mut Vec<Interval>) -> bool {
+    if let Some(ChordTk::Six) = cursor.curr() {
+        intervals.push(Interval::MAJOR_SIXTH);
+        cursor.consume(1);
+        true
+    } else {
+        // ignore option result since next token doesn't NEED to be a number
+        // return if a number was consumed
+        upper_chord_ext(cursor, seventh_quality, intervals).is_some()
+    }
+}
+
 fn interpret(tokens: &[ChordTk]) -> Option<Vec<Interval>> {
     use ChordTk as T;
     use Interval as I;
@@ -95,12 +107,8 @@ fn interpret(tokens: &[ChordTk]) -> Option<Vec<Interval>> {
                     cursor.consume(1);
 
                     upper_chord_ext(&mut cursor, IntervalQuality::Major, &mut intervals)?; // ? since the next token MUST be a number
-                } else if let Some(T::Six) = cursor.curr() {
-                    intervals.push(I::MAJOR_SIXTH);
-                    cursor.consume(1);
                 } else {
-                    // ignore option result since next token doesn't NEED to be a number
-                    let _consumed_number = upper_chord_ext(&mut cursor, IntervalQuality::Minor, &mut intervals).is_some();
+                    let _consumed_number = potential_num(&mut cursor, IntervalQuality::Minor, &mut intervals);
                 }
             }
             T::Maj => {
@@ -110,13 +118,7 @@ fn interpret(tokens: &[ChordTk]) -> Option<Vec<Interval>> {
 
                 cursor.consume(1);
 
-                if let Some(T::Six) = cursor.curr() {
-                    intervals.push(I::MAJOR_SIXTH);
-                    cursor.consume(1);
-                } else {
-                    // ignore option result since next token doesn't NEED to be a number
-                    let _consumed_number = upper_chord_ext(&mut cursor, IntervalQuality::Major, &mut intervals).is_some();
-                }
+                let _consumed_number = potential_num(&mut cursor, IntervalQuality::Major, &mut intervals);
             }
             T::Dim => {
                 ensure! { cursor.consumed() == 0 }
@@ -125,7 +127,7 @@ fn interpret(tokens: &[ChordTk]) -> Option<Vec<Interval>> {
 
                 cursor.consume(1);
 
-                let _consumed_number = upper_chord_ext(&mut cursor, IntervalQuality::DIMINISHED, &mut intervals).is_some();
+                let _consumed_number = potential_num(&mut cursor, IntervalQuality::DIMINISHED, &mut intervals);
             }
             T::Aug => {
                 ensure! { cursor.consumed() == 0 }
@@ -140,7 +142,7 @@ fn interpret(tokens: &[ChordTk]) -> Option<Vec<Interval>> {
                     upper_chord_ext(&mut cursor, IntervalQuality::Major, &mut intervals)?; // ? since the next token MUST be a number
                 } else {
                     // ignore option result since next token doesn't NEED to be a number
-                    let _consumed_number = upper_chord_ext(&mut cursor, IntervalQuality::Minor, &mut intervals).is_some();
+                    let _consumed_number = potential_num(&mut cursor, IntervalQuality::Minor, &mut intervals);
                 }
             }
             T::Sus2 => {
@@ -330,6 +332,10 @@ mod tests {
         test_interpret!("C6" => [T::Six], "Cmaj6" => [T::Maj, T::Six]; "P1, M3, P5, M6");
 
         test_interpret!("Cmin6" => [T::Min, T::Six]; "P1, m3, P5, M6");
+
+        test_interpret!("Caug6" => [T::Aug, T::Six]; "P1, M3, A5, M6");
+        
+        test_interpret!("Cdim6" => [T::Dim, T::Six]; "P1, m3, d5, M6");
 
         test_interpret!("C7" => [T::Seven]; "P1, M3, P5, m7");
 
