@@ -75,6 +75,12 @@ fn potential_num(cursor: &mut TkCursor, seventh_quality: IntervalQuality, interv
     if let Some(ChordTk::Six) = cursor.curr() {
         intervals.push(Interval::MAJOR_SIXTH);
         cursor.consume(1);
+        
+        if let Some(ChordTk::Nine) = cursor.curr() {
+            intervals.push(Interval::MAJOR_NINTH);
+            cursor.consume(1);
+        }
+        
         true
     } else {
         // ignore option result since next token doesn't NEED to be a number
@@ -169,9 +175,12 @@ fn interpret(tokens: &[ChordTk]) -> Option<Vec<Interval>> {
             T::Six => {
                 ensure! { cursor.consumed() == 0 }
 
-                intervals.extend([I::PERFECT_UNISON, I::MAJOR_THIRD, I::PERFECT_FIFTH, I::MAJOR_SIXTH]);
+                intervals.extend([I::PERFECT_UNISON, I::MAJOR_THIRD, I::PERFECT_FIFTH]);
 
-                cursor.consume(1);
+                assert!(
+                    potential_num(&mut cursor, IntervalQuality::DIMINISHED, &mut intervals),
+                    "must've consumed at least T::Six"
+                )
             }
             T::Seven | T:: Nine | T::Eleven | T::Thirteen => {
                 ensure! { cursor.consumed() == 0 }
@@ -336,6 +345,14 @@ mod tests {
         test_interpret!("Caug6" => [T::Aug, T::Six]; "P1, M3, A5, M6");
         
         test_interpret!("Cdim6" => [T::Dim, T::Six]; "P1, m3, d5, M6");
+
+        test_interpret!("C6/9" => [T::Six, T::Nine], "Cmaj6/9" => [T::Maj, T::Six, T::Nine]; "P1, M3, P5, M6, M9");
+
+        test_interpret!("Cmin6/9" => [T::Min, T::Six, T::Nine]; "P1, m3, P5, M6, M9");
+
+        test_interpret!("Caug6/9" => [T::Aug, T::Six, T::Nine]; "P1, M3, A5, M6, M9");
+
+        test_interpret!("Cdim6/9" => [T::Dim, T::Six, T::Nine]; "P1, m3, d5, M6, M9");
 
         test_interpret!("C7" => [T::Seven]; "P1, M3, P5, m7");
 
