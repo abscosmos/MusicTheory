@@ -172,6 +172,8 @@ fn interpret(tokens: &[ChordTk]) -> Option<Vec<Interval>> {
                 cursor.consume(1);
             }
             T::Seven | T:: Nine | T::Eleven | T::Thirteen => {
+                ensure! { cursor.consumed() == 0 }
+                
                 intervals.extend([I::PERFECT_UNISON, I::MAJOR_THIRD, I::PERFECT_FIFTH]);
                 
                 upper_chord_ext(&mut cursor, IntervalQuality::Minor, &mut intervals)
@@ -369,6 +371,9 @@ mod tests {
 
         // power chords shouldn't have quality
         test_interpret!("Cmin5" => [T::Min, T::Five]; fail);
+
+        // can't repeat numbers
+        test_interpret!("C7 13" => [T::Seven, T::Seven]; fail);
     }
 
     #[test]
