@@ -228,7 +228,17 @@ mod tests {
     use Interval as I;
 
     macro_rules! test_interpret {
-        ( $($name:expr => $tks:expr),*; $ivls:expr) => {
+        ($($name:expr => $tks:expr),*; fail) => {
+            $(
+                assert_eq!(
+                    interpret(&( $tks )).as_ref(),
+                    None,
+                    concat!("unintended successful interpret '", $name, "' (", stringify!( $tks ), ")")
+                );
+            )*
+        };
+        
+        ($($name:expr => $tks:expr),*; $ivls:expr) => {
             let intervals = ( $ivls ).split(',')
                 .map(|s| s.trim().parse::<I>().expect("valid intervals"))
                 .collect::<Vec<_>>();
