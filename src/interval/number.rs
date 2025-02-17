@@ -4,7 +4,7 @@ use std::ops::Neg;
 use std::str::FromStr;
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
-pub struct IntervalNumber(NonZeroI16);
+pub struct IntervalNumber(pub NonZeroI16);
 
 impl IntervalNumber {
     pub const fn new(number: i16) -> Option<Self> {
