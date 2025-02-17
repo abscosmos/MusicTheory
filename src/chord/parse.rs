@@ -341,17 +341,17 @@ mod tests {
 
         test_interpret!("Cmaj7" => [T::Maj, T::Seven]; "P1, M3, P5, M7");
 
-        test_interpret!("Caug7" => [T::Aug, T::Seven]; "P1, M3, a5, m7");
+        test_interpret!("Caug7" => [T::Aug, T::Seven]; "P1, M3, A5, m7");
 
-        test_interpret!("Caug(maj7)" => [T::Aug, T::Maj, T::Seven]; "P1, M3, a5, M7");
+        test_interpret!("Caug(maj7)" => [T::Aug, T::Maj, T::Seven]; "P1, M3, A5, M7");
 
         test_interpret!("C9" => [T::Nine]; "P1, M3, P5, m7, M9");
 
-        test_interpret!("Cmin9" => [T::Nine]; "P1, m3, P5, m7, M9");
+        test_interpret!("Cmin9" => [T::Min, T::Nine]; "P1, m3, P5, m7, M9");
 
         test_interpret!("C11" => [T::Eleven]; "P1, M3, P5, m7, M9, P11");
 
-        test_interpret!("C13" => [T::Eleven]; "P1, M3, P5, m7, M9, P11, M13");
+        test_interpret!("C13" => [T::Thirteen]; "P1, M3, P5, m7, M9, P11, M13");
     }
     
     #[test]
