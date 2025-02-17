@@ -115,7 +115,7 @@ fn interpret(tokens: &[ChordTk]) -> Option<Vec<Interval>> {
                     cursor.consume(1);
                 } else {
                     // ignore option result since next token doesn't NEED to be a number
-                    let _consumed_number = upper_chord_ext(&mut cursor, IntervalQuality::Minor, &mut intervals).is_some();
+                    let _consumed_number = upper_chord_ext(&mut cursor, IntervalQuality::Major, &mut intervals).is_some();
                 }
             }
             T::Dim => {
