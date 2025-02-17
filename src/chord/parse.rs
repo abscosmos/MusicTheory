@@ -351,6 +351,25 @@ mod tests {
 
         test_interpret!("C13" => [T::Eleven]; "P1, M3, P5, m7, M9, P11, M13");
     }
+    
+    #[test]
+    fn interpret_unsuccessful_no_special() {
+        // duplicate modifier
+        test_interpret!("Cmaj dim" => [T::Maj, T::Dim]; fail);
+        
+        // needs number after min maj
+        test_interpret!(
+            "Cmin maj" => [T::Min, T::Maj],
+            "Cmin maj omit5" => [T::Min, T::Maj, T::Omit(nz!(5))];
+            fail
+        );
+        
+        // suspended chords shouldn't have quality
+        test_interpret!("Cmin sus4" => [T::Min, T::Sus4], "Cmin sus4" => [T::Min, T::Sus2]; fail);
+
+        // power chords shouldn't have quality
+        test_interpret!("Cmin5" => [T::Min, T::Five]; fail);
+    }
 
     #[test]
     fn interpret_omit() {
