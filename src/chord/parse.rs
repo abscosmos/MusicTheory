@@ -93,14 +93,12 @@ fn interpret(tokens: &[ChordTk]) -> Option<Vec<Interval>> {
                     cursor.consume(1);
 
                     upper_chord_ext(&mut cursor, IntervalQuality::Major, &mut intervals)?; // ? since the next token MUST be a number
+                } else if let Some(T::Six) = cursor.curr() {
+                    intervals.push(I::MAJOR_SIXTH);
+                    cursor.consume(1);
                 } else {
-                    if let Some(T::Six) = cursor.curr() {
-                        intervals.push(I::MAJOR_SIXTH);
-                        cursor.consume(1);
-                    } else {
-                        // ignore option result since next token doesn't NEED to be a number
-                        let _consumed_number = upper_chord_ext(&mut cursor, IntervalQuality::Minor, &mut intervals).is_some();
-                    }
+                    // ignore option result since next token doesn't NEED to be a number
+                    let _consumed_number = upper_chord_ext(&mut cursor, IntervalQuality::Minor, &mut intervals).is_some();
                 }
             }
             T::Maj => {
@@ -172,6 +170,8 @@ fn interpret(tokens: &[ChordTk]) -> Option<Vec<Interval>> {
                 cursor.consume(1);
             }
             T::Seven | T:: Nine | T::Eleven | T::Thirteen => {
+                intervals.extend([I::PERFECT_UNISON, I::MAJOR_THIRD, I::PERFECT_FIFTH]);
+                
                 upper_chord_ext(&mut cursor, IntervalQuality::Minor, &mut intervals)
                     .expect("token must be number due to match")
             }
@@ -182,7 +182,7 @@ fn interpret(tokens: &[ChordTk]) -> Option<Vec<Interval>> {
     Some(intervals)
 }
 
-pub struct TkCursor<'a> {
+struct TkCursor<'a> {
     len_remaining: usize, // can be much smaller
     consumed: usize,
     curr: Option<ChordTk>,
@@ -296,5 +296,27 @@ mod tests {
         test_interpret!("C6" => [T::Six], "Cmaj6" => [T::Maj, T::Six]; "P1, M3, P5, M6");
 
         test_interpret!("Cmin6" => [T::Min, T::Six]; "P1, m3, P5, M6");
+
+        test_interpret!("C7" => [T::Seven]; "P1, M3, P5, m7");
+
+        test_interpret!("Cdim7" => [T::Dim, T::Seven]; "P1, m3, d5, d7");
+
+        test_interpret!("Cmin7" => [T::Min, T::Seven]; "P1, m3, P5, m7");
+
+        test_interpret!("Cmin(maj7)" => [T::Min, T::Maj, T::Seven]; "P1, m3, P5, M7");
+
+        test_interpret!("Cmaj7" => [T::Maj, T::Seven]; "P1, M3, P5, M7");
+
+        test_interpret!("Caug7" => [T::Aug, T::Seven]; "P1, M3, a5, m7");
+
+        test_interpret!("Caug(maj7)" => [T::Aug, T::Maj, T::Seven]; "P1, M3, a5, M7");
+
+        test_interpret!("C9" => [T::Nine]; "P1, M3, P5, m7, M9");
+
+        test_interpret!("Cmin9" => [T::Nine]; "P1, m3, P5, m7, M9");
+
+        test_interpret!("C11" => [T::Eleven]; "P1, M3, P5, m7, M9, P11");
+
+        test_interpret!("C13" => [T::Eleven]; "P1, M3, P5, m7, M9, P11, M13");
     }
 }
