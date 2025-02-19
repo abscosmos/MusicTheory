@@ -10,7 +10,7 @@ use crate::pitch::{Pitch, PitchFromStrError};
 use crate::semitone::Semitone;
 
 #[repr(u8)]
-#[derive(Copy, Clone, Eq, PartialEq, Debug, FromRepr, EnumIter)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug, FromRepr, EnumIter, Ord, PartialOrd)]
 pub enum PitchClass {
     C = 0,  /* C /B# */
     Cs, /* C#/D♭ */
