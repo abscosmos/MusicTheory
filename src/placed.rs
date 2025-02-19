@@ -27,7 +27,7 @@ impl<T: Clone> Clone for Placed<T> {
     fn clone(&self) -> Self {
         Self {
             base: self.base.clone(),
-            octave: self.octave.clone(),
+            octave: self.octave,
         }
     }
 }
