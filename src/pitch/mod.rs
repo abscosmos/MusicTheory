@@ -1,7 +1,8 @@
+use std::cmp::Ordering;
 use std::fmt;
 use std::str::FromStr;
 use regex::Regex;
-use crate::enharmonic::EnharmonicEq;
+use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
 use crate::interval::Interval;
 use crate::interval::quality::IntervalQuality;
 use crate::accidental::AccidentalSign;
@@ -205,6 +206,23 @@ impl fmt::Display for Pitch {
 impl EnharmonicEq for Pitch {
     fn eq_enharmonic(&self, rhs: &Self) -> bool {
         self.as_pitch_class() == rhs.as_pitch_class()
+    }
+}
+
+impl PartialOrd for Pitch {
+    fn partial_cmp(&self, rhs: &Self) -> Option<Ordering> {
+        Some(self.cmp(rhs))
+    }
+}
+
+impl Ord for Pitch {
+    fn cmp(&self, rhs: &Self) -> Ordering {
+        self.letter()
+            .cmp(&rhs.letter())
+            .then(
+                self.accidental()
+                    .cmp(&rhs.accidental())
+            )
     }
 }
 
