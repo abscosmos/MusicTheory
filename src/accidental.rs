@@ -1,7 +1,7 @@
 use std::fmt;
 use crate::semitone::Semitone;
 
-#[derive(Copy, Clone, Eq, PartialEq)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd)]
 pub struct AccidentalSign {
     pub offset: i16,
 }

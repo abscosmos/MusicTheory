@@ -3,7 +3,7 @@ use std::str::FromStr;
 use strum_macros::{EnumIter, FromRepr};
 
 #[repr(u8)]
-#[derive(Copy, Clone, Eq, PartialEq, Debug, EnumIter, FromRepr)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug, EnumIter, FromRepr, Ord, PartialOrd)]
 pub enum Letter {
     C = 0,
     D,
