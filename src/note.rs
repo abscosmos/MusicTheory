@@ -1,5 +1,6 @@
+use std::cmp::Ordering;
 use std::fmt;
-use crate::enharmonic::EnharmonicEq;
+use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
 use crate::interval::Interval;
 use crate::pitch::Pitch;
 use crate::pitch_class::PitchClass;
@@ -138,6 +139,19 @@ impl Note {
             octave: unchecked.octave - edit.0.div_euclid(12),
             .. unchecked
         }
+    }
+}
+
+impl EnharmonicOrd for Note {
+    fn cmp_enharmonic(&self, rhs: &Self) -> Ordering {
+        let lhs = self.simplified();
+        let rhs = rhs.simplified();
+
+        lhs.octave
+            .cmp(&rhs.octave)
+            .then(
+                lhs.base.as_pitch_class().cmp(&rhs.base.as_pitch_class())
+            )
     }
 }
 
