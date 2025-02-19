@@ -226,6 +226,13 @@ impl Ord for Pitch {
     }
 }
 
+impl EnharmonicOrd for Pitch {
+    fn cmp_enharmonic(&self, rhs: &Self) -> Ordering {
+        self.as_pitch_class()
+            .cmp(&rhs.as_pitch_class())
+    }
+}
+
 impl From<PitchClass> for Pitch {
     fn from(value: PitchClass) -> Self {
         match value {
