@@ -172,23 +172,15 @@ fn interpret(tokens: &[ChordTk]) -> Option<Vec<Interval>> {
 
                 cursor.consume(1);
             }
-            T::Six => {
+            T::Six | T::Seven | T:: Nine | T::Eleven | T::Thirteen => {
                 ensure! { cursor.consumed() == 0 }
-
+                
                 intervals.extend([I::PERFECT_UNISON, I::MAJOR_THIRD, I::PERFECT_FIFTH]);
 
                 assert!(
-                    potential_num(&mut cursor, IntervalQuality::DIMINISHED, &mut intervals),
-                    "must've consumed at least T::Six"
+                    potential_num(&mut cursor, IntervalQuality::Minor, &mut intervals),
+                    "token must be number due to match"
                 )
-            }
-            T::Seven | T:: Nine | T::Eleven | T::Thirteen => {
-                ensure! { cursor.consumed() == 0 }
-                
-                intervals.extend([I::PERFECT_UNISON, I::MAJOR_THIRD, I::PERFECT_FIFTH]);
-                
-                upper_chord_ext(&mut cursor, IntervalQuality::Minor, &mut intervals)
-                    .expect("token must be number due to match")
             }
             ChordTk::Add(_) => todo!(),
             ChordTk::Omit(num) => {
