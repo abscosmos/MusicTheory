@@ -7,6 +7,7 @@ use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
 use crate::interval::number::IntervalNumber;
 use crate::interval::quality::{IntervalQuality, ParseIntervalQualityErr};
 use crate::note::Note;
+use crate::pitch::Pitch;
 use crate::semitone::Semitone;
 
 pub mod quality;
@@ -38,6 +39,26 @@ impl Interval {
     }
 
     pub fn between_notes(lhs: Note, rhs: Note) -> Self {
+        // make lhs the higher note and rhs the lower note
+        let (lhs, rhs) = match lhs.cmp_enharmonic(&rhs) {
+            Ordering::Equal => return Self::PERFECT_UNISON,
+            Ordering::Less => (lhs, rhs),
+            Ordering::Greater => (rhs, lhs),
+        };
+        
+        todo!()
+    }
+    
+    pub fn between_pitches(lhs: Pitch, rhs: Pitch) -> Self {
+        let (lhs, rhs) = match lhs.cmp_enharmonic(&rhs) {
+            Ordering::Equal => return Self::PERFECT_UNISON,
+            Ordering::Less => (lhs, rhs),
+            Ordering::Greater => (rhs, lhs),
+        };
+        
+        let lhs_letter = lhs.letter().step();
+        let rhs_letter = rhs.letter().step();
+        
         todo!()
     }
 
