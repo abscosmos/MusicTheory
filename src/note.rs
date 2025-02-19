@@ -142,6 +142,22 @@ impl Note {
     }
 }
 
+impl PartialOrd for Note {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for Note {
+    fn cmp(&self, rhs: &Self) -> Ordering {
+        self.octave
+            .cmp(&rhs.octave)
+            .then(
+                self.base.cmp(&rhs.base)
+            )
+    }
+}
+
 impl EnharmonicOrd for Note {
     fn cmp_enharmonic(&self, rhs: &Self) -> Ordering {
         let lhs = self.simplified();
