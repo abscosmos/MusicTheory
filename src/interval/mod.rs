@@ -695,4 +695,29 @@ mod tests {
         assert_eq!((-I::DIMINISHED_FOURTEENTH).shorthand(), "d-14");
         assert_eq!(-(-I::MAJOR_SEVENTH), I::MAJOR_SEVENTH);
     }
+
+    #[test]
+    fn between_pitches_transpose_inverses() {
+        for ivl in &Interval::ALL_CONSTS[..23] {
+            for start in Pitch::ALL_CONSTS {
+                let end = start.transpose(ivl);
+                
+                assert_eq!(
+                    start.semitones_to(end), ivl.semitones(),
+                    "{start} -> {end} should span {} semitones", ivl.semitones().0
+                );
+
+                let between = Interval::between_pitches(*start, end, *ivl);
+                
+                if end.letter() < start.letter() {
+                    continue;
+                }
+                
+                assert_eq!(
+                    between, *ivl,
+                    "between_pitches returns {between} instead of applied {ivl}, ({start} -> {end})"
+                );
+            }
+        }
+    }
 }
