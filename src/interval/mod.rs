@@ -49,6 +49,7 @@ impl Interval {
         todo!()
     }
     
+    // TODO: fails from c -> B#, since aug 7 is 12 semitones; C -> B# are 0 semitones apart 
     pub fn between_pitches(lhs: Pitch, rhs: Pitch) -> Self {
         let number = (rhs.letter().step() as i16 - lhs.letter().step() as i16).rem_euclid(7) + 1; 
         
@@ -312,6 +313,8 @@ mod tests {
     use Interval as I;
     use IntervalQuality as IQ;
     use IntervalNumber as IN;
+    use crate::accidental::AccidentalSign;
+    use crate::letter::Letter;
 
     const FOUR: NonZeroU16 = NonZeroU16::new(4).expect("nonzero");
     const SIX: NonZeroU16 = NonZeroU16::new(6).expect("nonzero");
@@ -700,6 +703,27 @@ mod tests {
         assert_eq!((-I::DIMINISHED_FOURTEENTH).shorthand(), "d-14");
         assert_eq!(-(-I::MAJOR_SEVENTH), I::MAJOR_SEVENTH);
     }
+    
+    #[test]
+    fn test_aug_seventh() {
+        let between = Interval::between_pitches(Pitch::C, Pitch::B_SHARP);
+
+        assert_eq!(Pitch::C.transpose(&between), Pitch::B_SHARP, "{between}");
+        
+        let between = Interval::between_pitches(Pitch::G, Pitch::F_DOUBLE_SHARP);
+        
+        assert_eq!(Pitch::G.transpose(&between), Pitch::F_DOUBLE_SHARP, "{between}");
+
+        let between = Interval::between_pitches(Pitch::G_DOUBLE_FLAT, Pitch::F);
+
+        assert_eq!(Pitch::G_DOUBLE_FLAT.transpose(&between), Pitch::F, "{between}");
+        
+        let g_quadruple_flat = Pitch::from_letter_and_accidental(Letter::G, AccidentalSign { offset: -4 });
+
+        let between = Interval::between_pitches(g_quadruple_flat, Pitch::F_DOUBLE_FLAT);
+
+        assert_eq!(Pitch::G_DOUBLE_FLAT.transpose(&between), Pitch::F, "{between}");
+    }
 
     #[test]
     fn between_pitches_transpose_inverses() {
@@ -717,6 +741,13 @@ mod tests {
                 assert_eq!(
                     between, *ivl,
                     "between_pitches returns {between} instead of applied {ivl}, ({start} -> {end})"
+                );
+                
+                let neg_between = Interval::between_pitches(end, *start);
+                
+                assert_eq!(
+                    neg_between, *ivl,
+                    "neg_between_pitches returns {neg_between} instead of applied {ivl}, ({end} -> {start})"
                 );
             }
         }
