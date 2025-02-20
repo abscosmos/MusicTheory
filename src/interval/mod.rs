@@ -51,10 +51,10 @@ impl Interval {
     
     // TODO: fails from c -> B#, since aug 7 is 12 semitones; C -> B# are 0 semitones apart 
     pub fn between_pitches(lhs: Pitch, rhs: Pitch) -> Self {
-        let number = (rhs.letter().step() as i16 - lhs.letter().step() as i16).rem_euclid(7) + 1; 
+        let number = rhs.letter().offset_between(rhs.letter()) + 1;
         
-        let number = IntervalNumber::new(number)
-            .expect("can't be zero since rem_euclid returns [0, inf), and adding one");
+        let number = IntervalNumber::new(number as _)
+            .expect("can't be zero since offset_between returns [0, 6], and adding one");
         
         let quality = match lhs.semitones_to(rhs).0 - number.base_semitones_with_octave_unsigned() {
             -1 if number.is_perfect() => IntervalQuality::DIMINISHED,
