@@ -140,6 +140,13 @@ impl Interval {
             .. *self
         }
     }
+    
+    pub fn as_simple(&self) -> Self {
+        Self {
+            quality: self.quality,
+            number: self.number.as_simple(),
+        }
+    }
 
     pub fn abs(&self) -> Self {
         self.with_direction(true)
