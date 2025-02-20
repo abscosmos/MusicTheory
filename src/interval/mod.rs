@@ -50,16 +50,29 @@ impl Interval {
     }
     
     pub fn between_pitches(lhs: Pitch, rhs: Pitch) -> Self {
-        let (lhs, rhs) = match lhs.cmp_enharmonic(&rhs) {
+        let (lower, higher) = match lhs.cmp(&rhs) {
             Ordering::Equal => return Self::PERFECT_UNISON,
             Ordering::Less => (lhs, rhs),
             Ordering::Greater => (rhs, lhs),
         };
         
-        let lhs_letter = lhs.letter().step();
-        let rhs_letter = rhs.letter().step();
+        let low_letter = lower.letter().step();
+        let high_letter = higher.letter().step();
         
-        todo!()
+        let number = IntervalNumber::new((high_letter - low_letter + 1) as i16)
+            .expect("shouldn't be zero, since adding 1 to a non-negative number");
+        
+        let quality = match lower.semitones_to(higher).0 - number.base_semitones_with_octave_unsigned() {
+            -1 if number.is_perfect() => IntervalQuality::DIMINISHED,
+            -1 => IntervalQuality::Minor,
+            0 if number.is_perfect() => IntervalQuality::Perfect,
+            0 => IntervalQuality::Major,
+            n if n.is_positive() => IntervalQuality::Augmented((n as u16).try_into().expect("can't be zero")),
+            n if n.is_negative() => IntervalQuality::Diminished(NonZeroU16::new(n.unsigned_abs() - 1).expect("shouldn't be zero, as the first cause should've caught that")),
+            _ => unreachable!("all cases should be handled"),
+        };
+        
+        Interval::new(quality, number).expect("should be valid")
     }
 
     pub fn is_subzero(&self) -> bool {
@@ -707,7 +720,7 @@ mod tests {
                     "{start} -> {end} should span {} semitones", ivl.semitones().0
                 );
 
-                let between = Interval::between_pitches(*start, end, *ivl);
+                let between = Interval::between_pitches(*start, end);
                 
                 if end.letter() < start.letter() {
                     continue;
