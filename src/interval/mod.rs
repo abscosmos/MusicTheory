@@ -50,25 +50,18 @@ impl Interval {
     }
     
     pub fn between_pitches(lhs: Pitch, rhs: Pitch) -> Self {
-        let (lower, higher) = match lhs.cmp(&rhs) {
-            Ordering::Equal => return Self::PERFECT_UNISON,
-            Ordering::Less => (lhs, rhs),
-            Ordering::Greater => (rhs, lhs),
-        };
+        let number = (rhs.letter().step() as i16 - lhs.letter().step() as i16).rem_euclid(7) + 1; 
         
-        let low_letter = lower.letter().step();
-        let high_letter = higher.letter().step();
+        let number = IntervalNumber::new(number)
+            .expect("can't be zero since rem_euclid returns [0, inf), and adding one");
         
-        let number = IntervalNumber::new((high_letter - low_letter + 1) as i16)
-            .expect("shouldn't be zero, since adding 1 to a non-negative number");
-        
-        let quality = match lower.semitones_to(higher).0 - number.base_semitones_with_octave_unsigned() {
+        let quality = match lhs.semitones_to(rhs).0 - number.base_semitones_with_octave_unsigned() {
             -1 if number.is_perfect() => IntervalQuality::DIMINISHED,
             -1 => IntervalQuality::Minor,
             0 if number.is_perfect() => IntervalQuality::Perfect,
             0 => IntervalQuality::Major,
             n @ 1.. => IntervalQuality::Augmented((n as u16).try_into().expect("can't be zero")),
-            n @ ..-1 => IntervalQuality::Diminished(NonZeroU16::new(n.unsigned_abs() - 1).expect("shouldn't be zero, as the first cause should've caught that")),
+            n @ ..-1 => IntervalQuality::Diminished(NonZeroU16::new(-n as u16 - 1).expect("shouldn't be zero, as the first cause should've caught that")),
         };
         
         Interval::new(quality, number).expect("should be valid")
@@ -720,10 +713,6 @@ mod tests {
                 );
 
                 let between = Interval::between_pitches(*start, end);
-                
-                if end.letter() < start.letter() {
-                    continue;
-                }
                 
                 assert_eq!(
                     between, *ivl,
