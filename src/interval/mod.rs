@@ -67,9 +67,8 @@ impl Interval {
             -1 => IntervalQuality::Minor,
             0 if number.is_perfect() => IntervalQuality::Perfect,
             0 => IntervalQuality::Major,
-            n if n.is_positive() => IntervalQuality::Augmented((n as u16).try_into().expect("can't be zero")),
-            n if n.is_negative() => IntervalQuality::Diminished(NonZeroU16::new(n.unsigned_abs() - 1).expect("shouldn't be zero, as the first cause should've caught that")),
-            _ => unreachable!("all cases should be handled"),
+            n @ 1.. => IntervalQuality::Augmented((n as u16).try_into().expect("can't be zero")),
+            n @ ..-1 => IntervalQuality::Diminished(NonZeroU16::new(n.unsigned_abs() - 1).expect("shouldn't be zero, as the first cause should've caught that")),
         };
         
         Interval::new(quality, number).expect("should be valid")
