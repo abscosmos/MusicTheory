@@ -51,7 +51,7 @@ impl Interval {
     
     // TODO: fails from c -> B#, since aug 7 is 12 semitones; C -> B# are 0 semitones apart 
     pub fn between_pitches(lhs: Pitch, rhs: Pitch) -> Self {
-        let number = rhs.letter().offset_between(rhs.letter()) + 1;
+        let number = lhs.letter().offset_between(rhs.letter()) + 1;
         
         let number = IntervalNumber::new(number as _)
             .expect("can't be zero since offset_between returns [0, 6], and adding one");
