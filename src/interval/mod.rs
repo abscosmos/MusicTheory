@@ -49,6 +49,16 @@ impl Interval {
         todo!()
     }
     
+    pub fn pitch_semitones_between_helper(lhs: Pitch, rhs: Pitch) -> i16 {
+        let base = lhs.semitones_to(rhs).0;
+        
+        if lhs.letter().offset_between(rhs.letter()) == 6 && base == 0 {
+            base + 12
+        } else {
+            base
+        }
+    }
+    
     // TODO: fails from c -> B#, since aug 7 is 12 semitones; C -> B# are 0 semitones apart 
     pub fn between_pitches(lhs: Pitch, rhs: Pitch) -> Self {
         let number = lhs.letter().offset_between(rhs.letter()) + 1;
@@ -56,7 +66,7 @@ impl Interval {
         let number = IntervalNumber::new(number as _)
             .expect("can't be zero since offset_between returns [0, 6], and adding one");
         
-        let quality = match lhs.semitones_to(rhs).0 - number.base_semitones_with_octave_unsigned() {
+        let quality = match Self::pitch_semitones_between_helper(lhs, rhs) - number.base_semitones_with_octave_unsigned() {
             -1 if number.is_perfect() => IntervalQuality::DIMINISHED,
             -1 => IntervalQuality::Minor,
             0 if number.is_perfect() => IntervalQuality::Perfect,
