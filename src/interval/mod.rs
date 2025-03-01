@@ -84,7 +84,7 @@ impl Interval {
     }
 
     pub fn is_subzero(&self) -> bool {
-        matches!(self.quality, IntervalQuality::Diminished(n) if self.number.number().abs() <= n.get() as _)
+        self.semitones().0.is_negative()
     }
 
     pub fn quality(&self) -> IntervalQuality {
