@@ -86,6 +86,29 @@ impl Interval {
     pub fn is_subzero(&self) -> bool {
         self.semitones().0.is_negative()
     }
+    
+    // TODO: add tests for this function
+    pub fn expand_subzero(&self) -> Self {
+        if !self.is_subzero() {
+            return *self;
+        }
+
+        const OCTAVE_SEMITONES: i16 = 12;
+
+        let semitones = self.semitones().0;
+
+        let octaves = -semitones.div_euclid(OCTAVE_SEMITONES);
+        
+        let new_number = IntervalNumber::new(self.number().number() + octaves * 7)
+            .expect("shouldn't be zero to begin with");
+        
+        let expanded = Self::strict_non_subzero(self.quality, new_number)
+            .expect("should be valid quality and not subzero");
+        
+        debug_assert!(expanded.semitones().0 < OCTAVE_SEMITONES, "expanded shouldn't be more than an octave");
+        
+        expanded
+    }
 
     pub fn quality(&self) -> IntervalQuality {
         self.quality
