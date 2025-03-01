@@ -745,9 +745,11 @@ mod tests {
                 
                 let neg_between = Interval::between_pitches(end, *start);
                 
+                let inv = ivl.inverted();
+                
                 assert_eq!(
-                    neg_between, *ivl,
-                    "neg_between_pitches returns {neg_between} instead of applied {ivl}, ({end} -> {start})"
+                    neg_between, inv,
+                    "neg_between_pitches returns {neg_between} instead of applied {inv}, ({end} -> {start})"
                 );
             }
         }
