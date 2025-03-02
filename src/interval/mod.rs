@@ -83,11 +83,13 @@ impl Interval {
         Interval::new(quality, number).expect("should be valid")
     }
 
+    // TODO: does this work for descending intervals? maybe compare signum?
     pub fn is_subzero(&self) -> bool {
         self.semitones().0.is_negative()
     }
     
     // TODO: add tests for this function
+    // TODO: ensure this works for descending intervals
     pub fn expand_subzero(&self) -> Self {
         if !self.is_subzero() {
             return *self;
