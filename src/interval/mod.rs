@@ -59,7 +59,7 @@ impl Interval {
         }
     }
     
-    // TODO: fails from c -> B#, since aug 7 is 12 semitones; C -> B# are 0 semitones apart 
+    // TODO: test with intervals where quality makes it more than 2 octaves
     pub fn between_pitches(lhs: Pitch, rhs: Pitch) -> Self {
         let lhs_letter = lhs.letter();
         let rhs_letter = rhs.letter();
@@ -69,9 +69,9 @@ impl Interval {
         let number = IntervalNumber::new(number as _)
             .expect("can't be zero since offset_between returns [0, 6], and adding one");
 
-        let number_adj = if lhs_letter == rhs_letter && lhs > rhs { IntervalNumber::OCTAVE } else { number };
+        let number = if number == IntervalNumber::UNISON && lhs > rhs { IntervalNumber::OCTAVE } else { number };
 
-        let quality = match Self::pitch_semitones_between_helper(lhs, rhs) - number_adj.base_semitones_with_octave_unsigned() {
+        let quality = match Self::pitch_semitones_between_helper(lhs, rhs) - number.base_semitones_with_octave_unsigned() {
             -1 if number.is_perfect() => IntervalQuality::DIMINISHED,
             -1 => IntervalQuality::Minor,
             0 if number.is_perfect() => IntervalQuality::Perfect,
@@ -783,7 +783,7 @@ mod tests {
                 
                 let neg_between = Interval::between_pitches(end, *start);
 
-                let inv = ivl.inverted();
+                let inv = ivl.inverted().expand_subzero();
 
                 assert_eq!(
                     neg_between, inv,
