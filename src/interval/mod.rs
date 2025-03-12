@@ -38,15 +38,31 @@ impl Interval {
          Self::new(quality, number).filter(|ivl| !ivl.is_subzero())
     }
 
-    pub fn between_notes(lhs: Note, rhs: Note) -> Self {
-        // make lhs the higher note and rhs the lower note
-        let (lhs, rhs) = match lhs.cmp_enharmonic(&rhs) {
-            Ordering::Equal => return Self::PERFECT_UNISON,
-            Ordering::Less => (lhs, rhs),
-            Ordering::Greater => (rhs, lhs),
-        };
+    // TODO: test if this is correct for subzero intervals
+    pub fn between_notes(lhs: Note, rhs: Note) -> Interval {
+        let base_interval = Self::between_pitches(lhs.base, rhs.base);
+
+        let diff = lhs.semitones_to(&rhs) - base_interval.semitones();
+
+        const OCTAVE_SEMITONES: i16 = 12;
+
+        assert_eq!(diff.0 % OCTAVE_SEMITONES, 0, "should just be off by octave");
+
+        let octaves = diff.0 / 12;
         
-        todo!()
+        let base_number = base_interval.number().number(); 
+        
+        assert!(
+            base_number.signum() == octaves.signum() || octaves == 0,
+            "expanding the interval should always be in the same direction"
+        );
+
+        let new_number = (base_interval.number().number() + 7 * octaves)
+            .try_into()
+            .expect("nonzero shouldn't become zero if adding away from zero; shouldn't overflow either");
+
+        Interval::new(base_interval.quality(), IntervalNumber(new_number))
+            .expect("quality should still be valid")
     }
     
     // TODO: test with intervals where quality makes it more than 2 octaves
