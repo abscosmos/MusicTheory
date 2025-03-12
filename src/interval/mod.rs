@@ -794,4 +794,31 @@ mod tests {
             }
         }
     }
+
+    #[test]
+    fn between_notes_transpose_inverses() {
+        for ivl in Interval::ALL_CONSTS {
+            for pitch_start in Pitch::ALL_CONSTS {
+                for octave in -3..=3 {
+                    let start = Note { base: *pitch_start, octave };
+
+                    let end = start.transpose(ivl);
+
+                    assert_eq!(
+                        start.semitones_to(&end), ivl.semitones(),
+                        "{start} -> {end} should span {} semitones", ivl.semitones().0
+                    );
+
+                    let between = Interval::between_notes(start, end);
+
+                    assert_eq!(
+                        between, *ivl,
+                        "between_notes returns {between} instead of applied {ivl}, ({start} -> {end})"
+                    );
+
+                    // TODO: neg between
+                }
+            }
+        }
+    }
 }
