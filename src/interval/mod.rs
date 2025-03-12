@@ -83,9 +83,11 @@ impl Interval {
         Interval::new(quality, number).expect("should be valid")
     }
 
-    // TODO: does this work for descending intervals? maybe compare signum?
+    // TODO: does this work for descending intervals?
     pub fn is_subzero(&self) -> bool {
-        self.semitones().0.is_negative()
+        let semitones = self.semitones().0;
+
+        semitones != 0 && semitones.signum() != self.number.number().signum()
     }
     
     // TODO: add tests for this function
@@ -429,7 +431,7 @@ mod tests {
         assert!(matches!("m0".parse::<I>(), Err(ParseIntervalError::NumberErr(..))));
     }
 
-    #[test]
+    #[test] // TODO: make tests better, test descending intervals
     fn subzero() {
         assert!(I::strict_non_subzero(IQ::DIMINISHED, IN::UNISON).is_none());
         assert!(I::new(IQ::DIMINISHED, IN::UNISON).expect("valid interval").inverted().inverted_strict_non_subzero().is_none());
