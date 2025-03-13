@@ -1,12 +1,13 @@
 use std::cmp::Ordering;
 use std::fmt;
-use std::num::{NonZeroU16, ParseIntError};
+use std::num::{NonZeroI16, NonZeroU16, ParseIntError};
 use std::ops::Neg;
 use std::str::FromStr;
 use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
 use crate::interval::number::IntervalNumber;
 use crate::interval::quality::{IntervalQuality, ParseIntervalQualityErr};
 use crate::note::Note;
+use crate::pitch::Pitch;
 use crate::semitone::Semitone;
 
 pub mod quality;
@@ -37,12 +38,96 @@ impl Interval {
          Self::new(quality, number).filter(|ivl| !ivl.is_subzero())
     }
 
-    pub fn between_notes(lhs: Note, rhs: Note) -> Self {
-        todo!()
+    // TODO: test if this is correct for subzero intervals
+    pub fn between_notes(lhs: Note, rhs: Note) -> Interval {
+        let (lhs, rhs, descending) = match lhs.cmp(&rhs) {
+            Ordering::Equal => return Self::PERFECT_UNISON,
+            Ordering::Less => (lhs, rhs, false),
+            Ordering::Greater => (rhs, lhs, true),
+        };
+        
+        let base_interval = Self::between_pitches(lhs.base, rhs.base);
+
+        let diff = lhs.semitones_to(&rhs) - base_interval.semitones();
+
+        assert!(diff.0 >= 0, "after reordering, the difference should be positive or zero");
+        
+        const OCTAVE_SEMITONES: i16 = 12;
+
+        assert_eq!(diff.0 % OCTAVE_SEMITONES, 0, "should just be off by multiples of an octave");
+
+        let octaves = diff.0 / 12;
+
+        let new_number = NonZeroI16::new(base_interval.number().number() + 7 * octaves)
+            .expect("nonzero shouldn't become zero if adding away from zero; shouldn't overflow either");
+        
+        let signed_number = if descending { -new_number } else { new_number };
+
+        Interval::new(base_interval.quality(), IntervalNumber(signed_number))
+            .expect("quality should still be valid")
+    }
+    
+    // TODO: test with intervals where quality makes it more than 2 octaves
+    pub fn between_pitches(lhs: Pitch, rhs: Pitch) -> Self {
+        let lhs_letter = lhs.letter();
+        let rhs_letter = rhs.letter();
+
+        let number = lhs_letter.offset_between(rhs_letter) + 1;
+        
+        let number = IntervalNumber::new(number as _)
+            .expect("can't be zero since offset_between returns [0, 6], and adding one");
+
+        let number = if number == IntervalNumber::UNISON && lhs > rhs { IntervalNumber::OCTAVE } else { number };
+
+        let base_semitones = lhs.semitones_to(rhs).0;
+        
+        let semitones = if lhs_letter.offset_between(rhs_letter) == 6 && base_semitones == 0 {
+            base_semitones + 12
+        } else {
+            base_semitones
+        };
+        
+        let quality = match semitones - number.base_semitones_with_octave_unsigned() {
+            -1 if number.is_perfect() => IntervalQuality::DIMINISHED,
+            -1 => IntervalQuality::Minor,
+            0 if number.is_perfect() => IntervalQuality::Perfect,
+            0 => IntervalQuality::Major,
+            n @ 1.. => IntervalQuality::Augmented((n as u16).try_into().expect("can't be zero")),
+            n @ ..-1 => IntervalQuality::Diminished(NonZeroU16::new(-n as u16 - 1).expect("shouldn't be zero, as the first arm should've caught that")),
+        };
+        
+        Interval::new(quality, number).expect("should be valid")
     }
 
+    // TODO: does this work for descending intervals?
     pub fn is_subzero(&self) -> bool {
-        matches!(self.quality, IntervalQuality::Diminished(n) if self.number.number().abs() <= n.get() as _)
+        let semitones = self.semitones().0;
+
+        semitones != 0 && semitones.signum() != self.number.number().signum()
+    }
+    
+    // TODO: add tests for this function
+    // TODO: ensure this works for descending intervals
+    pub fn expand_subzero(&self) -> Self {
+        if !self.is_subzero() {
+            return *self;
+        }
+
+        const OCTAVE_SEMITONES: i16 = 12;
+
+        let semitones = self.semitones().0;
+
+        let octaves = -semitones.div_euclid(OCTAVE_SEMITONES);
+        
+        let new_number = IntervalNumber::new(self.number().number() + octaves * 7)
+            .expect("shouldn't be zero to begin with");
+        
+        let expanded = Self::strict_non_subzero(self.quality, new_number)
+            .expect("should be valid quality and not subzero");
+        
+        debug_assert!(expanded.semitones().0 < OCTAVE_SEMITONES, "expanded shouldn't be more than an octave");
+        
+        expanded
     }
 
     pub fn quality(&self) -> IntervalQuality {
@@ -293,6 +378,8 @@ mod tests {
     use Interval as I;
     use IntervalQuality as IQ;
     use IntervalNumber as IN;
+    use crate::accidental::AccidentalSign;
+    use crate::letter::Letter;
 
     const FOUR: NonZeroU16 = NonZeroU16::new(4).expect("nonzero");
     const SIX: NonZeroU16 = NonZeroU16::new(6).expect("nonzero");
@@ -367,7 +454,7 @@ mod tests {
         assert!(matches!("m0".parse::<I>(), Err(ParseIntervalError::NumberErr(..))));
     }
 
-    #[test]
+    #[test] // TODO: make tests better, test descending intervals
     fn subzero() {
         assert!(I::strict_non_subzero(IQ::DIMINISHED, IN::UNISON).is_none());
         assert!(I::new(IQ::DIMINISHED, IN::UNISON).expect("valid interval").inverted().inverted_strict_non_subzero().is_none());
@@ -680,5 +767,94 @@ mod tests {
     fn neg() {
         assert_eq!((-I::DIMINISHED_FOURTEENTH).shorthand(), "d-14");
         assert_eq!(-(-I::MAJOR_SEVENTH), I::MAJOR_SEVENTH);
+    }
+    
+    #[test]
+    fn test_aug_seventh() {
+        let between = Interval::between_pitches(Pitch::C, Pitch::B_SHARP);
+
+        assert_eq!(Pitch::C.transpose(&between), Pitch::B_SHARP, "{between}");
+        
+        let between = Interval::between_pitches(Pitch::G, Pitch::F_DOUBLE_SHARP);
+        
+        assert_eq!(Pitch::G.transpose(&between), Pitch::F_DOUBLE_SHARP, "{between}");
+
+        let between = Interval::between_pitches(Pitch::G_DOUBLE_FLAT, Pitch::F);
+
+        assert_eq!(Pitch::G_DOUBLE_FLAT.transpose(&between), Pitch::F, "{between}");
+        
+        let g_quadruple_flat = Pitch::from_letter_and_accidental(Letter::G, AccidentalSign { offset: -4 });
+
+        let between = Interval::between_pitches(g_quadruple_flat, Pitch::F_DOUBLE_FLAT);
+
+        assert_eq!(Pitch::G_DOUBLE_FLAT.transpose(&between), Pitch::F, "{between}");
+    }
+
+    #[test]
+    fn between_pitches_transpose_inverses() {
+        for ivl in &Interval::ALL_CONSTS[..23] {
+            for start in Pitch::ALL_CONSTS {
+                let end = start.transpose(ivl);
+                
+                assert_eq!(
+                    start.semitones_to(end), ivl.semitones(),
+                    "{start} -> {end} should span {} semitones", ivl.semitones().0
+                );
+
+                let between = Interval::between_pitches(*start, end);
+                
+                assert_eq!(
+                    between, *ivl,
+                    "between_pitches returns {between} instead of applied {ivl}, ({start} -> {end})"
+                );
+                
+                let neg_between = Interval::between_pitches(end, *start);
+
+                let inv = ivl.inverted().expand_subzero();
+
+                assert_eq!(
+                    neg_between, inv,
+                    "neg_between_pitches returns {neg_between} instead of applied {inv}, ({end} -> {start})"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn between_notes_transpose_inverses() {
+        for &ivl in Interval::ALL_CONSTS {
+            for pitch_start in Pitch::ALL_CONSTS {
+                for octave in -3..=3 {
+                    let start = Note { base: *pitch_start, octave };
+
+                    let end = start.transpose(&ivl);
+
+                    assert_eq!(
+                        start.semitones_to(&end), ivl.semitones(),
+                        "{start} -> {end} should span {} semitones", ivl.semitones().0
+                    );
+
+                    let between = Interval::between_notes(start, end);
+
+                    assert_eq!(
+                        between, ivl,
+                        "between_notes returns {between} instead of applied {ivl}, ({start} -> {end})"
+                    );
+                    
+                    // descending
+                    
+                    let descending_ivl = if ivl == I::PERFECT_UNISON { ivl } else { -ivl };
+                    
+                    let end = start.transpose(&descending_ivl);
+                    
+                    let between = Interval::between_notes(start, end);
+
+                    assert_eq!(
+                        between, descending_ivl,
+                        "between_notes returns {between} instead of applied {descending_ivl}, ({start} -> {end})"
+                    );
+                }
+            }
+        }
     }
 }

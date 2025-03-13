@@ -153,6 +153,10 @@ impl Pitch {
 
         Self::from_fifths_from_c(self.as_fifths_from_c() + dir_offset)
     }
+    
+    pub fn distance_to(&self, rhs: &Self) -> Interval {
+        Interval::between_pitches(*self, *rhs)
+    }
 
     pub fn with_accidental(&self, accidental: AccidentalSign) -> Self {
         let letter = self.letter();
@@ -223,6 +227,13 @@ impl Ord for Pitch {
                 self.accidental()
                     .cmp(&rhs.accidental())
             )
+    }
+}
+
+impl EnharmonicOrd for Pitch {
+    fn cmp_enharmonic(&self, rhs: &Self) -> Ordering {
+        self.as_pitch_class()
+            .cmp(&rhs.as_pitch_class())
     }
 }
 

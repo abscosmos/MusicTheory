@@ -22,6 +22,10 @@ impl Letter {
     pub fn from_step(step: u8) -> Option<Self> {
         Self::from_repr(step)
     }
+    
+    pub fn offset_between(&self, rhs: Self) -> u8 {
+        (rhs.step() as i16 - self.step() as i16).rem_euclid(7) as _
+    }
 }
 
 impl fmt::Display for Letter {

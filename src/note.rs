@@ -22,7 +22,7 @@ impl Note {
     }
 
     pub fn distance_to(&self, other: &Self) -> Interval {
-        todo!()
+        Interval::between_notes(*self, *other)
     }
 
     // TODO: should this return Placed<PitchClass>?
