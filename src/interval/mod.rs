@@ -813,12 +813,12 @@ mod tests {
 
     #[test]
     fn between_notes_transpose_inverses() {
-        for ivl in Interval::ALL_CONSTS {
+        for &ivl in Interval::ALL_CONSTS {
             for pitch_start in Pitch::ALL_CONSTS {
                 for octave in -3..=3 {
                     let start = Note { base: *pitch_start, octave };
 
-                    let end = start.transpose(ivl);
+                    let end = start.transpose(&ivl);
 
                     assert_eq!(
                         start.semitones_to(&end), ivl.semitones(),
@@ -828,11 +828,22 @@ mod tests {
                     let between = Interval::between_notes(start, end);
 
                     assert_eq!(
-                        between, *ivl,
+                        between, ivl,
                         "between_notes returns {between} instead of applied {ivl}, ({start} -> {end})"
                     );
+                    
+                    // descending
+                    
+                    let descending_ivl = if ivl == I::PERFECT_UNISON { ivl } else { -ivl };
+                    
+                    let end = start.transpose(&descending_ivl);
+                    
+                    let between = Interval::between_notes(start, end);
 
-                    // TODO: neg between
+                    assert_eq!(
+                        between, descending_ivl,
+                        "between_notes returns {between} instead of applied {descending_ivl}, ({start} -> {end})"
+                    );
                 }
             }
         }
