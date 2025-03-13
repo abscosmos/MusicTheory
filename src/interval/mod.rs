@@ -1,6 +1,6 @@
 use std::cmp::Ordering;
 use std::fmt;
-use std::num::{NonZeroU16, ParseIntError};
+use std::num::{NonZeroI16, NonZeroU16, ParseIntError};
 use std::ops::Neg;
 use std::str::FromStr;
 use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
@@ -50,31 +50,21 @@ impl Interval {
 
         let diff = lhs.semitones_to(&rhs) - base_interval.semitones();
 
+        assert!(diff.0 >= 0, "after reordering, the difference should be positive or zero");
+        
         const OCTAVE_SEMITONES: i16 = 12;
 
-        assert_eq!(diff.0 % OCTAVE_SEMITONES, 0, "should just be off by octave");
+        assert_eq!(diff.0 % OCTAVE_SEMITONES, 0, "should just be off by multiples of an octave");
 
         let octaves = diff.0 / 12;
-        
-        let base_number = base_interval.number().number(); 
-        
-        assert!(
-            base_number.signum() == octaves.signum() || octaves == 0,
-            "expanding the interval should always be in the same direction"
-        );
 
-        let new_number = (base_interval.number().number() + 7 * octaves)
-            .try_into()
+        let new_number = NonZeroI16::new(base_interval.number().number() + 7 * octaves)
             .expect("nonzero shouldn't become zero if adding away from zero; shouldn't overflow either");
-
-        let ivl = Interval::new(base_interval.quality(), IntervalNumber(new_number))
-            .expect("quality should still be valid");
         
-        if descending {
-            -ivl
-        } else {
-            ivl
-        }
+        let signed_number = if descending { -new_number } else { new_number };
+
+        Interval::new(base_interval.quality(), IntervalNumber(signed_number))
+            .expect("quality should still be valid")
     }
     
     // TODO: test with intervals where quality makes it more than 2 octaves
