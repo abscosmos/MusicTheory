@@ -27,22 +27,8 @@ pub enum PitchClass {
 }
 
 impl PitchClass {
-    pub fn transpose(&self, interval: &Interval, ascending: bool) -> Self {
-        let offset = if ascending {
-            interval.semitones()
-        } else {
-            -interval.semitones()
-        };
-
-        *self + offset
-    }
-
-    pub fn transpose_ascending(&self, interval: &Interval) -> Self {
-        self.transpose(interval, true)
-    }
-
-    pub fn transpose_descending(&self, interval: &Interval) -> Self {
-        self.transpose(interval, false)
+    pub fn transpose(&self, interval: &Interval) -> Self {
+        *self + interval.semitones()
     }
 
     pub fn letter(&self) -> Letter {
