@@ -282,6 +282,14 @@ impl Interval {
     pub fn subtract(&self, rhs: Self) -> Self {
         Self::add(self, -rhs)
     }
+    
+    pub fn neg_preserve_perfect_unison(&self) -> Self {
+        if *self == Self::PERFECT_UNISON {
+            *self
+        } else {
+            -*self
+        }
+    }
 }
 
 impl Neg for Interval {
