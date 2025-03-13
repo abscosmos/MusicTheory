@@ -232,6 +232,11 @@ impl Interval {
             number: self.number.as_simple(),
         }
     }
+    
+    // TODO: better name? and tests
+    pub fn swap_direction_invert(&self) -> Self {
+        -self.inverted()
+    }
 
     pub fn abs(&self) -> Self {
         self.with_direction(true)
