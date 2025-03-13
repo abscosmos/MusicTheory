@@ -9,4 +9,12 @@ pub mod accidental;
 pub mod pitch;
 pub mod letter;
 
-// TODO: add pcset
+/*
+TODO:
+    - add prelude
+    - add pcset
+    - derive Copy where applicable and change &Self -> Self
+    - full documentation
+    - full tests
+    - easy conversion using From for everything applicable
+*/

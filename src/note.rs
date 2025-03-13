@@ -9,6 +9,7 @@ use crate::semitone::Semitone;
 
 pub type Note = Placed<Pitch>;
 
+// TODO: change taking in &self -> self
 impl Note {
     pub const MIDDLE_C: Self = Self { base: Pitch::C, octave: 4 };
     pub const A4: Self = Self { base: Pitch::A, octave: 4 };

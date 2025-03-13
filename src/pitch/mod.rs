@@ -15,6 +15,7 @@ pub mod consts;
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub struct Pitch(pub i16);
 
+// TODO: change taking in &self -> self
 impl Pitch {
     pub fn from_letter_and_accidental(letter: Letter, accidental_sign: AccidentalSign) -> Self {
         let col_offset = accidental_sign.offset;
