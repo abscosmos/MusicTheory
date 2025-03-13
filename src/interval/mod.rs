@@ -40,6 +40,12 @@ impl Interval {
 
     // TODO: test if this is correct for subzero intervals
     pub fn between_notes(lhs: Note, rhs: Note) -> Interval {
+        let (lhs, rhs, descending) = match lhs.cmp(&rhs) {
+            Ordering::Equal => return Self::PERFECT_UNISON,
+            Ordering::Less => (lhs, rhs, false),
+            Ordering::Greater => (rhs, lhs, true),
+        };
+        
         let base_interval = Self::between_pitches(lhs.base, rhs.base);
 
         let diff = lhs.semitones_to(&rhs) - base_interval.semitones();
@@ -61,8 +67,14 @@ impl Interval {
             .try_into()
             .expect("nonzero shouldn't become zero if adding away from zero; shouldn't overflow either");
 
-        Interval::new(base_interval.quality(), IntervalNumber(new_number))
-            .expect("quality should still be valid")
+        let ivl = Interval::new(base_interval.quality(), IntervalNumber(new_number))
+            .expect("quality should still be valid");
+        
+        if descending {
+            -ivl
+        } else {
+            ivl
+        }
     }
     
     // TODO: test with intervals where quality makes it more than 2 octaves
