@@ -8,7 +8,7 @@ pub mod pitch_class;
 pub mod accidental;
 pub mod pitch;
 pub mod letter;
-
+pub mod scales;
 /*
 TODO:
     - add prelude
