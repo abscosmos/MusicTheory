@@ -52,6 +52,14 @@ impl Note {
         Some( Self { base: Pitch::from(pitch), octave } )
     }
 
+    /*
+        TODO: frequency methods should take in a tuning struct:
+            - just intonation
+            - pythagorean tuning
+            - meantone temperament
+            - well temperament
+            - equal temperament
+    */ 
     pub fn as_frequency_hz(&self) -> f32 {
         let semitones_from_a4 = Self::A4.semitones_to(self);
 
