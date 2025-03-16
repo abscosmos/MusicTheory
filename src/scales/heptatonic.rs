@@ -102,31 +102,4 @@ define_scale!(NeapolitanMinorMode, [S, T, T, T, S, A2, S]);
 
 define_scale!(HarmonicMinorMode, [T, S, T, T, S, A2, S]);
 
-    fn from_number(number: u8) -> Option<Self> {
-        Self::from_repr(number)
-    }
-}
-
-#[repr(u8)]
-#[derive(Copy, Clone, Eq, PartialEq, Debug, Ord, PartialOrd, FromRepr)]
-pub enum HarmonicMinorMode {
-    I = 1,
-    II,
-    III,
-    IV,
-    V,
-    VI,
-    VII,
-}
-
-impl HeptatonicScaleModes for HarmonicMinorMode {
-    const RELATIVE_INTERVALS: [Interval; 7] = [T, S, T, T, S, Interval::AUGMENTED_SECOND, S];
-
-    fn number(&self) -> u8 {
-        *self as _
-    }
-
-    fn from_number(number: u8) -> Option<Self> {
-        Self::from_repr(number)
-    }
-}
+define_scale!(DoubleHarmonicMode, [S, A2, S, T, S, A2, S]);
