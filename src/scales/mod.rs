@@ -8,7 +8,7 @@ const S: Interval = Interval::MINOR_SECOND;
 #[cfg(test)]
 mod tests {
     use crate::pitch::Pitch;
-    use crate::scales::heptatonic::HeptatoniaPrimaMode;
+    use crate::scales::heptatonic::{HeptatoniaPrimaMode, HeptatonicScaleModes};
 
     #[test]
     fn intervals() {
