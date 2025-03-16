@@ -1,8 +1,38 @@
 use std::array;
 use std::ops::Add;
-use strum_macros::FromRepr;
 use crate::interval::Interval;
 use super::{S, T};
+
+const A2: Interval = Interval::AUGMENTED_SECOND;
+
+macro_rules! define_scale {
+    ($name: ident, $intervals: expr) => {
+        
+        #[repr(u8)]
+        #[derive(Copy, Clone, Eq, PartialEq, Debug, Ord, PartialOrd, strum_macros::FromRepr)]
+        pub enum $name {
+            I = 1,
+            II,
+            III,
+            IV,
+            V,
+            VI,
+            VII,
+        }
+        
+        impl $crate::scales::heptatonic::HeptatonicScaleModes for $name {
+            const RELATIVE_INTERVALS: [Interval; 7] = $intervals;
+        
+            fn number(&self) -> u8 {
+                *self as _
+            }
+        
+            fn from_number(number: u8) -> Option<Self> {
+                Self::from_repr(number)
+            }
+        }
+    }
+}
 
 // TODO: consider assoc constants for names of modes?
 
@@ -32,108 +62,45 @@ pub trait HeptatonicScaleModes: Sized {
     fn from_number(number: u8) -> Option<Self>;
 }
 
-#[repr(u8)]
-#[derive(Copy, Clone, Eq, PartialEq, Debug, Ord, PartialOrd, FromRepr)]
-pub enum HeptatoniaPrimaMode {
-    Ionian = 1,
-    Dorian,
-    Phrygian,
-    Lydian,
-    Mixolydian,
-    Aeolian,
-    Locrian,
-}
+define_scale!(HeptatoniaPrimaMode, [T, T, S, T, T, T, S]);
 
 impl HeptatoniaPrimaMode {
-    pub const MAJOR: Self = Self::Ionian;
-    pub const NATURAL_MINOR: Self = Self::Aeolian;
-}
-
-impl HeptatonicScaleModes for HeptatoniaPrimaMode {
-    const RELATIVE_INTERVALS: [Interval; 7] = [T, T, S, T, T, T, S];
-
-    fn number(&self) -> u8 {
-        *self as _
-    }
-
-    fn from_number(number: u8) -> Option<Self> {
-        Self::from_repr(number)
-    }
+    pub const IONIAN: Self = Self::I;
+    pub const DORIAN: Self = Self::II;
+    pub const PHRYGIAN: Self = Self::III;
+    pub const LYDIAN: Self = Self::IV;
+    pub const MIXOLYDIAN: Self = Self::V;
+    pub const AEOLIAN: Self = Self::VI;
+    pub const LOCRIAN: Self = Self::VII;
+    
+    pub const MAJOR: Self = Self::IONIAN;
+    pub const NATURAL_MINOR: Self = Self::AEOLIAN;
 }
 
 pub use HeptatoniaPrimaMode as DiatonicMode;
 
-#[repr(u8)]
-#[derive(Copy, Clone, Eq, PartialEq, Debug, Ord, PartialOrd, FromRepr)]
-pub enum HeptatoniaSecundaMode {
-    MelodicMinor = 1,
-    DorianFlat2,
-    LydianAugmented,
-    LydianDominant,
-    MixolydianFlat6,
-    HalfDiminished,
-    Altered,
-}
+define_scale!(HeptatoniaSecundaMode, [T, S, T, T, T, T, S]);
 
-impl HeptatonicScaleModes for HeptatoniaSecundaMode {
-    const RELATIVE_INTERVALS: [Interval; 7] = [T, S, T, T, T, T, S];
-
-    fn number(&self) -> u8 {
-        *self as _
-    }
-
-    fn from_number(number: u8) -> Option<Self> {
-        Self::from_repr(number)
-    }
+impl HeptatoniaSecundaMode {
+    pub const MELODIC_MINOR: Self = Self::I;
+    pub const DORIAN_FLAT2: Self = Self::II;
+    pub const LYDIAN_AUGMENTED: Self = Self::III;
+    pub const LYDIAN_DOMINANT: Self = Self::IV;
+    pub const MIXOLYDIAN_FLAT6: Self = Self::V;
+    pub const HALF_DIMINISHED: Self = Self::VI;
+    pub const ALTERED: Self = Self::VII;
 }
 
 // TODO: MelodicAscendingMinorMode?
 pub use HeptatoniaSecundaMode as MelodicMinorMode;
 
-#[repr(u8)]
-#[derive(Copy, Clone, Eq, PartialEq, Debug, Ord, PartialOrd, FromRepr)]
-pub enum HeptatoniaTertiaMode {
-    I = 1,
-    II,
-    III,
-    IV,
-    V,
-    VI,
-    VII,
-}
-
-impl HeptatonicScaleModes for HeptatoniaTertiaMode {
-    const RELATIVE_INTERVALS: [Interval; 7] = [S, T, T, T, T, T, S];
-
-    fn number(&self) -> u8 {
-        *self as _
-    }
-
-    fn from_number(number: u8) -> Option<Self> {
-        Self::from_repr(number)
-    }
-}
+define_scale!(HeptatoniaTertiaMode, [S, T, T, T, T, T, S]);
 
 pub use HeptatoniaTertiaMode as NeapolitanMajorMode;
 
-#[repr(u8)]
-#[derive(Copy, Clone, Eq, PartialEq, Debug, Ord, PartialOrd, FromRepr)]
-pub enum NeapolitanMinorMode {
-    I = 1,
-    II,
-    III,
-    IV,
-    V,
-    VI,
-    VII,
-}
+define_scale!(NeapolitanMinorMode, [S, T, T, T, S, A2, S]);
 
-impl HeptatonicScaleModes for NeapolitanMinorMode {
-    const RELATIVE_INTERVALS: [Interval; 7] = [S, T, T, T, S, Interval::AUGMENTED_SECOND, S];
-
-    fn number(&self) -> u8 {
-        *self as _
-    }
+define_scale!(HarmonicMinorMode, [T, S, T, T, S, A2, S]);
 
     fn from_number(number: u8) -> Option<Self> {
         Self::from_repr(number)

@@ -12,10 +12,10 @@ mod tests {
 
     #[test]
     fn intervals() {
-        let ivls = HeptatoniaPrimaMode::Locrian.intervals();
+        let ivls = HeptatoniaPrimaMode::LOCRIAN.intervals();
         
-        assert_eq!(ivls, HeptatoniaPrimaMode::Locrian.build_from(Pitch::A).map(|p| Pitch::A.distance_to(&p)));
+        assert_eq!(ivls, HeptatoniaPrimaMode::LOCRIAN.build_from(Pitch::A).map(|p| Pitch::A.distance_to(&p)));
         
-        assert_eq!(HeptatoniaPrimaMode::Locrian.build_from(Pitch::A), ivls.map(|i| Pitch::A + i))
+        assert_eq!(HeptatoniaPrimaMode::LOCRIAN.build_from(Pitch::A), ivls.map(|i| Pitch::A + i))
     }
 }
