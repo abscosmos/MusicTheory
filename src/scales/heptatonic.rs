@@ -118,6 +118,30 @@ pub use HeptatoniaTertiaMode as NeapolitanMajorMode;
 
 #[repr(u8)]
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Ord, PartialOrd, FromRepr)]
+pub enum NeapolitanMinorMode {
+    I = 1,
+    II,
+    III,
+    IV,
+    V,
+    VI,
+    VII,
+}
+
+impl HeptatonicScaleModes for NeapolitanMinorMode {
+    const RELATIVE_INTERVALS: [Interval; 7] = [S, T, T, T, S, Interval::AUGMENTED_SECOND, S];
+
+    fn number(&self) -> u8 {
+        *self as _
+    }
+
+    fn from_number(number: u8) -> Option<Self> {
+        Self::from_repr(number)
+    }
+}
+
+#[repr(u8)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Ord, PartialOrd, FromRepr)]
 pub enum HarmonicMinorMode {
     I = 1,
     II,
