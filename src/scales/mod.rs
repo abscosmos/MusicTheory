@@ -1,0 +1,21 @@
+use crate::interval::Interval;
+
+pub mod heptatonic;
+
+const T: Interval = Interval::MAJOR_SECOND;
+const S: Interval = Interval::MINOR_SECOND;
+
+#[cfg(test)]
+mod tests {
+    use crate::pitch::Pitch;
+    use crate::scales::heptatonic::HeptatoniaPrimaMode;
+
+    #[test]
+    fn intervals() {
+        let ivls = HeptatoniaPrimaMode::Locrian.intervals();
+        
+        assert_eq!(ivls, HeptatoniaPrimaMode::Locrian.build_from(Pitch::A).map(|p| Pitch::A.distance_to(&p)));
+        
+        assert_eq!(HeptatoniaPrimaMode::Locrian.build_from(Pitch::A), ivls.map(|i| Pitch::A + i))
+    }
+}
