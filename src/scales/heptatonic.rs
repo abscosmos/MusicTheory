@@ -147,7 +147,6 @@ define_scale!(
 );
 
 define_scale!(
-    name = DominantHarmonicMinorMode,
-    intervals = [S, A2, S, S, T, A2, S],
-    alias = PersianMode, // TODO: PersianScaleMode
+    name = EnigmaticMode,
+    intervals = [S, A2, T, T, T, S, S],
 );
