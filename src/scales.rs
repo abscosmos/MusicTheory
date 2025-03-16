@@ -101,6 +101,50 @@ impl HeptatoniaSecundaMode {
 // TODO: MelodicAscendingMinorMode?
 pub use HeptatoniaSecundaMode as MelodicMinorMode;
 
+#[repr(u8)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Ord, PartialOrd, FromRepr)]
+pub enum HeptatoniaTertiaMode {
+    I = 1,
+    II,
+    III,
+    IV,
+    V,
+    VI,
+    VII,
+}
+
+impl HeptatoniaTertiaMode {
+    const INTERVALS: [Interval; 7] = [S, T, T, T, T, T, S];
+
+    pub fn build_from<T: Add<Interval, Output = T> + Clone>(&self, root: T) -> [T; 7] {
+        let mode = self.number() as usize;
+
+        let mut curr = root;
+
+        array::from_fn(|i| {
+            let ret = curr.clone();
+
+            curr = curr.clone() + Self::INTERVALS[(i + mode - 1) % Self::INTERVALS.len()];
+
+            ret
+        })
+    }
+
+    pub fn intervals(&self) -> [Interval; 7] {
+        self.build_from(Interval::PERFECT_UNISON)
+    }
+
+    pub fn number(&self) -> u8 {
+        *self as _
+    }
+
+    pub fn from_number(number: u8) -> Option<Self> {
+        Self::from_repr(number)
+    }
+}
+
+pub use HeptatoniaTertiaMode as NeapolitanMajorMode;
+
 #[cfg(test)]
 mod tests {
     use crate::pitch::Pitch;
