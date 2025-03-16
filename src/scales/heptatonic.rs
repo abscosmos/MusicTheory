@@ -6,8 +6,22 @@ use super::{S, T};
 const A2: Interval = Interval::AUGMENTED_SECOND;
 
 macro_rules! define_scale {
-    ($name: ident, $intervals: expr) => {
-        
+    (
+        name = $name: ident,
+        intervals = $intervals: expr
+        $(, alias = $alias: ident)?
+        $(, mode_aliases = [$($alias_mode: ident => $alias_mode_num: ident),* $(,)?])?
+        $(,)?
+    ) => {
+        define_scale!(@define $name, $intervals);
+
+        $(define_scale!(@scale_alias $name, $alias);)?
+
+        $(define_scale!(@mode_aliases $name, $($alias_mode => $alias_mode_num),*);)?
+    };
+    
+    (@define $name: ident, $intervals: expr) => {
+
         #[repr(u8)]
         #[derive(Copy, Clone, Eq, PartialEq, Debug, Ord, PartialOrd, strum_macros::FromRepr)]
         pub enum $name {
@@ -19,24 +33,30 @@ macro_rules! define_scale {
             VI,
             VII,
         }
-        
+
         impl $crate::scales::heptatonic::HeptatonicScaleModes for $name {
             const RELATIVE_INTERVALS: [Interval; 7] = $intervals;
-        
+
             fn number(&self) -> u8 {
                 *self as _
             }
-        
+
             fn from_number(number: u8) -> Option<Self> {
                 Self::from_repr(number)
             }
         }
     };
     
-    ($name: ident, $intervals: expr, alias = $alias: ident) => {
-        define_scale!($name, $intervals);
-        
+    (@scale_alias $name: ident, $alias: ident) => {
         pub use $name as $alias;
+    };
+    
+    (@mode_aliases $name: ident, $($alias_mode:ident => $alias_mode_num:ident),*) => {
+        impl $name {
+            $(
+                pub const $alias_mode : Self = Self:: $alias_mode_num ;
+            )*
+        }
     };
 }
 
@@ -66,40 +86,62 @@ pub trait HeptatonicScaleModes: Sized {
     fn from_number(number: u8) -> Option<Self>;
 }
 
-define_scale!(HeptatoniaPrimaMode, [T, T, S, T, T, T, S], alias = DiatonicMode);
+define_scale!(
+    name = HeptatoniaPrimaMode,
+    intervals = [T, T, S, T, T, T, S],
+    alias = DiatonicMode,
+    mode_aliases = [
+        IONIAN => I,
+        DORIAN => II,
+        PHRYGIAN => III,
+        LYDIAN => IV,
+        MIXOLYDIAN => V,
+        AEOLIAN => VI,
+        LOCRIAN => VII,
+        
+        MAJOR => IONIAN,
+        NATURAL_MINOR => AEOLIAN,
+    ],
+);
 
-impl HeptatoniaPrimaMode {
-    pub const IONIAN: Self = Self::I;
-    pub const DORIAN: Self = Self::II;
-    pub const PHRYGIAN: Self = Self::III;
-    pub const LYDIAN: Self = Self::IV;
-    pub const MIXOLYDIAN: Self = Self::V;
-    pub const AEOLIAN: Self = Self::VI;
-    pub const LOCRIAN: Self = Self::VII;
-    
-    pub const MAJOR: Self = Self::IONIAN;
-    pub const NATURAL_MINOR: Self = Self::AEOLIAN;
-}
+define_scale!(
+    name = HeptatoniaSecundaMode,
+    intervals = [T, S, T, T, T, T, S],
+    alias = MelodicMinorMode, // TODO: MelodicAscendingMinorMode?
+    mode_aliases = [
+        MELODIC_MINOR => I,
+        DORIAN_FLAT2 => II,
+        LYDIAN_AUGMENTED => III,
+        LYDIAN_DOMINANT => IV,
+        MIXOLYDIAN_FLAT6 => V,
+        HALF_DIMINISHED => VI,
+        ALTERED => VII,
+    ],
+);
 
-// TODO: MelodicAscendingMinorMode?
-define_scale!(HeptatoniaSecundaMode, [T, S, T, T, T, T, S], alias = MelodicMinorMode);
+define_scale!(
+    name = HeptatoniaTertiaMode,
+    intervals = [S, T, T, T, T, T, S],
+    alias = NeapolitanMajorMode,
+);
 
-impl HeptatoniaSecundaMode {
-    pub const MELODIC_MINOR: Self = Self::I;
-    pub const DORIAN_FLAT2: Self = Self::II;
-    pub const LYDIAN_AUGMENTED: Self = Self::III;
-    pub const LYDIAN_DOMINANT: Self = Self::IV;
-    pub const MIXOLYDIAN_FLAT6: Self = Self::V;
-    pub const HALF_DIMINISHED: Self = Self::VI;
-    pub const ALTERED: Self = Self::VII;
-}
+define_scale!(
+    name = NeapolitanMinorMode,
+    intervals = [S, T, T, T, S, A2, S],
+);
 
-define_scale!(HeptatoniaTertiaMode, [S, T, T, T, T, T, S], alias = NeapolitanMajorMode);
+define_scale!(
+    name = HarmonicMinorMode,
+    intervals = [T, S, T, T, S, A2, S],
+);
 
-define_scale!(NeapolitanMinorMode, [S, T, T, T, S, A2, S]);
+define_scale!(
+    name = DoubleHarmonicMajorMode,
+    intervals = [S, A2, S, T, S, A2, S],
+);
 
-define_scale!(HarmonicMinorMode, [T, S, T, T, S, A2, S]);
-
-define_scale!(DoubleHarmonicMajorMode, [S, A2, S, T, S, A2, S]);
-
-define_scale!(DoubleHarmonicMinorMode, [T, S, A2, S, S, A2, S], alias = HungarianMinorMode);
+define_scale!(
+    name = DoubleHarmonicMinorMode,
+    intervals = [T, S, A2, S, S, A2, S],
+    alias = HungarianMinorMode,
+);
