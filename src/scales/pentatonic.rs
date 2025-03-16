@@ -1,7 +1,8 @@
 use crate::interval::Interval;
-use crate::scales::{ScaleModes, T};
+use crate::scales::{ScaleModes, S, T};
 
 const MIN3: Interval = Interval::MINOR_THIRD;
+const MAJ3: Interval = Interval::MAJOR_THIRD;
 
 #[repr(u8)] // TODO: rework define scale macro to support any size
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Ord, PartialOrd, strum_macros::FromRepr)]
@@ -33,4 +34,24 @@ impl PentatonicModes {
     pub const MINOR: Self = Self::V;
 }
 
+#[repr(u8)] // TODO: rework define scale macro to support any size
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Ord, PartialOrd, strum_macros::FromRepr)]
+pub enum HirajoshiMode {
+    I = 1, // kostka & payne and speed; aeolian
+    II, // sachs & slonimsky; locrian
+    III, // ionian
+    IV, // phrygian
+    V, // burrows; lydian
+}
 
+impl ScaleModes<5> for HirajoshiMode {
+    const RELATIVE_INTERVALS: [Interval; 5] = [T, S, MAJ3, S, MAJ3];
+
+    fn number(&self) -> u8 {
+        *self as _
+    }
+
+    fn from_number(number: u8) -> Option<Self> {
+        Self::from_repr(number)
+    }
+}
