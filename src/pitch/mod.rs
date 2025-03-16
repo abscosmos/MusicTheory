@@ -1,5 +1,6 @@
 use std::cmp::Ordering;
 use std::fmt;
+use std::ops::{Add, Sub};
 use std::str::FromStr;
 use regex::Regex;
 use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
@@ -123,7 +124,7 @@ impl Pitch {
         self.as_pitch_class().bias(sharp)
     }
 
-    pub fn transpose(&self, interval: &Interval) -> Self {
+    pub fn transpose(&self, interval: Interval) -> Self {
         use IntervalQuality as Q;
         
         let start = match interval.number().as_simple().number().abs() {
@@ -310,6 +311,22 @@ impl FromStr for Pitch {
         };
 
         Ok(Self::from_letter_and_accidental(letter, acc))
+    }
+}
+
+impl Add<Interval> for Pitch {
+    type Output = Self;
+
+    fn add(self, rhs: Interval) -> Self::Output {
+        self.transpose(rhs)
+    }
+}
+
+impl Sub<Interval> for Pitch {
+    type Output = Self;
+
+    fn sub(self, rhs: Interval) -> Self::Output {
+        self + (-rhs)
     }
 }
 

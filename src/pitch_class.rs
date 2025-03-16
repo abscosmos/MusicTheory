@@ -27,7 +27,7 @@ pub enum PitchClass {
 }
 
 impl PitchClass {
-    pub fn transpose(&self, interval: &Interval) -> Self {
+    pub fn transpose(&self, interval: Interval) -> Self {
         *self + interval.semitones()
     }
 
@@ -139,5 +139,21 @@ impl fmt::Display for PitchClass {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let pitch = Pitch::from(*self);
         write!(f, "{pitch}")
+    }
+}
+
+impl Add<Interval> for PitchClass {
+    type Output = Self;
+
+    fn add(self, rhs: Interval) -> Self::Output {
+        self.transpose(rhs)
+    }
+}
+
+impl Sub<Interval> for PitchClass {
+    type Output = Self;
+
+    fn sub(self, rhs: Interval) -> Self::Output {
+        self + (-rhs)
     }
 }

@@ -72,7 +72,7 @@ impl Chord {
 
     pub fn pitches(&self) -> Vec<Pitch> {
         self.intervals.iter()
-            .map(|ivl| self.root.transpose(ivl))
+            .map(|&ivl| self.root.transpose(ivl))
             .cycle()
             .skip(self.inversion as _)
             .take(self.intervals.len())

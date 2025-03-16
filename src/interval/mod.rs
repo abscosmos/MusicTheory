@@ -1,7 +1,7 @@
 use std::cmp::Ordering;
 use std::fmt;
 use std::num::{NonZeroI16, NonZeroU16, ParseIntError};
-use std::ops::Neg;
+use std::ops::{Add, Neg, Sub};
 use std::str::FromStr;
 use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
 use crate::interval::number::IntervalNumber;
@@ -242,7 +242,7 @@ impl Interval {
         self.with_direction(true)
     }
 
-    pub fn add(&self, rhs: Self) -> Self {
+    fn add_interval(self, rhs: Self) -> Self {
         let ln = self.number.number();
         let rn = rhs.number.number();
 
@@ -283,10 +283,6 @@ impl Interval {
 
         Self::new(quality, num).expect("valid quality")
     }
-
-    pub fn subtract(&self, rhs: Self) -> Self {
-        Self::add(self, -rhs)
-    }
     
     pub fn neg_preserve_perfect_unison(&self) -> Self {
         if *self == Self::PERFECT_UNISON {
@@ -294,6 +290,22 @@ impl Interval {
         } else {
             -*self
         }
+    }
+}
+
+impl Add for Interval {
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        self.add_interval(rhs)
+    }
+}
+
+impl Sub for Interval {
+    type Output = Self;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        self.add(-rhs)
     }
 }
 
@@ -765,13 +777,13 @@ mod tests {
                 ))
             .collect::<Vec<_>>();
 
-        for lhs in &intervals {
-            for rhs in &intervals {
-                let add = lhs.add(*rhs);
-                let sub = lhs.subtract(*rhs);
+        for &lhs in &intervals {
+            for &rhs in &intervals {
+                let add = lhs.add(rhs);
+                let sub = lhs.sub(rhs);
 
-                assert_eq!(Note::MIDDLE_C.transpose(lhs).transpose(rhs), Note::MIDDLE_C.transpose(&add), "lhs: {lhs}, rhs: {rhs} add: {add}");
-                assert_eq!(Note::MIDDLE_C.transpose(lhs).transpose(&-(*rhs)), Note::MIDDLE_C.transpose(&sub), "lhs: {lhs}, rhs: {rhs} add: {sub}");
+                assert_eq!(Note::MIDDLE_C.transpose(lhs).transpose(rhs), Note::MIDDLE_C.transpose(add), "lhs: {lhs}, rhs: {rhs} add: {add}");
+                assert_eq!(Note::MIDDLE_C.transpose(lhs).transpose(-rhs), Note::MIDDLE_C.transpose(sub), "lhs: {lhs}, rhs: {rhs} add: {sub}");
             }
         }
     }
@@ -786,26 +798,26 @@ mod tests {
     fn test_aug_seventh() {
         let between = Interval::between_pitches(Pitch::C, Pitch::B_SHARP);
 
-        assert_eq!(Pitch::C.transpose(&between), Pitch::B_SHARP, "{between}");
+        assert_eq!(Pitch::C.transpose(between), Pitch::B_SHARP, "{between}");
         
         let between = Interval::between_pitches(Pitch::G, Pitch::F_DOUBLE_SHARP);
         
-        assert_eq!(Pitch::G.transpose(&between), Pitch::F_DOUBLE_SHARP, "{between}");
+        assert_eq!(Pitch::G.transpose(between), Pitch::F_DOUBLE_SHARP, "{between}");
 
         let between = Interval::between_pitches(Pitch::G_DOUBLE_FLAT, Pitch::F);
 
-        assert_eq!(Pitch::G_DOUBLE_FLAT.transpose(&between), Pitch::F, "{between}");
+        assert_eq!(Pitch::G_DOUBLE_FLAT.transpose(between), Pitch::F, "{between}");
         
         let g_quadruple_flat = Pitch::from_letter_and_accidental(Letter::G, AccidentalSign { offset: -4 });
 
         let between = Interval::between_pitches(g_quadruple_flat, Pitch::F_DOUBLE_FLAT);
 
-        assert_eq!(Pitch::G_DOUBLE_FLAT.transpose(&between), Pitch::F, "{between}");
+        assert_eq!(Pitch::G_DOUBLE_FLAT.transpose(between), Pitch::F, "{between}");
     }
 
     #[test]
     fn between_pitches_transpose_inverses() {
-        for ivl in &Interval::ALL_CONSTS[..23] {
+        for &ivl in &Interval::ALL_CONSTS[..23] {
             for start in Pitch::ALL_CONSTS {
                 let end = start.transpose(ivl);
                 
@@ -817,7 +829,7 @@ mod tests {
                 let between = Interval::between_pitches(*start, end);
                 
                 assert_eq!(
-                    between, *ivl,
+                    between, ivl,
                     "between_pitches returns {between} instead of applied {ivl}, ({start} -> {end})"
                 );
                 
@@ -840,7 +852,7 @@ mod tests {
                 for octave in -3..=3 {
                     let start = Note { base: *pitch_start, octave };
 
-                    let end = start.transpose(&ivl);
+                    let end = start.transpose(ivl);
 
                     assert_eq!(
                         start.semitones_to(&end), ivl.semitones(),
@@ -858,7 +870,7 @@ mod tests {
                     
                     let descending_ivl = if ivl == I::PERFECT_UNISON { ivl } else { -ivl };
                     
-                    let end = start.transpose(&descending_ivl);
+                    let end = start.transpose(descending_ivl);
                     
                     let between = Interval::between_notes(start, end);
 

@@ -1,5 +1,6 @@
 use std::cmp::Ordering;
 use std::fmt;
+use std::ops::{Add, Sub};
 use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
 use crate::interval::Interval;
 use crate::pitch::Pitch;
@@ -66,7 +67,7 @@ impl Note {
         440.0 * 2.0_f32.powf(semitones_from_a4.0 as f32 / 12.0)
     }
 
-    pub fn transpose(&self, interval: &Interval) -> Self {
+    pub fn transpose(&self, interval: Interval) -> Self {
         let new_pitch = self.base.transpose(interval);
 
         let unchecked = Self {
@@ -198,6 +199,22 @@ impl fmt::Debug for Note {
             .field("pitch", &self.base)
             .field("octave", &self.octave)
             .finish()
+    }
+}
+
+impl Add<Interval> for Note {
+    type Output = Self;
+
+    fn add(self, rhs: Interval) -> Self::Output {
+        self.transpose(rhs)
+    }
+}
+
+impl Sub<Interval> for Note {
+    type Output = Self;
+
+    fn sub(self, rhs: Interval) -> Self::Output {
+        self + (-rhs)
     }
 }
 
