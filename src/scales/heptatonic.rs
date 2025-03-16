@@ -31,10 +31,14 @@ macro_rules! define_scale {
                 Self::from_repr(number)
             }
         }
-    }
+    };
+    
+    ($name: ident, $intervals: expr, alias = $alias: ident) => {
+        define_scale!($name, $intervals);
+        
+        pub use $name as $alias;
+    };
 }
-
-// TODO: consider assoc constants for names of modes?
 
 pub trait HeptatonicScaleModes: Sized {
     const RELATIVE_INTERVALS: [Interval; 7];
@@ -62,7 +66,7 @@ pub trait HeptatonicScaleModes: Sized {
     fn from_number(number: u8) -> Option<Self>;
 }
 
-define_scale!(HeptatoniaPrimaMode, [T, T, S, T, T, T, S]);
+define_scale!(HeptatoniaPrimaMode, [T, T, S, T, T, T, S], alias = DiatonicMode);
 
 impl HeptatoniaPrimaMode {
     pub const IONIAN: Self = Self::I;
@@ -77,9 +81,8 @@ impl HeptatoniaPrimaMode {
     pub const NATURAL_MINOR: Self = Self::AEOLIAN;
 }
 
-pub use HeptatoniaPrimaMode as DiatonicMode;
-
-define_scale!(HeptatoniaSecundaMode, [T, S, T, T, T, T, S]);
+// TODO: MelodicAscendingMinorMode?
+define_scale!(HeptatoniaSecundaMode, [T, S, T, T, T, T, S], alias = MelodicMinorMode);
 
 impl HeptatoniaSecundaMode {
     pub const MELODIC_MINOR: Self = Self::I;
@@ -91,12 +94,7 @@ impl HeptatoniaSecundaMode {
     pub const ALTERED: Self = Self::VII;
 }
 
-// TODO: MelodicAscendingMinorMode?
-pub use HeptatoniaSecundaMode as MelodicMinorMode;
-
-define_scale!(HeptatoniaTertiaMode, [S, T, T, T, T, T, S]);
-
-pub use HeptatoniaTertiaMode as NeapolitanMajorMode;
+define_scale!(HeptatoniaTertiaMode, [S, T, T, T, T, T, S], alias = NeapolitanMajorMode);
 
 define_scale!(NeapolitanMinorMode, [S, T, T, T, S, A2, S]);
 
