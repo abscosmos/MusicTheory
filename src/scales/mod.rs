@@ -3,6 +3,7 @@ use std::ops::Add;
 use crate::interval::Interval;
 
 pub mod heptatonic;
+pub mod pentatonic;
 
 const T: Interval = Interval::MAJOR_SECOND;
 const S: Interval = Interval::MINOR_SECOND;
