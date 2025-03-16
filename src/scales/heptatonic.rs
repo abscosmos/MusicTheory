@@ -34,7 +34,7 @@ macro_rules! define_scale {
             VII,
         }
 
-        impl $crate::scales::heptatonic::HeptatonicScaleModes for $name {
+        impl $crate::scales::ScaleModes<7> for $name {
             const RELATIVE_INTERVALS: [Interval; 7] = $intervals;
 
             fn number(&self) -> u8 {
@@ -58,32 +58,6 @@ macro_rules! define_scale {
             )*
         }
     };
-}
-
-pub trait HeptatonicScaleModes: Sized {
-    const RELATIVE_INTERVALS: [Interval; 7];
-
-    fn build_from<T: Add<Interval, Output = T> + Clone>(&self, root: T) -> [T; 7] {
-        let mode = self.number() as usize;
-
-        let mut curr = root;
-
-        array::from_fn(|i| {
-            let ret = curr.clone();
-
-            curr = curr.clone() + Self::RELATIVE_INTERVALS[(i + mode - 1) % Self::RELATIVE_INTERVALS.len()];
-
-            ret
-        })
-    }
-
-    fn intervals(&self) -> [Interval; 7] {
-        self.build_from(Interval::PERFECT_UNISON)
-    }
-
-    fn number(&self) -> u8;
-
-    fn from_number(number: u8) -> Option<Self>;
 }
 
 define_scale!(
