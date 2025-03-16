@@ -145,3 +145,9 @@ define_scale!(
     intervals = [T, S, A2, S, S, A2, S],
     alias = HungarianMinorMode,
 );
+
+define_scale!(
+    name = DominantHarmonicMinorMode,
+    intervals = [S, A2, S, S, T, A2, S],
+    alias = PersianMode, // TODO: PersianScaleMode
+);
