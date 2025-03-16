@@ -107,6 +107,9 @@ define_scale!(
 define_scale!(
     name = HarmonicMinorMode,
     intervals = [T, S, T, T, S, A2, S],
+    mode_aliases = [
+        UKRANIAN_DORIAN => IV
+    ]
 );
 
 define_scale!(
