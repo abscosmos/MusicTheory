@@ -8,7 +8,7 @@ const S: Interval = Interval::MINOR_SECOND;
 
 #[repr(u8)]
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Ord, PartialOrd, FromRepr)]
-pub enum DiatonicMode {
+pub enum HeptatoniaPrimaMode {
     Ionian = 1,
     Dorian,
     Phrygian,
@@ -18,7 +18,7 @@ pub enum DiatonicMode {
     Locrian,
 }
 
-impl DiatonicMode {
+impl HeptatoniaPrimaMode {
     pub const MAJOR: Self = Self::Ionian;
     pub const NATURAL_MINOR: Self = Self::Aeolian;
     
@@ -52,6 +52,8 @@ impl DiatonicMode {
     } 
 }
 
+pub use HeptatoniaPrimaMode as DiatonicMode;
+
 // TODO: should this be I -> VII with consts for the names?
 #[repr(u8)]
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Ord, PartialOrd, FromRepr)]
@@ -68,7 +70,7 @@ pub enum HeptatoniaSecundaMode {
 // TODO: abstract into trait?
 impl HeptatoniaSecundaMode {
     const INTERVALS: [Interval; 7] = [T, S, T, T, T, T, S];
-    
+
     pub fn build_from<T: Add<Interval, Output = T> + Clone>(&self, root: T) -> [T; 7] {
         let mode = self.number() as usize;
 
@@ -96,20 +98,20 @@ impl HeptatoniaSecundaMode {
     }
 }
 
-// TODO: MelodicAscendingMinorMode? 
+// TODO: MelodicAscendingMinorMode?
 pub use HeptatoniaSecundaMode as MelodicMinorMode;
 
 #[cfg(test)]
 mod tests {
     use crate::pitch::Pitch;
-    use crate::scales::DiatonicMode;
+    use crate::scales::HeptatoniaPrimaMode;
 
     #[test]
     fn intervals() {
-        let ivls = DiatonicMode::Locrian.intervals();
+        let ivls = HeptatoniaPrimaMode::Locrian.intervals();
         
-        assert_eq!(ivls, DiatonicMode::Locrian.build_from(Pitch::A).map(|p| Pitch::A.distance_to(&p)));
+        assert_eq!(ivls, HeptatoniaPrimaMode::Locrian.build_from(Pitch::A).map(|p| Pitch::A.distance_to(&p)));
         
-        assert_eq!(DiatonicMode::Locrian.build_from(Pitch::A), ivls.map(|i| Pitch::A + i))
+        assert_eq!(HeptatoniaPrimaMode::Locrian.build_from(Pitch::A), ivls.map(|i| Pitch::A + i))
     }
 }
