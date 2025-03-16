@@ -1,12 +1,13 @@
 use std::array;
 use std::ops::Add;
+use strum_macros::FromRepr;
 use crate::interval::Interval;
 
 const T: Interval = Interval::MAJOR_SECOND;
 const S: Interval = Interval::MINOR_SECOND;
 
 #[repr(u8)]
-#[derive(Copy, Clone, Eq, PartialEq, Debug, Ord, PartialOrd)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Ord, PartialOrd, FromRepr)]
 pub enum DiatonicMode {
     Ionian = 1,
     Dorian,
@@ -45,6 +46,10 @@ impl DiatonicMode {
     pub fn number(&self) -> u8 {
         *self as _
     }
+    
+    pub fn from_number(number: u8) -> Option<Self> {
+        Self::from_repr(number)
+    } 
 }
 
 #[cfg(test)]
