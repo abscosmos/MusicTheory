@@ -4,6 +4,8 @@ use strum_macros::FromRepr;
 use crate::interval::Interval;
 use super::{S, T};
 
+// TODO: consider assoc constants for names of modes?
+
 pub trait HeptatonicScaleModes: Sized {
     const RELATIVE_INTERVALS: [Interval; 7];
 
@@ -61,7 +63,6 @@ impl HeptatonicScaleModes for HeptatoniaPrimaMode {
 
 pub use HeptatoniaPrimaMode as DiatonicMode;
 
-// TODO: should this be I -> VII with consts for the names?
 #[repr(u8)]
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Ord, PartialOrd, FromRepr)]
 pub enum HeptatoniaSecundaMode {
