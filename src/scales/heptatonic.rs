@@ -100,4 +100,6 @@ define_scale!(NeapolitanMinorMode, [S, T, T, T, S, A2, S]);
 
 define_scale!(HarmonicMinorMode, [T, S, T, T, S, A2, S]);
 
-define_scale!(DoubleHarmonicMode, [S, A2, S, T, S, A2, S]);
+define_scale!(DoubleHarmonicMajorMode, [S, A2, S, T, S, A2, S]);
+
+define_scale!(DoubleHarmonicMinorMode, [T, S, A2, S, S, A2, S], alias = HungarianMinorMode);
