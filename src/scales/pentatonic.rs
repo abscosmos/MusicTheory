@@ -1,54 +1,32 @@
 use crate::interval::Interval;
-use crate::scales::{ScaleModes, S, T, TS, TT};
+use crate::scales::{T, TS, define_scale, S, TT};
 
-#[repr(u8)] // TODO: rework define scale macro to support any size
-#[derive(Copy, Clone, Eq, PartialEq, Debug, Ord, PartialOrd, strum_macros::FromRepr)]
-pub enum PentatonicModes {
-    I = 1,
-    II,
-    III,
-    IV,
-    V,
-}
+define_scale!(
+    name = PentatonicModes,
+    size = 5,
+    intervals = [T, T, TS, T, TS],
+    mode_aliases = [
+        MAJOR => I,
+        SUSPENDED => II,
+        BLUES_MINOR => III,
+        BLUES_MAJOR => IV,
+        MINOR => V,
+        
+        RYO => I,
+        MINYO => III,
+        RITSU => IV,
+    ]
+);
 
-impl ScaleModes<5> for PentatonicModes {
-    const RELATIVE_INTERVALS: [Interval; 5] = [T, T, TS, T, TS];
-
-    fn number(&self) -> u8 {
-        *self as _
-    }
-
-    fn from_number(number: u8) -> Option<Self> {
-        Self::from_repr(number)
-    }
-}
-
-impl PentatonicModes {
-    pub const MAJOR: Self = Self::I;
-    pub const SUSPENDED: Self = Self::II;
-    pub const BLUES_MINOR: Self = Self::III;
-    pub const BLUES_MAJOR: Self = Self::IV;
-    pub const MINOR: Self = Self::V;
-}
-
-#[repr(u8)] // TODO: rework define scale macro to support any size
-#[derive(Copy, Clone, Eq, PartialEq, Debug, Ord, PartialOrd, strum_macros::FromRepr)]
-pub enum HirajoshiMode {
-    I = 1, // kostka & payne and speed; aeolian
-    II, // sachs & slonimsky; locrian
-    III, // ionian
-    IV, // phrygian
-    V, // burrows; lydian
-}
-
-impl ScaleModes<5> for HirajoshiMode {
-    const RELATIVE_INTERVALS: [Interval; 5] = [T, S, TT, S, TT];
-
-    fn number(&self) -> u8 {
-        *self as _
-    }
-
-    fn from_number(number: u8) -> Option<Self> {
-        Self::from_repr(number)
-    }
-}
+define_scale!(
+    name = HirajoshiMode,
+    size = 5,
+    intervals = [T, S, TT, S, TT],
+    mode_aliases = [
+        AEOLIAN => I, // kostka & payne and speed
+        LOCRIAN => II, // sachs & slonimsky
+        IONIAN => III,
+        PHRYGIAN => IV,
+        LYDIAN => V, // burrows
+    ]
+);

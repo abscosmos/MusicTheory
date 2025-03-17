@@ -4,6 +4,9 @@ use crate::interval::Interval;
 
 pub mod heptatonic;
 pub mod pentatonic;
+mod define;
+
+use define::define_scale;
 
 const T: Interval = Interval::MAJOR_SECOND;
 const S: Interval = Interval::MINOR_SECOND;
