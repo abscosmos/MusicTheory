@@ -14,7 +14,8 @@ define_scale!(
         
         RYO => I,
         MINYO => III,
-        RITSU => IV,
+        RITSU => IV, // TODO: this is for pentatonic, hexatonic has very different intervals
+        JP_YO => IV,
     ]
 );
 
@@ -28,5 +29,15 @@ define_scale!(
         IONIAN => III,
         PHRYGIAN => IV,
         LYDIAN => V, // burrows
+        
+        IWATO => I,
+        MIYAKO_BUSHI => IV,
+        JP_IN => IV,
     ]
+);
+
+define_scale!(
+    name = InsenMode,
+    size = 5,
+    intervals = [S, TT, T, TS, T],
 );
