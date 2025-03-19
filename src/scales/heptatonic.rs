@@ -110,3 +110,9 @@ define_scale!(
         LYDIAN_AUGMENTED_FLAT3 => VII,
     ],
 );
+
+define_scale!(
+    name = RomanianMinorScale,
+    size = 7,
+    intervals = [T, S, A2, S, T, S, T],
+);
