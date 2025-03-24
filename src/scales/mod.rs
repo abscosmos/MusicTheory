@@ -13,7 +13,7 @@ const S: Interval = Interval::MINOR_SECOND;
 const TS: Interval = Interval::MINOR_THIRD;
 const TT: Interval = Interval::MAJOR_THIRD;
 
-pub trait ScaleModes<const LEN: usize>: Sized {
+pub trait ScaleModes<const LEN: usize> {
     const RELATIVE_INTERVALS: [Interval; LEN];
 
     fn build_from<T: Add<Interval, Output = T> + Clone>(&self, root: T) -> [T; LEN] {
@@ -36,7 +36,7 @@ pub trait ScaleModes<const LEN: usize>: Sized {
 
     fn number(&self) -> u8;
 
-    fn from_number(number: u8) -> Option<Self>;
+    fn from_number(number: u8) -> Option<Self> where Self: Sized;
 }
 
 #[cfg(test)]
