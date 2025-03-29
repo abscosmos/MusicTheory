@@ -47,8 +47,12 @@ macro_rules! define_scale {
     };
     
     (@scale_modes $size: expr, $name: ident, $intervals: expr) => {
-        impl $crate::scales::ScaleModes< $size > for $name {
-            const RELATIVE_INTERVALS: [Interval; $size] = $intervals;
+        impl $crate::scales::ScaleModes for $name {
+            type ScaleArray<T> = [T; $size];
+            
+            fn relative_intervals(&self) -> Self::ScaleArray<$crate::interval::Interval> {
+                $intervals
+            }
 
             fn number(&self) -> u8 {
                 *self as _

@@ -1,5 +1,5 @@
 use std::array;
-use std::ops::Add;
+use std::ops::{Add, Index};
 use crate::interval::Interval;
 
 pub mod heptatonic;
@@ -13,30 +13,80 @@ const S: Interval = Interval::MINOR_SECOND;
 const TS: Interval = Interval::MINOR_THIRD;
 const TT: Interval = Interval::MAJOR_THIRD;
 
-pub trait ScaleModes<const LEN: usize> {
-    const RELATIVE_INTERVALS: [Interval; LEN];
+/* TODO(generic_const_exprs): we need this trait because #![feature(generic_const_exprs)]
+    isn't stable yet, and without it, the design of ScaleModes can't be:
+    ```
+    pub trait ScaleModes {
+        const SIZE: usize;
+        fn build_from<T: ...>(&self) -> [T; N];
+        ...
+    }
+    ```
+*/
 
-    fn build_from<T: Add<Interval, Output = T> + Clone>(&self, root: T) -> [T; LEN] {
+pub trait ScaleArr<T>: Index<usize, Output = T> + Sized + seal::Sealed {
+    const LEN: usize;
+    
+    fn from_fn(cb: impl FnMut(usize) -> T) -> Self;
+}
+
+impl<T, const N: usize> ScaleArr<T> for [T; N] {
+    const LEN: usize = N;
+    
+    fn from_fn(cb: impl FnMut(usize) -> T) -> Self {
+        array::from_fn(cb)
+    }
+}
+
+pub trait ScaleModes {
+    type ScaleArray<T>: ScaleArr<T>;
+    
+    fn relative_intervals(&self) -> Self::ScaleArray<Interval>;
+
+    fn build_from<T: Add<Interval, Output = T> + Clone>(&self, root: T) -> Self::ScaleArray<T> {
         let mode = self.number() as usize;
 
         let mut curr = root;
+        
+        let relative_intervals = self.relative_intervals();
+        
+        let len = self.size();
 
-        array::from_fn(|i| {
+        Self::ScaleArray::from_fn(|i| {
             let ret = curr.clone();
 
-            curr = curr.clone() + Self::RELATIVE_INTERVALS[(i + mode - 1) % LEN];
+            #[expect(clippy::clone_on_copy, reason = "Need this clone here to satisfy type system")]
+            let ivl = relative_intervals[(i + mode - 1) % len].clone();
+
+            curr = curr.clone() + ivl;
 
             ret
         })
     }
 
-    fn intervals(&self) -> [Interval; LEN] {
+    fn intervals(&self) -> Self::ScaleArray<Interval> {
         self.build_from(Interval::PERFECT_UNISON)
     }
 
+    fn size(&self) -> usize {
+        Self::ScaleArray::<()>::LEN
+    }
+    
     fn number(&self) -> u8;
 
     fn from_number(number: u8) -> Option<Self> where Self: Sized;
+}
+
+pub trait DynScaleModes {
+    fn size() -> usize;
+
+    fn intervals() -> Vec<Interval>;
+}
+
+mod seal {
+    pub trait Sealed {}
+    
+    impl<T, const N: usize> Sealed for [T; N] {}
 }
 
 #[cfg(test)]
