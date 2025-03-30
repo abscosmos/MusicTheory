@@ -5,6 +5,7 @@ use crate::interval::Interval;
 pub mod heptatonic;
 pub mod pentatonic;
 mod define;
+pub mod rework;
 
 use define::define_scale;
 
