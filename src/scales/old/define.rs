@@ -47,7 +47,7 @@ macro_rules! define_scale {
     };
     
     (@scale_modes $size: expr, $name: ident, $intervals: expr) => {
-        impl $crate::scales::ScaleModes< $size > for $name {
+        impl $crate::scales::old::ScaleModes< $size > for $name {
             const RELATIVE_INTERVALS: [Interval; $size] = $intervals;
 
             fn number(&self) -> u8 {
@@ -73,4 +73,4 @@ macro_rules! define_scale {
     };
 }
 
-pub(super) use define_scale;
+pub(in crate::scales) use define_scale;

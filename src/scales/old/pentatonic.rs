@@ -1,5 +1,7 @@
+#![allow(dead_code, unused_imports, clippy::upper_case_acronyms,  reason = "most of these constants aren't going to be used")]
+
 use crate::interval::Interval;
-use crate::scales::{T, TS, define_scale, S, TT};
+use super::{T, TS, define_scale, S, TT};
 
 define_scale!(
     name = PentatonicModes,

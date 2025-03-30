@@ -1,3 +1,5 @@
+#![allow(dead_code, unused_imports, clippy::upper_case_acronyms,  reason = "most of these constants aren't going to be used")]
+
 use crate::interval::Interval;
 use super::{S, T, A2, define_scale};
 
