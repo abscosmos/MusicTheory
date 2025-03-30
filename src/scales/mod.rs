@@ -3,6 +3,10 @@ use std::ops::Add;
 use crate::interval::Interval;
 
 mod old;
+pub mod typed_scale;
+pub mod exact_scale;
+pub mod n_scale;
+pub mod dyn_scale;
 
 const T: Interval = Interval::MAJOR_SECOND;
 const S: Interval = Interval::MINOR_SECOND;
@@ -10,66 +14,6 @@ const TS: Interval = Interval::MINOR_THIRD;
 const TT: Interval = Interval::MAJOR_THIRD;
 const A2: Interval = Interval::AUGMENTED_SECOND;
 
-
-// const type, variable mode
-pub struct ScaleCtVm<const N: usize, S: ScaleLike<N>> {
-    mode: S::Mode
-}
-
-impl<const N: usize, S: ScaleLike<N>> ScaleCtVm<N, S> {
-    pub fn new(mode: S::Mode) -> Self {
-        Self { mode }
-    }
-
-    pub fn relative_intervals(&self) -> [Interval; N] {
-        S::INTERVALS
-    }
-
-    pub fn build_from<T: Add<Interval, Output = T> + Clone>(&self, root: T) -> [T; N] {
-        build_from(self.relative_intervals(), root, &self.mode)
-    }
-}
-
-// const type, const mode
-pub struct MajorScale;
-
-impl MajorScale {
-    pub fn base(&self) -> ScaleCtVm<7, DiatonicScaleDef> {
-        ScaleCtVm::new(DiatonicMode::I)
-    }
-
-    pub fn relative_intervals(&self) -> [Interval; 7] {
-        self.base().relative_intervals()
-    }
-
-    pub fn build_from<T: Add<Interval, Output = T> + Clone>(&self, root: T) -> [T; 7] {
-        self.base().build_from(root)
-    }
-}
-
-// const tysize, variable mode, ref; this is 16 bytes :(
-pub struct RefScaleN<'a, const N: usize, M: BaseMode<N>> {
-    mode: M,
-    ivls: &'a [Interval; N],
-}
-
-// const tysize, variable mode, owned
-pub struct OwnedScaleN<const N: usize, M: BaseMode<N>> {
-    mode: M,
-    ivls: [Interval; N],
-}
-
-// var ty, var mode
-pub struct RefDynScale<'a> {
-    mode: u8,
-    ivls: &'a [Interval],
-}
-
-// var ty, var mode
-pub struct OwnedDynScale {
-    mode: u8,
-    ivls: Box<[Interval]>
-}
 
 #[repr(u8)]
 #[derive(Copy, Clone, Debug, strum_macros::FromRepr)]
