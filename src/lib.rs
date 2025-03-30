@@ -9,6 +9,7 @@ pub mod accidental;
 pub mod pitch;
 pub mod letter;
 pub mod scales;
+pub mod key;
 /*
 TODO:
     - add prelude
