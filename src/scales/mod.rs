@@ -37,7 +37,7 @@ impl BaseMode<7> for BaseMode7 {
     }
 }
 
-pub trait BaseMode<const N: usize> {
+pub trait BaseMode<const N: usize>: Copy {
     fn as_num(&self) -> u8;
 
     fn from_num(num: u8) -> Option<Self> where Self: Sized;
@@ -70,8 +70,8 @@ pub enum DiatonicMode {
 
 // TODO: assoc const for size
 impl ScaleMode<7> for DiatonicMode {
-    fn as_num(&self) -> u8 {
-        *self as _
+    fn as_num(self) -> u8 {
+        self as _
     }
 
     fn from_num(num: u8) -> Option<Self> where Self: Sized {
@@ -100,8 +100,12 @@ fn build_from<T: Add<Interval, Output = T> + Clone, const N: usize, M: ScaleMode
 }
 
 
-pub trait ScaleMode<const N: usize> {
-    fn as_num(&self) -> u8;
+pub trait ScaleMode<const N: usize>: Copy { // from base mode
+    fn as_num(self) -> u8;
 
     fn from_num(num: u8) -> Option<Self> where Self: Sized;
+    
+    fn as_base<B: BaseMode<N>>(self) -> B {
+        B::from_num(self.as_num()).expect("the base mode type should be constructable for all N in [1, N]")
+    }
 }
