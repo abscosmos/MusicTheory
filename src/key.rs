@@ -1,5 +1,7 @@
+use crate::accidental::AccidentalSign;
+use crate::letter::Letter;
 use crate::pitch::Pitch;
-use crate::scales::heptatonic::DiatonicMode;
+use crate::scales::heptatonic::{DiatonicMode, HeptatonicScaleModes};
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub struct Key {
@@ -46,6 +48,35 @@ impl Key {
                 .parallel()
                 .expect("should be major/minor since we just checked")
         )
+    }
+    
+    pub fn from_pitch_degree(degree: ScaleDegree, pitch: Pitch, mode: DiatonicMode) -> Self {
+        let offset = degree as u8 - 1;
+        
+        let letter_step = (pitch.letter().step() + 7 - offset) % 7;
+        
+        let letter = Letter::from_step(letter_step)
+            .expect("must be in range of [0,6]");
+        
+        let natural = Pitch::from(letter);
+        
+        let scale = mode.build_from(natural);
+        
+        let expect = *scale
+            .get(offset as usize)
+            .expect("offset must be within [0,7)");
+        
+        assert_eq!(
+            pitch.letter(), expect.letter(),
+            "both letters should be the same if we're comparing accidentals"
+        );
+        
+        let offset = pitch.accidental().offset - expect.accidental().offset;
+        
+        Self {
+            tonic: Pitch::from_letter_and_accidental(letter, AccidentalSign { offset }),
+            mode,
+        }
     }
 }
 
