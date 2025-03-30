@@ -1,6 +1,7 @@
 use std::ops::Add;
 use crate::interval::Interval;
 use crate::scales::{DiatonicMode, DiatonicScaleDef, ScaleDefinition};
+use crate::scales::sized_scale::SizedScale;
 use crate::scales::typed_scale::TypedScale;
 
 // TODO: N should be an assoc constant once that's stable
@@ -22,12 +23,12 @@ impl ExactScale<7> for MajorScale {
     }
 }
 
-impl MajorScale {
-    pub fn relative_intervals() -> [Interval; 7] {
-        DiatonicScaleDef::INTERVALS
+impl<const N: usize, S: ScaleDefinition<N>, E: ExactScale<N, Scale= S>> SizedScale<N> for E {
+    fn relative_intervals(&self) -> [Interval; N] {
+        self.as_typed().relative_intervals()
     }
 
-    pub fn build_from<T: Add<Interval, Output = T> + Clone>(&self, root: T) -> [T; 7] {
+    fn build_from<T: Add<Interval, Output=T> + Clone>(&self, root: T) -> [T; N] {
         self.as_typed().build_from(root)
     }
 }

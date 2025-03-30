@@ -83,10 +83,8 @@ pub trait ScaleIntervals {
 
 }
 
-fn build_from<T: Add<Interval, Output = T> + Clone, const N: usize, M: ScaleMode<N>>(rel_ivls: [Interval; N], root: T, mode: &M) -> [T; N] {
-    let mode = mode.as_num();
-
-    assert!(mode >= 1 && mode as usize <= N, "TODO: make degree enum; mode should be in range");
+fn build_from<T: Add<Interval, Output = T> + Clone, const N: usize>(rel_ivls: [Interval; N], root: T, mode: u8) -> [T; N] {
+    assert!(1 <= mode && mode as usize <= N, "mode should be in range");
 
     let mut curr = root;
 
