@@ -14,6 +14,14 @@ impl Key {
     pub fn new(tonic: Pitch, mode: DiatonicMode) -> Self {
         Self { tonic, mode }
     }
+    
+    pub fn major(tonic: Pitch) -> Self {
+        Self::new(tonic, DiatonicMode::MAJOR)
+    }
+
+    pub fn minor(tonic: Pitch) -> Self {
+        Self::new(tonic, DiatonicMode::NATURAL_MINOR)
+    }
 
     pub fn with_tonic(self, tonic: Pitch) -> Self {
         Self { tonic, .. self }
