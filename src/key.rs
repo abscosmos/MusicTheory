@@ -34,6 +34,20 @@ impl Key {
     pub fn from_sharps(sharps: i16, mode: DiatonicMode) -> Self {
         Self::new(Pitch::from_fifths_from_c(sharps), mode)
     }
+    
+    pub fn try_from_sharps_tonic(sharps: i16, tonic: Pitch) -> Option<Self> {
+        let major_tonic = Pitch::from_fifths_from_c(sharps);
+
+        let pos = DiatonicMode::MAJOR
+            .build_from(major_tonic)
+            .iter()
+            .position(|p| *p == tonic)?;
+
+        let mode = DiatonicMode::from_number((pos + 1) as _)
+            .expect("should be within [1,7]");
+        
+        Some(Self::new(tonic, mode))
+    }
 
     pub fn parallel(self) -> Option<Self> {
         use DiatonicMode as M;
