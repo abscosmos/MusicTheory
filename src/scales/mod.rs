@@ -7,6 +7,9 @@ pub mod typed_scale;
 pub mod exact_scale;
 pub mod sized_scale;
 pub mod dyn_scale;
+mod build_from;
+
+pub(crate) use build_from::*;
 
 const T: Interval = Interval::MAJOR_SECOND;
 const S: Interval = Interval::MINOR_SECOND;
@@ -81,20 +84,6 @@ impl ScaleMode<7> for DiatonicMode {
 
 pub trait ScaleIntervals {
 
-}
-
-fn build_from<T: Add<Interval, Output = T> + Clone, const N: usize>(rel_ivls: [Interval; N], root: T, mode: u8) -> [T; N] {
-    assert!(1 <= mode && mode as usize <= N, "mode should be in range");
-
-    let mut curr = root;
-
-    array::from_fn(|i| {
-        let ret = curr.clone();
-
-        curr = curr.clone() + rel_ivls[(i + mode as usize - 1) % N];
-
-        ret
-    })
 }
 
 
