@@ -1,7 +1,5 @@
 use crate::interval::Interval;
-use super::{S, T, define_scale};
-
-const A2: Interval = Interval::AUGMENTED_SECOND;
+use super::{S, T, A2, define_scale};
 
 define_scale!(
     name = HeptatoniaPrimaMode,

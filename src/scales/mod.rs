@@ -12,6 +12,7 @@ const T: Interval = Interval::MAJOR_SECOND;
 const S: Interval = Interval::MINOR_SECOND;
 const TS: Interval = Interval::MINOR_THIRD;
 const TT: Interval = Interval::MAJOR_THIRD;
+const A2: Interval = Interval::AUGMENTED_SECOND;
 
 pub trait ScaleModes<const LEN: usize>: Sized {
     const RELATIVE_INTERVALS: [Interval; LEN];
