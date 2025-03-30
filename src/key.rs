@@ -49,3 +49,15 @@ impl Key {
     }
 }
 
+#[repr(u8)]
+#[derive(Copy, Clone, Debug, Ord, PartialOrd, PartialEq, Eq, strum_macros::FromRepr)]
+pub enum ScaleDegree {
+    I = 1,
+    II,
+    III,
+    IV,
+    V,
+    VI,
+    VII,
+}
+
