@@ -107,6 +107,20 @@ impl Key {
         
         accidentals
     }
+    
+    pub fn accidental_of(&self, letter: Letter) -> AccidentalSign {
+        let pitch = *self.mode
+            .build_from(self.tonic)
+            .get(self.tonic.letter().offset_between(letter) as usize)
+            .expect("should be in range");
+        
+        assert_eq!(
+            pitch.letter(), letter,
+            "should have gotten the correct letter"
+        );
+        
+        pitch.accidental()
+    }
 }
 
 #[repr(u8)]
