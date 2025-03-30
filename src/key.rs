@@ -35,6 +35,10 @@ impl Key {
         Self::new(Pitch::from_fifths_from_c(sharps), mode)
     }
     
+    pub fn sharps(self) -> i16 {
+        self.tonic.as_fifths_from_c()
+    }
+    
     pub fn try_from_sharps_tonic(sharps: i16, tonic: Pitch) -> Option<Self> {
         let major_tonic = Pitch::from_fifths_from_c(sharps);
 
@@ -135,6 +139,8 @@ impl Key {
         
         pitch.accidental()
     }
+    
+    // TODO: add tonaljs's scale methods once we implement scales properly
 }
 
 #[repr(u8)]
