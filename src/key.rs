@@ -1,4 +1,5 @@
 use crate::accidental::AccidentalSign;
+use crate::interval::Interval;
 use crate::letter::Letter;
 use crate::pitch::Pitch;
 use crate::scales::heptatonic::{DiatonicMode, HeptatonicScaleModes};
@@ -20,6 +21,10 @@ impl Key {
 
     pub fn with_mode(self, mode: DiatonicMode) -> Self {
         Self { mode, .. self }
+    }
+    
+    pub fn from_sharps(sharps: i16, mode: DiatonicMode) -> Self {
+        Self::new(Pitch::from_fifths_from_c(sharps), mode)
     }
 
     pub fn parallel(self) -> Option<Self> {
@@ -78,6 +83,10 @@ impl Key {
             mode,
         }
     }
+    
+    pub fn transpose(&self, interval: Interval) -> Self {
+        self.with_tonic(self.tonic.transpose(interval))
+    }
 }
 
 #[repr(u8)]
@@ -91,4 +100,3 @@ pub enum ScaleDegree {
     VI,
     VII,
 }
-
