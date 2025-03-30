@@ -140,6 +140,14 @@ impl Key {
         pitch.accidental()
     }
     
+    pub fn relative_pitch(self, degree: ScaleDegree) -> Pitch {
+        self.mode
+            .build_from(self.tonic)
+            .get((degree as u8 - 1) as usize)
+            .copied()
+            .expect("index must be in range")
+    }
+    
     // TODO: add tonaljs's scale methods once we implement scales properly
 }
 
