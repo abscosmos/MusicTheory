@@ -44,14 +44,14 @@ pub trait BaseMode<const N: usize> {
 }
 
 
-pub trait ScaleLike<const N: usize> {
+pub trait ScaleDefinition<const N: usize> {
     type Mode: ScaleMode<N>;
     const INTERVALS: [Interval; N];
 }
 
 pub struct DiatonicScaleDef;
 
-impl ScaleLike<7> for DiatonicScaleDef {
+impl ScaleDefinition<7> for DiatonicScaleDef {
     type Mode = DiatonicMode;
     const INTERVALS: [Interval; 7] = [T, T, S, T, T, T, S];
 }

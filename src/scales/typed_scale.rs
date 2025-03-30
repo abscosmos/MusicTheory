@@ -1,14 +1,14 @@
 use std::ops::Add;
 use crate::interval::Interval;
-use crate::scales::{build_from, ScaleLike};
+use crate::scales::{build_from, ScaleDefinition};
 use crate::scales::exact_scale::ExactScale;
 
 // const type, variable mode
-pub struct TypedScale<const N: usize, S: ScaleLike<N>> {
+pub struct TypedScale<const N: usize, S: ScaleDefinition<N>> {
     mode: S::Mode
 }
 
-impl<const N: usize, S: ScaleLike<N>> TypedScale<N, S> {
+impl<const N: usize, S: ScaleDefinition<N>> TypedScale<N, S> {
     pub fn new(mode: S::Mode) -> Self {
         Self { mode }
     }
