@@ -18,8 +18,8 @@ impl ExactScale<7, DiatonicScaleDef> for MajorScale {
 }
 
 impl MajorScale {
-    pub fn relative_intervals(&self) -> [Interval; 7] {
-        self.as_typed().relative_intervals()
+    pub fn relative_intervals() -> [Interval; 7] {
+        DiatonicScaleDef::INTERVALS
     }
 
     pub fn build_from<T: Add<Interval, Output = T> + Clone>(&self, root: T) -> [T; 7] {
