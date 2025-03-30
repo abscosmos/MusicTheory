@@ -95,6 +95,18 @@ impl Key {
     pub fn transpose(&self, interval: Interval) -> Self {
         self.with_tonic(self.tonic.transpose(interval))
     }
+    
+    pub fn alterations(&self) -> Vec<Pitch> {
+        let mut accidentals = self.mode
+            .build_from(self.tonic)
+            .into_iter()
+            .filter(|a| a.accidental() != AccidentalSign::NATURAL)
+            .collect::<Vec<_>>();
+        
+        accidentals.sort_unstable_by_key(Pitch::as_fifths_from_c);
+        
+        accidentals
+    }
 }
 
 #[repr(u8)]
