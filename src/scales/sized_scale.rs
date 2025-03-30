@@ -4,14 +4,23 @@ use crate::scales::{build_from, BaseMode};
 
 // const tysize, variable mode, ref; this is 16 bytes :(
 pub struct SizedScaleRef<'a, const N: usize, M: BaseMode<N>> {
-    mode: M,
-    ivls: &'a [Interval; N],
+    pub(super) mode: M,
+    pub(super) ivls: &'a [Interval; N],
 }
 
 // const tysize, variable mode, owned
 pub struct SizedScaleOwned<const N: usize, M: BaseMode<N>> {
     mode: M,
     ivls: [Interval; N],
+}
+
+impl<const N: usize, M: BaseMode<N>> SizedScaleRef<'_, N, M> {
+    pub fn to_owned(&self) -> SizedScaleOwned<N, M> {
+        SizedScaleOwned {
+            mode: self.mode,
+            ivls: *self.ivls,
+        }
+    }
 }
 
 impl<const N: usize, M: BaseMode<N>> SizedScaleOwned<N, M> {

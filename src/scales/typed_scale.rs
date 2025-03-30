@@ -3,7 +3,7 @@ use crate::interval::Interval;
 use crate::scales;
 use crate::scales::{ScaleDefinition, ScaleMode};
 use crate::scales::exact_scale::ExactScale;
-use crate::scales::sized_scale::SizedScale;
+use crate::scales::sized_scale::{SizedScale, SizedScaleRef};
 
 // const type, variable mode
 pub struct TypedScale<const N: usize, S: ScaleDefinition<N>> {
@@ -18,6 +18,13 @@ impl<const N: usize, S: ScaleDefinition<N>> TypedScale<N, S> {
     // TODO: does it make sense to keep this method?
     pub fn make_exact<E: ExactScale<N, Scale=S>>() -> E {
         E::default()
+    }
+    
+    pub fn as_sized(&self) -> SizedScaleRef<N, <S::Mode as ScaleMode<N>>::Base> {
+        SizedScaleRef {
+            mode: self.mode.as_base(),
+            ivls: &S::INTERVALS as &'static _,
+        }
     }
 }
 

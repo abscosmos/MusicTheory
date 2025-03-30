@@ -1,4 +1,3 @@
-use std::array;
 use std::ops::Add;
 use crate::interval::Interval;
 
@@ -73,6 +72,8 @@ pub enum DiatonicMode {
 
 // TODO: assoc const for size
 impl ScaleMode<7> for DiatonicMode {
+    type Base = BaseMode7;
+
     fn as_num(self) -> u8 {
         self as _
     }
@@ -88,11 +89,14 @@ pub trait ScaleIntervals {
 
 
 pub trait ScaleMode<const N: usize>: Copy { // from base mode
+    type Base: BaseMode<N>;
+    
     fn as_num(self) -> u8;
 
     fn from_num(num: u8) -> Option<Self> where Self: Sized;
     
-    fn as_base<B: BaseMode<N>>(self) -> B {
-        B::from_num(self.as_num()).expect("the base mode type should be constructable for all N in [1, N]")
+    fn as_base(self) -> Self::Base {
+        Self::Base::from_num(self.as_num())
+            .expect("the base mode type should be constructable for all N in [1, N]")
     }
 }
