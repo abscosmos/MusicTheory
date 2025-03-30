@@ -5,7 +5,7 @@ use crate::interval::Interval;
 mod old;
 pub mod typed_scale;
 pub mod exact_scale;
-pub mod n_scale;
+pub mod sized_scale;
 pub mod dyn_scale;
 
 const T: Interval = Interval::MAJOR_SECOND;
