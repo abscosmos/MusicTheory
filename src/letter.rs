@@ -1,6 +1,8 @@
 use std::fmt;
 use std::str::FromStr;
 use strum_macros::{EnumIter, FromRepr};
+use crate::key::Key;
+use crate::pitch::Pitch;
 
 #[repr(u8)]
 #[derive(Copy, Clone, Eq, PartialEq, Debug, EnumIter, FromRepr, Ord, PartialOrd)]
@@ -25,6 +27,10 @@ impl Letter {
     
     pub fn offset_between(&self, rhs: Self) -> u8 {
         (rhs.step() as i16 - self.step() as i16).rem_euclid(7) as _
+    }
+    
+    pub fn to_pitch_in_key(self, key: Key) -> Pitch {
+        Pitch::from_letter_and_accidental(self, key.accidental_of(self))
     }
 }
 
