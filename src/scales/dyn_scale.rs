@@ -3,21 +3,9 @@ use crate::interval::Interval;
 use crate::scales;
 
 // var ty, var mode
-pub struct DynScaleRef<'a> {
-    mode: u8,
-    ivls: &'a [Interval],
-}
-
-// var ty, var mode
-pub struct DynScaleOwned {
+pub struct DynamicScale {
     mode: u8,
     ivls: Box<[Interval]>
-}
-
-impl DynScaleOwned {
-    pub fn as_scale_ref(&self) -> DynScaleRef {
-        DynScaleRef { mode: self.mode, ivls: &self.ivls }
-    }
 }
 
 pub trait DynScale {
@@ -28,23 +16,9 @@ pub trait DynScale {
     fn build_from<T: Add<Interval, Output = T> + Clone>(&self, root: T) -> Box<[T]>;
 }
 
-impl DynScale for DynScaleRef<'_> {
+impl DynScale for DynamicScale {
     fn size(&self) -> usize {
         self.ivls.len()
-    }
-
-    fn relative_intervals(&self) -> &[Interval] {
-        self.ivls
-    }
-
-    fn build_from<T: Add<Interval, Output=T> + Clone>(&self, root: T) -> Box<[T]> {
-        scales::boxed_build_from(self.relative_intervals(), root, self.mode)
-    }
-}
-
-impl DynScale for DynScaleOwned {
-    fn size(&self) -> usize {
-        self.as_scale_ref().size()
     }
 
     fn relative_intervals(&self) -> &[Interval] {
@@ -52,6 +26,6 @@ impl DynScale for DynScaleOwned {
     }
 
     fn build_from<T: Add<Interval, Output=T> + Clone>(&self, root: T) -> Box<[T]> {
-        self.as_scale_ref().build_from(root)
+        scales::boxed_build_from(self.relative_intervals(), root, self.mode)
     }
 }
