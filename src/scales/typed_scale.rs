@@ -22,7 +22,7 @@ impl<const N: usize, S: ScaleLike<N>> TypedScale<N, S> {
     }
     
     // TODO: does it make sense to keep this method?
-    pub fn make_exact<E: ExactScale<N, S>>() -> E {
+    pub fn make_exact<E: ExactScale<N, Scale=S>>() -> E {
         E::default()
     }
 }
