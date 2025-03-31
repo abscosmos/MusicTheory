@@ -7,7 +7,7 @@ use crate::scales::typed_scale::TypedScale;
 pub trait ExactScale<const N: usize>: Default {
     type Scale: ScaleDefinition<N>;
     
-    fn as_typed(&self) -> TypedScale<N, Self::Scale>;
+    fn as_typed(&self) -> TypedScale<Self::Scale, N>;
 }
 
 // const type, const mode
@@ -17,7 +17,7 @@ pub struct MajorScale;
 impl ExactScale<7> for MajorScale {
     type Scale = DiatonicScaleDef;
 
-    fn as_typed(&self) -> TypedScale<7, DiatonicScaleDef> {
+    fn as_typed(&self) -> TypedScale<DiatonicScaleDef, 7> {
         TypedScale::new(DiatonicMode::I)
     }
 }

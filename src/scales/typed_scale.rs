@@ -5,11 +5,11 @@ use crate::scales::sized_scale::SizedScale;
 
 // const type, variable mode
 #[derive(Debug)]
-pub struct TypedScale<const N: usize, S: ScaleDefinition<N>> {
+pub struct TypedScale<S: ScaleDefinition<N>, const N: usize> {
     mode: S::Mode
 }
 
-impl<const N: usize, S: ScaleDefinition<N>> TypedScale<N, S> {
+impl<const N: usize, S: ScaleDefinition<N>> TypedScale<S, N> {
     pub fn new(mode: S::Mode) -> Self {
         Self { mode }
     }
@@ -20,7 +20,7 @@ impl<const N: usize, S: ScaleDefinition<N>> TypedScale<N, S> {
     }
 }
 
-impl<const N: usize, S: ScaleDefinition<N>> SizedScale<N> for TypedScale<N, S> {
+impl<S: ScaleDefinition<N>, const N: usize> SizedScale<N> for TypedScale<S, N> {
     fn relative_intervals(&self) -> [Interval; N] {
         let mut ivls = S::INTERVALS;
         
