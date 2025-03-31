@@ -8,7 +8,7 @@ pub struct DynamicScale {
 }
 
 impl DynamicScale {
-    fn new(ivls: impl Into<Box<[Interval]>>) -> Option<Self> {
+    pub fn new(ivls: impl Into<Box<[Interval]>>) -> Option<Self> {
         let ivls = ivls.into();
 
         let sums_to_octave = ivls.iter().copied().reduce(Add::add) == Some(Interval::PERFECT_OCTAVE);
