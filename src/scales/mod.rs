@@ -1,4 +1,4 @@
-use std::ops::Add;
+use std::fmt;
 use crate::interval::Interval;
 
 mod old;
@@ -9,6 +9,8 @@ pub mod dyn_scale;
 mod build_from;
 
 pub(crate) use build_from::*;
+
+// TODO: proper derives for all scale items
 
 const T: Interval = Interval::MAJOR_SECOND;
 const S: Interval = Interval::MINOR_SECOND;
@@ -46,11 +48,12 @@ pub trait BaseMode<const N: usize>: Copy {
 }
 
 
-pub trait ScaleDefinition<const N: usize> {
-    type Mode: ScaleMode<N>;
+pub trait ScaleDefinition<const N: usize>: fmt::Debug {
+    type Mode: ScaleMode<N> + fmt::Debug;
     const INTERVALS: [Interval; N];
 }
 
+#[derive(Debug)]
 pub struct DiatonicScaleDef;
 
 impl ScaleDefinition<7> for DiatonicScaleDef {
