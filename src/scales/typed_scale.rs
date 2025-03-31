@@ -1,5 +1,6 @@
 use crate::interval::Interval;
 use crate::scales::{ScaleDefinition, ScaleMode};
+use crate::scales::dyn_scale::{DynScale, DynamicScale};
 use crate::scales::exact_scale::ExactScale;
 use crate::scales::sized_scale::SizedScale;
 
@@ -27,5 +28,11 @@ impl<S: ScaleDefinition<N>, const N: usize> SizedScale<N> for TypedScale<S, N> {
         ivls.rotate_left((self.mode.as_num() - 1) as _);
         
         ivls
+    }
+}
+
+impl<S: ScaleDefinition<N>, const N: usize> From<TypedScale<S, N>> for DynamicScale {
+    fn from(typed: TypedScale<S, N>) -> Self {
+        typed.to_dyn()
     }
 }
