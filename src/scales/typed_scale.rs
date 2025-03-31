@@ -23,10 +23,14 @@ impl<const N: usize, S: ScaleDefinition<N>> TypedScale<N, S> {
 
 impl<const N: usize, S: ScaleDefinition<N>> SizedScale<N> for TypedScale<N, S> {
     fn relative_intervals(&self) -> [Interval; N] {
-        S::INTERVALS
+        let mut ivls = S::INTERVALS;
+        
+        ivls.rotate_left((self.mode.as_num() - 1) as _);
+        
+        ivls
     }
 
     fn build_from<T: Add<Interval, Output=T> + Clone>(&self, root: T) -> [T; N] {
-        scales::build_from(self.relative_intervals(), root, self.mode.as_num())
+        scales::build_from(self.relative_intervals(), root)
     }
 }

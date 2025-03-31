@@ -4,8 +4,7 @@ use crate::scales;
 
 // var ty, var mode
 pub struct DynamicScale {
-    mode: u8,
-    ivls: Box<[Interval]>
+    ivls: Box<[Interval]>,
 }
 
 pub trait DynScale {
@@ -26,6 +25,6 @@ impl DynScale for DynamicScale {
     }
 
     fn build_from<T: Add<Interval, Output=T> + Clone>(&self, root: T) -> Box<[T]> {
-        scales::boxed_build_from(self.relative_intervals(), root, self.mode)
+        scales::boxed_build_from(self.relative_intervals(), root)
     }
 }
