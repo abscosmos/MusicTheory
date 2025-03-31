@@ -1,6 +1,4 @@
-use std::ops::Add;
 use crate::interval::Interval;
-use crate::scales;
 use crate::scales::{ScaleDefinition, ScaleMode};
 use crate::scales::exact_scale::ExactScale;
 use crate::scales::sized_scale::SizedScale;
@@ -29,9 +27,5 @@ impl<const N: usize, S: ScaleDefinition<N>> SizedScale<N> for TypedScale<N, S> {
         ivls.rotate_left((self.mode.as_num() - 1) as _);
         
         ivls
-    }
-
-    fn build_from<T: Add<Interval, Output=T> + Clone>(&self, root: T) -> [T; N] {
-        scales::build_from(self.relative_intervals(), root)
     }
 }
