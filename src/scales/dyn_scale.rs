@@ -3,6 +3,8 @@ use crate::interval::Interval;
 use crate::scales;
 
 // var ty, var mode
+// TODO: Box<dyn Metadata>?
+#[derive(Debug)]
 pub struct DynamicScale {
     ivls: Box<[Interval]>,
 }
