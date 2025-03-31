@@ -1,8 +1,9 @@
 use std::ops::Add;
 use crate::interval::Interval;
 use crate::scales;
-use crate::scales::dyn_scale::DynamicScale;
+use crate::scales::dyn_scale::{DynScale, DynamicScale};
 
+// TODO(generic_const_exprs): N should eventually become an assoc constant
 pub trait SizedScale<const N: usize> {
     fn relative_intervals(&self) -> [Interval; N];
 

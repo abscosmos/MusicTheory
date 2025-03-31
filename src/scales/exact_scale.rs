@@ -3,7 +3,7 @@ use crate::scales::{DiatonicMode, DiatonicScaleDef, ScaleDefinition};
 use crate::scales::sized_scale::SizedScale;
 use crate::scales::typed_scale::TypedScale;
 
-// TODO: N should be an assoc constant once that's stable
+// TODO(generic_const_exprs): N should eventually become an assoc constant
 pub trait ExactScale<const N: usize>: Default {
     type Scale: ScaleDefinition<N>;
     

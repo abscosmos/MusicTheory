@@ -41,13 +41,14 @@ impl BaseMode<7> for BaseMode7 {
     }
 }
 
+// TODO(generic_const_exprs): N should eventually become an assoc constant
 pub trait BaseMode<const N: usize>: Copy {
     fn as_num(&self) -> u8;
 
     fn from_num(num: u8) -> Option<Self> where Self: Sized;
 }
 
-
+// TODO(generic_const_exprs): N should eventually become an assoc constant
 pub trait ScaleDefinition<const N: usize>: fmt::Debug {
     type Mode: ScaleMode<N> + fmt::Debug;
     const INTERVALS: [Interval; N];
@@ -73,7 +74,6 @@ pub enum DiatonicMode {
     VII,
 }
 
-// TODO: assoc const for size
 impl ScaleMode<7> for DiatonicMode {
     type Base = BaseMode7;
 
@@ -90,7 +90,7 @@ pub trait ScaleIntervals {
 
 }
 
-
+// TODO(generic_const_exprs): N should eventually become an assoc constant
 pub trait ScaleMode<const N: usize>: Copy { // from base mode
     type Base: BaseMode<N>;
     
