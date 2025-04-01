@@ -22,7 +22,7 @@ pub fn numeral(attr: TokenStream, item: TokenStream) -> TokenStream {
         "XVI", "XVII", "XVIII", "XIX", "XX",
     ];
     
-    assert!(count as usize > roman_numerals.len(), "Only supports up to {} variants", roman_numerals.len());
+    assert!((count as usize) < roman_numerals.len(), "Only supports up to {} variants", roman_numerals.len());
 
     let variants = (0..count).map(|i| {
         let ident = syn::Ident::new(roman_numerals[i as usize], proc_macro2::Span::call_site());
