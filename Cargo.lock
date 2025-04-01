@@ -36,6 +36,7 @@ dependencies = [
 name = "music_theory"
 version = "0.1.0"
 dependencies = [
+ "mt_macros",
  "paste",
  "regex",
  "strum",
