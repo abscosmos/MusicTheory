@@ -19,6 +19,7 @@ impl DynamicScale {
     }
 }
 
+// TODO: should DynScale be implemented for TypedScale & ExactScale or should this trait be deleted?
 pub trait DynScale {
     fn size(&self) -> usize;
     
