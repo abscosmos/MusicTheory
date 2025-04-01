@@ -3,6 +3,10 @@ name = "music_theory"
 version = "0.1.0"
 edition = "2021"
 
+[workspace]
+members = ["mt_macros"]
+resolver = "2"
+
 [dependencies]
 strum = "0.26.3"
 strum_macros = "0.26.4"
