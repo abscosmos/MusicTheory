@@ -1,5 +1,6 @@
 use mt_macros::{numeral};
 
+// TODO(generic_const_exprs): N should eventually become an assoc constant
 pub trait Numeral<const N: usize>: Copy {
     fn as_num(self) -> u8;
 
