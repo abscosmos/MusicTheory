@@ -1,6 +1,8 @@
 use std::ops::Add;
 use crate::interval::Interval;
 use crate::scales;
+use crate::scales::{ScaleDefinition, ScaleMode};
+use crate::scales::typed_scale::TypedScale;
 
 // var ty, var mode
 // TODO: Box<dyn Metadata>?
@@ -16,6 +18,27 @@ impl DynamicScale {
         let sums_to_octave = ivls.iter().copied().reduce(Add::add) == Some(Interval::PERFECT_OCTAVE);
 
         sums_to_octave.then_some(Self { ivls })
+    }
+    
+    pub fn try_into_typed<S: ScaleDefinition<N>, const N: usize>(&self) -> Option<TypedScale<S, N>> {
+        let mode_num = find_rotation(&S::INTERVALS, self.relative_intervals())? + 1;
+
+        let mode = S::Mode::from_num(mode_num as _)
+            .expect("must be in range, since in [1, S::INTERVALS.len()]");
+        
+        Some(TypedScale::new(mode))
+    }
+}
+
+fn find_rotation<T: PartialEq>(a: &[T], b: &[T]) -> Option<usize> {
+    if a.len() != b.len() {
+        None
+    } else if a.is_empty() {
+        Some(0)
+    } else {
+        let n = a.len();
+        
+        (0..n).find(|start| (0..n).all(|i| a[(start + i) % n] == b[i]))
     }
 }
 
