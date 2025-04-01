@@ -7,6 +7,7 @@ pub mod exact_scale;
 pub mod sized_scale;
 pub mod dyn_scale;
 mod build_from;
+pub mod numeral;
 
 pub(crate) use build_from::*;
 
