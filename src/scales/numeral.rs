@@ -1,38 +1,44 @@
+use mt_macros::{numeral};
+
+// TODO(generic_const_exprs): N should eventually become an assoc constant
 pub trait Numeral<const N: usize>: Copy {
     fn as_num(self) -> u8;
 
     fn from_num(num: u8) -> Option<Self> where Self: Sized;
 }
 
-#[repr(u8)]
-#[derive(Copy, Clone, Hash, Eq, PartialEq, Ord, PartialOrd, strum_macros::FromRepr)]
-pub enum Numeral1 {
-    I = 1,
-}
+#[numeral(1)]
+pub enum Numeral1 {}
 
-impl Numeral<1> for Numeral1 {
-    fn as_num(self) -> u8 {
-        self as _
-    }
+#[numeral(2)]
+pub enum Numeral2 {}
 
-    fn from_num(num: u8) -> Option<Self> where Self: Sized {
-        Self::from_repr(num)
-    }
-}
+#[numeral(3)]
+pub enum Numeral3 {}
 
-#[repr(u8)]
-#[derive(Copy, Clone, Hash, Eq, PartialEq, Ord, PartialOrd, strum_macros::FromRepr)]
-pub enum Numeral2 {
-    I = 1,
-    II,
-}
+#[numeral(4)]
+pub enum Numeral4 {}
 
-impl Numeral<2> for Numeral2 {
-    fn as_num(self) -> u8 {
-        self as _
-    }
+#[numeral(5)]
+pub enum Numeral5 {}
 
-    fn from_num(num: u8) -> Option<Self> where Self: Sized {
-        Self::from_repr(num)
-    }
-}
+#[numeral(6)]
+pub enum Numeral6 {}
+
+#[numeral(7)]
+pub enum Numeral7 {}
+
+#[numeral(8)]
+pub enum Numeral8 {}
+
+#[numeral(9)]
+pub enum Numeral9 {}
+
+#[numeral(10)]
+pub enum Numeral10 {}
+
+#[numeral(11)]
+pub enum Numeral11 {}
+
+#[numeral(12)]
+pub enum Numeral12 {}
