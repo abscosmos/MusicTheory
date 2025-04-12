@@ -9,6 +9,8 @@ pub mod dyn_scale;
 mod build_from;
 pub mod numeral;
 mod define;
+pub mod heptatonic;
+pub mod pentatonic;
 
 pub use numeral::Numeral7;
 
