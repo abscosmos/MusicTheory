@@ -1,5 +1,5 @@
 use crate::interval::Interval;
-use crate::scales::{DiatonicMode, DiatonicScaleDef, ScaleDefinition};
+use crate::scales::ScaleDefinition;
 use crate::scales::sized_scale::SizedScale;
 use crate::scales::typed_scale::TypedScale;
 
@@ -8,18 +8,6 @@ pub trait ExactScale<const N: usize>: Default {
     type Scale: ScaleDefinition<N>;
     
     fn as_typed(&self) -> TypedScale<Self::Scale, N>;
-}
-
-// const type, const mode
-#[derive(Default)]
-pub struct MajorScale;
-
-impl ExactScale<7> for MajorScale {
-    type Scale = DiatonicScaleDef;
-
-    fn as_typed(&self) -> TypedScale<DiatonicScaleDef, 7> {
-        TypedScale::new(DiatonicMode::I)
-    }
 }
 
 impl<const N: usize, S: ScaleDefinition<N>, E: ExactScale<N, Scale= S>> SizedScale<N> for E {

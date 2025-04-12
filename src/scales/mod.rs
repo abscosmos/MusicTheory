@@ -13,7 +13,6 @@ mod define;
 pub use numeral::Numeral7;
 
 pub(crate) use build_from::*;
-use crate::scales::define::define_scale;
 use crate::scales::numeral::Numeral;
 // TODO: proper derives for all scale items
 
@@ -27,55 +26,6 @@ const A2: Interval = Interval::AUGMENTED_SECOND;
 pub trait ScaleDefinition<const N: usize>: fmt::Debug {
     type Mode: ScaleMode<N> + fmt::Debug;
     const INTERVALS: [Interval; N];
-}
-
-define_scale! {
-    name = Test,
-    size = 7,
-    intervals = [T, T, S, T, T, T, S],
-    mode = [
-        _I, _II, _III, _IV, _V, _VI, _VII,
-    ],
-    typed = TestScale,
-    exact = [
-        _I => ExactI,
-    ]
-}
-
-#[derive(Debug)]
-pub struct DiatonicScaleDef;
-
-impl ScaleDefinition<7> for DiatonicScaleDef {
-    type Mode = DiatonicMode;
-    const INTERVALS: [Interval; 7] = [T, T, S, T, T, T, S];
-}
-
-#[repr(u8)]
-#[derive(Copy, Clone, Debug, strum_macros::FromRepr)]
-pub enum DiatonicMode {
-    I = 1,
-    II,
-    III,
-    IV,
-    V,
-    VI,
-    VII,
-}
-
-impl ScaleMode<7> for DiatonicMode {
-    type Base = Numeral7;
-
-    fn as_num(self) -> u8 {
-        self as _
-    }
-
-    fn from_num(num: u8) -> Option<Self> where Self: Sized {
-        Self::from_repr(num)
-    }
-}
-
-pub trait ScaleIntervals {
-
 }
 
 // TODO(generic_const_exprs): N should eventually become an assoc constant
