@@ -4,18 +4,28 @@ macro_rules! define_scale {
         size = $size:expr,
         intervals = $intervals:expr
         $(, mode = [$first_var:ident $(, $rest_var:ident)* $(,)?])?
+        $(, typed = $typed:ident)?
+        $(, exact = [$($var: ident => $var_name: ident),* $(,)?])?
         // $(, alias = $alias: ident)?
         // $(, mode_aliases = [$($alias_mode: ident => $alias_mode_num: ident),* $(,)?])?
         $(,)?
     ) => {
+        #[allow(unused_imports)]
         use $crate::scales::numeral::*;
         
         use paste::paste;
-        
         paste! {
             define_scale!(@try_custom_mode [<$name Mode>], $size $(, [$first_var $(, $rest_var)*])?);
             
             define_scale!(@definition [<$name ScaleDef>], $size, [<$name Mode>], $intervals);
+            
+            $(
+                define_scale!(@typed $typed, [<$name ScaleDef>], $size);
+            )*
+            
+            $(
+                define_scale!(@exact [<$name Mode>], [<$name ScaleDef>], $size, [$($var => $var_name),*]);
+            )*
         }
         
         // 
@@ -30,13 +40,22 @@ macro_rules! define_scale {
         }
     };
     
+    // TODO: add support for chromatic 1 mode
+    // (@try_custom_mode $name: ident, $size:expr, []) => {
+    //     #[derive(Copy, Clone, Eq, PartialEq, Debug, strum_macros::FromRepr)]
+    //     pub struct $name;
+    //     
+    //     paste!{
+    //         define_scale!(@scale_mode $name, Numeral1, $size);
+    //     }
+    // };
+    
     (@try_custom_mode $name: ident, $size:expr, [$first_var:ident $(, $rest_var:ident)*]) => {
         define_scale!(@custom_mode $name, [$first_var $(, $rest_var)*]);
         
         paste!{
             define_scale!(@scale_mode $name, [<Numeral $size>], $size);
         }
-        
     };
 
     (@custom_mode $name: ident, [$first_var:ident $(, $rest_var:ident)*]) => {
@@ -69,6 +88,31 @@ macro_rules! define_scale {
         impl $crate::scales::ScaleDefinition<$size> for $def_name {
             type Mode = $mode_name;
             const INTERVALS: [Interval; $size] = $intervals;
+        }
+    };
+    
+    (@typed $typed:ident, $def: ident, $size:expr) => {
+        pub type $typed = $crate::scales::typed_scale::TypedScale<$def, $size>;
+    };
+    
+    (@exact $mode:ident, $def:ident, $size:expr, [$($var:ident => $var_name:ident),* $(,)?]) => {
+        paste! {
+            $(
+                define_scale!(@define_exact [<$var_name Scale>], $var, $mode, $def, $size);
+            )*
+        }
+    };
+    
+    (@define_exact $name:ident, $var:ident, $mode:ident, $def:ident, $size:expr) => {
+        #[derive(Default)]
+        pub struct $name;
+        
+        impl $crate::scales::exact_scale::ExactScale<$size> for $name {
+            type Scale = $def;
+            
+            fn as_typed(&self) -> $crate::scales::typed_scale::TypedScale<Self::Scale, $size> {
+                $crate::scales::typed_scale::TypedScale::new($mode::$var)
+            }
         }
     };
     

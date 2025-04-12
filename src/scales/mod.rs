@@ -35,6 +35,10 @@ define_scale! {
     intervals = [T, T, S, T, T, T, S],
     mode = [
         _I, _II, _III, _IV, _V, _VI, _VII,
+    ],
+    typed = TestScale,
+    exact = [
+        _I => ExactI,
     ]
 }
 
