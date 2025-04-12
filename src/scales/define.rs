@@ -4,10 +4,10 @@ macro_rules! define_scale {
         size = $size:expr,
         intervals = $intervals:expr
         $(, mode = [$first_var:ident $(, $rest_var:ident)* $(,)?])?
+        $(, mode_aliases = [$($mode_alias:ident => $aliased_mode:ident),* $(,)?])?
         $(, typed = $typed:ident)?
         $(, exact = [$($var: ident => $var_name: ident),* $(,)?])?
         // $(, alias = $alias: ident)?
-        // $(, mode_aliases = [$($alias_mode: ident => $alias_mode_num: ident),* $(,)?])?
         $(,)?
     ) => {
         #[allow(unused_imports)]
@@ -17,21 +17,14 @@ macro_rules! define_scale {
         paste! {
             define_scale!(@try_custom_mode [<$name Mode>], $size $(, [$first_var $(, $rest_var)*])?);
             
+            $(define_scale!(@mode_aliases [<$name Mode>], $($mode_alias => $aliased_mode),*);)?
+            
             define_scale!(@definition [<$name ScaleDef>], $size, [<$name Mode>], $intervals);
             
-            $(
-                define_scale!(@typed $typed, [<$name ScaleDef>], $size);
-            )*
+            $(define_scale!(@typed $typed, [<$name ScaleDef>], $size);)*
             
-            $(
-                define_scale!(@exact [<$name Mode>], [<$name ScaleDef>], $size, [$($var => $var_name),*]);
-            )*
+            $(define_scale!(@exact [<$name Mode>], [<$name ScaleDef>], $size, [$($var => $var_name),*]);)*
         }
-        
-        // 
-        // $(define_scale!(@scale_alias $name, $alias);)?
-        // 
-        // $(define_scale!(@mode_aliases $name, $($alias_mode => $alias_mode_num),*);)?
     };
 
     (@try_custom_mode $name:ident, $size:expr) => {
@@ -87,7 +80,7 @@ macro_rules! define_scale {
     
         impl $crate::scales::ScaleDefinition<$size> for $def_name {
             type Mode = $mode_name;
-            const INTERVALS: [Interval; $size] = $intervals;
+            const INTERVALS: [$crate::interval::Interval; $size] = $intervals;
         }
     };
     
@@ -116,17 +109,13 @@ macro_rules! define_scale {
         }
     };
     
-    // (@scale_alias $name: ident, $alias: ident) => {
-    //     pub use $name as $alias;
-    // };
-    //
-    // (@mode_aliases $name: ident, $($alias_mode:ident => $alias_mode_num:ident),*) => {
-    //     impl $name {
-    //         $(
-    //             pub const $alias_mode : Self = Self:: $alias_mode_num ;
-    //         )*
-    //     }
-    // };
+    (@mode_aliases $name: ident, $($mode_alias:ident => $aliased_mode:ident),*) => {
+        impl $name {
+            $(
+                pub const $mode_alias : Self = Self:: $aliased_mode ;
+            )*
+        }
+    };
 }
 
 use paste::paste;
