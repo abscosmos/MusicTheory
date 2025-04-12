@@ -3,7 +3,7 @@ macro_rules! define_scale {
         name = $name:ident,
         size = $size:expr,
         intervals = $intervals:expr
-        $(, mode = [$first_var:ident $(, $rest_var:ident)* $(,)?])?
+        $(, mode = [$($first_var:ident)? $(, $rest_var:ident)* $(,)?])?
         $(, mode_aliases = [$($mode_alias:ident => $aliased_mode:ident),* $(,)?])?
         $(, typed = $typed:ident)?
         $(, exact_single = $exact_single:ident)?
@@ -15,7 +15,7 @@ macro_rules! define_scale {
         use $crate::scales::numeral::*;
         
         ::paste::paste! {
-            define_scale!(@try_custom_mode [<$name Mode>], $size $(, [$first_var $(, $rest_var)*])?);
+            define_scale!(@try_custom_mode [<$name Mode>], $size $(, [$($first_var)? $(, $rest_var)*])?);
             
             $(define_scale!(@mode_aliases [<$name Mode>], $($mode_alias => $aliased_mode),*);)?
             
@@ -35,15 +35,25 @@ macro_rules! define_scale {
         }
     };
     
-    // TODO: add support for chromatic 1 mode
-    // (@try_custom_mode $name: ident, $size:expr, []) => {
-    //     #[derive(Copy, Clone, Eq, PartialEq, Debug, strum_macros::FromRepr)]
-    //     pub struct $name;
-    //     
-    //     paste!{
-    //         define_scale!(@scale_mode $name, Numeral1, $size);
-    //     }
-    // };
+    // support for chromatic 1 mode
+    (@try_custom_mode $name: ident, $size:expr, []) => {
+        #[derive(Copy, Clone, Eq, PartialEq, Debug)]
+        pub struct $name;
+        
+        ::paste::paste! {
+            impl $crate::scales::ScaleMode< $size > for $name {
+                type Base = [<Numeral $size>];
+        
+                fn as_num(self) -> u8 {
+                    1
+                }
+        
+                fn from_num(number: u8) -> Option<Self> where Self: Sized {
+                    (number == 1).then_some(Self)
+                }
+            }
+        }
+    };
     
     (@try_custom_mode $name: ident, $size:expr, [$first_var:ident $(, $rest_var:ident)*]) => {
         define_scale!(@custom_mode $name, [$first_var $(, $rest_var)*]);
