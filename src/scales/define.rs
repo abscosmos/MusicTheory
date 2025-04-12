@@ -13,8 +13,7 @@ macro_rules! define_scale {
         #[allow(unused_imports)]
         use $crate::scales::numeral::*;
         
-        use paste::paste;
-        paste! {
+        ::paste::paste! {
             define_scale!(@try_custom_mode [<$name Mode>], $size $(, [$first_var $(, $rest_var)*])?);
             
             $(define_scale!(@mode_aliases [<$name Mode>], $($mode_alias => $aliased_mode),*);)?
@@ -28,7 +27,7 @@ macro_rules! define_scale {
     };
 
     (@try_custom_mode $name:ident, $size:expr) => {
-        paste! {
+        ::paste::paste! {
             use [<Numeral $size>] as $name;
         }
     };
@@ -46,7 +45,7 @@ macro_rules! define_scale {
     (@try_custom_mode $name: ident, $size:expr, [$first_var:ident $(, $rest_var:ident)*]) => {
         define_scale!(@custom_mode $name, [$first_var $(, $rest_var)*]);
         
-        paste!{
+        ::paste::paste!{
             define_scale!(@scale_mode $name, [<Numeral $size>], $size);
         }
     };
@@ -89,7 +88,7 @@ macro_rules! define_scale {
     };
     
     (@exact $mode:ident, $def:ident, $size:expr, [$($var:ident => $var_name:ident),* $(,)?]) => {
-        paste! {
+        ::paste::paste! {
             $(
                 define_scale!(@define_exact [<$var_name Scale>], $var, $mode, $def, $size);
             )*
@@ -118,5 +117,4 @@ macro_rules! define_scale {
     };
 }
 
-use paste::paste;
 pub(in crate::scales) use define_scale;
