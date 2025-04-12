@@ -8,10 +8,12 @@ pub mod sized_scale;
 pub mod dyn_scale;
 mod build_from;
 pub mod numeral;
+mod define;
 
 pub use numeral::Numeral7;
 
 pub(crate) use build_from::*;
+use crate::scales::define::define_scale;
 use crate::scales::numeral::Numeral;
 // TODO: proper derives for all scale items
 
@@ -25,6 +27,15 @@ const A2: Interval = Interval::AUGMENTED_SECOND;
 pub trait ScaleDefinition<const N: usize>: fmt::Debug {
     type Mode: ScaleMode<N> + fmt::Debug;
     const INTERVALS: [Interval; N];
+}
+
+define_scale! {
+    name = Test,
+    size = 7,
+    intervals = [T, T, S, T, T, T, S],
+    mode = [
+        _I, _II, _III, _IV, _V, _VI, _VII,
+    ]
 }
 
 #[derive(Debug)]
