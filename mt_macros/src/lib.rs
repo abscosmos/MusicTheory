@@ -37,7 +37,7 @@ pub fn numeral(attr: TokenStream, item: TokenStream) -> TokenStream {
 
     let expanded = quote! {
         #[repr(u8)]
-        #[derive(Copy, Clone, Hash, Eq, PartialEq, Ord, PartialOrd, strum_macros::FromRepr)]
+        #[derive(Debug, Copy, Clone, Hash, Eq, PartialEq, Ord, PartialOrd, strum_macros::FromRepr)]
         pub enum #name {
             #(#variants,)*
         }
