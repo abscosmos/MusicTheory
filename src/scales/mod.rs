@@ -10,6 +10,7 @@ pub mod numeral;
 mod define;
 pub mod heptatonic;
 pub mod pentatonic;
+pub mod chromatic;
 
 pub use numeral::Numeral7;
 
