@@ -6,6 +6,7 @@ macro_rules! define_scale {
         $(, mode = [$first_var:ident $(, $rest_var:ident)* $(,)?])?
         $(, mode_aliases = [$($mode_alias:ident => $aliased_mode:ident),* $(,)?])?
         $(, typed = $typed:ident)?
+        $(, exact_single = $exact_single:ident)?
         $(, exact = [$($var: ident => $var_name: ident),* $(,)?])?
         // $(, alias = $alias: ident)?
         $(,)?
@@ -21,6 +22,8 @@ macro_rules! define_scale {
             define_scale!(@definition [<$name ScaleDef>], $size, [<$name Mode>], $intervals);
             
             $(define_scale!(@typed $typed, [<$name ScaleDef>], $size);)*
+            
+            $(define_scale!(@define_exact [<$name Scale>], $exact_single, [<$name Mode>], [<$name ScaleDef>], $size);)?
             
             $(define_scale!(@exact [<$name Mode>], [<$name ScaleDef>], $size, [$($var => $var_name),*]);)*
         }
