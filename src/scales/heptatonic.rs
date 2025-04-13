@@ -87,6 +87,11 @@ define_scale!(
     size = 7,
     intervals = [S, A2, S, T, S, A2, S],
     exact_single = I,
+    exact = [
+        III => Ultraphrygian,
+        IV => HungarianMinor,
+        V => Oriental,
+    ]
     // alias = HungarianMinorMode,
 );
 
