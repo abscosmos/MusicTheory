@@ -34,6 +34,16 @@ impl Interval {
             _ => None,
         }
     }
+    
+    pub fn new_maj_or_perfect(number: IntervalNumber) -> Self {
+        let quality = if number.is_perfect() {
+            IntervalQuality::Perfect
+        } else {
+            IntervalQuality::Major
+        };
+        
+        Self { quality, number }
+    }
 
     pub fn strict_non_subzero(quality: IntervalQuality, number: IntervalNumber) -> Option<Self> {
          Self::new(quality, number).filter(|ivl| !ivl.is_subzero())
