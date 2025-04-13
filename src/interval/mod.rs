@@ -1,5 +1,6 @@
 use std::cmp::Ordering;
 use std::fmt;
+use std::iter::Sum;
 use std::num::{NonZeroI16, NonZeroU16, ParseIntError};
 use std::ops::{Add, Neg, Sub};
 use std::str::FromStr;
@@ -317,6 +318,18 @@ impl Neg for Interval {
             number: -self.number,
             .. self
         }
+    }
+}
+
+impl Default for Interval {
+    fn default() -> Self {
+        Interval::PERFECT_UNISON
+    }
+}
+
+impl Sum for Interval {
+    fn sum<I: Iterator<Item=Self>>(iter: I) -> Self {
+        iter.reduce(Add::add).unwrap_or_default()
     }
 }
 
