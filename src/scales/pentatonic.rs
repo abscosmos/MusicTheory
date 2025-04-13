@@ -16,7 +16,7 @@ define_scale!(
     ],
     exact = [
         Major => MajorPentatonic,
-        Suspended => SuspendedPentatonic,
+        Suspended => SuspendedPentatonic, // TODO: alias egyptian scale
         BluesMinor => BluesMinorPentatonic,
         BluesMajor => BluesMajorPentatonic,
         Minor => MinorPentatonic,
