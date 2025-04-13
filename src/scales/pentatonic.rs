@@ -46,3 +46,10 @@ define_scale!(
         IV => JapaneseIn
     ],
 );
+
+define_scale!(
+    name = Balinese,
+    size = 5,
+    intervals = [S, T, TT, S, TT],
+    exact_single = I,
+);
