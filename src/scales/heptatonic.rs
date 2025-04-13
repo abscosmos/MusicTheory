@@ -62,6 +62,9 @@ define_scale!(
     size = 7,
     intervals = [S, T, T, T, T, T, S],
     exact_single = I,
+    exact = [
+        V => MajorLocrian, // TODO: alias algerian scale
+    ],
     // alias = HeptatoniaTertiaMode,
 );
 
