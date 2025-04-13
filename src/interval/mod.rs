@@ -1,5 +1,6 @@
 use std::cmp::Ordering;
 use std::fmt;
+use std::iter::Sum;
 use std::num::{NonZeroI16, NonZeroU16, ParseIntError};
 use std::ops::{Add, Neg, Sub};
 use std::str::FromStr;
@@ -32,6 +33,16 @@ impl Interval {
             Q::Minor | Q::Major if !number.is_perfect() => unchecked,
             _ => None,
         }
+    }
+    
+    pub fn new_maj_or_perfect(number: IntervalNumber) -> Self {
+        let quality = if number.is_perfect() {
+            IntervalQuality::Perfect
+        } else {
+            IntervalQuality::Major
+        };
+        
+        Self { quality, number }
     }
 
     pub fn strict_non_subzero(quality: IntervalQuality, number: IntervalNumber) -> Option<Self> {
@@ -317,6 +328,18 @@ impl Neg for Interval {
             number: -self.number,
             .. self
         }
+    }
+}
+
+impl Default for Interval {
+    fn default() -> Self {
+        Interval::PERFECT_UNISON
+    }
+}
+
+impl Sum for Interval {
+    fn sum<I: Iterator<Item=Self>>(iter: I) -> Self {
+        iter.reduce(Add::add).unwrap_or_default()
     }
 }
 
