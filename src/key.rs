@@ -32,11 +32,19 @@ impl Key {
     }
     
     pub fn from_sharps(sharps: i16, mode: DiatonicMode) -> Self {
-        Self::new(Pitch::from_fifths_from_c(sharps), mode)
+        let offset = Letter::from_repr(mode as u8 - 1)
+            .expect("mode is in [1, 7], so subtracting 1 should be in range")
+            .fifths_from_c();
+        
+        Self::new(Pitch::from_fifths_from_c(sharps).transpose_fifths(offset), mode)
     }
     
     pub fn sharps(self) -> i16 {
-        self.tonic.as_fifths_from_c()
+        let offset = Letter::from_repr(self.mode as u8 - 1)
+            .expect("mode is in [1, 7], so subtracting 1 should be in range")
+            .fifths_from_c();
+        
+        self.tonic.as_fifths_from_c() - offset
     }
     
     pub fn try_from_sharps_tonic(sharps: i16, tonic: Pitch) -> Option<Self> {
