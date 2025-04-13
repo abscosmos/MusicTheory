@@ -73,6 +73,13 @@ define_scale!(
 );
 
 define_scale!(
+    name = HarmonicMajor,
+    size = 7,
+    intervals = [T, T, S, T, S, A2, S],
+    exact_single = I,
+);
+
+define_scale!(
     name = HarmonicMinor,
     size = 7,
     intervals = [T, S, T, T, S, A2, S],
