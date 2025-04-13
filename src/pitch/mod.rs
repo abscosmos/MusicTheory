@@ -153,7 +153,7 @@ impl Pitch {
 
         let dir_offset = if interval.is_ascending() { offset } else { -offset };
 
-        Self::from_fifths_from_c(self.as_fifths_from_c() + dir_offset)
+        self.transpose_fifths(dir_offset)
     }
     
     pub fn distance_to(&self, rhs: &Self) -> Interval {
