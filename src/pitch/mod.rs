@@ -21,17 +21,7 @@ impl Pitch {
     pub fn from_letter_and_accidental(letter: Letter, accidental_sign: AccidentalSign) -> Self {
         let col_offset = accidental_sign.offset;
 
-        let row_offset = match letter {
-            Letter::C => 0,
-            Letter::D => 2,
-            Letter::E => 4,
-            Letter::F => -1,
-            Letter::G => 1,
-            Letter::A => 3,
-            Letter::B => 5,
-        };
-
-        let pitch = row_offset + 7 * col_offset;
+        let pitch = letter.fifths_from_c() + 7 * col_offset;
 
         Self::from_fifths_from_c(pitch)
     }
@@ -153,7 +143,7 @@ impl Pitch {
 
         let dir_offset = if interval.is_ascending() { offset } else { -offset };
 
-        Self::from_fifths_from_c(self.as_fifths_from_c() + dir_offset)
+        self.transpose_fifths(dir_offset)
     }
     
     pub fn distance_to(&self, rhs: &Self) -> Interval {

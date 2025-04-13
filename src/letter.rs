@@ -26,6 +26,18 @@ impl Letter {
     pub fn offset_between(&self, rhs: Self) -> u8 {
         (rhs.step() as i16 - self.step() as i16).rem_euclid(7) as _
     }
+    
+    pub(crate) fn fifths_from_c(self) -> i16 {
+        match self {
+            Self::C => 0,
+            Self::D => 2,
+            Self::E => 4,
+            Self::F => -1,
+            Self::G => 1,
+            Self::A => 3,
+            Self::B => 5,
+        }
+    }
 }
 
 impl fmt::Display for Letter {
