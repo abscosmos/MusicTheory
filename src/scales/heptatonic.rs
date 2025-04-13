@@ -22,12 +22,12 @@ define_scale! {
     ],
     typed = DiatonicScale,
     exact = [
-        Ionian => Major,
+        Ionian => Major, // TODO: alias ionian
         Dorian => Dorian,
         Phrygian => Phrygian,
         Lydian => Lydian,
         Mixolydian => Mixolydian,
-        Aeolian => NaturalMinor,
+        Aeolian => NaturalMinor, // TODO: alias aeolian 
         Locrian => Locrian,
     ]
     // alias = HeptatoniaPrimaMode,
