@@ -13,6 +13,7 @@ pub mod pentatonic;
 pub mod chromatic;
 pub mod hexatonic;
 pub mod octatonic;
+pub mod rooted;
 
 pub use numeral::Numeral7;
 
