@@ -28,6 +28,10 @@ impl DynamicScale {
         
         Some(TypedScale::new(mode))
     }
+
+    pub(crate) fn valid_degree(&self, degree: u8) -> bool {
+        (1..=self.size()).contains(&(degree as _))
+    } 
 }
 
 fn find_rotation<T: PartialEq>(a: &[T], b: &[T]) -> Option<usize> {
