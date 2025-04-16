@@ -5,7 +5,7 @@ use crate::scales::exact_scale::ExactScale;
 use crate::scales::sized_scale::SizedScale;
 
 // const type, variable mode
-#[derive(Debug)]
+#[derive(Default, Debug)]
 pub struct TypedScale<S: ScaleDefinition<N>, const N: usize> {
     mode: S::Mode
 }

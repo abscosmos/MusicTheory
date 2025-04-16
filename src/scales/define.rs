@@ -37,7 +37,7 @@ macro_rules! define_scale {
     
     // support for chromatic 1 mode
     (@try_custom_mode $name: ident, $size:expr, []) => {
-        #[derive(Copy, Clone, Eq, PartialEq, Debug)]
+        #[derive(Copy, Clone, Eq, PartialEq, Default, Debug)]
         pub struct $name;
         
         ::paste::paste! {
@@ -65,8 +65,9 @@ macro_rules! define_scale {
 
     (@custom_mode $name: ident, [$first_var:ident $(, $rest_var:ident)*]) => {
         #[repr(u8)]
-        #[derive(Copy, Clone, Eq, PartialEq, Debug, Ord, PartialOrd, strum_macros::FromRepr)]
+        #[derive(Copy, Clone, Eq, PartialEq, Default, Debug, Ord, PartialOrd, strum_macros::FromRepr)]
         pub enum $name {
+            #[default]
             $first_var = 1,
             $($rest_var),*
         }
@@ -109,7 +110,7 @@ macro_rules! define_scale {
     };
     
     (@define_exact $name:ident, $var:ident, $mode:ident, $def:ident, $size:expr) => {
-        #[derive(Default)]
+        #[derive(Default, Debug)]
         pub struct $name;
         
         impl $crate::scales::exact_scale::ExactScale<$size> for $name {

@@ -33,7 +33,7 @@ pub trait ScaleDefinition<const N: usize>: fmt::Debug {
 }
 
 // TODO(generic_const_exprs): N should eventually become an assoc constant
-pub trait ScaleMode<const N: usize>: Copy { // from base mode
+pub trait ScaleMode<const N: usize>: Copy + Default { // from base mode
     type Base: Numeral<N>;
     
     fn as_num(self) -> u8;
