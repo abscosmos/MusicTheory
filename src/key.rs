@@ -36,7 +36,7 @@ impl Key {
             .expect("mode is in [1, 7], so subtracting 1 should be in range")
             .fifths_from_c();
         
-        Self::new(Pitch::from_fifths_from_c(sharps).transpose_fifths(offset), mode)
+        Self::new(Pitch::from_fifths_from_c(sharps + offset), mode)
     }
     
     pub fn sharps(self) -> i16 {
