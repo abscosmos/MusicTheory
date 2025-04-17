@@ -1,21 +1,22 @@
 use std::ops::Add;
 use crate::interval::Interval;
+use crate::pitch::Pitch;
 use crate::scales::dyn_scale::{DynScale, DynamicScale};
 use crate::scales::numeral::Numeral;
 use crate::scales::sized_scale::SizedScale;
 
-pub struct RootedDynamicScale<R: Clone + Add<Interval, Output = R>> {
+pub struct RootedDynamicScale<R: Clone + Add<Interval, Output = R> + Into<Pitch>> {
     pub root: R,
     pub scale: DynamicScale,
 }
 
 #[derive(Debug)]
-pub struct RootedSizedScale<R: Clone + Add<Interval, Output = R>, const N: usize, S: SizedScale<N>> {
+pub struct RootedSizedScale<R: Clone + Add<Interval, Output = R> + Into<Pitch>, const N: usize, S: SizedScale<N>> {
     pub root: R,
     pub scale: S,
 }
 
-impl<R: Clone + Add<Interval, Output = R>> RootedDynamicScale<R> {
+impl<R: Clone + Add<Interval, Output = R> + Into<Pitch>> RootedDynamicScale<R> {
     pub fn derive_from_degree(degree: R, at: u8, scale: DynamicScale) -> Option<Self> {
         if !scale.valid_degree(at) {
             return None;
@@ -27,7 +28,8 @@ impl<R: Clone + Add<Interval, Output = R>> RootedDynamicScale<R> {
     }
 }
 
-impl<R: Clone + Add<Interval, Output = R>, const N: usize, S: SizedScale<N>> RootedSizedScale<R, N, S> {
+// TODO: is Into<Pitch> the best way to do this?
+impl<R: Clone + Add<Interval, Output = R> + Into<Pitch>, const N: usize, S: SizedScale<N>> RootedSizedScale<R, N, S> {
     pub fn to_dyn(&self) -> RootedDynamicScale<R> {
         RootedDynamicScale {
             root: self.root.clone(),
