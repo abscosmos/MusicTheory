@@ -3,6 +3,7 @@ use std::fmt;
 use std::ops::{Add, Sub};
 use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
 use crate::interval::Interval;
+use crate::letter::Letter;
 use crate::pitch::Pitch;
 use crate::pitch_class::PitchClass;
 use crate::placed::Placed;
@@ -209,6 +210,12 @@ impl fmt::Debug for Note {
 impl From<Note> for Pitch {
     fn from(note: Note) -> Self {
         *note.as_base()
+    }
+}
+
+impl From<Note> for Letter {
+    fn from(note: Note) -> Self {
+        note.letter()
     }
 }
 
