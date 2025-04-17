@@ -15,6 +15,10 @@ impl Note {
     pub const MIDDLE_C: Self = Self { base: Pitch::C, octave: 4 };
     pub const A4: Self = Self { base: Pitch::A, octave: 4 };
     
+    pub fn new(pitch: Pitch, octave: i16) -> Self {
+        Self { base: pitch, octave }
+    }
+    
     pub fn semitones_to(&self, other: &Self) -> Semitone {
         let lhs = self.base.semitones_offset_from_c() + Semitone(self.octave * 12);
 
