@@ -3,6 +3,7 @@ use std::fmt;
 use std::ops::{Add, Sub};
 use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
 use crate::interval::Interval;
+use crate::letter::Letter;
 use crate::pitch::Pitch;
 use crate::pitch_class::PitchClass;
 use crate::placed::Placed;
@@ -14,6 +15,10 @@ pub type Note = Placed<Pitch>;
 impl Note {
     pub const MIDDLE_C: Self = Self { base: Pitch::C, octave: 4 };
     pub const A4: Self = Self { base: Pitch::A, octave: 4 };
+    
+    pub fn new(pitch: Pitch, octave: i16) -> Self {
+        Self { base: pitch, octave }
+    }
     
     pub fn semitones_to(&self, other: &Self) -> Semitone {
         let lhs = self.base.semitones_offset_from_c() + Semitone(self.octave * 12);
@@ -199,6 +204,18 @@ impl fmt::Debug for Note {
             .field("pitch", &self.base)
             .field("octave", &self.octave)
             .finish()
+    }
+}
+
+impl From<Note> for Pitch {
+    fn from(note: Note) -> Self {
+        *note.as_base()
+    }
+}
+
+impl From<Note> for Letter {
+    fn from(note: Note) -> Self {
+        note.letter()
     }
 }
 
