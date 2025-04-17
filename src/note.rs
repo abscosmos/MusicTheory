@@ -202,6 +202,12 @@ impl fmt::Debug for Note {
     }
 }
 
+impl From<Note> for Pitch {
+    fn from(note: Note) -> Self {
+        *note.as_base()
+    }
+}
+
 impl Add<Interval> for Note {
     type Output = Self;
 
