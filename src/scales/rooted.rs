@@ -6,7 +6,7 @@ use crate::scales::dyn_scale::{DynScale, DynamicScale};
 use crate::scales::numeral::Numeral;
 use crate::scales::sized_scale::SizedScale;
 
-pub struct RootedDynamicScale<R: Clone + Add<Interval, Output = R> + Into<Pitch>> {
+pub struct RootedDynamicScale<R: Clone + Add<Interval, Output = R> + Into<Pitch> + PartialOrd> {
     pub root: R,
     pub scale: DynamicScale,
 }
@@ -17,7 +17,7 @@ pub struct RootedSizedScale<R: Clone + Add<Interval, Output = R> + Into<Pitch>, 
     pub scale: S,
 }
 
-impl<R: Clone + Add<Interval, Output = R> + Into<Pitch>> RootedDynamicScale<R> {
+impl<R: Clone + Add<Interval, Output = R> + Into<Pitch> + PartialOrd> RootedDynamicScale<R> {
     pub fn derive_from_degree(degree: R, at: u8, scale: DynamicScale) -> Option<Self> {
         if !scale.valid_degree(at) {
             return None;
@@ -42,7 +42,7 @@ impl<R: Clone + Add<Interval, Output = R> + Into<Pitch>> RootedDynamicScale<R> {
 }
 
 // TODO: is Into<Pitch> the best way to do this?
-impl<R: Clone + Add<Interval, Output = R> + Into<Pitch>, const N: usize, S: SizedScale<N>> RootedSizedScale<R, N, S> {
+impl<R: Clone + Add<Interval, Output = R> + Into<Pitch> + PartialOrd, const N: usize, S: SizedScale<N>> RootedSizedScale<R, N, S> {
     pub fn to_dyn(&self) -> RootedDynamicScale<R> {
         RootedDynamicScale {
             root: self.root.clone(),
@@ -66,6 +66,30 @@ impl<R: Clone + Add<Interval, Output = R> + Into<Pitch>, const N: usize, S: Size
         let scale = self.scale.build_from(self.root.clone().into());
         
         get_scale_degree_and_accidental_inner(target.into(), &scale)
+    }
+    
+    pub fn build_default(&self) -> [R; N] {
+        self.scale.build_from(self.root.clone())
+    }
+    
+    pub fn build(&self, min: R, max: R) -> Vec<R> {
+        let mut gen = self.scale.relative_intervals().into_iter().cycle();
+        
+        let mut built = Vec::new(); // TODO: precalc capacity
+        
+        let mut curr = self.root.clone() + (-Interval::PERFECT_OCTAVE) + (-Interval::PERFECT_OCTAVE) + (-Interval::PERFECT_OCTAVE);
+        
+        while curr < min {
+            curr = curr + gen.next().expect("must have next, since cycling"); 
+        }
+        
+        while curr <= max { // TODO: does this cmp work for pitches?
+            built.push(curr.clone());
+
+            curr = curr + gen.next().expect("must have next, since cycling");
+        }
+        
+        built
     }
 }
 
