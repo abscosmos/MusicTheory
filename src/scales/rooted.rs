@@ -82,7 +82,7 @@ impl<R: Clone + Add<Interval, Output = R> + Into<Pitch> + Ord, const N: usize, S
         
         let mut built = Vec::new(); // TODO: precalc capacity
         
-        let mut curr = Self::move_into_octave_before_target(self.root.clone(), min.clone());
+        let mut curr = move_into_octave_before_target(self.root.clone(), min.clone());
         
         while curr < min {
             curr = curr + gen.next().expect("must have next, since cycling"); 
@@ -113,29 +113,6 @@ impl<R: Clone + Add<Interval, Output = R> + Into<Pitch> + Ord, const N: usize, S
                 )
         }
     }
-
-    // this function is necessary since R's concrete type may have octave or not
-    fn has_octave_information(val: R) -> bool {
-        // if val is the same after transposing up an octave, then it doesn't have octave information
-        val.clone() + Interval::PERFECT_OCTAVE != val
-    }
-    
-    // this function is necessary since can't access R's concrete type's octave information, if it even has it
-    fn move_into_octave_before_target(mut val: R, target: R) -> R {
-        if Self::has_octave_information(val.clone()) {
-            let start = target.clone() + (-Interval::PERFECT_OCTAVE);
-            
-            while val < start {
-                val = val + Interval::PERFECT_OCTAVE;
-            }
-            
-            while val >= target {
-                val = val + (-Interval::PERFECT_OCTAVE);
-            }
-        }
-        
-        val
-    }
 }
 
 fn root_from_degree_inner<R: Clone + Add<Interval, Output = R>>(relative_intervals: &[Interval], degree: R, at: u8) -> R {
@@ -158,4 +135,27 @@ fn get_scale_degree_and_accidental_inner(target: Pitch, scale: &[Pitch]) -> Opti
     let acc = target.accidental().offset - found.accidental().offset;
 
     Some((degree_0 as u8 + 1, AccidentalSign { offset: acc }))
+}
+
+// this function is necessary since R's concrete type may have octave or not
+fn has_octave_information<R: Add<Interval, Output = R> + Clone + Eq>(val: R) -> bool {
+    // if val is the same after transposing up an octave, then it doesn't have octave information
+    val.clone() + Interval::PERFECT_OCTAVE != val
+}
+
+// this function is necessary since can't access R's concrete type's octave information, if it even has it
+fn move_into_octave_before_target<R: Add<Interval, Output = R> + Clone + Eq + Ord>(mut val: R, target: R) -> R {
+    if has_octave_information(val.clone()) {
+        let start = target.clone() + (-Interval::PERFECT_OCTAVE);
+
+        while val < start {
+            val = val + Interval::PERFECT_OCTAVE;
+        }
+
+        while val >= target {
+            val = val + (-Interval::PERFECT_OCTAVE);
+        }
+    }
+
+    val
 }
