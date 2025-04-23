@@ -46,7 +46,7 @@ impl<R: Clone + Add<Interval, Output = R> + Into<Pitch> + PartialOrd> RootedDyna
 }
 
 // TODO: is Into<Pitch> the best way to do this?
-impl<R: Clone + Add<Interval, Output = R> + Into<Pitch> + PartialOrd, const N: usize, S: SizedScale<N>> RootedSizedScale<R, N, S> {
+impl<R: Clone + Add<Interval, Output = R> + Into<Pitch> + Ord, const N: usize, S: SizedScale<N>> RootedSizedScale<R, N, S> {
     pub fn to_dyn(&self) -> RootedDynamicScale<R> {
         RootedDynamicScale {
             root: self.root.clone(),
@@ -95,6 +95,23 @@ impl<R: Clone + Add<Interval, Output = R> + Into<Pitch> + PartialOrd, const N: u
         }
         
         built
+    }
+
+    // TODO: better name to convey that passing a note that's in the scale will return the same note
+    pub fn next_in_scale_after(&self, after: R) -> R {
+        let scale = self.build_default();
+        
+        match scale.binary_search(&after) {
+            Ok(idx) => scale[idx].clone(),
+            Err(insert) => scale.get(insert)
+                .cloned()
+                .unwrap_or(
+                    scale.first()
+                        .expect("scale should have at least one element")
+                        .clone()
+                        + Interval::PERFECT_OCTAVE
+                )
+        }
     }
 }
 
