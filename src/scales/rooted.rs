@@ -113,6 +113,29 @@ impl<R: Clone + Add<Interval, Output = R> + Into<Pitch> + Ord, const N: usize, S
                 )
         }
     }
+
+    // this function is necessary since R's concrete type may have octave or not
+    fn has_octave_information(val: R) -> bool {
+        // if val is the same after transposing up an octave, then it doesn't have octave information
+        val.clone() + Interval::PERFECT_OCTAVE != val
+    }
+    
+    // this function is necessary since can't access R's concrete type's octave information, if it even has it
+    fn move_into_octave_after_target(mut val: R, target: R) -> R {
+        if Self::has_octave_information(val.clone()) {
+            let end = target.clone() + Interval::PERFECT_OCTAVE;
+            
+            while val < target {
+                val = val + Interval::PERFECT_OCTAVE;
+            }
+            
+            while val >= end {
+                val = val + (-Interval::PERFECT_OCTAVE);
+            }
+        }
+        
+        val
+    }
 }
 
 fn root_from_degree_inner<R: Clone + Add<Interval, Output = R>>(relative_intervals: &[Interval], degree: R, at: u8) -> R {
