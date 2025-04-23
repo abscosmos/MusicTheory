@@ -82,7 +82,7 @@ impl<R: Clone + Add<Interval, Output = R> + Into<Pitch> + Ord, const N: usize, S
         
         let mut built = Vec::new(); // TODO: precalc capacity
         
-        let mut curr = self.root.clone() + (-Interval::PERFECT_OCTAVE) + (-Interval::PERFECT_OCTAVE) + (-Interval::PERFECT_OCTAVE);
+        let mut curr = Self::move_into_octave_before_target(self.root.clone(), min.clone());
         
         while curr < min {
             curr = curr + gen.next().expect("must have next, since cycling"); 
