@@ -47,6 +47,10 @@ impl<R: Clone + Add<Interval, Output = R> + Into<Pitch> + Ord> RootedDynamicScal
     pub fn build(&self, min: R, max: R) -> Vec<R> {
         build_inner(self.root.clone(), self.scale.relative_intervals(), min, max)
     }
+
+    pub fn next_in_scale_after(&self, after: R) -> R {
+        next_in_scale_after_inner(&self.build_default(), after)
+    }
 }
 
 // TODO: is Into<Pitch> the best way to do this?
@@ -87,19 +91,7 @@ impl<R: Clone + Add<Interval, Output = R> + Into<Pitch> + Ord, const N: usize, S
 
     // TODO: better name to convey that passing a note that's in the scale will return the same note
     pub fn next_in_scale_after(&self, after: R) -> R {
-        let scale = self.build_default();
-        
-        match scale.binary_search(&after) {
-            Ok(idx) => scale[idx].clone(),
-            Err(insert) => scale.get(insert)
-                .cloned()
-                .unwrap_or(
-                    scale.first()
-                        .expect("scale should have at least one element")
-                        .clone()
-                        + Interval::PERFECT_OCTAVE
-                )
-        }
+        next_in_scale_after_inner(&self.build_default(), after)
     }
 }
 
@@ -143,6 +135,20 @@ fn get_scale_degree_and_accidental_inner(target: Pitch, scale: &[Pitch]) -> Opti
     let acc = target.accidental().offset - found.accidental().offset;
 
     Some((degree_0 as u8 + 1, AccidentalSign { offset: acc }))
+}
+
+fn next_in_scale_after_inner<R: Clone + Add<Interval, Output = R> + Ord>(default_scale: &[R], after: R) -> R {
+    match default_scale.binary_search(&after) {
+        Ok(idx) => default_scale[idx].clone(),
+        Err(insert) => default_scale.get(insert)
+            .cloned()
+            .unwrap_or(
+                default_scale.first()
+                    .expect("scale should have at least one element")
+                    .clone()
+                    + Interval::PERFECT_OCTAVE
+            )
+    }
 }
 
 // this function is necessary since R's concrete type may have octave or not
