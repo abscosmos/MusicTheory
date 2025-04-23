@@ -76,6 +76,7 @@ impl<R: Clone + Add<Interval, Output = R> + Into<Pitch> + PartialOrd, const N: u
         self.scale.build_from(self.root.clone())
     }
     
+    // TODO: should this return Box<[T]> ?
     pub fn build(&self, min: R, max: R) -> Vec<R> {
         let mut gen = self.scale.relative_intervals().into_iter().cycle();
         
