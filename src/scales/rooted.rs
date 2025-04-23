@@ -121,15 +121,15 @@ impl<R: Clone + Add<Interval, Output = R> + Into<Pitch> + Ord, const N: usize, S
     }
     
     // this function is necessary since can't access R's concrete type's octave information, if it even has it
-    fn move_into_octave_after_target(mut val: R, target: R) -> R {
+    fn move_into_octave_before_target(mut val: R, target: R) -> R {
         if Self::has_octave_information(val.clone()) {
-            let end = target.clone() + Interval::PERFECT_OCTAVE;
+            let start = target.clone() + (-Interval::PERFECT_OCTAVE);
             
-            while val < target {
+            while val < start {
                 val = val + Interval::PERFECT_OCTAVE;
             }
             
-            while val >= end {
+            while val >= target {
                 val = val + (-Interval::PERFECT_OCTAVE);
             }
         }
