@@ -39,6 +39,10 @@ impl<R: Clone + Add<Interval, Output = R> + Into<Pitch> + PartialOrd> RootedDyna
 
         get_scale_degree_and_accidental_inner(target.into(), &scale)
     }
+    
+    pub fn build_default(&self) -> Box<[R]> {
+        self.scale.build_from(self.root.clone())
+    }
 }
 
 // TODO: is Into<Pitch> the best way to do this?
