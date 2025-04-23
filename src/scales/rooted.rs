@@ -17,7 +17,7 @@ pub struct RootedSizedScale<R: Clone + Add<Interval, Output = R> + Into<Pitch>, 
     pub scale: S,
 }
 
-impl<R: Clone + Add<Interval, Output = R> + Into<Pitch> + PartialOrd> RootedDynamicScale<R> {
+impl<R: Clone + Add<Interval, Output = R> + Into<Pitch> + Ord> RootedDynamicScale<R> {
     pub fn derive_from_degree(degree: R, at: u8, scale: DynamicScale) -> Option<Self> {
         if !scale.valid_degree(at) {
             return None;
@@ -42,6 +42,10 @@ impl<R: Clone + Add<Interval, Output = R> + Into<Pitch> + PartialOrd> RootedDyna
     
     pub fn build_default(&self) -> Box<[R]> {
         self.scale.build_from(self.root.clone())
+    }
+
+    pub fn build(&self, min: R, max: R) -> Vec<R> {
+        build_inner(self.root.clone(), self.scale.relative_intervals(), min, max)
     }
 }
 
@@ -78,23 +82,7 @@ impl<R: Clone + Add<Interval, Output = R> + Into<Pitch> + Ord, const N: usize, S
     
     // TODO: should this return Box<[T]> ?
     pub fn build(&self, min: R, max: R) -> Vec<R> {
-        let mut gen = self.scale.relative_intervals().into_iter().cycle();
-        
-        let mut built = Vec::new(); // TODO: precalc capacity
-        
-        let mut curr = move_into_octave_before_target(self.root.clone(), min.clone());
-        
-        while curr < min {
-            curr = curr + gen.next().expect("must have next, since cycling"); 
-        }
-        
-        while curr <= max { // TODO: does this cmp work for pitches?
-            built.push(curr.clone());
-
-            curr = curr + gen.next().expect("must have next, since cycling");
-        }
-        
-        built
+        build_inner(self.root.clone(), &self.scale.relative_intervals(), min, max)
     }
 
     // TODO: better name to convey that passing a note that's in the scale will return the same note
@@ -113,6 +101,26 @@ impl<R: Clone + Add<Interval, Output = R> + Into<Pitch> + Ord, const N: usize, S
                 )
         }
     }
+}
+
+fn build_inner<R: Clone + Add<Interval, Output = R> + Ord>(root: R, rel_ivls: &[Interval], min: R, max: R) -> Vec<R> {
+    let mut gen = rel_ivls.iter().cycle();
+
+    let mut built = Vec::new();
+
+    let mut curr = move_into_octave_before_target(root.clone(), min.clone());
+
+    while curr < min {
+        curr = curr + *gen.next().expect("must have next, since cycling");
+    }
+
+    while curr <= max { // TODO: does this cmp work for pitches?
+        built.push(curr.clone());
+
+        curr = curr + *gen.next().expect("must have next, since cycling");
+    }
+
+    built
 }
 
 fn root_from_degree_inner<R: Clone + Add<Interval, Output = R>>(relative_intervals: &[Interval], degree: R, at: u8) -> R {
