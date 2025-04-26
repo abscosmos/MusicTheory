@@ -15,7 +15,7 @@ impl DynamicScale {
     pub fn new(ivls: impl Into<Box<[Interval]>>) -> Option<Self> {
         let ivls = ivls.into();
 
-        let sums_to_octave = ivls.iter().copied().reduce(Add::add) == Some(Interval::PERFECT_OCTAVE);
+        let sums_to_octave = ivls.iter().copied().sum::<Interval>() == Interval::PERFECT_OCTAVE;
 
         sums_to_octave.then_some(Self { ivls })
     }
