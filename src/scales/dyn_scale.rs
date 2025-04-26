@@ -6,7 +6,7 @@ use crate::scales::typed_scale::TypedScale;
 
 // var ty, var mode
 // TODO: Box<dyn Metadata>?
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct DynamicScale {
     ivls: Box<[Interval]>,
 }

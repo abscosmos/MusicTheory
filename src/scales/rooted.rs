@@ -6,13 +6,14 @@ use crate::scales::dyn_scale::{DynScale, DynamicScale};
 use crate::scales::numeral::Numeral;
 use crate::scales::sized_scale::SizedScale;
 
+#[derive(Debug, Clone)]
 pub struct RootedDynamicScale<R: Clone + Add<Interval, Output = R> + Into<Pitch> + PartialOrd> {
     pub root: R,
     pub scale: DynamicScale,
 }
 
-#[derive(Debug)]
-pub struct RootedSizedScale<R: Clone + Add<Interval, Output = R> + Into<Pitch>, const N: usize, S: SizedScale<N>> {
+#[derive(Debug, Clone)]
+pub struct RootedSizedScale<R: Clone + Add<Interval, Output = R> + Into<Pitch>, const N: usize, S: SizedScale<N> + Clone> {
     pub root: R,
     pub scale: S,
 }
@@ -60,7 +61,7 @@ impl<R: Clone + Add<Interval, Output = R> + Into<Pitch> + Ord> RootedDynamicScal
 }
 
 // TODO: is Into<Pitch> the best way to do this?
-impl<R: Clone + Add<Interval, Output = R> + Into<Pitch> + Ord, const N: usize, S: SizedScale<N>> RootedSizedScale<R, N, S> {
+impl<R: Clone + Add<Interval, Output = R> + Into<Pitch> + Ord, const N: usize, S: SizedScale<N> + Clone> RootedSizedScale<R, N, S> {
     pub fn to_dyn(&self) -> RootedDynamicScale<R> {
         RootedDynamicScale {
             root: self.root.clone(),
