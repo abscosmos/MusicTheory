@@ -58,6 +58,13 @@ impl<R: Clone + Add<Interval, Output = R> + Into<Pitch> + Ord> RootedDynamicScal
             .valid_degree(degree)
             .then(|| get_inner(self.scale.relative_intervals(), self.root.clone(), degree))
     }
+
+    pub fn transpose(&self, interval: Interval) -> Self {
+        Self {
+            root: self.root.clone() + interval,
+            scale: self.scale.clone(),
+        }
+    }
 }
 
 // TODO: is Into<Pitch> the best way to do this?
@@ -103,6 +110,13 @@ impl<R: Clone + Add<Interval, Output = R> + Into<Pitch> + Ord, const N: usize, S
     
     pub fn get(&self, degree: impl Numeral<N>) -> R {
         get_inner(&self.scale.relative_intervals(), self.root.clone(), degree.as_num())
+    }
+    
+    pub fn transpose(&self, interval: Interval) -> Self {
+        Self {
+            root: self.root.clone() + interval,
+            scale: self.scale.clone(),
+        }
     }
 }
 
