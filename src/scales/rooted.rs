@@ -51,6 +51,12 @@ impl<R: Clone + Add<Interval, Output = R> + Into<Pitch> + Ord> RootedDynamicScal
     pub fn next_in_scale_after(&self, after: R) -> R {
         next_in_scale_after_inner(&self.build_default(), after)
     }
+
+    pub fn get(&self, degree: u8) -> Option<R> {
+        self.scale
+            .valid_degree(degree)
+            .then(|| get_inner(self.scale.relative_intervals(), self.root.clone(), degree))
+    }
 }
 
 // TODO: is Into<Pitch> the best way to do this?
@@ -92,6 +98,10 @@ impl<R: Clone + Add<Interval, Output = R> + Into<Pitch> + Ord, const N: usize, S
     // TODO: better name to convey that passing a note that's in the scale will return the same note
     pub fn next_in_scale_after(&self, after: R) -> R {
         next_in_scale_after_inner(&self.build_default(), after)
+    }
+    
+    pub fn get(&self, degree: impl Numeral<N>) -> R {
+        get_inner(&self.scale.relative_intervals(), self.root.clone(), degree.as_num())
     }
 }
 
@@ -149,6 +159,14 @@ fn next_in_scale_after_inner<R: Clone + Add<Interval, Output = R> + Ord>(default
                     + Interval::PERFECT_OCTAVE
             )
     }
+}
+
+#[inline]
+fn get_inner<R: Add<Interval, Output = R>>(rel_ivls: &[Interval], start: R, degree: u8) -> R {
+    rel_ivls[..(degree - 1) as _]
+        .iter()
+        .copied()
+        .fold(start, Add::add)
 }
 
 // this function is necessary since R's concrete type may have octave or not
