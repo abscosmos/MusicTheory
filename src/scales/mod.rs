@@ -21,6 +21,15 @@ pub(crate) use build_from::*;
 use crate::scales::numeral::Numeral;
 // TODO: proper derives for all scale items
 
+/*
+TODO:
+    The current implementation focuses heavily on being very strongly typed,
+    but this makes it hard to develop new scale features and even harder to
+    use in general. A future rework should result in only ONE Scale type,
+    and perhaps another type of scale which contains extra metadata about
+    how the scale was built? 
+*/
+
 const T: Interval = Interval::MAJOR_SECOND;
 const S: Interval = Interval::MINOR_SECOND;
 const TS: Interval = Interval::MINOR_THIRD;
