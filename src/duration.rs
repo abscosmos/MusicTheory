@@ -1,3 +1,4 @@
+#[derive(Debug, Copy, Clone)]
 pub struct WrittenDuration {
     log_len: i8,
     dots: u8,
