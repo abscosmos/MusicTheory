@@ -2,7 +2,10 @@ use crate::accidental::AccidentalSign;
 use crate::interval::Interval;
 use crate::letter::Letter;
 use crate::pitch::Pitch;
-use crate::scales::heptatonic::{DiatonicMode, HeptatonicScaleModes};
+use crate::scales::heptatonic::{DiatonicMode, DiatonicScale};
+use crate::scales::rooted::RootedSizedScale;
+use crate::scales::{Numeral7, ScaleMode};
+use crate::scales::sized_scale::SizedScale;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub struct Key {
@@ -50,12 +53,12 @@ impl Key {
     pub fn try_from_sharps_tonic(sharps: i16, tonic: Pitch) -> Option<Self> {
         let major_tonic = Pitch::from_fifths_from_c(sharps);
 
-        let pos = DiatonicMode::MAJOR
+        let pos = DiatonicScale::new(DiatonicMode::MAJOR)
             .build_from(major_tonic)
             .iter()
             .position(|p| *p == tonic)?;
 
-        let mode = DiatonicMode::from_number((pos + 1) as _)
+        let mode = DiatonicMode::from_num((pos + 1) as _)
             .expect("should be within [1,7]");
         
         Some(Self::new(tonic, mode))
@@ -89,21 +92,15 @@ impl Key {
         )
     }
     
-    pub fn from_pitch_degree(degree: ScaleDegree, pitch: Pitch, mode: DiatonicMode) -> Self {
+    pub fn from_pitch_degree(degree: Numeral7, pitch: Pitch, mode: DiatonicMode) -> Self {
         let offset = degree as u8 - 1;
         
         let letter_step = (pitch.letter().step() + 7 - offset) % 7;
         
         let letter = Letter::from_step(letter_step)
             .expect("must be in range of [0,6]");
-        
-        let natural = Pitch::from(letter);
-        
-        let scale = mode.build_from(natural);
-        
-        let expect = *scale
-            .get(offset as usize)
-            .expect("offset must be within [0,7)");
+
+        let expect = RootedSizedScale { root: Pitch::from(letter), scale: DiatonicScale::new(mode) }.get(degree);
         
         assert_eq!(
             pitch.letter(), expect.letter(),
@@ -123,23 +120,28 @@ impl Key {
     }
     
     pub fn alterations(&self) -> Vec<Pitch> {
-        let mut accidentals = self.mode
-            .build_from(self.tonic)
+        let mut accidentals = self.scale()
+            .build_default()
             .into_iter()
             .filter(|a| a.accidental() != AccidentalSign::NATURAL)
             .collect::<Vec<_>>();
         
         accidentals.sort_unstable_by_key(Pitch::as_fifths_from_c);
+
+        assert_eq!(
+            accidentals.iter().map(|p| p.accidental().offset).sum::<i16>(), self.sharps(),
+            "total accidentals should equal sharps of key"
+        );
         
         accidentals
     }
     
     pub fn accidental_of(&self, letter: Letter) -> AccidentalSign {
-        let pitch = *self.mode
-            .build_from(self.tonic)
-            .get(self.tonic.letter().offset_between(letter) as usize)
-            .expect("should be in range");
-        
+        let degree = Numeral7::from_num(self.tonic.letter().offset_between(letter) + 1)
+            .expect("offset should be in range");
+
+        let pitch = self.scale().get(degree);
+
         assert_eq!(
             pitch.letter(), letter,
             "should have gotten the correct letter"
@@ -148,25 +150,16 @@ impl Key {
         pitch.accidental()
     }
     
-    pub fn relative_pitch(self, degree: ScaleDegree) -> Pitch {
-        self.mode
-            .build_from(self.tonic)
-            .get((degree as u8 - 1) as usize)
-            .copied()
-            .expect("index must be in range")
+    pub fn relative_pitch(self, degree: Numeral7) -> Pitch {
+        self.scale().get(degree)
+    }
+
+    pub fn scale(&self) -> RootedSizedScale<Pitch, 7, DiatonicScale> {
+        RootedSizedScale {
+            root: self.tonic,
+            scale: DiatonicScale::new(self.mode),
+        }
     }
     
     // TODO: add tonaljs's scale methods once we implement scales properly
-}
-
-#[repr(u8)]
-#[derive(Copy, Clone, Debug, Ord, PartialOrd, PartialEq, Eq, strum_macros::FromRepr)]
-pub enum ScaleDegree {
-    I = 1,
-    II,
-    III,
-    IV,
-    V,
-    VI,
-    VII,
 }
