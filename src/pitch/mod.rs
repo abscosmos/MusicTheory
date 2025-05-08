@@ -162,10 +162,6 @@ impl Pitch {
         Self::from_letter_and_accidental(letter, accidental)
     }
 
-    pub fn to_note_in_key(&self, key: ()) {
-        todo!()
-    }
-
     pub fn transpose_fifths(&self, fifths: i16) -> Self {
         let curr = self.as_fifths_from_c();
 
