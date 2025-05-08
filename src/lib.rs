@@ -11,6 +11,7 @@ pub mod letter;
 pub mod scales;
 pub mod key;
 pub mod analyze;
+pub mod duration;
 /*
 TODO:
     - add prelude
