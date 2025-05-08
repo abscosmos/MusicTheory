@@ -1,3 +1,4 @@
+use std::array;
 use crate::accidental::AccidentalSign;
 use crate::interval::Interval;
 use crate::letter::Letter;
@@ -161,5 +162,16 @@ impl Key {
         }
     }
     
-    // TODO: add tonaljs's scale methods once we implement scales properly
+    pub fn chord_scales(&self) -> [RootedSizedScale<Pitch, 7, DiatonicScale>; 7] {
+        let scale = self.scale().build_default();
+        
+        array::from_fn(|i| {
+            let mode = DiatonicMode::from_num((self.mode.as_num() - 1 + i as u8) % 7 + 1)
+                .expect("should be in [1, 7]");
+            
+            let root = *scale.get(i).expect("scale and ret array should be the same size");
+            
+            RootedSizedScale { root, scale: DiatonicScale::new(mode) }
+        })
+    }
 }
