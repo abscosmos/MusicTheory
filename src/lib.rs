@@ -10,6 +10,7 @@ pub mod pitch;
 pub mod letter;
 pub mod scales;
 pub mod key;
+pub mod analyze;
 /*
 TODO:
     - add prelude

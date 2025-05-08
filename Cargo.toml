@@ -3,9 +3,14 @@ name = "music_theory"
 version = "0.1.0"
 edition = "2021"
 
+[workspace]
+members = ["mt_macros"]
+resolver = "2"
+
 [dependencies]
 strum = "0.26.3"
 strum_macros = "0.26.4"
 thiserror = "1.0.63"
 regex = "1.10.6"
 paste = "1.0.15"
+mt_macros = { path = "mt_macros" }

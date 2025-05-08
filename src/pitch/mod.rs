@@ -256,6 +256,12 @@ impl From<Pitch> for PitchClass {
     }
 }
 
+impl From<Pitch> for Letter {
+    fn from(pitch: Pitch) -> Self {
+        pitch.letter()
+    }
+}
+
 #[derive(Debug, thiserror::Error)]
 #[error("The string could not be converted to a pitch")]
 pub struct PitchFromStrError;
