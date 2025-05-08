@@ -1,3 +1,5 @@
+use num_rational::Ratio;
+
 #[derive(Debug, Copy, Clone)]
 pub struct WrittenDuration {
     log_len: i8,
@@ -22,3 +24,6 @@ impl WrittenDuration {
         Self { log_len, dots: 0 }
     }
 }
+
+// TODO: change name to avoid collision with std::time::Duration?
+pub struct Duration(Ratio<u32>);
