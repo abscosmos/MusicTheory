@@ -88,7 +88,7 @@ macro_rules! define_scale {
     };
     
     (@definition $def_name:ident, $size:expr, $mode_name:ident, $intervals:expr) => {
-        #[derive(Debug)]
+        #[derive(Debug, Copy, Clone)]
         pub struct $def_name;
     
         impl $crate::scales::ScaleDefinition<$size> for $def_name {
