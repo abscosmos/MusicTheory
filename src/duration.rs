@@ -23,6 +23,10 @@ impl WrittenDuration {
     pub const fn from_log_len(log_len: i8) -> Self {
         Self { log_len, dots: 0 }
     }
+    
+    pub const fn with_dots(self, dots: u8) -> Self {
+        Self { dots, ..self }
+    }
 }
 
 // TODO: change name to avoid collision with std::time::Duration?
