@@ -56,4 +56,5 @@ impl WrittenDuration {
 }
 
 // TODO: change name to avoid collision with std::time::Duration?
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub struct Duration(Ratio<u32>);
