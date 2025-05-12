@@ -5,15 +5,17 @@ use std::num::{NonZeroI16, NonZeroU16, ParseIntError};
 use std::ops::{Add, Neg, Sub};
 use std::str::FromStr;
 use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
-use crate::interval::number::IntervalNumber;
-use crate::interval::quality::{IntervalQuality, ParseIntervalQualityErr};
 use crate::note::Note;
 use crate::pitch::Pitch;
 use crate::semitone::Semitone;
 
-pub mod quality;
-pub mod number;
-pub mod consts;
+mod quality;
+pub use quality::*;
+
+mod number;
+pub use number::*;
+
+mod consts;
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub struct Interval {

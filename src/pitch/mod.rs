@@ -5,7 +5,7 @@ use std::str::FromStr;
 use regex::Regex;
 use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
 use crate::interval::Interval;
-use crate::interval::quality::IntervalQuality;
+use crate::interval::IntervalQuality;
 use crate::accidental::AccidentalSign;
 use crate::letter::Letter;
 use crate::pitch_class::PitchClass;
