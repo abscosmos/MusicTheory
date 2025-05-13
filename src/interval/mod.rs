@@ -296,7 +296,7 @@ impl Interval {
     }
     
     pub fn neg_preserve_perfect_unison(&self) -> Self {
-        if *self == Self::PERFECT_UNISON {
+        if self.abs() == Self::PERFECT_UNISON {
             *self
         } else {
             -*self
