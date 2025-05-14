@@ -1,7 +1,7 @@
 use std::ops::Add;
 use crate::interval::Interval;
 use crate::scales;
-use crate::scales::dyn_scale::{DynScale, DynamicScale};
+use crate::scales::dyn_scale::DynamicScale;
 use crate::scales::numeral::Numeral;
 
 // TODO(generic_const_exprs): N should eventually become an assoc constant

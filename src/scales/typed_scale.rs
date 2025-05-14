@@ -1,6 +1,6 @@
 use crate::interval::Interval;
 use crate::scales::{ScaleDefinition, ScaleMode};
-use crate::scales::dyn_scale::{DynScale, DynamicScale};
+use crate::scales::dyn_scale::DynamicScale;
 use crate::scales::exact_scale::ExactScale;
 use crate::scales::sized_scale::SizedScale;
 

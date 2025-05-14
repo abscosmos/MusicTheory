@@ -44,7 +44,7 @@ impl Pitch {
             n => n - 1,
         } + semitone_offset;
 
-        let semitones_from_c: u8 = semitones_from_c
+        let semitones_from_c = semitones_from_c
             .rem_euclid(12)
             .try_into()
             .expect("i8::rem_euclid(12) must be [0, 12)");

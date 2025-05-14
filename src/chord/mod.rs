@@ -1,5 +1,5 @@
 use crate::chord::types::ChordType;
-use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
+use crate::enharmonic::EnharmonicOrd;
 use crate::interval::Interval;
 use crate::pitch::Pitch;
 
@@ -55,7 +55,7 @@ impl Chord {
 
     pub fn set_inversion(&mut self, inversion: u8) -> Result<(), InvalidInversion> {
         if inversion as usize >= self.intervals.len() {
-            return Err(InvalidInversion { intervals: self.intervals.len() as _, attempted: inversion });
+            Err(InvalidInversion { intervals: self.intervals.len() as _, attempted: inversion })
         } else {
             self.inversion = inversion as _;
             Ok(())
