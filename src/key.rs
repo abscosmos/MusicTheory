@@ -36,7 +36,7 @@ impl Key {
     }
     
     pub fn from_sharps(sharps: i16, mode: DiatonicMode) -> Self {
-        let offset = Letter::from_repr(mode as u8 - 1)
+        let offset = Letter::from_step(mode as u8 - 1)
             .expect("mode is in [1, 7], so subtracting 1 should be in range")
             .fifths_from_c();
         
@@ -44,7 +44,7 @@ impl Key {
     }
     
     pub fn sharps(self) -> i16 {
-        let offset = Letter::from_repr(self.mode as u8 - 1)
+        let offset = Letter::from_step(self.mode as u8 - 1)
             .expect("mode is in [1, 7], so subtracting 1 should be in range")
             .fifths_from_c();
         
