@@ -152,19 +152,7 @@ impl Pitch {
     pub fn distance_to(self, rhs: Self) -> Interval {
         Interval::between_pitches(self, rhs)
     }
-
-    pub fn with_accidental(self, accidental: AccidentalSign) -> Self {
-        let letter = self.letter();
-
-        Self::from_letter_and_accidental(letter, accidental)
-    }
-
-    pub fn with_letter(self, letter: Letter) -> Self {
-        let accidental = self.accidental();
-
-        Self::from_letter_and_accidental(letter, accidental)
-    }
-
+    
     pub fn transpose_fifths(self, fifths: i16) -> Self {
         let curr = self.as_fifths_from_c();
 
