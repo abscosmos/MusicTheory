@@ -17,3 +17,5 @@ pub use crate::letter::*;
 pub use crate::key::*;
 pub use crate::enharmonic::*;
 pub use crate::accidental::*;
+pub use crate::pitch_class::*;
+pub use crate::semitone::*;
