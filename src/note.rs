@@ -11,7 +11,7 @@ use crate::semitone::Semitone;
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub struct Note {
     pub pitch: Pitch,
-    pub octave: i16, // TODO: might change this to i8
+    pub octave: i16,
 }
 
 impl Note {
