@@ -23,3 +23,10 @@ fn simplify() {
         }
     }
 }
+
+#[test]
+fn semitones_offset_from_c() {
+    for pitch in Pitch::ALL_CONSTS {
+        assert_eq!(pitch.semitones_offset_from_c(), pitch.semitones_to(Pitch::C), "pitch={pitch}");
+    }
+}
