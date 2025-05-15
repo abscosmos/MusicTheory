@@ -127,7 +127,7 @@ impl Key {
             .filter(|a| a.accidental() != AccidentalSign::NATURAL)
             .collect::<Vec<_>>();
         
-        accidentals.sort_unstable_by_key(Pitch::as_fifths_from_c);
+        accidentals.sort_unstable_by_key(|p| p.as_fifths_from_c());
 
         assert_eq!(
             accidentals.iter().map(|p| p.accidental().offset).sum::<i16>(), self.sharps(),

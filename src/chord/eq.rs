@@ -29,7 +29,7 @@ impl Chord {
         self.eq_helper(
             rhs,
             &std::convert::identity,
-            &mut Pitch::as_fifths_from_c
+            &mut |p| p.as_fifths_from_c()
         )
     }
 }
