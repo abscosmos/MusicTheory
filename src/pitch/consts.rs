@@ -12,6 +12,7 @@ macro_rules! define_pitches {
     };
 }
 
+#[doc(hidden)]
 impl Pitch {
     define_pitches! {
         F_DOUBLE_FLAT = -15,
