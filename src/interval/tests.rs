@@ -455,7 +455,7 @@ fn between_notes_transpose_inverses() {
                 let end = start.transpose(ivl);
 
                 assert_eq!(
-                    start.semitones_to(&end), ivl.semitones(),
+                    start.semitones_to(end), ivl.semitones(),
                     "{start} -> {end} should span {} semitones", ivl.semitones().0
                 );
 
