@@ -11,7 +11,7 @@ use crate::letter::Letter;
 use crate::pitch_class::PitchClass;
 use crate::semitone::Semitone;
 
-pub mod consts;
+mod consts;
 
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub struct Pitch(pub i16);
