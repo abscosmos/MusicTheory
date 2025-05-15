@@ -128,7 +128,7 @@ impl Pitch {
             5 => 8,
             6 => 10,
             7 => 12,
-            _ => unreachable!("a simple interval can't be bigger than a octave")
+            _ => unreachable!("a simple interval can't be bigger than an octave")
         };
 
         let quality_offset = match interval.quality() {
