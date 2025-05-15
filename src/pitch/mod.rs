@@ -254,7 +254,7 @@ impl From<Pitch> for Letter {
 }
 
 #[derive(Debug, thiserror::Error)]
-#[error("The string could not be converted to a pitch")]
+#[error("The str could not be converted to a pitch")]
 pub struct PitchFromStrError;
 
 // TODO: add support for pitches like F(25x)Flat
