@@ -105,11 +105,11 @@ impl Pitch {
     }
 
     pub fn simplified(self) -> Self {
-        self.as_pitch_class().bias(self.accidental().offset > 0)
+        self.bias(self.accidental().offset > 0)
     }
 
     pub fn enharmonic(self) -> Self {
-        self.as_pitch_class().bias(self.accidental().offset < 0)
+        self.bias(self.accidental().offset < 0)
     }
     
     // TODO: should this function simplify if called with G## & true?
