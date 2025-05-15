@@ -62,7 +62,7 @@ impl Interval {
             Ordering::Greater => (rhs, lhs, true),
         };
         
-        let base_interval = Self::between_pitches(lhs.base, rhs.base);
+        let base_interval = Self::between_pitches(lhs.pitch, rhs.pitch);
 
         let diff = lhs.semitones_to(&rhs) - base_interval.semitones();
 
