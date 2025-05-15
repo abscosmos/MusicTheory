@@ -2,6 +2,7 @@ use std::cmp::Ordering;
 use std::fmt;
 use std::ops::{Add, Sub};
 use std::str::FromStr;
+use std::sync::LazyLock;
 use regex::Regex;
 use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
 use crate::interval::Interval;
@@ -263,10 +264,12 @@ impl FromStr for Pitch {
     type Err = PitchFromStrError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let re = Regex::new(r"(?i)^([A-G])\s?((?-i)b|(?-i)bb|(?i)sharp|♯|\+|\++|#|##|♯♯|𝄪|flat|♭|-|--|♭♭|𝄫|double\s?sharp|double\s?flat)?$")
-            .expect("valid regex");
+        static REGEX: LazyLock<Regex> = LazyLock::new(||
+            Regex::new(r"(?i)^([A-G])\s?((?-i)b|(?-i)bb|(?i)sharp|♯|\+|\++|#|##|♯♯|𝄪|flat|♭|-|--|♭♭|𝄫|double\s?sharp|double\s?flat)?$")
+                .expect("valid regex")
+        );
 
-        let caps = re.captures(s)
+        let caps = REGEX.captures(s)
             .ok_or(PitchFromStrError)?;
 
         let letter = caps.get(1)
