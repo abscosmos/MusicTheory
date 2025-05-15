@@ -17,7 +17,7 @@ mod consts;
 mod tests;
 
 #[derive(Copy, Clone, Eq, PartialEq)]
-pub struct Pitch(pub i16);
+pub struct Pitch(i16);
 
 // TODO: change taking in &self -> self
 impl Pitch {
