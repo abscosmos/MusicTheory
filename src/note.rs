@@ -1,39 +1,40 @@
 use std::cmp::Ordering;
 use std::fmt;
-use std::ops::{Add, Sub};
+use std::ops::{Add, Deref, DerefMut, Sub};
 use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
 use crate::interval::Interval;
 use crate::letter::Letter;
 use crate::pitch::Pitch;
 use crate::pitch_class::PitchClass;
-use crate::placed::Placed;
 use crate::semitone::Semitone;
 
-// TODO: remove this unnecessary abstraction
-pub type Note = Placed<Pitch>;
+#[derive(Copy, Clone, Eq, PartialEq, Debug)]
+pub struct Note {
+    pub pitch: Pitch,
+    pub octave: i16,
+}
 
-// TODO: change taking in &self -> self
 impl Note {
-    pub const MIDDLE_C: Self = Self { base: Pitch::C, octave: 4 };
-    pub const A4: Self = Self { base: Pitch::A, octave: 4 };
+    pub const MIDDLE_C: Self = Self { pitch: Pitch::C, octave: 4 };
+    pub const A4: Self = Self { pitch: Pitch::A, octave: 4 };
     
     pub fn new(pitch: Pitch, octave: i16) -> Self {
-        Self { base: pitch, octave }
+        Self { pitch, octave }
     }
     
-    pub fn semitones_to(&self, other: &Self) -> Semitone {
-        let lhs = self.base.semitones_offset_from_c() + Semitone(self.octave * 12);
+    pub fn semitones_to(self, other: Self) -> Semitone {
+        let lhs = self.pitch.semitones_offset_from_c() + Semitone(self.octave * 12);
 
-        let rhs = other.base.semitones_offset_from_c() + Semitone(other.octave * 12);
+        let rhs = other.pitch.semitones_offset_from_c() + Semitone(other.octave * 12);
 
         rhs - lhs
     }
 
-    pub fn distance_to(&self, other: &Self) -> Interval {
-        Interval::between_notes(*self, *other)
+    pub fn distance_to(self, other: Self) -> Interval {
+        Interval::between_notes(self, other)
     }
-
-    // TODO: should this return Placed<PitchClass>?
+    
+    // TODO: this includes spelling, when it probably shouldn't
     pub fn from_frequency_hz(hz: f32) -> Option<Self> {
         if hz <= 0.0 || !hz.is_finite() {
             return None;
@@ -56,7 +57,7 @@ impl Note {
         let pitch = PitchClass::from_repr(pitch)
             .expect("i32::rem_euclid(12) must be within [0,12)");
 
-        Some( Self { base: Pitch::from(pitch), octave } )
+        Some( Self { pitch: Pitch::from(pitch), octave } )
     }
 
     /*
@@ -67,21 +68,19 @@ impl Note {
             - well temperament
             - equal temperament
     */ 
-    pub fn as_frequency_hz(&self) -> f32 {
+    pub fn as_frequency_hz(self) -> f32 {
         let semitones_from_a4 = Self::A4.semitones_to(self);
 
         440.0 * 2.0_f32.powf(semitones_from_a4.0 as f32 / 12.0)
     }
 
-    pub fn transpose(&self, interval: Interval) -> Self {
-        let new_pitch = self.base.transpose(interval);
-
+    pub fn transpose(self, interval: Interval) -> Self {
         let unchecked = Self {
-            base: new_pitch,
+            pitch: self.pitch + interval,
             octave: self.octave,
         };
 
-        let edit = self.semitones_to(&unchecked) - interval.semitones();
+        let edit = self.semitones_to(unchecked) - interval.semitones();
 
         Self {
             octave: unchecked.octave - edit.0.div_euclid(12),
@@ -89,12 +88,12 @@ impl Note {
         }
     }
 
-    pub fn bias(&self, sharp: bool) -> Self {
-        let base = self.base.bias(sharp);
+    pub fn bias(self, sharp: bool) -> Self {
+        let base = self.pitch.bias(sharp);
 
-        let unchecked = Self { base, .. *self };
+        let unchecked = Self { pitch: base, ..self };
 
-        let octave_offset = self.semitones_to(&unchecked).0.div_euclid(12);
+        let octave_offset = self.semitones_to(unchecked).0.div_euclid(12);
 
         Self {
             octave: unchecked.octave - octave_offset,
@@ -102,12 +101,12 @@ impl Note {
         }
     }
     
-    pub fn simplified(&self) -> Self {
-        let base = self.base.simplified();
+    pub fn simplified(self) -> Self {
+        let base = self.pitch.simplified();
 
-        let unchecked = Self { base, .. *self };
+        let unchecked = Self { pitch: base, ..self };
 
-        let octave_offset = self.semitones_to(&unchecked).0.div_euclid(12);
+        let octave_offset = self.semitones_to(unchecked).0.div_euclid(12);
 
         Self {
             octave: unchecked.octave - octave_offset,
@@ -115,8 +114,8 @@ impl Note {
         }
     }
 
-    pub fn as_midi(&self) -> Option<u8> {
-        let zero = Note { base: Pitch::C, octave: -1 };
+    pub fn as_midi(self) -> Option<u8> {
+        let zero = Note { pitch: Pitch::C, octave: -1 };
 
         zero.semitones_to(self)
             .0
@@ -124,7 +123,7 @@ impl Note {
             .ok()
     }
     
-    pub fn as_midi_strict(&self) -> Option<u8> {
+    pub fn as_midi_strict(self) -> Option<u8> {
         self.as_midi().filter(|&m| m < 128)
     }
 
@@ -134,22 +133,20 @@ impl Note {
         let oct = midi / 12;
 
         Self {
-            base: pitch.into(),
+            pitch: pitch.into(),
             octave: oct as i16 - 1,
         }
     }
 
-    pub fn transpose_fifths(&self, fifths: i16) -> Self {
-        let new_pitch = self.base.transpose_fifths(fifths);
-
+    pub fn transpose_fifths(self, fifths: i16) -> Self {
         let unchecked = Self {
-            base: new_pitch,
+            pitch: self.pitch.transpose_fifths(fifths),
             octave: self.octave,
         };
 
         let interval_semi = Semitone(7 * fifths);
 
-        let edit = self.semitones_to(&unchecked) - interval_semi;
+        let edit = self.semitones_to(unchecked) - interval_semi;
 
         Self {
             octave: unchecked.octave - edit.0.div_euclid(12),
@@ -169,7 +166,7 @@ impl Ord for Note {
         self.octave
             .cmp(&rhs.octave)
             .then(
-                self.base.cmp(&rhs.base)
+                self.pitch.cmp(&rhs.pitch)
             )
     }
 }
@@ -182,35 +179,26 @@ impl EnharmonicOrd for Note {
         lhs.octave
             .cmp(&rhs.octave)
             .then(
-                lhs.base.as_pitch_class().cmp(&rhs.base.as_pitch_class())
+                lhs.pitch.as_pitch_class().cmp(&rhs.pitch.as_pitch_class())
             )
     }
 }
 
 impl EnharmonicEq for Note {
     fn eq_enharmonic(&self, rhs: &Self) -> bool {
-        self.semitones_to(rhs).0 == 0
+        self.semitones_to(*rhs).0 == 0
     }
 }
 
 impl fmt::Display for Note {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}{}", self.base, self.octave)
-    }
-}
-
-impl fmt::Debug for Note {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("Note")
-            .field("pitch", &self.base)
-            .field("octave", &self.octave)
-            .finish()
+        write!(f, "{}{}", self.pitch, self.octave)
     }
 }
 
 impl From<Note> for Pitch {
     fn from(note: Note) -> Self {
-        *note.as_base()
+        note.pitch
     }
 }
 
@@ -233,6 +221,21 @@ impl Sub<Interval> for Note {
 
     fn sub(self, rhs: Interval) -> Self::Output {
         self + (-rhs)
+    }
+}
+
+// TODO: reevaluate if Note should Deref[Mut] into Pitch 
+impl Deref for Note {
+    type Target = Pitch;
+
+    fn deref(&self) -> &Self::Target {
+        &self.pitch
+    }
+}
+
+impl DerefMut for Note {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.pitch
     }
 }
 

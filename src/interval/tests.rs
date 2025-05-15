@@ -450,7 +450,7 @@ fn between_notes_transpose_inverses() {
     for &ivl in Interval::ALL_CONSTS {
         for pitch_start in Pitch::ALL_CONSTS {
             for octave in -3..=3 {
-                let start = Note { base: *pitch_start, octave };
+                let start = Note { pitch: *pitch_start, octave };
 
                 let end = start.transpose(ivl);
 
