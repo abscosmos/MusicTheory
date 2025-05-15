@@ -253,7 +253,7 @@ impl From<Pitch> for Letter {
     }
 }
 
-#[derive(Debug, thiserror::Error)]
+#[derive(Debug, thiserror::Error, Eq, PartialEq, Copy, Clone)]
 #[error("The str could not be converted to a pitch")]
 pub struct PitchFromStrError;
 
