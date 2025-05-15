@@ -9,6 +9,7 @@ use crate::pitch_class::PitchClass;
 use crate::placed::Placed;
 use crate::semitone::Semitone;
 
+// TODO: remove this unnecessary abstraction
 pub type Note = Placed<Pitch>;
 
 // TODO: change taking in &self -> self

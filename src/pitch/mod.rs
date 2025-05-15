@@ -5,13 +5,16 @@ use std::str::FromStr;
 use regex::Regex;
 use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
 use crate::interval::Interval;
-use crate::interval::quality::IntervalQuality;
+use crate::interval::IntervalQuality;
 use crate::accidental::AccidentalSign;
 use crate::letter::Letter;
 use crate::pitch_class::PitchClass;
 use crate::semitone::Semitone;
 
-pub mod consts;
+mod consts;
+
+#[cfg(test)]
+mod tests;
 
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub struct Pitch(pub i16);
@@ -319,34 +322,5 @@ impl Sub<Interval> for Pitch {
 
     fn sub(self, rhs: Interval) -> Self::Output {
         self + (-rhs)
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use strum::IntoEnumIterator;
-    use crate::accidental::AccidentalSign;
-    use crate::enharmonic::EnharmonicEq;
-    use crate::letter::Letter;
-    use crate::pitch::Pitch;
-
-    #[test]
-    fn simplify() {
-        for offset in -5..5 {
-            for letter in Letter::iter() {
-                let acc = AccidentalSign { offset };
-
-                let pitch = Pitch::from_letter_and_accidental(letter, acc);
-
-                let simplified = pitch.simplified();
-
-                assert!(
-                    pitch.eq_enharmonic(&simplified),
-                    "{pitch:?} ({:?}), {simplified:?} ({:?})",
-                    pitch.as_pitch_class(),
-                    simplified.as_pitch_class()
-                );
-            }
-        }
     }
 }

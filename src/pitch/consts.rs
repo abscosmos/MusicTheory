@@ -4,7 +4,9 @@ macro_rules! define_pitches {
     ($($name:ident = $value:expr),* $(,)?) => {
         $(pub const $name: Self = Self($value);)*
 
-        pub const ALL_CONSTS: &'static [Self] = &[
+        #[cfg(test)]
+        #[allow(unused, reason = "This constant is intended to only be used for tests")]
+        pub(crate) const ALL_CONSTS: &'static [Self] = &[
             $(Self::$name),*
         ];
     };
