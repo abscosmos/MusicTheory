@@ -14,7 +14,6 @@ pub struct Note {
     pub octave: i16, // TODO: might change this to i8
 }
 
-// TODO: change taking in &self -> self
 impl Note {
     pub const MIDDLE_C: Self = Self { pitch: Pitch::C, octave: 4 };
     pub const A4: Self = Self { pitch: Pitch::A, octave: 4 };
@@ -23,7 +22,7 @@ impl Note {
         Self { pitch, octave }
     }
     
-    pub fn semitones_to(&self, other: &Self) -> Semitone {
+    pub fn semitones_to(self, other: Self) -> Semitone {
         let lhs = self.pitch.semitones_offset_from_c() + Semitone(self.octave * 12);
 
         let rhs = other.pitch.semitones_offset_from_c() + Semitone(other.octave * 12);
@@ -31,8 +30,8 @@ impl Note {
         rhs - lhs
     }
 
-    pub fn distance_to(&self, other: &Self) -> Interval {
-        Interval::between_notes(*self, *other)
+    pub fn distance_to(self, other: Self) -> Interval {
+        Interval::between_notes(self, other)
     }
     
     // TODO: this includes spelling, when it probably shouldn't
@@ -69,19 +68,19 @@ impl Note {
             - well temperament
             - equal temperament
     */ 
-    pub fn as_frequency_hz(&self) -> f32 {
+    pub fn as_frequency_hz(self) -> f32 {
         let semitones_from_a4 = Self::A4.semitones_to(self);
 
         440.0 * 2.0_f32.powf(semitones_from_a4.0 as f32 / 12.0)
     }
 
-    pub fn transpose(&self, interval: Interval) -> Self {
+    pub fn transpose(self, interval: Interval) -> Self {
         let unchecked = Self {
             pitch: self.pitch + interval,
             octave: self.octave,
         };
 
-        let edit = self.semitones_to(&unchecked) - interval.semitones();
+        let edit = self.semitones_to(unchecked) - interval.semitones();
 
         Self {
             octave: unchecked.octave - edit.0.div_euclid(12),
@@ -89,12 +88,12 @@ impl Note {
         }
     }
 
-    pub fn bias(&self, sharp: bool) -> Self {
+    pub fn bias(self, sharp: bool) -> Self {
         let base = self.pitch.bias(sharp);
 
-        let unchecked = Self { pitch: base, .. *self };
+        let unchecked = Self { pitch: base, ..self };
 
-        let octave_offset = self.semitones_to(&unchecked).0.div_euclid(12);
+        let octave_offset = self.semitones_to(unchecked).0.div_euclid(12);
 
         Self {
             octave: unchecked.octave - octave_offset,
@@ -102,12 +101,12 @@ impl Note {
         }
     }
     
-    pub fn simplified(&self) -> Self {
+    pub fn simplified(self) -> Self {
         let base = self.pitch.simplified();
 
-        let unchecked = Self { pitch: base, .. *self };
+        let unchecked = Self { pitch: base, ..self };
 
-        let octave_offset = self.semitones_to(&unchecked).0.div_euclid(12);
+        let octave_offset = self.semitones_to(unchecked).0.div_euclid(12);
 
         Self {
             octave: unchecked.octave - octave_offset,
@@ -115,7 +114,7 @@ impl Note {
         }
     }
 
-    pub fn as_midi(&self) -> Option<u8> {
+    pub fn as_midi(self) -> Option<u8> {
         let zero = Note { pitch: Pitch::C, octave: -1 };
 
         zero.semitones_to(self)
@@ -124,7 +123,7 @@ impl Note {
             .ok()
     }
     
-    pub fn as_midi_strict(&self) -> Option<u8> {
+    pub fn as_midi_strict(self) -> Option<u8> {
         self.as_midi().filter(|&m| m < 128)
     }
 
@@ -139,7 +138,7 @@ impl Note {
         }
     }
 
-    pub fn transpose_fifths(&self, fifths: i16) -> Self {
+    pub fn transpose_fifths(self, fifths: i16) -> Self {
         let unchecked = Self {
             pitch: self.pitch.transpose_fifths(fifths),
             octave: self.octave,
@@ -147,7 +146,7 @@ impl Note {
 
         let interval_semi = Semitone(7 * fifths);
 
-        let edit = self.semitones_to(&unchecked) - interval_semi;
+        let edit = self.semitones_to(unchecked) - interval_semi;
 
         Self {
             octave: unchecked.octave - edit.0.div_euclid(12),
@@ -187,7 +186,7 @@ impl EnharmonicOrd for Note {
 
 impl EnharmonicEq for Note {
     fn eq_enharmonic(&self, rhs: &Self) -> bool {
-        self.semitones_to(rhs).0 == 0
+        self.semitones_to(*rhs).0 == 0
     }
 }
 

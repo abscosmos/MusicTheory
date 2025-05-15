@@ -64,7 +64,7 @@ impl Interval {
         
         let base_interval = Self::between_pitches(lhs.pitch, rhs.pitch);
 
-        let diff = lhs.semitones_to(&rhs) - base_interval.semitones();
+        let diff = lhs.semitones_to(rhs) - base_interval.semitones();
 
         assert!(diff.0 >= 0, "after reordering, the difference should be positive or zero");
         
