@@ -164,6 +164,7 @@ dependencies = [
 name = "python"
 version = "0.1.0"
 dependencies = [
+ "music_theory",
  "pyo3",
 ]
 
