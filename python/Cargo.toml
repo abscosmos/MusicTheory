@@ -3,4 +3,9 @@ name = "python"
 version = "0.1.0"
 edition = "2024"
 
+[lib]
+name = "music_theory"
+crate-type = ["cdylib"]
+
 [dependencies]
+pyo3 = { version = "0.25.0", features = ["extension-module"] }
