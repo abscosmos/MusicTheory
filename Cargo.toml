@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [workspace]
-members = ["mt_macros"]
+members = ["mt_macros", "python"]
 resolver = "2"
 
 [dependencies]
