@@ -110,7 +110,7 @@ macro_rules! define_scale {
     };
     
     (@define_exact $name:ident, $var:ident, $mode:ident, $def:ident, $size:expr) => {
-        #[derive(Default, Debug)]
+        #[derive(Default, Debug, Clone, Copy)]
         pub struct $name;
         
         impl $crate::scales::exact_scale::ExactScale<$size> for $name {
