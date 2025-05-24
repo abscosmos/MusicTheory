@@ -43,6 +43,6 @@ You can find a more in-depth showcase [here](../main/examples/showcase.ipynb).
 ## Installation
 To install, add the following line to your `Cargo.toml`:
 ```toml
-music_theory = { git = "https://github.com/abscosmos/MusicTheoryLib.git" }
+music_theory = { git = "https://github.com/abscosmos/MusicTheory.git" }
 ```
 **This library is in active development, so expect the APIs (and probably the name) to change.**
