@@ -293,7 +293,7 @@ impl Pitch {
     pub fn transpose(self, interval: Interval) -> Self {
         use IntervalQuality as Q;
         
-        let start = match interval.number().as_simple().number().abs() {
+        let start = match interval.number().as_simple().get().abs() {
             1 | 8 => 7,
             2 => 9,
             3 => 11,

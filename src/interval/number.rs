@@ -15,30 +15,30 @@ impl IntervalNumber {
         }
     }
 
-    pub fn number(self) -> i16 {
+    pub fn get(self) -> i16 {
         self.0.get()
     }
 
     pub fn shorthand(self) -> i16 {
-        self.number()
+        self.get()
     }
 
     pub fn as_simple(self) -> Self {
-        if self.number().abs() != 1 && (self.number().abs() - 1) % 7 == 0 {
-            match self.number().is_positive() {
+        if self.get().abs() != 1 && (self.get().abs() - 1) % 7 == 0 {
+            match self.get().is_positive() {
                 true => Self::OCTAVE,
                 false => -Self::OCTAVE,
             }
         } else {
-            let num = (self.number().abs() - 1) % 7 + 1;
+            let num = (self.get().abs() - 1) % 7 + 1;
             
-            Self::new(num * self.number().signum())
+            Self::new(num * self.get().signum())
                 .expect("can't be zero")
         }
     }
 
     pub fn is_perfect(self) -> bool {
-        match self.as_simple().number().abs() {
+        match self.as_simple().get().abs() {
             1 | 4 | 5 | 8 => true,
             2 | 3 | 6 | 7 => false,
             _ => unreachable!("abs of as_simple must be within [1,8]")
@@ -46,7 +46,7 @@ impl IntervalNumber {
     }
 
     pub fn is_ascending(self) -> bool {
-        self.number().is_positive()
+        self.get().is_positive()
     }
 
     pub fn with_direction(self, ascending: bool) -> Self {
@@ -58,15 +58,15 @@ impl IntervalNumber {
     }
 
     pub fn octave_unsigned(self) -> i16 { // TODO: make this return u16
-        (self.number().abs() - 1) / 7
+        (self.get().abs() - 1) / 7
     }
 
     pub fn octave_signed(self) -> i16 {
-        self.octave_unsigned() * self.number().signum()
+        self.octave_unsigned() * self.get().signum()
     }
 
     pub fn inverted(self) -> Self {
-        let simple_abs = self.as_simple().number().abs();
+        let simple_abs = self.as_simple().get().abs();
 
         let n = match simple_abs {
             1 | 8 => simple_abs,
@@ -80,12 +80,12 @@ impl IntervalNumber {
             _ => unreachable!("abs of as_simple must be within [1,8]")
         };
 
-        Self::new(num * self.number().signum())
+        Self::new(num * self.get().signum())
             .expect("can't be zero")
     }
 
     pub(super) fn base_semitones_with_octave_unsigned(self) -> i16 {
-        let without_octave = match self.as_simple().number().abs() {
+        let without_octave = match self.as_simple().get().abs() {
             1 | 8 => 0,
             2 => 2,
             3 => 4,
@@ -136,7 +136,7 @@ mod tests {
     
     #[test]
     fn number_shorthand() {
-        assert_eq!(IN::FIFTH.number(), 5);
+        assert_eq!(IN::FIFTH.get(), 5);
         assert_eq!(IN::FIFTH.shorthand(), 5);
     }
     
@@ -268,7 +268,7 @@ mod tests {
     
     #[test]
     fn neg() {
-        assert_eq!((-IN::FIFTEENTH).number(), -15);
+        assert_eq!((-IN::FIFTEENTH).get(), -15);
         assert_eq!(-(-IN::NINTH), IN::NINTH);
     }
     

@@ -74,7 +74,7 @@ impl Interval {
 
         let octaves = diff.0 / 12;
 
-        let new_number = NonZeroI16::new(base_interval.number().number() + 7 * octaves)
+        let new_number = NonZeroI16::new(base_interval.number().get() + 7 * octaves)
             .expect("nonzero shouldn't become zero if adding away from zero; shouldn't overflow either");
         
         let signed_number = if descending { -new_number } else { new_number };
@@ -119,7 +119,7 @@ impl Interval {
     pub fn is_subzero(&self) -> bool {
         let semitones = self.semitones().0;
 
-        semitones != 0 && semitones.signum() != self.number.number().signum()
+        semitones != 0 && semitones.signum() != self.number.get().signum()
     }
     
     // TODO: add tests for this function
@@ -135,7 +135,7 @@ impl Interval {
 
         let octaves = -semitones.div_euclid(OCTAVE_SEMITONES);
         
-        let new_number = IntervalNumber::new(self.number().number() + octaves * 7)
+        let new_number = IntervalNumber::new(self.number().get() + octaves * 7)
             .expect("shouldn't be zero to begin with");
         
         let expanded = Self::strict_non_subzero(self.quality, new_number)
@@ -174,7 +174,7 @@ impl Interval {
 
         let unsigned = base_oct_semitones + quality_adjust;
 
-        Semitone(unsigned * self.number.number().signum())
+        Semitone(unsigned * self.number.get().signum())
     }
 
     pub fn shorthand(&self) -> String {
@@ -259,8 +259,8 @@ impl Interval {
     }
 
     fn add_interval(self, rhs: Self) -> Self {
-        let ln = self.number.number();
-        let rn = rhs.number.number();
+        let ln = self.number.get();
+        let rn = rhs.number.get();
 
         let offset = {
             let ls = ln.signum();
@@ -275,7 +275,7 @@ impl Interval {
 
         let distance = self.semitones().0 + rhs.semitones().0;
 
-        let num_sign = num.number().signum();
+        let num_sign = num.get().signum();
 
         let difference = distance - num.base_semitones_with_octave_unsigned() * num_sign;
 
