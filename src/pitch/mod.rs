@@ -194,7 +194,7 @@ impl Pitch {
             4 => Letter::A,
             5 => Letter::E,
             6 => Letter::B,
-            _ => unreachable!("i8::rem_euclid(7) must be [0, 7)"),
+            _ => unreachable!("i16::rem_euclid(7) must be [0, 7)"),
         }
     }
 
