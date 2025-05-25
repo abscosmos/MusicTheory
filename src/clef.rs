@@ -3,6 +3,7 @@ use crate::letter::Letter;
 use crate::note::Note;
 use crate::pitch::Pitch;
 
+#[derive(Copy, Clone, Debug)]
 pub struct PitchClef {
     // assuming there are only G, C, and F clefs
     letter: Letter,
@@ -47,7 +48,9 @@ impl PitchClef {
     }
 }
 
+#[derive(Copy, Clone, Debug)]
 pub struct PercussionClef;
 
 // should this be represented as a clef?
+#[derive(Copy, Clone, Debug)]
 pub struct TablatureClef;
