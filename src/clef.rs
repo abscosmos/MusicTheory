@@ -56,6 +56,14 @@ impl PitchClef {
         self.line(5).expect("5 is a valid line")
     }
     
+    pub fn range(self) -> RangeInclusive<Note> {
+        self.bottom_line()..=self.top_line()
+    }
+    
+    pub fn contains(self, note: Note) -> bool {
+        self.range().contains(&note)
+    }
+    
     pub fn line(self, line: u8) -> Option<Note> {
         if !(1..=5).contains(&line) {
             return None;
