@@ -95,6 +95,27 @@ impl PitchClef {
 
         Some(Note::new(res_letter.into(), self.octave + oct_adj as i16))
     }
+    
+    pub fn space(self, space: u8) -> Option<Note> {
+        if !(1..=4).contains(&space) {
+            return None;
+        }
+        
+        let line_above = self.line(space + 1).expect("x in [1,4] + 1 should be in [1,5]");
+        
+        let new_step = line_above.letter().step() + 6; // +6 == -1 (mod 7)
+        
+        let letter = Letter::from_step(new_step % 7)
+            .expect("% 7 is in range [0,6]");
+        
+        let octave = if letter != Letter::B {
+            line_above.octave
+        } else {
+            line_above.octave - 1
+        };
+
+        Some(Note::new(letter.into(), octave))
+    }
 }
 
 #[derive(Copy, Clone, Debug)]
