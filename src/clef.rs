@@ -49,7 +49,19 @@ impl PitchClef {
     }
 
     pub fn bottom_line(self) -> Note {
-        let letter_delta =  2 * (1 - self.staff_line.get() as i8);
+        self.line(1).expect("1 is a valid line")
+    }
+
+    pub fn top_line(self) -> Note {
+        self.line(5).expect("5 is a valid line")
+    }
+    
+    pub fn line(self, line: u8) -> Option<Note> {
+        if !(1..=5).contains(&line) {
+            return None;
+        }
+        
+        let letter_delta =  2 * (line as i8 - self.staff_line.get() as i8);
 
         let res_letter = (self.letter.step() as i8 + letter_delta).rem_euclid(7) as _;
 
@@ -59,7 +71,13 @@ impl PitchClef {
 
         let letter_range = WrappingRange::new(Letter::C..=Letter::B);
 
-        let oct_2 = if letter_range.contains(res_letter..=self.letter, &Letter::C) {
+        let range = if letter_delta > 0 {
+            self.letter..=res_letter
+        } else {
+            res_letter..=self.letter
+        };
+        
+        let oct_2 = if *range.start() != Letter::C && letter_range.contains(range, &Letter::C) {
             letter_delta.signum()
         } else {
             0
@@ -67,7 +85,7 @@ impl PitchClef {
 
         let oct_adj = oct_1 + oct_2;
 
-        Note::new(res_letter.into(), self.octave + oct_adj as i16)
+        Some(Note::new(res_letter.into(), self.octave + oct_adj as i16))
     }
 }
 
@@ -111,7 +129,7 @@ mod tests {
     use super::PitchClef as Clef;
 
     #[test]
-    fn bottom_line() {
+    fn lines() {
         assert_eq!(Clef::TREBLE.bottom_line(), Note::new(Pitch::E, 4));
         assert_eq!(Clef::TREBLE_8VA.bottom_line(), Note::new(Pitch::E, 5));
         assert_eq!(Clef::TREBLE_8VB.bottom_line(), Note::new(Pitch::E, 3));
@@ -126,5 +144,20 @@ mod tests {
         assert_eq!(Clef::ALTO.bottom_line(), Note::new(Pitch::F, 3));
         assert_eq!(Clef::TENOR.bottom_line(), Note::new(Pitch::D, 3));
         assert_eq!(Clef::C_BARITONE.bottom_line(), Note::new(Pitch::B, 2));
+
+        assert_eq!(Clef::TREBLE.top_line(), Note::new(Pitch::F, 5));
+        assert_eq!(Clef::TREBLE_8VA.top_line(), Note::new(Pitch::F, 6));
+        assert_eq!(Clef::TREBLE_8VB.top_line(), Note::new(Pitch::F, 4));
+        assert_eq!(Clef::FRENCH_VIOLIN.top_line(), Note::new(Pitch::A, 5));
+        assert_eq!(Clef::BASS.top_line(), Note::new(Pitch::A, 3));
+        assert_eq!(Clef::BASS_8VA.top_line(), Note::new(Pitch::A, 4));
+        assert_eq!(Clef::BASS_8VB.top_line(), Note::new(Pitch::A, 2));
+        assert_eq!(Clef::SUB_BASS.top_line(), Note::new(Pitch::F, 3));
+        assert_eq!(Clef::F_BARITONE.top_line(), Note::new(Pitch::C, 4));
+        assert_eq!(Clef::SOPRANO.top_line(), Note::new(Pitch::D, 5));
+        assert_eq!(Clef::MEZZO_SOPRANO.top_line(), Note::new(Pitch::B, 4));
+        assert_eq!(Clef::ALTO.top_line(), Note::new(Pitch::G, 4));
+        assert_eq!(Clef::TENOR.top_line(), Note::new(Pitch::E, 4));
+        assert_eq!(Clef::C_BARITONE.top_line(), Note::new(Pitch::C, 4));
     }
 }
