@@ -15,6 +15,8 @@ pub struct PitchClef {
 
 impl PitchClef {
     pub const TREBLE: Self = Self::new(Letter::G, 4, 2).expect("should be valid clef");
+    pub const TREBLE_8VA: Self = Self::new(Letter::G, 5, 2).expect("should be valid clef");
+    pub const TREBLE_8VB: Self = Self::new(Letter::G, 3, 2).expect("should be valid clef");
     pub const FRENCH_VIOLIN: Self = Self::new(Letter::G, 4, 1).expect("should be valid clef");
     pub const BASS: Self = Self::new(Letter::F, 3, 4).expect("should be valid clef");
     pub const BASS_8VA: Self = Self::new(Letter::F, 4, 4).expect("should be valid clef");
