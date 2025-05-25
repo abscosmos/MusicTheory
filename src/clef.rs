@@ -44,3 +44,8 @@ impl PitchClef {
         Self::new(Letter::C, 4, staff_line)
     }
 }
+
+pub struct PercussionClef;
+
+// should this be represented as a clef?
+pub struct TablatureClef;
