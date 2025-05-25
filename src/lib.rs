@@ -11,6 +11,7 @@ pub mod scales;
 pub mod key;
 pub mod analyze;
 pub mod prelude;
+pub mod clef;
 /*
 TODO:
     - add prelude
