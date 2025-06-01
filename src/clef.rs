@@ -107,6 +107,10 @@ impl PitchClef {
 
         Note::new(letter.into(), octave)
     }
+    
+    pub fn get_position(note: Note) -> StaffPosition {
+        todo!()
+    }
 
     // TODO: for a note or multiple notes, return if the stem should point up or down
     // https://www.music21.org/music21docs/moduleReference/moduleClef.html#music21.clef.Clef.getStemDirectionForPitches
