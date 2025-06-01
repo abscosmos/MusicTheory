@@ -10,6 +10,8 @@ pub struct OctaveLetter {
 }
 
 impl OctaveLetter {
+    pub const C4: Self = Self::new(Letter::C, 4);
+    
     pub const fn new(letter: Letter, octave: i16) -> Self {
         Self { letter, octave }
     }
