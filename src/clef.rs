@@ -50,11 +50,19 @@ impl PitchClef {
     }
 
     pub fn bottom_line(self) -> Note {
-        self.line(1).expect("1 is a valid line")
+        self.get_note(StaffPosition::Line(1))
     }
 
     pub fn top_line(self) -> Note {
-        self.line(5).expect("5 is a valid line")
+        self.get_note(StaffPosition::Line(5))
+    }
+    
+    // FIXME: this should really return a Letter with an octave
+    pub fn get_note(self, position: StaffPosition) -> Note {
+        match position {
+            StaffPosition::Line(line) => self.line(line),
+            StaffPosition::Space(space) => self.space(space),
+        }
     }
     
     pub fn range(self) -> RangeInclusive<Note> {
@@ -65,12 +73,8 @@ impl PitchClef {
         self.range().contains(&note)
     }
     
-    pub fn line(self, line: u8) -> Option<Note> {
-        if !(1..=5).contains(&line) {
-            return None;
-        }
-        
-        let letter_delta =  2 * (line as i8 - self.staff_line.get() as i8);
+    fn line(self, line: i8) -> Note {
+        let letter_delta =  2 * (line - self.staff_line.get() as i8);
 
         let res_letter = (self.letter.step() as i8 + letter_delta).rem_euclid(7) as _;
 
@@ -91,18 +95,12 @@ impl PitchClef {
         } else {
             0
         };
-
-        let oct_adj = oct_1 + oct_2;
-
-        Some(Note::new(res_letter.into(), self.octave + oct_adj as i16))
+        
+        Note::new(res_letter.into(), self.octave + (oct_1 + oct_2) as i16)
     }
     
-    pub fn space(self, space: u8) -> Option<Note> {
-        if !(1..=4).contains(&space) {
-            return None;
-        }
-        
-        let line_above = self.line(space + 1).expect("x in [1,4] + 1 should be in [1,5]");
+    fn space(self, space: i8) -> Note {
+        let line_above = self.line(space + 1);
         
         let new_step = line_above.letter().step() + 6; // +6 == -1 (mod 7)
         
@@ -115,7 +113,7 @@ impl PitchClef {
             line_above.octave - 1
         };
 
-        Some(Note::new(letter.into(), octave))
+        Note::new(letter.into(), octave)
     }
 
     // TODO: for a note or multiple notes, return if the stem should point up or down
