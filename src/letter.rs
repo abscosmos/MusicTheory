@@ -17,11 +17,11 @@ pub enum Letter {
 }
 
 impl Letter {
-    pub fn step(&self) -> u8 {
+    pub const fn step(&self) -> u8 {
         *self as _
     }
     
-    pub fn from_step(step: u8) -> Option<Self> {
+    pub const fn from_step(step: u8) -> Option<Self> {
         Self::from_repr(step)
     }
     
