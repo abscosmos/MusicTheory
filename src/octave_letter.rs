@@ -10,15 +10,15 @@ pub struct OctaveLetter {
 }
 
 impl OctaveLetter {
-    pub fn new(letter: Letter, octave: i16) -> Self {
+    pub const fn new(letter: Letter, octave: i16) -> Self {
         Self { letter, octave }
     }
-    
-    pub fn offset_to(self, rhs: Self) -> i16 {
+
+    pub const fn offset_to(self, rhs: Self) -> i16 {
         (rhs.octave - self.octave) * 7 + rhs.letter.step() as i16 - self.letter.step() as i16
     }
-    
-    pub fn with_offset(self, offset: i16) -> Self {
+
+    pub const fn with_offset(self, offset: i16) -> Self {
         let sum = self.letter.step() as i16 + offset;
         
         let octave = self.octave + sum.div_euclid(7);
