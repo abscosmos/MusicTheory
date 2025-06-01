@@ -5,7 +5,7 @@ use crate::note::Note;
 use crate::pitch::Pitch;
 use crate::util::WrappingRange;
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub struct PitchClef {
     // assuming there are only G, C, and F clefs
     letter: Letter,
