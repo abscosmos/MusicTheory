@@ -24,11 +24,11 @@ impl PitchClef {
     pub const BASS_8VB: Self = Self::new(OctaveLetter::new(Letter::F, 2), 4).expect("should be valid clef");
     pub const SUB_BASS: Self = Self::new(OctaveLetter::new(Letter::F, 3), 5).expect("should be valid clef");
     pub const F_BARITONE: Self = Self::new(OctaveLetter::new(Letter::F, 3), 3).expect("should be valid clef");
-    pub const SOPRANO: Self = Self::movable_c(1).expect("should be valid clef");
-    pub const MEZZO_SOPRANO: Self = Self::movable_c(2).expect("should be valid clef");
-    pub const ALTO: Self = Self::movable_c(3).expect("should be valid clef");
-    pub const TENOR: Self = Self::movable_c(4).expect("should be valid clef");
-    pub const C_BARITONE: Self = Self::movable_c(5).expect("should be valid clef");
+    pub const SOPRANO: Self = Self::new(OctaveLetter::C4, 1).expect("should be valid clef");
+    pub const MEZZO_SOPRANO: Self = Self::new(OctaveLetter::C4, 2).expect("should be valid clef");
+    pub const ALTO: Self = Self::new(OctaveLetter::C4, 3).expect("should be valid clef");
+    pub const TENOR: Self = Self::new(OctaveLetter::C4, 4).expect("should be valid clef");
+    pub const C_BARITONE: Self = Self::new(OctaveLetter::C4, 5).expect("should be valid clef");
 
     pub const fn new(anchor: OctaveLetter, staff_line: u8) -> Option<Self> {
         // {range}.contains() isn't const
@@ -41,10 +41,6 @@ impl PitchClef {
         } else {
             None
         }
-    }
-
-    const fn movable_c(staff_line: u8) -> Option<Self> {
-        Self::new(OctaveLetter::new(Letter::C, 4), staff_line)
     }
     
     pub fn anchor(self) -> OctaveLetter {
