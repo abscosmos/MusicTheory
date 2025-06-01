@@ -53,7 +53,7 @@ impl PitchClef {
     pub fn get_note(self, position: StaffPosition) -> OctaveLetter {
         match position {
             StaffPosition::Line(line) => self.line(line),
-            StaffPosition::Space(space) => self.space(space),
+            StaffPosition::Space(space) => self.line(space).with_offset(1),
         }
     }
     
@@ -89,23 +89,6 @@ impl PitchClef {
         };
 
         OctaveLetter::new(res_letter, self.octave + (oct_1 + oct_2) as i16)
-    }
-    
-    fn space(self, space: i8) -> OctaveLetter {
-        let line_above = self.line(space + 1);
-        
-        let new_step = line_above.letter.step() + 6; // +6 == -1 (mod 7)
-        
-        let letter = Letter::from_step(new_step % 7)
-            .expect("% 7 is in range [0,6]");
-        
-        let octave = if letter != Letter::B {
-            line_above.octave
-        } else {
-            line_above.octave - 1
-        };
-
-        OctaveLetter::new(letter, octave)
     }
     
     pub fn get_position(note: Note) -> StaffPosition {
