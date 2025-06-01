@@ -85,6 +85,12 @@ impl PitchClef {
     }
 }
 
+#[derive(Copy, Clone, Eq, PartialEq, Debug)]
+pub enum StemDirection {
+    Up,
+    Down,
+}
+
 impl fmt::Display for PitchClef {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match *self {
