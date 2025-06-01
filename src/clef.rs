@@ -110,7 +110,7 @@ impl PitchClef {
 
     // TODO: for a note or multiple notes, return if the stem should point up or down
     // https://www.music21.org/music21docs/moduleReference/moduleClef.html#music21.clef.Clef.getStemDirectionForPitches
-    pub fn stem_direction() -> () {
+    pub fn stem_direction(notes: impl IntoIterator<Item = Note>) -> () {
         todo!()
     }
 }
