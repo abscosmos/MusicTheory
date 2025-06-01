@@ -2,7 +2,7 @@ use std::num::NonZeroU8;
 use std::ops::RangeInclusive;
 use crate::letter::Letter;
 use crate::note::Note;
-use crate::pitch::Pitch;
+use crate::octave_letter::OctaveLetter;
 use crate::util::WrappingRange;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
@@ -50,22 +50,22 @@ impl PitchClef {
     }
     
     // FIXME: this should really return a Letter with an octave
-    pub fn get_note(self, position: StaffPosition) -> Note {
+    pub fn get_note(self, position: StaffPosition) -> OctaveLetter {
         match position {
             StaffPosition::Line(line) => self.line(line),
             StaffPosition::Space(space) => self.space(space),
         }
     }
     
-    pub fn range(self) -> RangeInclusive<Note> {
+    pub fn range(self) -> RangeInclusive<OctaveLetter> {
         self.get_note(StaffPosition::BOTTOM_LINE)..=self.get_note(StaffPosition::TOP_LINE)
     }
     
-    pub fn contains(self, note: Note) -> bool {
+    pub fn contains(self, note: OctaveLetter) -> bool {
         self.range().contains(&note)
     }
     
-    fn line(self, line: i8) -> Note {
+    fn line(self, line: i8) -> OctaveLetter {
         let letter_delta =  2 * (line - self.staff_line.get() as i8);
 
         let res_letter = (self.letter.step() as i8 + letter_delta).rem_euclid(7) as _;
@@ -88,13 +88,13 @@ impl PitchClef {
             0
         };
 
-        Note::new(res_letter.into(), self.octave + (oct_1 + oct_2) as i16)
+        OctaveLetter::new(res_letter, self.octave + (oct_1 + oct_2) as i16)
     }
     
-    fn space(self, space: i8) -> Note {
+    fn space(self, space: i8) -> OctaveLetter {
         let line_above = self.line(space + 1);
         
-        let new_step = line_above.letter().step() + 6; // +6 == -1 (mod 7)
+        let new_step = line_above.letter.step() + 6; // +6 == -1 (mod 7)
         
         let letter = Letter::from_step(new_step % 7)
             .expect("% 7 is in range [0,6]");
@@ -105,7 +105,7 @@ impl PitchClef {
             line_above.octave - 1
         };
 
-        Note::new(letter.into(), octave)
+        OctaveLetter::new(letter, octave)
     }
     
     pub fn get_position(note: Note) -> StaffPosition {
@@ -141,43 +141,43 @@ pub struct TablatureClef;
 
 #[cfg(test)]
 mod tests {
-    use crate::note::Note;
-    use crate::pitch::Pitch;
+    use crate::letter::Letter;
+    use crate::octave_letter::OctaveLetter;
     use super::{PitchClef as Clef, StaffPosition as Pos};
 
     #[test]
     fn top_line() {
-        assert_eq!(Clef::TREBLE.get_note(Pos::BOTTOM_LINE), Note::new(Pitch::E, 4));
-        assert_eq!(Clef::TREBLE_8VA.get_note(Pos::BOTTOM_LINE), Note::new(Pitch::E, 5));
-        assert_eq!(Clef::TREBLE_8VB.get_note(Pos::BOTTOM_LINE), Note::new(Pitch::E, 3));
-        assert_eq!(Clef::FRENCH_VIOLIN.get_note(Pos::BOTTOM_LINE), Note::new(Pitch::G, 4));
-        assert_eq!(Clef::BASS.get_note(Pos::BOTTOM_LINE), Note::new(Pitch::G, 2));
-        assert_eq!(Clef::BASS_8VA.get_note(Pos::BOTTOM_LINE), Note::new(Pitch::G, 3));
-        assert_eq!(Clef::BASS_8VB.get_note(Pos::BOTTOM_LINE), Note::new(Pitch::G, 1));
-        assert_eq!(Clef::SUB_BASS.get_note(Pos::BOTTOM_LINE), Note::new(Pitch::E, 2));
-        assert_eq!(Clef::F_BARITONE.get_note(Pos::BOTTOM_LINE), Note::new(Pitch::B, 2));
-        assert_eq!(Clef::SOPRANO.get_note(Pos::BOTTOM_LINE), Note::new(Pitch::C, 4));
-        assert_eq!(Clef::MEZZO_SOPRANO.get_note(Pos::BOTTOM_LINE), Note::new(Pitch::A, 3));
-        assert_eq!(Clef::ALTO.get_note(Pos::BOTTOM_LINE), Note::new(Pitch::F, 3));
-        assert_eq!(Clef::TENOR.get_note(Pos::BOTTOM_LINE), Note::new(Pitch::D, 3));
-        assert_eq!(Clef::C_BARITONE.get_note(Pos::BOTTOM_LINE), Note::new(Pitch::B, 2));
+        assert_eq!(Clef::TREBLE.get_note(Pos::BOTTOM_LINE), OctaveLetter::new(Letter::E, 4));
+        assert_eq!(Clef::TREBLE_8VA.get_note(Pos::BOTTOM_LINE), OctaveLetter::new(Letter::E, 5));
+        assert_eq!(Clef::TREBLE_8VB.get_note(Pos::BOTTOM_LINE), OctaveLetter::new(Letter::E, 3));
+        assert_eq!(Clef::FRENCH_VIOLIN.get_note(Pos::BOTTOM_LINE), OctaveLetter::new(Letter::G, 4));
+        assert_eq!(Clef::BASS.get_note(Pos::BOTTOM_LINE), OctaveLetter::new(Letter::G, 2));
+        assert_eq!(Clef::BASS_8VA.get_note(Pos::BOTTOM_LINE), OctaveLetter::new(Letter::G, 3));
+        assert_eq!(Clef::BASS_8VB.get_note(Pos::BOTTOM_LINE), OctaveLetter::new(Letter::G, 1));
+        assert_eq!(Clef::SUB_BASS.get_note(Pos::BOTTOM_LINE), OctaveLetter::new(Letter::E, 2));
+        assert_eq!(Clef::F_BARITONE.get_note(Pos::BOTTOM_LINE), OctaveLetter::new(Letter::B, 2));
+        assert_eq!(Clef::SOPRANO.get_note(Pos::BOTTOM_LINE), OctaveLetter::new(Letter::C, 4));
+        assert_eq!(Clef::MEZZO_SOPRANO.get_note(Pos::BOTTOM_LINE), OctaveLetter::new(Letter::A, 3));
+        assert_eq!(Clef::ALTO.get_note(Pos::BOTTOM_LINE), OctaveLetter::new(Letter::F, 3));
+        assert_eq!(Clef::TENOR.get_note(Pos::BOTTOM_LINE), OctaveLetter::new(Letter::D, 3));
+        assert_eq!(Clef::C_BARITONE.get_note(Pos::BOTTOM_LINE), OctaveLetter::new(Letter::B, 2));
     }
     
     #[test]
     fn bottom_line() {
-        assert_eq!(Clef::TREBLE.get_note(Pos::TOP_LINE), Note::new(Pitch::F, 5));
-        assert_eq!(Clef::TREBLE_8VA.get_note(Pos::TOP_LINE), Note::new(Pitch::F, 6));
-        assert_eq!(Clef::TREBLE_8VB.get_note(Pos::TOP_LINE), Note::new(Pitch::F, 4));
-        assert_eq!(Clef::FRENCH_VIOLIN.get_note(Pos::TOP_LINE), Note::new(Pitch::A, 5));
-        assert_eq!(Clef::BASS.get_note(Pos::TOP_LINE), Note::new(Pitch::A, 3));
-        assert_eq!(Clef::BASS_8VA.get_note(Pos::TOP_LINE), Note::new(Pitch::A, 4));
-        assert_eq!(Clef::BASS_8VB.get_note(Pos::TOP_LINE), Note::new(Pitch::A, 2));
-        assert_eq!(Clef::SUB_BASS.get_note(Pos::TOP_LINE), Note::new(Pitch::F, 3));
-        assert_eq!(Clef::F_BARITONE.get_note(Pos::TOP_LINE), Note::new(Pitch::C, 4));
-        assert_eq!(Clef::SOPRANO.get_note(Pos::TOP_LINE), Note::new(Pitch::D, 5));
-        assert_eq!(Clef::MEZZO_SOPRANO.get_note(Pos::TOP_LINE), Note::new(Pitch::B, 4));
-        assert_eq!(Clef::ALTO.get_note(Pos::TOP_LINE), Note::new(Pitch::G, 4));
-        assert_eq!(Clef::TENOR.get_note(Pos::TOP_LINE), Note::new(Pitch::E, 4));
-        assert_eq!(Clef::C_BARITONE.get_note(Pos::TOP_LINE), Note::new(Pitch::C, 4));
+        assert_eq!(Clef::TREBLE.get_note(Pos::TOP_LINE), OctaveLetter::new(Letter::F, 5));
+        assert_eq!(Clef::TREBLE_8VA.get_note(Pos::TOP_LINE), OctaveLetter::new(Letter::F, 6));
+        assert_eq!(Clef::TREBLE_8VB.get_note(Pos::TOP_LINE), OctaveLetter::new(Letter::F, 4));
+        assert_eq!(Clef::FRENCH_VIOLIN.get_note(Pos::TOP_LINE), OctaveLetter::new(Letter::A, 5));
+        assert_eq!(Clef::BASS.get_note(Pos::TOP_LINE), OctaveLetter::new(Letter::A, 3));
+        assert_eq!(Clef::BASS_8VA.get_note(Pos::TOP_LINE), OctaveLetter::new(Letter::A, 4));
+        assert_eq!(Clef::BASS_8VB.get_note(Pos::TOP_LINE), OctaveLetter::new(Letter::A, 2));
+        assert_eq!(Clef::SUB_BASS.get_note(Pos::TOP_LINE), OctaveLetter::new(Letter::F, 3));
+        assert_eq!(Clef::F_BARITONE.get_note(Pos::TOP_LINE), OctaveLetter::new(Letter::C, 4));
+        assert_eq!(Clef::SOPRANO.get_note(Pos::TOP_LINE), OctaveLetter::new(Letter::D, 5));
+        assert_eq!(Clef::MEZZO_SOPRANO.get_note(Pos::TOP_LINE), OctaveLetter::new(Letter::B, 4));
+        assert_eq!(Clef::ALTO.get_note(Pos::TOP_LINE), OctaveLetter::new(Letter::G, 4));
+        assert_eq!(Clef::TENOR.get_note(Pos::TOP_LINE), OctaveLetter::new(Letter::E, 4));
+        assert_eq!(Clef::C_BARITONE.get_note(Pos::TOP_LINE), OctaveLetter::new(Letter::C, 4));
     }
 }
