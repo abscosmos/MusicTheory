@@ -66,8 +66,16 @@ impl PitchClef {
         self.range().contains(&note)
     }
     
-    pub fn get_position(note: Note) -> StaffPosition {
-        todo!()
+    pub fn get_position(self, note: OctaveLetter) -> StaffPosition {
+        let diff = self.anchor.offset_to(note);
+
+        let val = self.staff_line.get() as i8 + diff.div_euclid(2) as i8;
+
+        if diff % 2 == 0 {
+            StaffPosition::Line(val)
+        } else {
+            StaffPosition::Space(val)
+        }
     }
 
     // TODO: for a note or multiple notes, return if the stem should point up or down
@@ -101,7 +109,24 @@ pub struct TablatureClef;
 mod tests {
     use crate::letter::Letter;
     use crate::octave_letter::OctaveLetter;
-    use super::{PitchClef as Clef, StaffPosition as Pos};
+    use super::{PitchClef as Clef, PitchClef, StaffPosition as Pos, StaffPosition};
+    
+    const ALL_CONSTS: [PitchClef; 14] = [
+        Clef::TREBLE,
+        Clef::TREBLE_8VA,
+        Clef::TREBLE_8VB,
+        Clef::FRENCH_VIOLIN,
+        Clef::BASS,
+        Clef::BASS_8VA,
+        Clef::BASS_8VB,
+        Clef::SUB_BASS,
+        Clef::F_BARITONE,
+        Clef::SOPRANO,
+        Clef::MEZZO_SOPRANO,
+        Clef::ALTO,
+        Clef::TENOR,
+        Clef::C_BARITONE,
+    ];
 
     #[test]
     fn top_line() {
@@ -138,4 +163,20 @@ mod tests {
         assert_eq!(Clef::TENOR.get_note(Pos::TOP_LINE), OctaveLetter::new(Letter::E, 4));
         assert_eq!(Clef::C_BARITONE.get_note(Pos::TOP_LINE), OctaveLetter::new(Letter::C, 4));
     }
+
+    #[test]
+    fn test_get_position() {
+        for clef in ALL_CONSTS {
+            for v in -8..=8 {
+                let line = StaffPosition::Line(v);
+
+                assert_eq!(line, clef.get_position(clef.get_note(line)));
+
+                let space = StaffPosition::Space(v);
+                
+                assert_eq!(space, clef.get_position(clef.get_note(space)));
+            }
+        }
+    }
+    
 }
