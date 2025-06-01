@@ -48,14 +48,6 @@ impl PitchClef {
     const fn movable_c(staff_line: u8) -> Option<Self> {
         Self::new(Letter::C, 4, staff_line)
     }
-
-    pub fn bottom_line(self) -> Note {
-        self.get_note(StaffPosition::Line(1))
-    }
-
-    pub fn top_line(self) -> Note {
-        self.get_note(StaffPosition::Line(5))
-    }
     
     // FIXME: this should really return a Letter with an octave
     pub fn get_note(self, position: StaffPosition) -> Note {
@@ -66,7 +58,7 @@ impl PitchClef {
     }
     
     pub fn range(self) -> RangeInclusive<Note> {
-        self.bottom_line()..=self.top_line()
+        self.get_note(StaffPosition::BOTTOM_LINE)..=self.get_note(StaffPosition::TOP_LINE)
     }
     
     pub fn contains(self, note: Note) -> bool {
@@ -131,6 +123,11 @@ pub enum StaffPosition {
     Space(i8),
 }
 
+impl StaffPosition {
+    pub const BOTTOM_LINE: Self = Self::Line(1);
+    pub const TOP_LINE: Self = Self::Line(5);
+}
+
 #[derive(Copy, Clone, Debug)]
 pub struct PercussionClef;
 
@@ -142,41 +139,41 @@ pub struct TablatureClef;
 mod tests {
     use crate::note::Note;
     use crate::pitch::Pitch;
-    use super::PitchClef as Clef;
+    use super::{PitchClef as Clef, StaffPosition as Pos};
 
     #[test]
     fn top_line() {
-        assert_eq!(Clef::TREBLE.bottom_line(), Note::new(Pitch::E, 4));
-        assert_eq!(Clef::TREBLE_8VA.bottom_line(), Note::new(Pitch::E, 5));
-        assert_eq!(Clef::TREBLE_8VB.bottom_line(), Note::new(Pitch::E, 3));
-        assert_eq!(Clef::FRENCH_VIOLIN.bottom_line(), Note::new(Pitch::G, 4));
-        assert_eq!(Clef::BASS.bottom_line(), Note::new(Pitch::G, 2));
-        assert_eq!(Clef::BASS_8VA.bottom_line(), Note::new(Pitch::G, 3));
-        assert_eq!(Clef::BASS_8VB.bottom_line(), Note::new(Pitch::G, 1));
-        assert_eq!(Clef::SUB_BASS.bottom_line(), Note::new(Pitch::E, 2));
-        assert_eq!(Clef::F_BARITONE.bottom_line(), Note::new(Pitch::B, 2));
-        assert_eq!(Clef::SOPRANO.bottom_line(), Note::new(Pitch::C, 4));
-        assert_eq!(Clef::MEZZO_SOPRANO.bottom_line(), Note::new(Pitch::A, 3));
-        assert_eq!(Clef::ALTO.bottom_line(), Note::new(Pitch::F, 3));
-        assert_eq!(Clef::TENOR.bottom_line(), Note::new(Pitch::D, 3));
-        assert_eq!(Clef::C_BARITONE.bottom_line(), Note::new(Pitch::B, 2));
+        assert_eq!(Clef::TREBLE.get_note(Pos::BOTTOM_LINE), Note::new(Pitch::E, 4));
+        assert_eq!(Clef::TREBLE_8VA.get_note(Pos::BOTTOM_LINE), Note::new(Pitch::E, 5));
+        assert_eq!(Clef::TREBLE_8VB.get_note(Pos::BOTTOM_LINE), Note::new(Pitch::E, 3));
+        assert_eq!(Clef::FRENCH_VIOLIN.get_note(Pos::BOTTOM_LINE), Note::new(Pitch::G, 4));
+        assert_eq!(Clef::BASS.get_note(Pos::BOTTOM_LINE), Note::new(Pitch::G, 2));
+        assert_eq!(Clef::BASS_8VA.get_note(Pos::BOTTOM_LINE), Note::new(Pitch::G, 3));
+        assert_eq!(Clef::BASS_8VB.get_note(Pos::BOTTOM_LINE), Note::new(Pitch::G, 1));
+        assert_eq!(Clef::SUB_BASS.get_note(Pos::BOTTOM_LINE), Note::new(Pitch::E, 2));
+        assert_eq!(Clef::F_BARITONE.get_note(Pos::BOTTOM_LINE), Note::new(Pitch::B, 2));
+        assert_eq!(Clef::SOPRANO.get_note(Pos::BOTTOM_LINE), Note::new(Pitch::C, 4));
+        assert_eq!(Clef::MEZZO_SOPRANO.get_note(Pos::BOTTOM_LINE), Note::new(Pitch::A, 3));
+        assert_eq!(Clef::ALTO.get_note(Pos::BOTTOM_LINE), Note::new(Pitch::F, 3));
+        assert_eq!(Clef::TENOR.get_note(Pos::BOTTOM_LINE), Note::new(Pitch::D, 3));
+        assert_eq!(Clef::C_BARITONE.get_note(Pos::BOTTOM_LINE), Note::new(Pitch::B, 2));
     }
     
     #[test]
     fn bottom_line() {
-        assert_eq!(Clef::TREBLE.top_line(), Note::new(Pitch::F, 5));
-        assert_eq!(Clef::TREBLE_8VA.top_line(), Note::new(Pitch::F, 6));
-        assert_eq!(Clef::TREBLE_8VB.top_line(), Note::new(Pitch::F, 4));
-        assert_eq!(Clef::FRENCH_VIOLIN.top_line(), Note::new(Pitch::A, 5));
-        assert_eq!(Clef::BASS.top_line(), Note::new(Pitch::A, 3));
-        assert_eq!(Clef::BASS_8VA.top_line(), Note::new(Pitch::A, 4));
-        assert_eq!(Clef::BASS_8VB.top_line(), Note::new(Pitch::A, 2));
-        assert_eq!(Clef::SUB_BASS.top_line(), Note::new(Pitch::F, 3));
-        assert_eq!(Clef::F_BARITONE.top_line(), Note::new(Pitch::C, 4));
-        assert_eq!(Clef::SOPRANO.top_line(), Note::new(Pitch::D, 5));
-        assert_eq!(Clef::MEZZO_SOPRANO.top_line(), Note::new(Pitch::B, 4));
-        assert_eq!(Clef::ALTO.top_line(), Note::new(Pitch::G, 4));
-        assert_eq!(Clef::TENOR.top_line(), Note::new(Pitch::E, 4));
-        assert_eq!(Clef::C_BARITONE.top_line(), Note::new(Pitch::C, 4));
+        assert_eq!(Clef::TREBLE.get_note(Pos::TOP_LINE), Note::new(Pitch::F, 5));
+        assert_eq!(Clef::TREBLE_8VA.get_note(Pos::TOP_LINE), Note::new(Pitch::F, 6));
+        assert_eq!(Clef::TREBLE_8VB.get_note(Pos::TOP_LINE), Note::new(Pitch::F, 4));
+        assert_eq!(Clef::FRENCH_VIOLIN.get_note(Pos::TOP_LINE), Note::new(Pitch::A, 5));
+        assert_eq!(Clef::BASS.get_note(Pos::TOP_LINE), Note::new(Pitch::A, 3));
+        assert_eq!(Clef::BASS_8VA.get_note(Pos::TOP_LINE), Note::new(Pitch::A, 4));
+        assert_eq!(Clef::BASS_8VB.get_note(Pos::TOP_LINE), Note::new(Pitch::A, 2));
+        assert_eq!(Clef::SUB_BASS.get_note(Pos::TOP_LINE), Note::new(Pitch::F, 3));
+        assert_eq!(Clef::F_BARITONE.get_note(Pos::TOP_LINE), Note::new(Pitch::C, 4));
+        assert_eq!(Clef::SOPRANO.get_note(Pos::TOP_LINE), Note::new(Pitch::D, 5));
+        assert_eq!(Clef::MEZZO_SOPRANO.get_note(Pos::TOP_LINE), Note::new(Pitch::B, 4));
+        assert_eq!(Clef::ALTO.get_note(Pos::TOP_LINE), Note::new(Pitch::G, 4));
+        assert_eq!(Clef::TENOR.get_note(Pos::TOP_LINE), Note::new(Pitch::E, 4));
+        assert_eq!(Clef::C_BARITONE.get_note(Pos::TOP_LINE), Note::new(Pitch::C, 4));
     }
 }
