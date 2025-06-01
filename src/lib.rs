@@ -12,6 +12,7 @@ pub mod key;
 pub mod analyze;
 pub mod prelude;
 pub mod clef;
+pub(crate) mod util;
 /*
 TODO:
     - add prelude
