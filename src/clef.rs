@@ -4,7 +4,6 @@ use std::ops::RangeInclusive;
 use crate::letter::Letter;
 use crate::note::Note;
 use crate::octave_letter::OctaveLetter;
-use crate::util::WrappingRange;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub struct PitchClef {
