@@ -54,6 +54,38 @@ impl PitchClassSet {
     pub fn with_cleared(self, pc: PitchClass) -> Self {
         Self(self.0 & !(1 << Self::index(pc)))
     }
+
+    pub fn is_superset_of(self, rhs: Self) -> bool {
+        (self.0 & rhs.0) == rhs.0
+    }
+
+    pub fn is_subset_of(self, rhs: Self) -> bool {
+        (self.0 & rhs.0) == self.0
+    }
+
+    pub fn disjoint(self, rhs: Self) -> bool {
+        (self.0 & rhs.0) == 0
+    }
+
+    pub fn union(self, rhs: Self) -> Self {
+        Self(self.0 | rhs.0)
+    }
+
+    pub fn intersection(self, rhs: Self) -> Self {
+        Self(self.0 & rhs.0)
+    }
+
+    pub fn difference(self, rhs: Self) -> Self {
+        Self(self.0 & !rhs.0)
+    }
+
+    pub fn symmetric_difference(self, rhs: Self) -> Self {
+        Self(self.0 ^ rhs.0)
+    }
+
+    pub fn complement(self) -> Self {
+        Self::new_masked(!self.0)
+    }
 }
 
 impl fmt::Debug for PitchClassSet {
