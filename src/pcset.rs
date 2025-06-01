@@ -9,6 +9,11 @@ impl PitchClassSet {
     pub fn new(set: u16) -> Option<Self> {
         (set < 4096).then_some(Self(set))
     }
+
+    #[inline(always)]
+    pub fn new_masked(set: u16) -> Self {
+        Self(set & 0xfff)
+    }
     
     pub fn get(self) -> u16 {
         self.0
