@@ -161,5 +161,38 @@ mod tests {
 
         assert_eq!(pcs.len(), set.len() as _);
     }
+    
+    #[test]
+    fn set_ops() {
+        let set = PitchClassSet::new(0b000011001100).expect("only necessary bits set");
+        
+        assert_eq!(!set, PitchClassSet::new(0b111100110011).expect("only necessary bits set"));
+        
+        assert_eq!(!!set, set);
+        
+        let cmaj = [
+            PitchClass::C,
+            PitchClass::D,
+            PitchClass::E,
+            PitchClass::F,
+            PitchClass::G,
+            PitchClass::A,
+            PitchClass::B,
+        ];
+        
+        let cmaj_pentatonic = [
+            PitchClass::C,
+            PitchClass::D,
+            PitchClass::E,
+            PitchClass::F,
+            PitchClass::G,
+        ];
+        
+        let pcs_cmaj = PitchClassSet::from_pitch_classes(&cmaj);
+        let pcs_cmaj_pentatonic = PitchClassSet::from_pitch_classes(&cmaj_pentatonic);
+        
+        assert!(pcs_cmaj.is_superset_of(pcs_cmaj_pentatonic));
+        assert!(pcs_cmaj_pentatonic.is_subset_of(pcs_cmaj));
+    }
 }
 
