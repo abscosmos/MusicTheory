@@ -14,11 +14,13 @@ impl PitchClassSet {
     pub fn new_masked(set: u16) -> Self {
         Self(set & 0xfff)
     }
-    
+
+    #[inline(always)]
     pub fn get(self) -> u16 {
         self.0
     }
-    
+
+    #[inline(always)]
     pub fn len(self) -> u8 {
         self.0.count_ones() as _
     }
@@ -55,34 +57,42 @@ impl PitchClassSet {
         Self(self.0 & !(1 << Self::index(pc)))
     }
 
+    #[inline(always)]
     pub fn is_superset_of(self, rhs: Self) -> bool {
         (self.0 & rhs.0) == rhs.0
     }
 
+    #[inline(always)]
     pub fn is_subset_of(self, rhs: Self) -> bool {
         (self.0 & rhs.0) == self.0
     }
 
+    #[inline(always)]
     pub fn disjoint(self, rhs: Self) -> bool {
         (self.0 & rhs.0) == 0
     }
 
+    #[inline(always)]
     pub fn union(self, rhs: Self) -> Self {
         Self(self.0 | rhs.0)
     }
 
+    #[inline(always)]
     pub fn intersection(self, rhs: Self) -> Self {
         Self(self.0 & rhs.0)
     }
 
+    #[inline(always)]
     pub fn difference(self, rhs: Self) -> Self {
         Self(self.0 & !rhs.0)
     }
 
+    #[inline(always)]
     pub fn symmetric_difference(self, rhs: Self) -> Self {
         Self(self.0 ^ rhs.0)
     }
 
+    #[inline(always)]
     pub fn complement(self) -> Self {
         Self::new_masked(!self.0)
     }
