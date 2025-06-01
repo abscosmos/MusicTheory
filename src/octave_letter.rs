@@ -9,6 +9,16 @@ pub struct OctaveLetter {
     pub octave: i16,
 }
 
+impl OctaveLetter {
+    pub fn new(letter: Letter, octave: i16) -> Self {
+        Self { letter, octave }
+    }
+    
+    pub fn offset_to(self, rhs: Self) -> i16 {
+        (rhs.octave - self.octave) * 7 + rhs.letter.step() as i16 - self.letter.step() as i16
+    }
+}
+
 impl fmt::Display for OctaveLetter {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", Note::from(*self))
@@ -33,3 +43,16 @@ impl PartialOrd for OctaveLetter {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use crate::letter::Letter;
+    use crate::octave_letter::OctaveLetter;
+
+    #[test]
+    fn test_offset() {
+        let c4 = OctaveLetter::new(Letter::C, 4);
+        
+        assert_eq!(c4.offset_to(OctaveLetter::new(Letter::F, 5)), 10);
+        assert_eq!(OctaveLetter::new(Letter::B, 3).offset_to(c4), 1);
+    }
+}
