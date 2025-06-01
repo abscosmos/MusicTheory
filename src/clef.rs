@@ -51,11 +51,14 @@ impl PitchClef {
         self.anchor
     }
     
-    // FIXME: this should really return a Letter with an octave
     pub fn get_note(self, position: StaffPosition) -> OctaveLetter {
         match position {
-            StaffPosition::Line(line) => self.line(line),
-            StaffPosition::Space(space) => self.line(space).with_offset(1),
+            StaffPosition::Line(line) => {
+                let line_offset = line as i16 - self.staff_line.get() as i16;
+
+                self.anchor.with_offset(line_offset * 2)
+            },
+            StaffPosition::Space(space) => self.get_note(StaffPosition::Line(space)).with_offset(1),
         }
     }
     
@@ -65,32 +68,6 @@ impl PitchClef {
     
     pub fn contains(self, note: OctaveLetter) -> bool {
         self.range().contains(&note)
-    }
-    
-    fn line(self, line: i8) -> OctaveLetter {
-        let letter_delta =  2 * (line - self.staff_line.get() as i8);
-
-        let res_letter = (self.anchor().letter.step() as i8 + letter_delta).rem_euclid(7) as _;
-
-        let res_letter = Letter::from_step(res_letter).expect("% 7 is in range [0,6]");
-
-        let oct_1 = letter_delta / 7;
-
-        let letter_range = WrappingRange::new(Letter::C..=Letter::B);
-
-        let range = if letter_delta > 0 {
-            self.anchor().letter..=res_letter
-        } else {
-            res_letter..=self.anchor().letter
-        };
-        
-        let oct_2 = if *range.start() != Letter::C && letter_range.contains(range, &Letter::C) {
-            letter_delta.signum()
-        } else {
-            0
-        };
-
-        OctaveLetter::new(res_letter, self.anchor().octave + (oct_1 + oct_2) as i16)
     }
     
     pub fn get_position(note: Note) -> StaffPosition {
