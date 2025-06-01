@@ -95,7 +95,7 @@ impl PitchClef {
         } else {
             0
         };
-        
+
         Note::new(res_letter.into(), self.octave + (oct_1 + oct_2) as i16)
     }
     
@@ -145,7 +145,7 @@ mod tests {
     use super::PitchClef as Clef;
 
     #[test]
-    fn lines() {
+    fn top_line() {
         assert_eq!(Clef::TREBLE.bottom_line(), Note::new(Pitch::E, 4));
         assert_eq!(Clef::TREBLE_8VA.bottom_line(), Note::new(Pitch::E, 5));
         assert_eq!(Clef::TREBLE_8VB.bottom_line(), Note::new(Pitch::E, 3));
@@ -160,7 +160,10 @@ mod tests {
         assert_eq!(Clef::ALTO.bottom_line(), Note::new(Pitch::F, 3));
         assert_eq!(Clef::TENOR.bottom_line(), Note::new(Pitch::D, 3));
         assert_eq!(Clef::C_BARITONE.bottom_line(), Note::new(Pitch::B, 2));
-
+    }
+    
+    #[test]
+    fn bottom_line() {
         assert_eq!(Clef::TREBLE.top_line(), Note::new(Pitch::F, 5));
         assert_eq!(Clef::TREBLE_8VA.top_line(), Note::new(Pitch::F, 6));
         assert_eq!(Clef::TREBLE_8VB.top_line(), Note::new(Pitch::F, 4));
