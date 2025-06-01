@@ -71,7 +71,10 @@ mod tests {
         assert_eq!(format!("{cde:?}"), "PitchClassSet(0b101010000000)");
         
         assert_eq!(cde, PitchClassSet::from_pitch_classes(&[PitchClass::C, PitchClass::D, PitchClass::E]));
-        
+    }
+    
+    #[test]
+    fn pitch_classes() {
         let pcs = [
             PitchClass::Cs,
             PitchClass::D,
@@ -79,11 +82,11 @@ mod tests {
             PitchClass::G,
             PitchClass::As,
         ];
-        
+
         let set = PitchClassSet::from_pitch_classes(&pcs);
-        
+
         assert_eq!(set.pitch_classes(), pcs);
-        
+
         assert_eq!(pcs.len(), set.len() as _);
     }
 }
