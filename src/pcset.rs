@@ -1,4 +1,5 @@
 use std::fmt;
+use std::ops::{BitAnd, BitXor, Not};
 use strum::IntoEnumIterator;
 use crate::pitch_class::PitchClass;
 
@@ -103,6 +104,30 @@ impl fmt::Debug for PitchClassSet {
         f.debug_tuple("PitchClassSet")
             .field(&format_args!("0b{:012b}", self.0))
             .finish()
+    }
+}
+
+impl Not for PitchClassSet {
+    type Output = Self;
+
+    fn not(self) -> Self::Output {
+        self.complement()
+    }
+}
+
+impl BitAnd for PitchClassSet {
+    type Output = Self;
+
+    fn bitand(self, rhs: Self) -> Self::Output {
+        self.intersection(rhs)
+    }
+}
+
+impl BitXor for PitchClassSet {
+    type Output = Self;
+
+    fn bitxor(self, rhs: Self) -> Self::Output {
+        self.symmetric_difference(rhs)
     }
 }
 
