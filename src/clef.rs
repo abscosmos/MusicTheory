@@ -8,7 +8,7 @@ use crate::util::WrappingRange;
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub struct PitchClef {
     // assuming there are only G, C, and F clefs
-    // TODO: better name?
+    // TODO: better field name?
     anchor: OctaveLetter,
     // are staffs always placed on the line?
     staff_line: NonZeroU8,
