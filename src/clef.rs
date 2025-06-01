@@ -78,7 +78,7 @@ impl PitchClef {
         }
     }
     
-    pub fn stem_direction(self, notes: &[Note], params: GetStemDirectionParams) -> Option<StemDirection> { 
+    pub fn stem_direction(self, notes: &[OctaveLetter], params: GetStemDirectionParams) -> Option<StemDirection> { 
         // adapted from https://www.music21.org/music21docs/moduleReference/moduleClef.html#music21.clef.Clef.getStemDirectionForPitches
         
         use GetStemDirectionParams as P;
@@ -87,8 +87,8 @@ impl PitchClef {
 
         match notes {
             &[] => None,
-            &[n] => {
-                if OctaveLetter::from_note_lossy(n) >= mid_line {
+            &[ol] => {
+                if ol >= mid_line {
                     Some(StemDirection::Down)
                 } else {
                     Some(StemDirection::Up)
@@ -118,8 +118,8 @@ impl PitchClef {
                 };
 
                 let sum = slice.iter()
-                    .map(|n|
-                        mid_line.offset_to(OctaveLetter::from_note_lossy(*n))
+                    .map(|ol|
+                        mid_line.offset_to(*ol)
                     )
                     .sum::<i16>();
 
@@ -197,9 +197,7 @@ pub struct TablatureClef;
 #[cfg(test)]
 mod tests {
     use crate::letter::Letter;
-    use crate::note::Note;
     use crate::octave_letter::OctaveLetter;
-    use crate::pitch::Pitch;
     use super::{PitchClef as Clef, StaffPosition as Pos, *};
 
     const ALL_CONSTS: [PitchClef; 14] = [
@@ -274,8 +272,8 @@ mod tests {
     fn test_stem_direction() {
         use GetStemDirectionParams as P;
         
-        let c3 = Note::new(Pitch::C, 3);
-        let b3 = Note::new(Pitch::B, 3);
+        let c3 = OctaveLetter::new(Letter::C, 3);
+        let b3 = OctaveLetter::new(Letter::B, 3);
         
         assert_eq!(P::default(), P::EndsOnly);
         
@@ -306,7 +304,7 @@ mod tests {
             Some(StemDirection::Down),
         );
 
-        let c2 = Note::new(Pitch::C, 2);
+        let c2 = OctaveLetter::new(Letter::C, 2);
         
         assert_eq!(
             Clef::BASS.stem_direction(&[c3, b3, c3, c2], P::ExtremesOnly),
