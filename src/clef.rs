@@ -2,7 +2,7 @@ use std::fmt;
 use std::num::NonZeroU8;
 use std::ops::RangeInclusive;
 use crate::letter::Letter;
-use crate::note::Note;
+use crate::stem_direction::StemDirection;
 use crate::octave_letter::OctaveLetter;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
@@ -144,12 +144,6 @@ pub enum GetStemDirectionParams {
     ExtremesOnly,
     /// All notes are considered
     AllNotes,
-}
-
-#[derive(Copy, Clone, Eq, PartialEq, Debug)]
-pub enum StemDirection {
-    Up,
-    Down,
 }
 
 impl fmt::Display for PitchClef {

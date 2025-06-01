@@ -13,6 +13,7 @@ pub mod analyze;
 pub mod prelude;
 pub mod clef;
 pub mod octave_letter;
+pub mod stem_direction;
 /*
 TODO:
     - add prelude
