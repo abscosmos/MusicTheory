@@ -125,6 +125,13 @@ impl PitchClef {
     }
 }
 
+/// The first line of the staff is Line(1), and the space above it is Space(1)
+/// Line (0) would correspond to the first ledger line underneath the staff
+pub enum StaffPosition {
+    Line(i8),
+    Space(i8),
+}
+
 #[derive(Copy, Clone, Debug)]
 pub struct PercussionClef;
 
