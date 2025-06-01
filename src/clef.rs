@@ -1,3 +1,4 @@
+use std::fmt;
 use std::num::NonZeroU8;
 use std::ops::RangeInclusive;
 use crate::letter::Letter;
@@ -85,6 +86,28 @@ impl PitchClef {
     }
 }
 
+impl fmt::Display for PitchClef {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match *self {
+            Self::TREBLE => write!(f, "Treble"),
+            Self::TREBLE_8VA => write!(f, "Treble (8va)"),
+            Self::TREBLE_8VB => write!(f, "Treble (8vb)"),
+            Self::FRENCH_VIOLIN => write!(f, "French Violin"),
+            Self::BASS => write!(f, "Bass"),
+            Self::BASS_8VA => write!(f, "Bass (8va)"),
+            Self::BASS_8VB => write!(f, "Bass (8vb)"),
+            Self::SUB_BASS => write!(f, "Sub-bass"),
+            Self::F_BARITONE => write!(f, "F Baritone"),
+            Self::SOPRANO => write!(f, "Soprano"),
+            Self::MEZZO_SOPRANO => write!(f, "Mezzo-soprano"),
+            Self::ALTO => write!(f, "Alto"),
+            Self::TENOR => write!(f, "Tenor"),
+            Self::C_BARITONE => write!(f, "C Baritone"),
+            _ => write!(f, "Custom ({} on line {})", self.anchor, self.staff_line),
+        }
+    }
+}
+
 /// The first line of the staff is Line(1), and the space above it is Space(1)
 /// Line (0) would correspond to the first ledger line underneath the staff
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
@@ -110,7 +133,7 @@ mod tests {
     use crate::letter::Letter;
     use crate::octave_letter::OctaveLetter;
     use super::{PitchClef as Clef, PitchClef, StaffPosition as Pos, StaffPosition};
-    
+
     const ALL_CONSTS: [PitchClef; 14] = [
         Clef::TREBLE,
         Clef::TREBLE_8VA,
@@ -173,10 +196,10 @@ mod tests {
                 assert_eq!(line, clef.get_position(clef.get_note(line)));
 
                 let space = StaffPosition::Space(v);
-                
+
                 assert_eq!(space, clef.get_position(clef.get_note(space)));
             }
         }
     }
-    
+
 }
