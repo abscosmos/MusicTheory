@@ -16,6 +16,10 @@ impl OctaveLetter {
         Self { letter, octave }
     }
 
+    pub fn from_note_lossy(note: Note) -> Self {
+        Self { letter: note.letter(), octave: note.octave }
+    }
+
     pub const fn offset_to(self, rhs: Self) -> i16 {
         (rhs.octave - self.octave) * 7 + rhs.letter.step() as i16 - self.letter.step() as i16
     }
