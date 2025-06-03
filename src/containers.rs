@@ -40,6 +40,10 @@ impl Freeform {
         
         Ok(())
     }
+    
+    pub fn elements(&self) -> &[(Offset, ContainerElement)] {
+        &self.elements
+    }
 }
 
 #[derive(Debug, thiserror::Error)]
