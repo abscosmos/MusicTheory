@@ -1,10 +1,12 @@
 use crate::duration::Duration;
 use crate::note::Note;
 
+#[derive(Default, Debug, Clone)]
 pub struct Freeform {
     elements: Vec<(Duration, ContainerElement)>,
 }
 
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub enum ContainerElement {
     Note {
         note: Note,
