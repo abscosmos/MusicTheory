@@ -52,6 +52,15 @@ impl ContainerElement {
     pub fn rest(duration: Duration) -> Self {
         Self::Rest { duration, implicit: false }
     }
+    
+    pub fn duration(&self) -> Option<Duration> {
+        match self {
+            Self::Note { duration, .. } => Some(*duration),
+            Self::Rest { duration, .. } => Some(*duration),
+            Self::KeySignature(_) => None,
+            Self::Clef(_) => None,
+        }
+    }
 }
 
 #[derive(Copy, Clone, Debug, Default, Hash, Eq, PartialEq)]
