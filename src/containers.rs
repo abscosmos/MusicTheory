@@ -2,13 +2,31 @@ use crate::clef::PitchClef;
 use crate::duration::Duration;
 use crate::key::Key;
 use crate::note::Note;
+use crate::pitch::Pitch;
 
 // represents duration as offset from container start
 type Offset = Duration;
 
-#[derive(Default, Debug, Clone)]
+#[derive(Debug, Clone)]
 pub struct Freeform {
     elements: Vec<(Offset, ContainerElement)>,
+}
+
+impl Freeform {
+    pub fn with_clef_and_key_signature(clef: PitchClef, key_sig: Key) -> Self {
+        let elements = vec![
+            (Offset::ZERO, ContainerElement::Clef(clef)),
+            (Offset::ZERO, ContainerElement::KeySignature(key_sig)),
+        ];
+        
+        Self { elements }
+    }
+}
+
+impl Default for Freeform {
+    fn default() -> Self {
+        Self::with_clef_and_key_signature(PitchClef::TREBLE, Key::major(Pitch::C))
+    }
 }
 
 #[derive(Debug, Clone, Eq, PartialEq)]
@@ -33,4 +51,3 @@ pub enum AccidentalDisplay {
     Courtesy,
     Implied,
 }
-
