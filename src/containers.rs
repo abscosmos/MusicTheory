@@ -74,12 +74,12 @@ pub enum ContainerElement {
 }
 
 impl ContainerElement {
-    pub fn note(note: Note, duration: Duration) -> Self {
-        Self::Note { note, duration, accidental: AccidentalDisplay::default() }
+    pub fn note(note: Note, duration: impl Into<Duration>) -> Self {
+        Self::Note { note, duration: duration.into(), accidental: AccidentalDisplay::default() }
     }
     
-    pub fn rest(duration: Duration) -> Self {
-        Self::Rest { duration, implicit: false }
+    pub fn rest(duration: impl Into<Duration>) -> Self {
+        Self::Rest { duration: duration.into(), implicit: false }
     }
     
     pub fn duration(&self) -> Option<Duration> {
@@ -113,7 +113,7 @@ mod tests {
         let b3 = Note::new(Pitch::B, 3);
         let ds5 = Note::new(Pitch::D_SHARP, 5);
         
-        freeform.push(CE::note(b3, WrittenDuration::HALF.duration()))?;
+        freeform.push(CE::note(b3, WrittenDuration::HALF))?;
 
         assert_eq!(
             freeform.elements(),
@@ -122,7 +122,7 @@ mod tests {
                 (Offset::ZERO, CE::Clef(PitchClef::TREBLE)),
                 (Offset::ZERO, CE::KeySignature(Key::major(Pitch::C))),
                 
-                (Offset::ZERO, CE::note(b3, WrittenDuration::HALF.duration())),
+                (Offset::ZERO, CE::note(b3, WrittenDuration::HALF)),
             ]
         );
         
