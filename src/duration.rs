@@ -61,7 +61,7 @@ pub struct Duration(Ratio<u32>);
 
 impl Duration {
     // TODO: properly define this method
-    const ZERO: Self = Self(Ratio::new_raw(0, 1));
+    pub const ZERO: Self = Self(Ratio::new_raw(0, 1));
     
     pub fn new(dur: Ratio<u32>) -> Self {
         Self(dur.reduced())
