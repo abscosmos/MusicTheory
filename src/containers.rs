@@ -13,12 +13,18 @@ pub enum ContainerElement {
         duration: Duration,
         accidental: AccidentalDisplay,
     },
+    Rest {
+        offset: Duration,
+        duration: Duration,
+        implicit: bool,
+    },
 }
 
 impl ContainerElement {
     pub fn offset(&self) -> Duration {
         match self {
             ContainerElement::Note { offset, .. } => *offset,
+            ContainerElement::Rest { offset, .. } => *offset,
         }
     }
 }
