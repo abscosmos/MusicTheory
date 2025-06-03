@@ -121,20 +121,20 @@ impl<R: Clone + Add<Interval, Output = R> + Into<Pitch> + Ord, const N: usize, S
 }
 
 fn build_inner<R: Clone + Add<Interval, Output = R> + Ord>(root: R, rel_ivls: &[Interval], min: R, max: R) -> Vec<R> {
-    let mut gen = rel_ivls.iter().cycle();
+    let mut generator = rel_ivls.iter().cycle();
 
     let mut built = Vec::new();
 
     let mut curr = move_into_octave_before_target(root.clone(), min.clone());
 
     while curr < min {
-        curr = curr + *gen.next().expect("must have next, since cycling");
+        curr = curr + *generator.next().expect("must have next, since cycling");
     }
 
     while curr <= max { // TODO: does this cmp work for pitches?
         built.push(curr.clone());
 
-        curr = curr + *gen.next().expect("must have next, since cycling");
+        curr = curr + *generator.next().expect("must have next, since cycling");
     }
 
     built
