@@ -56,6 +56,12 @@ impl WrittenDuration {
     }
 }
 
+impl From<WrittenDuration> for Duration {
+    fn from(written_dur: WrittenDuration) -> Self {
+        written_dur.duration()
+    }
+}
+
 // TODO: change name to avoid collision with std::time::Duration?
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub struct Duration(Ratio<u32>);
