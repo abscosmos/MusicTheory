@@ -1,3 +1,4 @@
+use std::ops::Add;
 use num_rational::Ratio;
 
 #[derive(Debug, Copy, Clone)]
@@ -65,5 +66,13 @@ impl Duration {
     
     pub fn new(dur: Ratio<u32>) -> Self {
         Self(dur.reduced())
+    }
+}
+
+impl Add for Duration {
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        Self(self.0 + rhs.0)
     }
 }
