@@ -1,3 +1,4 @@
+use crate::duration::Duration;
 use crate::note::Note;
 
 pub struct Freeform {
@@ -6,8 +7,10 @@ pub struct Freeform {
 
 pub enum ContainerElement {
     Note {
+        // offset as duration from container start
+        offset: Duration,
         note: Note,
-        duration: (),
+        duration: Duration,
         accidental: AccidentalDisplay,
     },
 }
