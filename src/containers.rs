@@ -1,3 +1,4 @@
+use std::ops::Add;
 use crate::clef::PitchClef;
 use crate::duration::Duration;
 use crate::key::Key;
@@ -39,6 +40,25 @@ impl Freeform {
         }
         
         Ok(())
+    }
+    
+    pub fn duration(&self) -> Duration {
+        let Some((last_offset, last)) = self.elements.last() else {
+            return Duration::ZERO;
+        };
+        
+        let dur_from_last = *last_offset + last.duration().unwrap_or(Duration::ZERO);
+        
+        let dur_sum = self.elements.iter()
+            .flat_map(|(_, ce)| ce.duration())
+            .fold(Duration::ZERO, Add::add);
+        
+        assert_eq!(
+            dur_from_last, dur_sum,
+            "The sum of all durations should be the same as duration from the container start to the last element's end"
+        );
+        
+        dur_sum
     }
     
     pub fn elements(&self) -> &[(Offset, ContainerElement)] {
