@@ -6,7 +6,7 @@ use crate::note::Note;
 use crate::pitch::Pitch;
 
 // represents duration as offset from container start
-type Offset = Duration;
+pub type Offset = Duration;
 
 #[derive(Debug, Clone)]
 pub struct Freeform {

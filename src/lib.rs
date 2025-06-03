@@ -16,7 +16,7 @@ pub mod octave_letter;
 pub mod stem_direction;
 pub mod pcset;
 pub mod duration;
-mod containers;
+pub mod containers;
 /*
 TODO:
     - add prelude
