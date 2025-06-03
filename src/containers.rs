@@ -44,6 +44,16 @@ pub enum ContainerElement {
     Clef(PitchClef),
 }
 
+impl ContainerElement {
+    pub fn note(note: Note, duration: Duration) -> Self {
+        Self::Note { note, duration, accidental: AccidentalDisplay::default() }
+    }
+    
+    pub fn rest(duration: Duration) -> Self {
+        Self::Rest { duration, implicit: false }
+    }
+}
+
 #[derive(Copy, Clone, Debug, Default, Hash, Eq, PartialEq)]
 pub enum AccidentalDisplay {
     #[default]
