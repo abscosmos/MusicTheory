@@ -73,6 +73,10 @@ impl Duration {
     pub fn new(dur: Ratio<u32>) -> Self {
         Self(dur.reduced())
     }
+    
+    pub fn ratio(self) -> Ratio<u32> {
+        self.0
+    }
 }
 
 impl Add for Duration {
