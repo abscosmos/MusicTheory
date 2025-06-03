@@ -15,6 +15,14 @@ pub enum ContainerElement {
     },
 }
 
+impl ContainerElement {
+    pub fn offset(&self) -> Duration {
+        match self {
+            ContainerElement::Note { offset, .. } => *offset,
+        }
+    }
+}
+
 #[derive(Copy, Clone, Debug, Default, Hash, Eq, PartialEq)]
 pub enum AccidentalDisplay {
     #[default]
