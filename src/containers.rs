@@ -21,6 +21,31 @@ impl Freeform {
         
         Self { elements }
     }
+    
+    pub fn push(&mut self, elem: ContainerElement) -> Result<(), FreeformInsertError> {
+        match self.elements.last() {
+            None => {
+                if matches!(elem, ContainerElement::Clef(_)) {
+                    self.elements.push((Offset::ZERO, elem));
+                } else {
+                    return Err(FreeformInsertError::FirstNotClef);
+                }
+            }
+            Some((offset, last)) => {
+                // TODO: remove any implicit rests
+                let insert_at = *offset + last.duration().unwrap_or(Duration::ZERO);
+                self.elements.push((insert_at, elem));
+            }
+        }
+        
+        Ok(())
+    }
+}
+
+#[derive(Debug, thiserror::Error)]
+pub enum FreeformInsertError {
+    #[error("The first element in a freeform must be a clef")]
+    FirstNotClef,
 }
 
 impl Default for Freeform {
