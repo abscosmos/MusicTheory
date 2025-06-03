@@ -122,7 +122,8 @@ pub enum AccidentalDisplay {
 
 #[cfg(test)]
 mod tests {
-    use crate::duration::WrittenDuration;
+    use num_rational::Ratio;
+    use crate::duration::WrittenDuration as WD;
     use super::{*, ContainerElement as CE};
     
     #[test]
@@ -131,9 +132,15 @@ mod tests {
         let mut freeform = Freeform::default();
         
         let b3 = Note::new(Pitch::B, 3);
+        let c4 = Note::MIDDLE_C;
+        let ef4 = Note::new(Pitch::E_FLAT, 4);
         let ds5 = Note::new(Pitch::D_SHARP, 5);
         
-        freeform.push(CE::note(b3, WrittenDuration::HALF))?;
+        freeform.push(CE::note(b3, WD::HALF))?;
+        freeform.push(CE::note(c4, WD::EIGHTH))?;
+        freeform.push(CE::note(ds5, WD::EIGHTH))?;
+        freeform.push(CE::note(b3, WD::QUARTER))?;
+        freeform.push(CE::note(ef4, WD::WHOLE))?;
 
         assert_eq!(
             freeform.elements(),
@@ -142,7 +149,11 @@ mod tests {
                 (Offset::ZERO, CE::Clef(PitchClef::TREBLE)),
                 (Offset::ZERO, CE::KeySignature(Key::major(Pitch::C))),
                 
-                (Offset::ZERO, CE::note(b3, WrittenDuration::HALF)),
+                (Offset::ZERO, CE::note(b3, WD::HALF)),
+                (Offset::new(Ratio::new(1,2)), CE::note(c4, WD::EIGHTH)),
+                (Offset::new(Ratio::new(5,8)), CE::note(ds5, WD::EIGHTH)),
+                (Offset::new(Ratio::new(3,4)), CE::note(b3, WD::QUARTER)),
+                (Offset::new(Ratio::from_integer(1)), CE::note(ef4, WD::WHOLE)),
             ]
         );
         
