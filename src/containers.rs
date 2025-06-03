@@ -123,7 +123,7 @@ pub enum AccidentalDisplay {
 #[cfg(test)]
 mod tests {
     use num_rational::Ratio;
-    use crate::duration::WrittenDuration as WD;
+    use crate::duration::{WrittenDuration as WD};
     use super::{*, ContainerElement as CE};
     
     #[test]
@@ -156,6 +156,8 @@ mod tests {
                 (Offset::new(Ratio::from_integer(1)), CE::note(ef4, WD::WHOLE)),
             ]
         );
+        
+        assert_eq!(freeform.duration(), WD::DOUBLE_WHOLE.duration());
         
         Ok(())
     }
