@@ -1,4 +1,6 @@
+use crate::clef::PitchClef;
 use crate::duration::Duration;
+use crate::key::Key;
 use crate::note::Note;
 
 #[derive(Default, Debug, Clone)]
@@ -17,6 +19,8 @@ pub enum ContainerElement {
         duration: Duration,
         implicit: bool,
     },
+    KeySignature(Key),
+    Clef(PitchClef),
 }
 
 #[derive(Copy, Clone, Debug, Default, Hash, Eq, PartialEq)]
