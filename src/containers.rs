@@ -99,3 +99,33 @@ pub enum AccidentalDisplay {
     Courtesy,
     Implied,
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::duration::WrittenDuration;
+    use super::{*, ContainerElement as CE};
+    
+    #[test]
+    fn test_freeform_push() -> Result<(), FreeformInsertError> {
+        // automatically adds clef & key
+        let mut freeform = Freeform::default();
+        
+        let b3 = Note::new(Pitch::B, 3);
+        let ds5 = Note::new(Pitch::D_SHARP, 5);
+        
+        freeform.push(CE::note(b3, WrittenDuration::HALF.duration()))?;
+
+        assert_eq!(
+            freeform.elements(),
+            [
+                // automatically added
+                (Offset::ZERO, CE::Clef(PitchClef::TREBLE)),
+                (Offset::ZERO, CE::KeySignature(Key::major(Pitch::C))),
+                
+                (Offset::ZERO, CE::note(b3, WrittenDuration::HALF.duration())),
+            ]
+        );
+        
+        Ok(())
+    }
+}
