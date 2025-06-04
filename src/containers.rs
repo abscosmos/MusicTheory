@@ -57,6 +57,18 @@ impl Freeform {
         
         Ok(())
     }
+    
+    pub fn insert(&mut self, offset: Offset, elem: ContainerElement) -> Result<(), FreeformInsertError> {
+        /*
+            - no trailing rests
+            - zero duration (clef/key sig) must come before duration having; priority
+                - clef
+                - key signature
+                - notes / rests
+        */
+        
+        todo!()
+    }
 
     fn next_insertion_point(&self) -> Offset {
         match self.elements.last() {
