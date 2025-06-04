@@ -1,7 +1,6 @@
 use std::path::Path;
 use musicxml::datatypes::{AccidentalValue, ClefSign, Fifths, Id, IdRef, Mode, Octave, PositiveDivisions, Semitones, StaffLinePosition, Step, Token};
 use musicxml::elements::{AudibleType, MeasureElement, NormalInfo, Note, NoteContents, NoteType, PartName, Pitch, PitchContents, ScorePart, ScorePartAttributes, ScorePartContents, ScorePartwise, ScorePartwiseContents, Octave as OctaveEl, Step as StepEl, Key as KeyEl, Duration, Accidental, Rest, RestContents, Measure, MeasureAttributes, Part, PartAttributes, PartElement, Attributes, AttributesContents, KeyContents, ExplicitKeyContents, Fifths as FifthsCt, Mode as ModeEl, Clef, ClefContents, Sign, Line, PartList, PartListContents, PartListElement, Divisions, Alter};
-use num_rational::Ratio;
 use crate::accidental::AccidentalSign;
 use crate::containers::{AccidentalDisplay, ContainerElement, Freeform, Offset};
 use crate::letter::Letter;
