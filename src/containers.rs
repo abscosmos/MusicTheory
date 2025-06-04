@@ -36,14 +36,8 @@ impl Freeform {
                 _ => Err(FreeformInsertError::FirstNotClef)
             };
         }
-        
-        assert!(
-            !self.trailing_implicit_rest_exists(),
-            "Trailing implicit rests should not exist",
-        );
 
         match elem {
-            Elem::Rest { implicit: true, .. } => return Err(FreeformInsertError::TrailingImplicitRest),
             Elem::Note { .. } | Elem::Rest { .. } => self.elements.push((self.next_insertion_point(), elem)),
             Elem::KeySignature(_) | Elem::Clef(_) => {
                 let ins_at = self.next_insertion_point();
@@ -98,14 +92,6 @@ impl Freeform {
             None => Offset::ZERO,
         }
     }
-
-    fn trailing_implicit_rest_exists(&self) -> bool {
-        self.elements()
-            .last()
-            .is_none_or(|(_, el)|
-                matches!(el, ContainerElement::Rest { implicit: true, .. })
-            )
-    }
     
     pub fn duration(&self) -> Duration {
         let Some((last_offset, last)) = self.elements.last() else {
@@ -135,8 +121,6 @@ impl Freeform {
 pub enum FreeformInsertError {
     #[error("The first element in a freeform must be a clef")]
     FirstNotClef,
-    #[error("Implicit rests at freeform's end are not allowed")]
-    TrailingImplicitRest,
 }
 
 impl Default for Freeform {
@@ -154,7 +138,6 @@ pub enum ContainerElement {
     },
     Rest {
         duration: Duration,
-        implicit: bool,
     },
     KeySignature(Key),
     Clef(PitchClef),
@@ -166,7 +149,7 @@ impl ContainerElement {
     }
     
     pub fn rest(duration: impl Into<Duration>) -> Self {
-        Self::Rest { duration: duration.into(), implicit: false }
+        Self::Rest { duration: duration.into() }
     }
     
     pub fn duration(&self) -> Option<Duration> {
