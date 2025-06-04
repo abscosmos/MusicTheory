@@ -1,6 +1,6 @@
 use std::path::Path;
-use musicxml::datatypes::{AccidentalValue, ClefSign, Fifths, Id, IdRef, Mode, Octave, PositiveDivisions, StaffLinePosition, Step, Token};
-use musicxml::elements::{AudibleType, MeasureElement, NormalInfo, Note, NoteContents, NoteType, PartName, Pitch, PitchContents, PitchedAttributes, ScorePart, ScorePartAttributes, ScorePartContents, ScorePartwise, ScorePartwiseContents, Octave as OctaveEl, Step as StepEl, Key as KeyEl, Duration, Accidental, Rest, RestContents, Measure, MeasureAttributes, Part, PartAttributes, PartElement, Attributes, AttributesContents, KeyContents, ExplicitKeyContents, Fifths as FifthsCt, Mode as ModeEl, Clef, ClefContents, Sign, Line, PartList, PartListContents, PartListElement};
+use musicxml::datatypes::{AccidentalValue, ClefSign, Fifths, Id, IdRef, Mode, Octave, PositiveDivisions, Semitones, StaffLinePosition, Step, Token};
+use musicxml::elements::{AudibleType, MeasureElement, NormalInfo, Note, NoteContents, NoteType, PartName, Pitch, PitchContents, ScorePart, ScorePartAttributes, ScorePartContents, ScorePartwise, ScorePartwiseContents, Octave as OctaveEl, Step as StepEl, Key as KeyEl, Duration, Accidental, Rest, RestContents, Measure, MeasureAttributes, Part, PartAttributes, PartElement, Attributes, AttributesContents, KeyContents, ExplicitKeyContents, Fifths as FifthsCt, Mode as ModeEl, Clef, ClefContents, Sign, Line, PartList, PartListContents, PartListElement, Divisions, Alter};
 use num_rational::Ratio;
 use crate::accidental::AccidentalSign;
 use crate::containers::{AccidentalDisplay, ContainerElement, Freeform, Offset};
@@ -93,7 +93,11 @@ pub fn export_to_musicxml(freeform: &Freeform) -> Result<ScorePartwise, Freeform
                                             Letter::B => Step::B,
                                         }
                                     },
-                                    alter: None,
+                                    alter: Some(Alter {
+                                        attributes: (),
+                                        content:
+                                        Semitones(note.accidental().offset),
+                                    }),
                                     octave: OctaveEl {
                                         attributes: (),
                                         content: Octave(note.octave.clamp(u8::MIN as _, u8::MAX as _) as _),
