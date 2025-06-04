@@ -24,7 +24,15 @@ pub enum FreeformToMxlError {
 }
 
 pub fn save_mxl(score: &ScorePartwise, path: impl AsRef<Path>) -> Result<(), String> {
-    musicxml::write_partwise_score(&path.as_ref().to_string_lossy(), score, true, false)
+    let path = path.as_ref();
+    
+    let compressed = match path.extension() {
+        Some(ext) if ext == "mxl" => true,
+        Some(ext) if ext == "musicxml" => false,
+        _ => return Err("Unrecognized file extension".to_owned()),
+    };
+
+    musicxml::write_partwise_score(&path.to_string_lossy(), score, compressed, false)
 }
 
 pub fn export_to_musicxml(freeform: &Freeform) -> Result<ScorePartwise, FreeformToMxlError> {
