@@ -39,9 +39,9 @@ impl PitchClassSet {
     }
     
     pub fn from_pitch_classes(pitch_classes: &[PitchClass]) -> Self {
-        pitch_classes.iter().fold(
+        pitch_classes.iter().copied().fold(
             PitchClassSet::default(),
-            |set, pc| set.with_set(*pc)
+            PitchClassSet::with_set,
         )
     }
     
