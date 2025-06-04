@@ -63,7 +63,7 @@ impl From<WrittenDuration> for Duration {
 }
 
 // TODO: change name to avoid collision with std::time::Duration?
-#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Ord, PartialOrd)]
 pub struct Duration(Ratio<u32>);
 
 impl Duration {
