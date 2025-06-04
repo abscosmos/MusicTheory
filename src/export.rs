@@ -1,3 +1,4 @@
+use std::path::Path;
 use musicxml::datatypes::{AccidentalValue, ClefSign, Fifths, Id, IdRef, Mode, Octave, PositiveDivisions, StaffLinePosition, Step, Token};
 use musicxml::elements::{AudibleType, MeasureElement, NormalInfo, Note, NoteContents, NoteType, PartName, Pitch, PitchContents, PitchedAttributes, ScorePart, ScorePartAttributes, ScorePartContents, ScorePartwise, ScorePartwiseContents, Octave as OctaveEl, Step as StepEl, Key as KeyEl, Duration, Accidental, Rest, RestContents, Measure, MeasureAttributes, Part, PartAttributes, PartElement, Attributes, AttributesContents, KeyContents, ExplicitKeyContents, Fifths as FifthsCt, Mode as ModeEl, Clef, ClefContents, Sign, Line, PartList, PartListContents, PartListElement};
 use num_rational::Ratio;
@@ -20,6 +21,10 @@ pub enum FreeformToMxlError {
         divisions: u32,
         duration: MtDuration,
     }
+}
+
+pub fn save_mxl(score: &ScorePartwise, path: impl AsRef<Path>) -> Result<(), String> {
+    musicxml::write_partwise_score(&path.as_ref().to_string_lossy(), score, true, false)
 }
 
 pub fn export_to_musicxml(freeform: &Freeform) -> Result<ScorePartwise, FreeformToMxlError> {
