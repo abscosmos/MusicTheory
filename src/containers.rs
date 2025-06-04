@@ -23,6 +23,7 @@ impl Freeform {
         Self { elements }
     }
     
+    // FIXME: don't allow double insertion of a clef/key (replace)
     pub fn push(&mut self, elem: ContainerElement) -> Result<(), FreeformInsertError> {
         match self.elements.last() {
             None => {
