@@ -1,3 +1,4 @@
+use std::mem;
 use std::ops::Add;
 use crate::clef::PitchClef;
 use crate::duration::Duration;
@@ -45,8 +46,18 @@ impl Freeform {
             Elem::Rest { implicit: true, .. } => return Err(FreeformInsertError::TrailingImplicitRest),
             Elem::Note { .. } | Elem::Rest { .. } => self.elements.push((self.next_insertion_point(), elem)),
             Elem::KeySignature(_) | Elem::Clef(_) => {
-                // remove any at the same offset
-                todo!()
+                let ins_at = self.next_insertion_point();
+                
+                match self.elements.iter_mut()
+                    .rfind(|(offset, el)|
+                        *offset == ins_at && mem::discriminant(el) == mem::discriminant(&elem)
+                    )
+                {
+                    None => self.elements.push((ins_at, elem)),
+                    Some((_, el)) => {
+                        let _prev = mem::replace(el, elem);
+                    },
+                }
             },
         }
 
