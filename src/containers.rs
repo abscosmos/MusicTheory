@@ -24,19 +24,35 @@ impl Freeform {
     }
     
     pub fn push(&mut self, elem: ContainerElement) -> Result<(), FreeformInsertError> {
-        match self.elements.last() {
-            None => {
-                if matches!(elem, ContainerElement::Clef(_)) {
+        use ContainerElement as Elem;
+
+        if self.elements.is_empty() {
+            return match elem {
+                Elem::Clef(_) => {
                     self.elements.push((Offset::ZERO, elem));
-                } else {
-                    return Err(FreeformInsertError::FirstNotClef);
-                }
+                    Ok(())
+                },
+                _ => Err(FreeformInsertError::FirstNotClef)
+            };
+        }
+
+        match elem {
+            Elem::Rest { implicit: true, .. } => self.elements.push((self.next_insertion_point(), elem)),
+            Elem::Note { .. } | Elem::Rest { .. } => {
+                let (any_rem, ins_at) = self.remove_trailing_implicit_rests();
+
+                assert!(!any_rem, "there should never be trailing rests");
+
+                self.elements.push((ins_at, elem));
             }
-            Some((offset, last)) => {
-                // TODO: remove any implicit rests
-                let insert_at = *offset + last.duration().unwrap_or(Duration::ZERO);
-                self.elements.push((insert_at, elem));
-            }
+            Elem::KeySignature(_) | Elem::Clef(_) => {
+                let (any_rem, ins_at) = self.remove_trailing_implicit_rests();
+
+                assert!(!any_rem, "there should never be trailing rests");
+                
+                // remove any at the same offset
+                todo!()
+            },
         }
         
         Ok(())
