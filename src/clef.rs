@@ -47,6 +47,10 @@ impl PitchClef {
         self.anchor
     }
     
+    pub fn staff_line(self) -> NonZeroU8 {
+        self.staff_line
+    }
+    
     pub fn get_note(self, position: StaffPosition) -> OctaveLetter {
         match position {
             StaffPosition::Line(line) => {
