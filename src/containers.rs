@@ -75,6 +75,16 @@ impl Freeform {
         
         todo!()
     }
+    
+    pub fn active_at(&self, offset: Offset) -> impl Iterator<Item=&(Offset, ContainerElement)> {
+        self.elements
+            .iter()
+            .take_while(move |(of, _)| *of <= offset)
+            .filter(move |(of, el)| match el.duration() {
+                Some(dur) => (*of + dur) > offset,
+                None => *of == offset,
+            })
+    }
 
     fn next_insertion_point(&self) -> Offset {
         match self.elements.last() {
@@ -209,6 +219,22 @@ mod tests {
         );
         
         assert_eq!(freeform.duration(), WD::DOUBLE_WHOLE.duration());
+        
+        Ok(())
+    }
+    
+    #[test]
+    fn test_freeform_active_at() -> Result<(), FreeformInsertError> {
+        let mut freeform = Freeform::default();
+        
+        let a4 = Note::A4;
+        let cs4 = Note::new(Pitch::C_SHARP, 4);
+        let d4 = Note::new(Pitch::D, 4);
+        let fb4 = Note::new(Pitch::F_FLAT, 4);
+        
+        freeform.push(CE::note(a4, WD::HALF))?;
+        
+        // TODO(freeform-insert): can't really test this properly
         
         Ok(())
     }
