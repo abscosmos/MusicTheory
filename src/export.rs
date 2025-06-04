@@ -68,7 +68,7 @@ pub fn export_to_musicxml(freeform: &Freeform) -> Result<ScorePartwise, Freeform
         .next()
         .ok_or(FreeformToMxlError::NoKey)?;
     
-    let mut measures = vec![(Offset::ZERO, Some(clef), (key, false), Vec::new())];
+    let mut measures = vec![(Offset::ZERO, Some(clef), (key, true), Vec::new())];
     
     for (offset, el) in freeform.elements() {
         match el {
@@ -219,8 +219,8 @@ pub fn export_to_musicxml(freeform: &Freeform) -> Result<ScorePartwise, Freeform
     
     let mut part_content = Vec::new();
     
-    for (i, (_, clef, (key, include_key), measure_elements)) in measures.into_iter().enumerate() {
-        let attr = Attributes {
+    for (i, (_, clef, (key, include_key), mut measure_elements)) in measures.into_iter().enumerate() {
+        let attr = MeasureElement::Attributes(Attributes {
             attributes: (),
             content: AttributesContents {
                 footnote: None,
@@ -288,7 +288,11 @@ pub fn export_to_musicxml(freeform: &Freeform) -> Result<ScorePartwise, Freeform
                 directive: vec![],
                 measure_style: vec![],
             },
-        };
+        });
+
+        if include_key || clef.is_some() {
+            measure_elements.insert(0, attr);
+        }
 
         let measure = Measure {
             attributes: MeasureAttributes {
@@ -301,10 +305,6 @@ pub fn export_to_musicxml(freeform: &Freeform) -> Result<ScorePartwise, Freeform
             },
             content: measure_elements,
         };
-        
-        if include_key || clef.is_some() {
-            part_content.push(PartElement::Attributes(attr));
-        }
         
         part_content.push(PartElement::Measure(measure));
     }
