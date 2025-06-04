@@ -20,6 +20,11 @@ impl PitchClassSet {
     pub fn get(self) -> u16 {
         self.0
     }
+    
+    #[inline(always)]
+    pub fn is_empty(self) -> bool {
+        self.len() == 0
+    }
 
     #[inline(always)]
     pub fn len(self) -> u8 {
@@ -32,7 +37,7 @@ impl PitchClassSet {
     }
     
     pub fn from_pitch_classes(pitch_classes: &[PitchClass]) -> Self {
-        pitch_classes.into_iter().fold(
+        pitch_classes.iter().fold(
             PitchClassSet::default(),
             |set, pc| set.with_set(*pc)
         )
