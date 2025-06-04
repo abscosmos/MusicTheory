@@ -43,7 +43,9 @@ impl Freeform {
                 let ins_at = self.next_insertion_point();
                 
                 match self.elements.iter_mut()
-                    .rfind(|(offset, el)|
+                    .rev()
+                    .take_while(|(offset, _)| *offset >= ins_at)
+                    .find(|(offset, el)|
                         *offset == ins_at && mem::discriminant(el) == mem::discriminant(&elem)
                     )
                 {
@@ -210,7 +212,22 @@ mod tests {
         );
         
         assert_eq!(freeform.duration(), WD::DOUBLE_WHOLE.duration());
-        
+
+        freeform.push(ContainerElement::Clef(PitchClef::BASS))?;
+        freeform.push(ContainerElement::KeySignature(Key::major(Pitch::E)))?;
+        freeform.push(ContainerElement::Clef(PitchClef::C_BARITONE))?;
+        freeform.push(ContainerElement::KeySignature(Key::major(Pitch::D)))?;
+
+        let last_two = freeform.elements().len() - 2;
+
+        assert_eq!(
+            &freeform.elements()[last_two..],
+            [
+                (Offset::new(Ratio::from_integer(2)), CE::Clef(PitchClef::C_BARITONE)),
+                (Offset::new(Ratio::from_integer(2)), CE::KeySignature(Key::major(Pitch::D))),
+            ]
+        );
+
         Ok(())
     }
     
