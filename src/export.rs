@@ -296,7 +296,7 @@ pub fn export_to_musicxml(freeform: &Freeform) -> Result<ScorePartwise, Freeform
 
         let measure = Measure {
             attributes: MeasureAttributes {
-                number: Token(i.to_string()),
+                number: Token((i + 1).to_string()),
                 id: None,
                 implicit: None,
                 non_controlling: None,
