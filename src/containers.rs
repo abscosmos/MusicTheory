@@ -41,6 +41,28 @@ impl Freeform {
         
         Ok(())
     }
+
+    fn next_insertion_point(&self) -> Offset {
+        match self.elements.last() {
+            Some((offset, elem)) => *offset + elem.duration().unwrap_or(Duration::ZERO),
+            None => Offset::ZERO,
+        }
+    }
+
+    fn remove_trailing_implicit_rests(&mut self) -> (bool, Offset) {
+        let mut any_removed = false;
+        
+        while let Some((_, last)) = self.elements.last() {
+            if matches!(last, ContainerElement::Rest { implicit: true, .. }) {
+                self.elements.pop();
+                any_removed = true;
+            } else {
+                break;
+            }
+        }
+        
+        (any_removed, self.next_insertion_point())
+    }
     
     pub fn duration(&self) -> Duration {
         let Some((last_offset, last)) = self.elements.last() else {
