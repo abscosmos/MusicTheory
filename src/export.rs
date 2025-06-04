@@ -44,6 +44,8 @@ pub fn export_to_musicxml(freeform: &Freeform) -> Result<ScorePartwise, Freeform
         .max()
         .unwrap_or(1);
     
+    let divisions = (max_denom / 4).max(1);
+    
     let start = freeform.elements()
         .iter()
         .filter_map(|(o, el)| (*o == Offset::ZERO).then_some(el));
@@ -65,8 +67,6 @@ pub fn export_to_musicxml(freeform: &Freeform) -> Result<ScorePartwise, Freeform
         })
         .next()
         .ok_or(FreeformToMxlError::NoKey)?;
-    
-    let min_div = Ratio::from_integer(max_denom).recip();
     
     let mut measures = vec![(Offset::ZERO, Some(clef), (key, false), Vec::new())];
     
@@ -100,7 +100,7 @@ pub fn export_to_musicxml(freeform: &Freeform) -> Result<ScorePartwise, Freeform
                                     },
                                 },
                             }),
-                            duration: duration_to_musicxml(*duration, max_denom)?,
+                            duration: duration_to_musicxml(*duration, divisions)?,
                             tie: vec![],
                         }),
                         instrument: vec![],
@@ -162,7 +162,7 @@ pub fn export_to_musicxml(freeform: &Freeform) -> Result<ScorePartwise, Freeform
                                         display_octave: None,
                                     },
                                 }),
-                                duration: duration_to_musicxml(*duration, max_denom)?,
+                                duration: duration_to_musicxml(*duration, divisions)?,
                                 tie: vec![],
                             }),
                             instrument: vec![],
@@ -221,7 +221,10 @@ pub fn export_to_musicxml(freeform: &Freeform) -> Result<ScorePartwise, Freeform
             content: AttributesContents {
                 footnote: None,
                 level: None,
-                divisions: None,
+                divisions: Some(Divisions {
+                    attributes: (),
+                    content: PositiveDivisions(divisions)
+                }),
                 key: if include_key {
                     vec![KeyEl {
                         attributes: Default::default(),
@@ -352,7 +355,7 @@ fn duration_to_musicxml(duration: MtDuration, divisions: u32) -> Result<Duration
     Ok(Duration {
         attributes: (),
         content: PositiveDivisions({
-            let divs = duration.ratio() * divisions;
+            let divs = duration.ratio() * divisions * 4;
 
             if !divs.is_integer() {
                 return Err(FreeformToMxlError::IndivisibleDuration { divisions, duration });
