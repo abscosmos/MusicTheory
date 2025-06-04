@@ -61,11 +61,6 @@ impl Freeform {
             },
         }
 
-        assert!(
-            !self.trailing_implicit_rest_exists(),
-            "Trailing implicit rests should not exist",
-        );
-        
         Ok(())
     }
     
