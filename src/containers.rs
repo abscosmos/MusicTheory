@@ -148,10 +148,6 @@ impl ContainerElement {
         Self::Note { note, duration: duration.into(), accidental: AccidentalDisplay::default() }
     }
     
-    pub fn rest(duration: impl Into<Duration>) -> Self {
-        Self::Rest { duration: duration.into() }
-    }
-    
     pub fn duration(&self) -> Option<Duration> {
         match self {
             Self::Note { duration, .. } => Some(*duration),
