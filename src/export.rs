@@ -241,12 +241,12 @@ pub fn export_to_musicxml(freeform: &Freeform) -> Result<ScorePartwise, Freeform
                             mode: Some(ModeEl {
                                 attributes: (),
                                 content: match key.mode {
-                                    DiatonicMode::Ionian => Mode::Major,
+                                    DiatonicMode::MAJOR => Mode::Major,
                                     DiatonicMode::Dorian => Mode::Dorian,
                                     DiatonicMode::Phrygian => Mode::Phrygian,
                                     DiatonicMode::Lydian => Mode::Lydian,
                                     DiatonicMode::Mixolydian => Mode::Mixolydian,
-                                    DiatonicMode::Aeolian => Mode::Aeolian,
+                                    DiatonicMode::NATURAL_MINOR => Mode::Minor,
                                     DiatonicMode::Locrian => Mode::Locrian,
                                 },
                             }),
