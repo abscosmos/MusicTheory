@@ -35,25 +35,25 @@ impl Freeform {
                 _ => Err(FreeformInsertError::FirstNotClef)
             };
         }
+        
+        assert!(
+            !self.trailing_implicit_rest_exists(),
+            "Trailing implicit rests should not exist",
+        );
 
         match elem {
-            Elem::Rest { implicit: true, .. } => self.elements.push((self.next_insertion_point(), elem)),
-            Elem::Note { .. } | Elem::Rest { .. } => {
-                let (any_rem, ins_at) = self.remove_trailing_implicit_rests();
-
-                assert!(!any_rem, "there should never be trailing rests");
-
-                self.elements.push((ins_at, elem));
-            }
+            Elem::Rest { implicit: true, .. } => return Err(FreeformInsertError::TrailingImplicitRest),
+            Elem::Note { .. } | Elem::Rest { .. } => self.elements.push((self.next_insertion_point(), elem)),
             Elem::KeySignature(_) | Elem::Clef(_) => {
-                let (any_rem, ins_at) = self.remove_trailing_implicit_rests();
-
-                assert!(!any_rem, "there should never be trailing rests");
-                
                 // remove any at the same offset
                 todo!()
             },
         }
+
+        assert!(
+            !self.trailing_implicit_rest_exists(),
+            "Trailing implicit rests should not exist",
+        );
         
         Ok(())
     }
@@ -65,19 +65,12 @@ impl Freeform {
         }
     }
 
-    fn remove_trailing_implicit_rests(&mut self) -> (bool, Offset) {
-        let mut any_removed = false;
-        
-        while let Some((_, last)) = self.elements.last() {
-            if matches!(last, ContainerElement::Rest { implicit: true, .. }) {
-                self.elements.pop();
-                any_removed = true;
-            } else {
-                break;
-            }
-        }
-        
-        (any_removed, self.next_insertion_point())
+    fn trailing_implicit_rest_exists(&self) -> bool {
+        self.elements()
+            .last()
+            .is_none_or(|(_, el)|
+                matches!(el, ContainerElement::Rest { implicit: true, .. })
+            )
     }
     
     pub fn duration(&self) -> Duration {
@@ -108,6 +101,8 @@ impl Freeform {
 pub enum FreeformInsertError {
     #[error("The first element in a freeform must be a clef")]
     FirstNotClef,
+    #[error("Implicit rests at freeform's end are not allowed")]
+    TrailingImplicitRest,
 }
 
 impl Default for Freeform {
