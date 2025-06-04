@@ -76,6 +76,12 @@ impl Freeform {
         todo!()
     }
     
+    pub fn notes(&self) -> impl Iterator<Item=&(Offset, ContainerElement)> {
+        self.elements
+            .iter()
+            .filter(|(_, el)| matches!(el, ContainerElement::Note { .. }))
+    }
+    
     pub fn active_at(&self, offset: Offset) -> impl Iterator<Item=&(Offset, ContainerElement)> {
         self.elements
             .iter()
@@ -216,6 +222,12 @@ mod tests {
                 (Offset::new(Ratio::new(3,4)), CE::note(b3, WD::QUARTER)),
                 (Offset::new(Ratio::from_integer(1)), CE::note(ef4, WD::WHOLE)),
             ]
+        );
+
+        assert_eq!(
+            freeform.notes().cloned().collect::<Vec<_>>(),
+            freeform.elements()[2..],
+            "Everything but the clef and key signature at the start should be a note"
         );
         
         assert_eq!(freeform.duration(), WD::DOUBLE_WHOLE.duration());
