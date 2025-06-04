@@ -7,13 +7,15 @@ use crate::pitch_class::PitchClass;
 pub struct PitchClassSet(u16);
 
 impl PitchClassSet {
+    const MASK: u16 = 0xfff;
+    
     pub fn new(set: u16) -> Option<Self> {
-        (set < 4096).then_some(Self(set))
+        (set <= Self::MASK).then_some(Self(set))
     }
 
     #[inline(always)]
     pub fn new_masked(set: u16) -> Self {
-        Self(set & 0xfff)
+        Self(set & Self::MASK)
     }
 
     #[inline(always)]
