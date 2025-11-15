@@ -1,3 +1,4 @@
+use std::fmt;
 use crate::pcset::PitchClassSet;
 use crate::pitch_class::PitchClass;
 use crate::prelude::Semitone;
@@ -63,6 +64,14 @@ impl TwelveToneMatrix {
         let first = self.0[0];
 
         self.0.map(|pc| first.semitones_to(pc).0 as _)
+    }
+}
+
+impl fmt::Debug for TwelveToneMatrix {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct(stringify!(TwelveToneMatrix))
+            .field("P-0", &self.0)
+            .finish()
     }
 }
 
