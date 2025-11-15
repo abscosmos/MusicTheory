@@ -3,6 +3,7 @@ use crate::pcset::PitchClassSet;
 use crate::pitch_class::PitchClass;
 use crate::prelude::Semitone;
 
+#[derive(Clone, Eq, PartialEq)]
 pub struct TwelveToneMatrix([PitchClass; 12]);
 
 impl TwelveToneMatrix {
