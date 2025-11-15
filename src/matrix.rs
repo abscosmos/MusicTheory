@@ -20,6 +20,21 @@ impl TwelveToneMatrix {
 
         Self::new(prime_0).ok_or(TwelveToneMatrixFromNumsError::MissingPitches)
     }
+
+    pub fn prime(&self, n: u8) -> Option<[PitchClass; 12]> {
+        if n >= 12 {
+            return None;
+        }
+
+        Some(self.0.map(|pc| pc + Semitone(n as _)))
+    }
+
+    pub fn retrograde(&self, n: u8) -> Option<[PitchClass; 12]> {
+        self.prime(n).map(|mut p| {
+            p.reverse();
+            p
+        })
+    }
 }
 
 #[derive(thiserror::Error, Debug, Eq, PartialEq)]
