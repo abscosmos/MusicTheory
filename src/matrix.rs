@@ -66,6 +66,38 @@ impl TwelveToneMatrix {
 
         self.0.map(|pc| first.semitones_to(pc).0 as _)
     }
+
+    pub fn table_string(&self) -> String {
+        use std::fmt::Write;
+
+        let row_space = "      ";
+        let mut s = row_space.to_owned();
+
+        for inv_n in self.order_inversions() {
+            write!(s, " I-{inv_n:<2} ").expect("String::write_fmt shouldn't fail");
+        }
+
+        for row_n in self.order_primes() {
+            write!(s, "\nP-{row_n:<2} |").expect("String::write_fmt shouldn't fail");
+
+            for pc in self.prime(row_n).expect("must be in range") {
+                // this is due to how formatting width works
+                let pc_str = pc.to_string();
+
+                write!(s, " {pc_str:<5}").expect("String::write_fmt shouldn't fail");
+            }
+
+            write!(s, " | R-{row_n:<2}").expect("String::write_fmt shouldn't fail");
+        }
+
+        write!(s, "\n{row_space}").expect("String::write_fmt shouldn't fail");
+
+        for inv_n in self.order_inversions() {
+            write!(s, " RI-{inv_n:<2}").expect("String::write_fmt shouldn't fail");
+        }
+
+        s
+    }
 }
 
 impl fmt::Debug for TwelveToneMatrix {
