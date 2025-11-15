@@ -54,6 +54,16 @@ impl TwelveToneMatrix {
             p
         })
     }
+
+    pub fn order_primes(&self) -> [u8; 12] {
+        self.order_inversions().map(|n| (12 - n) % 12)
+    }
+
+    pub fn order_inversions(&self) -> [u8; 12] {
+        let first = self.0[0];
+
+        self.0.map(|pc| first.semitones_to(pc).0 as _)
+    }
 }
 
 #[derive(thiserror::Error, Debug, Eq, PartialEq)]
