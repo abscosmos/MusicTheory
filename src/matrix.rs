@@ -35,6 +35,25 @@ impl TwelveToneMatrix {
             p
         })
     }
+
+    pub fn inversion(&self, n: u8) -> Option<[PitchClass; 12]> {
+        let prime = self.prime(n)?;
+
+        let first = prime[0];
+
+        let inversion = prime.map(|pc| {
+           first - first.semitones_to(pc)
+        });
+
+        Some(inversion)
+    }
+
+    pub fn retrograde_inversion(&self, n: u8) -> Option<[PitchClass; 12]> {
+        self.inversion(n).map(|mut p| {
+            p.reverse();
+            p
+        })
+    }
 }
 
 #[derive(thiserror::Error, Debug, Eq, PartialEq)]
