@@ -71,6 +71,12 @@ impl PitchClass {
             Pitch::from_letter_and_accidental(base, AccidentalSign::FLAT)
         }
     }
+
+    pub fn semitones_to(&self, rhs: Self) -> Semitone {
+        let semis = (rhs.chroma() + 12 - self.chroma()) % 12;
+
+        Semitone(semis as _)
+    }
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, thiserror::Error)]
