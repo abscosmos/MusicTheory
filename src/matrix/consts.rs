@@ -1,4 +1,4 @@
-use crate::matrix::{TwelveToneRowForm, TwelveToneRowLabel, TwelveToneRowNumber};
+use crate::matrix::{TwelveToneRowForm, TwelveToneRowLabel};
 
 const P: TwelveToneRowForm = TwelveToneRowForm::Prime;
 const R: TwelveToneRowForm = TwelveToneRowForm::Retrograde;
