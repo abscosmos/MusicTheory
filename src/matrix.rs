@@ -83,6 +83,12 @@ impl TwelveToneMatrix {
         Self::intervals_between(self.inversion(0).expect("r0 must be in range"))
     }
 
+    pub fn has_all_intervals(&self) -> bool {
+        let ivls = self.prime_intervals();
+
+        (1..12).all(|i| ivls.contains(&i))
+    }
+
     pub fn table_string(&self) -> String {
         use std::fmt::Write;
 
