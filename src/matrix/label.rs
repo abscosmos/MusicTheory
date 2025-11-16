@@ -9,6 +9,10 @@ pub enum TwelveToneRowForm {
     RetrogradeInversion,
 }
 
+impl TwelveToneRowForm {
+    pub const ALL: [Self; 4] = [Self::Prime, Self::Retrograde, Self::Inversion, Self::RetrogradeInversion];
+}
+
 #[repr(transparent)]
 #[derive(Default, Debug, Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct TwelveToneRowNumber(pub u8);
