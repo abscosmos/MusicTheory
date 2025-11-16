@@ -26,32 +26,6 @@ impl TwelveToneMatrix {
         }
     }
 
-    fn prime(&self, n: TwelveToneRowNumber) -> TwelveToneRow {
-        let prime_n = self.prime_0.map(|pc| pc + Semitone(*n as _));
-
-        TwelveToneRow(prime_n)
-    }
-
-    fn retrograde(&self, n: TwelveToneRowNumber) -> TwelveToneRow {
-        self.prime(n).reverse()
-    }
-
-    fn inversion(&self, n: TwelveToneRowNumber) -> TwelveToneRow {
-        let prime = self.prime(n);
-
-        let first = prime[0];
-
-        let inversion = prime.map(|pc| {
-           first - first.semitones_to(pc)
-        });
-
-        TwelveToneRow(inversion)
-    }
-
-    fn retrograde_inversion(&self, n: TwelveToneRowNumber) -> TwelveToneRow {
-        self.inversion(n).reverse()
-    }
-
     pub fn order_primes(&self) -> [u8; 12] {
         self.order_inversions().map(|n| (12 - n) % 12)
     }
@@ -116,6 +90,32 @@ impl TwelveToneMatrix {
         }
 
         s
+    }
+
+    fn prime(&self, n: TwelveToneRowNumber) -> TwelveToneRow {
+        let prime_n = self.prime_0.map(|pc| pc + Semitone(*n as _));
+
+        TwelveToneRow(prime_n)
+    }
+
+    fn retrograde(&self, n: TwelveToneRowNumber) -> TwelveToneRow {
+        self.prime(n).reverse()
+    }
+
+    fn inversion(&self, n: TwelveToneRowNumber) -> TwelveToneRow {
+        let prime = self.prime(n);
+
+        let first = prime[0];
+
+        let inversion = prime.map(|pc| {
+            first - first.semitones_to(pc)
+        });
+
+        TwelveToneRow(inversion)
+    }
+
+    fn retrograde_inversion(&self, n: TwelveToneRowNumber) -> TwelveToneRow {
+        self.inversion(n).reverse()
     }
 }
 
