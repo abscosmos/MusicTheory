@@ -123,6 +123,32 @@ impl TwelveToneMatrix {
         s
     }
 
+    pub fn find_hexachord_complements(&self, hexachord: [PitchClass; 6]) -> Vec<(TwelveToneRowLabel, u8)> {
+        let target = PitchClassSet::from_iter(hexachord);
+
+        let mut found = Vec::new();
+
+        for form in TwelveToneRowForm::ALL {
+            for n in 0..12 {
+                let label = TwelveToneRowLabel::new(form, n).expect("transposition in range");
+
+                for (i, chord) in self.get_row(label)
+                    .hexachords()
+                    .into_iter()
+                    .enumerate()
+                {
+                    let chord_set = PitchClassSet::from_iter(chord);
+
+                    if (chord_set | target).len() == 12 {
+                        found.push((label, i as _));
+                    }
+                }
+            }
+        }
+
+        found
+    }
+
     fn prime(&self, n: TwelveToneRowNumber) -> TwelveToneRow {
         let prime_n = self.prime_0.map(|pc| pc + Semitone(*n as _));
 
