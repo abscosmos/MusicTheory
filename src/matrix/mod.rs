@@ -5,6 +5,7 @@ use crate::pitch_class::PitchClass;
 use crate::prelude::Semitone;
 
 mod label;
+mod consts;
 
 pub use label::*;
 
@@ -66,15 +67,15 @@ impl TwelveToneMatrix {
     }
 
     pub fn retrograde_intervals(&self) -> [u8; 12] {
-        self.retrograde(TwelveToneRowNumber::ZERO).intervals()
+        self.get_row(TwelveToneRowLabel::R0).intervals()
     }
 
     pub fn inversion_intervals(&self) -> [u8; 12] {
-        self.inversion(TwelveToneRowNumber::ZERO).intervals()
+        self.get_row(TwelveToneRowLabel::I0).intervals()
     }
 
     pub fn retrograde_inversion_intervals(&self) -> [u8; 12] {
-        self.retrograde_inversion(TwelveToneRowNumber::ZERO).intervals()
+        self.get_row(TwelveToneRowLabel::RI0).intervals()
     }
 
     pub fn has_all_intervals(&self) -> bool {

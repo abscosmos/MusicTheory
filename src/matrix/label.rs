@@ -41,10 +41,12 @@ impl Deref for TwelveToneRowNumber {
 pub struct TwelveToneRowLabel(pub TwelveToneRowForm, pub TwelveToneRowNumber);
 
 impl TwelveToneRowLabel {
-    pub(crate) const COUNT: u8 = 12;
-
-    pub fn new(form: TwelveToneRowForm, number: u8) -> Option<Self> {
-        TwelveToneRowNumber::new(number).map(|n| Self(form, n))
+    pub const fn new(form: TwelveToneRowForm, number: u8) -> Option<Self> {
+        // using match instead of Option::map for const
+        match TwelveToneRowNumber::new(number) {
+            Some(n) => Some(Self(form, n)),
+            None => None,
+        }
     }
 
     pub fn number(&self) -> u8 {
