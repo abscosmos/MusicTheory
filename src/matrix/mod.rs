@@ -17,30 +17,25 @@ impl TwelveToneMatrix {
     pub fn get_row(&self, label: TwelveToneRowLabel) -> TwelveToneRow {
         use TwelveToneRowForm as Form;
 
-        match label.form {
-            Form::Prime => self.prime(label.number),
-            Form::Retrograde => self.retrograde(label.number),
-            Form::Inversion => self.inversion(label.number),
-            Form::RetrogradeInversion => self.retrograde_inversion(label.number),
+        match label.0 {
+            Form::Prime => self.prime(label.1),
+            Form::Retrograde => self.retrograde(label.1),
+            Form::Inversion => self.inversion(label.1),
+            Form::RetrogradeInversion => self.retrograde_inversion(label.1),
         }
     }
 
-    fn prime(&self, n: u8) -> TwelveToneRow {
-        assert!(
-            n < TwelveToneRowLabel::COUNT,
-            "caller must ensure transposition number is valid",
-        );
-
-        let prime_n = self.prime_0.map(|pc| pc + Semitone(n as _));
+    fn prime(&self, n: TwelveToneRowNumber) -> TwelveToneRow {
+        let prime_n = self.prime_0.map(|pc| pc + Semitone(*n as _));
 
         TwelveToneRow(prime_n)
     }
 
-    fn retrograde(&self, n: u8) -> TwelveToneRow {
+    fn retrograde(&self, n: TwelveToneRowNumber) -> TwelveToneRow {
         self.prime(n).reverse()
     }
 
-    fn inversion(&self, n: u8) -> TwelveToneRow {
+    fn inversion(&self, n: TwelveToneRowNumber) -> TwelveToneRow {
         let prime = self.prime(n);
 
         let first = prime[0];
@@ -52,7 +47,7 @@ impl TwelveToneMatrix {
         TwelveToneRow(inversion)
     }
 
-    fn retrograde_inversion(&self, n: u8) -> TwelveToneRow {
+    fn retrograde_inversion(&self, n: TwelveToneRowNumber) -> TwelveToneRow {
         self.inversion(n).reverse()
     }
 
@@ -71,15 +66,15 @@ impl TwelveToneMatrix {
     }
 
     pub fn retrograde_intervals(&self) -> [u8; 12] {
-        self.retrograde(0).intervals()
+        self.retrograde(TwelveToneRowNumber::ZERO).intervals()
     }
 
     pub fn inversion_intervals(&self) -> [u8; 12] {
-        self.inversion(0).intervals()
+        self.inversion(TwelveToneRowNumber::ZERO).intervals()
     }
 
     pub fn retrograde_inversion_intervals(&self) -> [u8; 12] {
-        self.retrograde_inversion(0).intervals()
+        self.retrograde_inversion(TwelveToneRowNumber::ZERO).intervals()
     }
 
     pub fn has_all_intervals(&self) -> bool {
@@ -103,7 +98,7 @@ impl TwelveToneMatrix {
         for row_n in self.order_primes() {
             write!(s, "\nP-{row_n:<2} |").expect("String::write_fmt shouldn't fail");
 
-            for pc in self.prime(row_n) {
+            for pc in self.prime(TwelveToneRowNumber::new(row_n).expect("must be in [0,11]")) {
                 // this is due to how formatting width works
                 let pc_str = pc.to_string();
 
