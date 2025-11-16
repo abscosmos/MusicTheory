@@ -1,4 +1,4 @@
-use std::fmt;
+use std::{array, fmt};
 use crate::pcset::PitchClassSet;
 use crate::pitch_class::PitchClass;
 use crate::prelude::Semitone;
@@ -67,6 +67,22 @@ impl TwelveToneMatrix {
         self.0.map(|pc| first.semitones_to(pc).0 as _)
     }
 
+    pub fn prime_intervals(&self) -> [u8; 12] {
+        Self::intervals_between(self.0)
+    }
+
+    pub fn retrograde_intervals(&self) -> [u8; 12] {
+        Self::intervals_between(self.retrograde(0).expect("r0 must be in range"))
+    }
+
+    pub fn inversion_intervals(&self) -> [u8; 12] {
+        Self::intervals_between(self.inversion(0).expect("r0 must be in range"))
+    }
+
+    pub fn retrograde_inversion_intervals(&self) -> [u8; 12] {
+        Self::intervals_between(self.inversion(0).expect("r0 must be in range"))
+    }
+
     pub fn table_string(&self) -> String {
         use std::fmt::Write;
 
@@ -97,6 +113,12 @@ impl TwelveToneMatrix {
         }
 
         s
+    }
+
+    fn intervals_between(row: [PitchClass; 12]) -> [u8; 12] {
+        array::from_fn(|i|
+            row[i].semitones_to(row[(i+1) % 12]).0 as _
+        )
     }
 }
 
