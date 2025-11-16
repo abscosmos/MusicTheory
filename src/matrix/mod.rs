@@ -19,6 +19,33 @@ impl TwelveToneMatrix {
         Self { prime_0 }
     }
 
+    pub fn from_row(label: TwelveToneRowLabel, row: TwelveToneRow) -> Self {
+        use TwelveToneRowLabel as Label;
+        use TwelveToneRowForm as Form;
+        use TwelveToneRowNumber as Num;
+
+        match label {
+            Label(Form::Prime, num) => {
+                let m = Self::new(row);
+
+                let undo = Num::new((12 - num.0) % 12)
+                    .expect("must be valid");
+
+                Self::new(m.get_row(Label(Form::Prime, undo)))
+            },
+            Label(Form::Retrograde, num) => {
+                Self::from_row(Label(Form::Prime, num), row.reverse())
+            },
+            Label(Form::Inversion, num) => {
+                let inv = Self::from_row(Label(Form::Prime, num), row);
+                Self::from_row(Label::P0, inv.get_row(Label::I0))
+            },
+            Label(Form::RetrogradeInversion, num) => {
+                Self::from_row(Label(Form::Inversion, num), row.reverse())
+            },
+        }
+    }
+
     pub fn get_row(&self, label: TwelveToneRowLabel) -> TwelveToneRow {
         use TwelveToneRowForm as Form;
 
@@ -223,5 +250,36 @@ impl Deref for TwelveToneRow {
 
     fn deref(&self) -> &Self::Target {
         self.get()
+    }
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use TwelveToneRowLabel as Label;
+    use TwelveToneRowForm as Form;
+    use TwelveToneMatrix as Matrix;
+    use PitchClass as PC;
+
+    #[test]
+    fn from_row() {
+        let m = Matrix {
+            prime_0: TwelveToneRow::new([PC::C, PC::Cs, PC::E, PC::D, PC::A, PC::F, PC::B, PC::Ds, PC::Gs, PC::As, PC::G, PC::Fs])
+                .expect("has all intervals"),
+        };
+
+        for form in [Form::Prime, Form::Retrograde, Form::Inversion, Form::RetrogradeInversion] {
+            for n in 0..12 {
+                let label = Label::new(form, n).expect("valid number");
+
+                let row = m.get_row(label);
+
+                assert_eq!(
+                    m, Matrix::from_row(label, row),
+                    "Matrix::from_row({label:?}, ...) created wrong matrix",
+                )
+            }
+        }
     }
 }
