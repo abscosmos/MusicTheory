@@ -89,6 +89,12 @@ impl TwelveToneMatrix {
         (1..12).all(|i| ivls.contains(&i))
     }
 
+    pub fn rotate(&self, offset: u8) -> Self {
+        let mut new = self.clone();
+        new.0.rotate_left(offset as usize % 12);
+        new
+    }
+
     pub fn table_string(&self) -> String {
         use std::fmt::Write;
 
