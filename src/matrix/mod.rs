@@ -15,6 +15,10 @@ pub struct TwelveToneMatrix {
 }
 
 impl TwelveToneMatrix {
+    pub const fn new(prime_0: TwelveToneRow) -> Self {
+        Self { prime_0 }
+    }
+
     pub fn get_row(&self, label: TwelveToneRowLabel) -> TwelveToneRow {
         use TwelveToneRowForm as Form;
 
