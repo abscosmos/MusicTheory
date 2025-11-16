@@ -1,5 +1,5 @@
 use std::fmt;
-use std::ops::{BitAnd, BitXor, Not};
+use std::ops::{BitAnd, BitOr, BitXor, Not};
 use strum::IntoEnumIterator;
 use crate::pitch_class::PitchClass;
 
@@ -135,6 +135,14 @@ impl BitXor for PitchClassSet {
 
     fn bitxor(self, rhs: Self) -> Self::Output {
         self.symmetric_difference(rhs)
+    }
+}
+
+impl BitOr for PitchClassSet {
+    type Output = Self;
+
+    fn bitor(self, rhs: Self) -> Self::Output {
+        self.union(rhs)
     }
 }
 
