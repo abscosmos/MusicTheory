@@ -166,6 +166,29 @@ impl TwelveToneRow {
             Some(new)
         }
     }
+
+    pub fn trichords(&self) -> [[PitchClass; 3]; 4] {
+        self.divide()
+    }
+
+    pub fn tetrachords(&self) -> [[PitchClass; 4]; 3] {
+        self.divide()
+    }
+
+    pub fn hexachords(&self) -> [[PitchClass; 6]; 2] {
+        self.divide()
+    }
+
+    fn divide<const N: usize, const C: usize>(&self) -> [[PitchClass; N]; C] {
+        // unfortunately, this assertion can't be done at compile time
+        // (waiting on feature generic_const_exprs)
+        // we'll have to rely on a test to trigger this assertion
+        assert_eq!(N * C, 12, "Must evenly and correctly divide the row");
+
+        array::from_fn(|i|
+            array::from_fn(|j| self.0[i * N + j])
+        )
+    }
 }
 
 #[derive(thiserror::Error, Debug, Eq, PartialEq)]
