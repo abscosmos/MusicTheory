@@ -24,6 +24,7 @@ macro_rules! define_consts {
 }
 
 
+#[doc(hidden)]
 impl TwelveToneRowLabel {
     define_consts! { P, R, I, RI }
 }
