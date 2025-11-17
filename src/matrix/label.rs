@@ -56,4 +56,13 @@ impl TwelveToneRowLabel {
     pub fn number(&self) -> u8 {
         self.1.get()
     }
+    
+    pub(crate) fn iter() -> impl Iterator<Item=Self> {
+        TwelveToneRowForm::ALL.into_iter()
+            .flat_map(|form| {
+                (0..12).map(move |n|
+                    TwelveToneRowLabel::new(form, n).expect("transposition in range")
+                )
+            })
+    }
 }

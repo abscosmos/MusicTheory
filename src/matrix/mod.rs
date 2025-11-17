@@ -128,20 +128,16 @@ impl TwelveToneMatrix {
 
         let mut found = Vec::new();
 
-        for form in TwelveToneRowForm::ALL {
-            for n in 0..12 {
-                let label = TwelveToneRowLabel::new(form, n).expect("transposition in range");
+        for label in TwelveToneRowLabel::iter() {
+            for (i, chord) in self.get_row(label)
+                .hexachords()
+                .into_iter()
+                .enumerate()
+            {
+                let chord_set = PitchClassSet::from_iter(chord);
 
-                for (i, chord) in self.get_row(label)
-                    .hexachords()
-                    .into_iter()
-                    .enumerate()
-                {
-                    let chord_set = PitchClassSet::from_iter(chord);
-
-                    if (chord_set | target).len() == 12 {
-                        found.push((label, i as _));
-                    }
+                if (chord_set | target).len() == 12 {
+                    found.push((label, i as _));
                 }
             }
         }
