@@ -150,6 +150,25 @@ impl TwelveToneMatrix {
         found
     }
 
+    pub fn label_hexachord(&self, hexachord: &[PitchClass; 6]) -> Option<(TwelveToneRowLabel, u8)> {
+        for label in TwelveToneRowLabel::iter() {
+            if let Some(pos) = self.get_row(label)
+                .hexachords()
+                .iter()
+                .position(|c| *c == *hexachord)
+            {
+                assert!(
+                    pos < 2,
+                    "trivial: hexachords should only be [0,1]"
+                );
+
+                return Some((label, pos as _));
+            }
+        }
+
+        None
+    }
+
     fn prime(&self, n: TwelveToneRowNumber) -> TwelveToneRow {
         let prime_n = self.prime_0.map(|pc| pc + Semitone(*n as _));
 
