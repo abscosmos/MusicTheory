@@ -344,4 +344,21 @@ mod tests {
             }
         }
     }
+
+    #[test]
+    fn all_combinatorial() {
+        let asc = TwelveToneMatrix {
+            prime_0: TwelveToneRow::from_chromas(array::from_fn(|i| i as _))
+                .expect("valid row")
+        };
+
+        for label in TwelveToneRowLabel::iter() {
+            for hexachord in asc.get_row(label).hexachords() {
+                assert!(
+                    asc.is_all_combinatorial(hexachord),
+                    "all should be combinatorial",
+                )
+            }
+        }
+    }
 }
