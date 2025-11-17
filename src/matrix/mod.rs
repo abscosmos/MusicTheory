@@ -150,17 +150,17 @@ impl TwelveToneMatrix {
         found
     }
 
-    pub fn is_all_combinatorial(&self, hexachord: [PitchClass; 6]) -> bool {
+    pub fn is_all_combinatorial(&self) -> bool {
+        let hexachord = self.prime_0.hexachords()[0];
+
         let comb = self.find_hexachord_complements(hexachord);
 
-        let chord_label = self.label_hexachord(&hexachord).map(|(label, _)| label);
-
         let prime = comb.iter().find(|(label, _)|
-            matches!(label.0, TwelveToneRowForm::Prime if Some(label) != chord_label.as_ref())
+            label.0 == TwelveToneRowForm::Prime
         );
 
         let inversion = comb.iter().find(|(label, _)|
-            matches!(label.0, TwelveToneRowForm::Inversion if Some(label) != chord_label.as_ref())
+            label.0 == TwelveToneRowForm::Inversion
         );
 
         prime.is_some() && inversion.is_some()
@@ -352,13 +352,9 @@ mod tests {
                 .expect("valid row")
         };
 
-        for label in TwelveToneRowLabel::iter() {
-            for hexachord in asc.get_row(label).hexachords() {
-                assert!(
-                    asc.is_all_combinatorial(hexachord),
-                    "all should be combinatorial",
-                )
-            }
-        }
+        assert!(
+            asc.is_all_combinatorial(),
+            "ascending row matrix should be all combinatorial",
+        );
     }
 }
