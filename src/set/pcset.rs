@@ -51,6 +51,26 @@ impl PitchClassSet {
             .filter(|pc| self.is_set(*pc))
             .collect()
     }
+
+    pub fn interval_class_vector(self) -> [u8; 6] {
+        let mut icv = [0u8; 6];
+
+        for i in 0..12 {
+            if self.is_set(PitchClass::from_repr(i).expect("in range")) {
+                for j in (i + 1)..12 {
+                    if self.is_set(PitchClass::from_repr(j).expect("in range")) {
+                        let interval = (j as i8 - i as i8).abs();
+                        let ic = if interval > 6 { 12 - interval } else { interval };
+                        if ic > 0 {
+                            icv[(ic - 1) as usize] += 1;
+                        }
+                    }
+                }
+            }
+        }
+
+        icv
+    }
     
     pub fn is_set(self, pc: PitchClass) -> bool {
         (self.0 >> Self::index(pc)) & 1 == 1
