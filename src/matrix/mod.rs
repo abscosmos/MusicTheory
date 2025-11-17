@@ -126,6 +126,11 @@ impl TwelveToneMatrix {
     pub fn find_hexachord_complements(&self, hexachord: [PitchClass; 6]) -> Vec<(TwelveToneRowLabel, u8)> {
         let target = PitchClassSet::from_iter(hexachord);
 
+        // all pitches need to be unique to find
+        if target.len() != hexachord.len() as _ {
+            return Vec::new();
+        }
+
         let mut found = Vec::new();
 
         for label in TwelveToneRowLabel::iter() {
