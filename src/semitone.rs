@@ -1,6 +1,6 @@
 use std::ops::{Add, Neg, Sub};
 
-#[derive(Copy, Clone, Eq, PartialEq, Debug, Default)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Default, Ord, PartialOrd)]
 pub struct Semitone(pub i16);
 
 impl Add for Semitone {
