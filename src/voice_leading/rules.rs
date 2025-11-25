@@ -5,21 +5,29 @@ pub fn check_spacing(v: Voicing) -> Result<(), (Voice, Voice)> {
     let [s, a, t, b] = *v;
 
     // TODO: this should maybe check diatonically
-    let octave_semis = Interval::PERFECT_OCTAVE.semitones();
-    let tenth_semis = Interval::MAJOR_TENTH.semitones();
+    let octave_range = Interval::PERFECT_OCTAVE.semitones();
+    let octave_range = 0..=octave_range.0;
+
+    let tenth_range = Interval::MAJOR_TENTH.semitones();
+    let tenth_range = 0..=tenth_range.0;
 
 
-    if s.semitones_to(a) > octave_semis {
+    if !octave_range.contains(&s.semitones_to(a).0) {
         return Err((Voice::Soprano, Voice::Alto));
     }
 
-    if a.semitones_to(t) > octave_semis {
+    if !octave_range.contains(&a.semitones_to(t).0) {
         return Err((Voice::Alto, Voice::Tenor));
     }
 
-    if t.semitones_to(b) > tenth_semis {
+    if !tenth_range.contains(&t.semitones_to(b).0) {
         return Err((Voice::Tenor, Voice::Bass));
     }
+
+    assert!(
+        s >= a && a >= t && t >= b,
+        "voice ordering should've been caught by 0 boundary"
+    );
 
     Ok(())
 }
