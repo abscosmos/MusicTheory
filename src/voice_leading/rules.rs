@@ -37,7 +37,8 @@ fn check_parallel_interval(first: Voicing, second: Voicing, interval: Interval) 
             let v1_second = second[i];
             let v2_second = second[j];
 
-            if v1_first.semitones_to(v2_first) == interval.semitones()
+            if v1_first != v2_first
+                && v1_first.semitones_to(v2_first) == interval.semitones()
                 && v1_second.semitones_to(v2_second) == interval.semitones()
             {
                 return Err((
