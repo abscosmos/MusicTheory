@@ -107,6 +107,10 @@ impl RomanChord {
         )
     }
 
+    pub fn has_seventh(&self) -> bool {
+        self.seventh_quality.is_some()
+    }
+
     // TODO: should this factor in inversions?
     pub fn intervals(&self) -> Vec<Interval> {
         use Interval as I;
@@ -338,7 +342,7 @@ impl fmt::Display for RomanChord {
             (Q::Diminished, Some(seventh)) => push_irregular_quality(&mut s, Q::Diminished, seventh),
         }
 
-        match (self.seventh_quality().is_some(), self.inversion) {
+        match (self.has_seventh(), self.inversion) {
             // root
             (false, 0) => { /* none */ },
             (true, 0) => s.push('7'),
