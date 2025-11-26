@@ -325,3 +325,49 @@ impl fmt::Display for RomanChord {
         f.write_str(&s)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::key::Key;
+    use crate::pitch::Pitch;
+    use super::{RomanChord, ScaleDegree, Quality};
+
+    fn assert_diatonic_chord(key: Key, degree: ScaleDegree, triad: Quality, seventh: Quality) {
+        let expected = RomanChord::seventh(degree, triad, seventh);
+        let got = RomanChord::diatonic_in_key(degree, key, true);
+
+        assert_eq!(expected, got, "expected: {expected}, got {got}");
+    }
+
+    #[test]
+    fn major_diatonic() {
+        use ScaleDegree as D;
+        use Quality as Q;
+
+        let maj = Key::major(Pitch::C);
+
+        assert_diatonic_chord(maj, D::I, Q::Major, Q::Major);
+        assert_diatonic_chord(maj, D::II, Q::Minor, Q::Minor);
+        assert_diatonic_chord(maj, D::III, Q::Minor, Q::Minor);
+        assert_diatonic_chord(maj, D::IV, Q::Major, Q::Major);
+        assert_diatonic_chord(maj, D::V, Q::Major, Q::Minor);
+        assert_diatonic_chord(maj, D::VI, Q::Minor, Q::Minor);
+        assert_diatonic_chord(maj, D::VII, Q::Diminished, Q::Minor);
+    }
+
+    #[test]
+    fn minor_diatonic() {
+        use ScaleDegree as D;
+        use Quality as Q;
+
+        let min = Key::minor(Pitch::C);
+
+        assert_diatonic_chord(min, D::I, Q::Minor, Q::Minor);
+        assert_diatonic_chord(min, D::II, Q::Diminished, Q::Minor);
+        assert_diatonic_chord(min, D::III, Q::Major, Q::Major);
+        assert_diatonic_chord(min, D::IV, Q::Minor, Q::Minor);
+        assert_diatonic_chord(min, D::V, Q::Major, Q::Minor);
+        assert_diatonic_chord(min, D::VI, Q::Major, Q::Major);
+        assert_diatonic_chord(min, D::VII, Q::Diminished, Q::Diminished);
+    }
+}
