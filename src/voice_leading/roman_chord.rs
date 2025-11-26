@@ -217,6 +217,16 @@ impl RomanChord {
         pitches
     }
 
+    pub fn bass(&self, key: Key) -> Pitch {
+        let root = self.root_in_key(key);
+
+        let intervals = self.intervals();
+
+        root.transpose(
+            *intervals.get(self.inversion as usize).expect("should be valid inversion")
+        )
+    }
+
     // TODO: should this be in mode instead of in key, since the pitch is irrelevant?
     pub fn diatonic_in_key(
         degree: ScaleDegree,
