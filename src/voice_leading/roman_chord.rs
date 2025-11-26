@@ -1,4 +1,3 @@
-use crate::chord::{Chord, InvalidInversion};
 use crate::interval::{Interval, IntervalQuality};
 use crate::key::Key;
 use crate::pitch::Pitch;
