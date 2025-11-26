@@ -105,4 +105,30 @@ impl RomanChord {
             inversion,
         )
     }
+
+    pub fn intervals(&self) -> Vec<Interval> {
+        use Interval as I;
+        use Quality as Q;
+
+        let mut intervals = vec![I::PERFECT_UNISON];
+
+        let triad = match self.triad_quality {
+            Q::Major => [I::MAJOR_THIRD, I::PERFECT_FIFTH],
+            Q::Minor => [I::MINOR_THIRD, I::PERFECT_FIFTH],
+            Q::Diminished => [I::MINOR_THIRD, I::DIMINISHED_FIFTH],
+            Q::Augmented => [I::MAJOR_THIRD, I::AUGMENTED_FIFTH],
+        };
+
+        let seventh = self.seventh_quality.map(|q| match q {
+            Quality::Major => I::MAJOR_SEVENTH,
+            Quality::Minor => I::MINOR_SEVENTH,
+            Quality::Diminished => I::DIMINISHED_SEVENTH,
+            Quality::Augmented => I::AUGMENTED_SEVENTH,
+        });
+
+        intervals.extend(triad);
+        intervals.extend(seventh);
+
+        intervals
+    }
 }
