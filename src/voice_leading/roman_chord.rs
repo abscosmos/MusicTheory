@@ -1,5 +1,11 @@
+use crate::chord::{Chord, InvalidInversion};
+use crate::interval::Interval;
+use crate::key::Key;
+use crate::pitch::Pitch;
+use crate::scales::heptatonic::DiatonicMode;
 use strum_macros::FromRepr;
 
+#[repr(u8)]
 #[derive(Copy, Clone, Debug, Eq, PartialEq, FromRepr)]
 pub enum ScaleDegree {
     I = 1,
@@ -29,10 +35,37 @@ pub enum Quality {
     Augmented,
 }
 
+
+#[derive(Debug, thiserror::Error, Clone, Eq, PartialEq)]
+#[error("Invalid inversion for chord type")]
+pub struct InvalidInversionError;
+
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub struct RomanChord {
     pub degree: ScaleDegree,
     pub triad_quality: Quality,
     seventh_quality: Option<Quality>,
     inversion: u8,
+}
+
+impl RomanChord {
+    pub fn new(
+        degree: ScaleDegree,
+        triad_quality: Quality,
+        seventh_quality: Option<Quality>,
+        inversion: u8,
+    ) -> Result<Self, InvalidInversionError> {
+        let max_inversion = if seventh_quality.is_some() { 3 } else { 2 };
+
+        if inversion > max_inversion {
+            return Err(InvalidInversionError);
+        }
+
+        Ok(Self {
+            degree,
+            triad_quality,
+            seventh_quality,
+            inversion,
+        })
+    }
 }
