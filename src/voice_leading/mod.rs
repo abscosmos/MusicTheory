@@ -4,6 +4,7 @@ use strum_macros::FromRepr;
 use crate::note::Note;
 
 pub mod rules;
+pub mod roman_chord;
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub struct Voicing(pub [Note; 4]);
