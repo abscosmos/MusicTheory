@@ -12,11 +12,11 @@ pub fn check_range(v: Voicing) -> Result<(), Voice> {
     const SOPRANO_MIN: Note = Note::new(Pitch::C, 4);
     const SOPRANO_MAX: Note = Note::new(Pitch::G, 5);
     const ALTO_MIN: Note = Note::new(Pitch::G, 3);
-    const ALTO_MAX: Note = Note::new(Pitch::C, 5);
+    const ALTO_MAX: Note = Note::new(Pitch::D, 5);
     const TENOR_MIN: Note = Note::new(Pitch::C, 3);
     const TENOR_MAX: Note = Note::new(Pitch::G, 4);
     const BASS_MIN: Note = Note::new(Pitch::E, 2);
-    const BASS_MAX: Note = Note::new(Pitch::C, 4);
+    const BASS_MAX: Note = Note::new(Pitch::D, 4);
 
     if !(SOPRANO_MIN..=SOPRANO_MAX).contains(&s) {
         return Err(Voice::Soprano);
