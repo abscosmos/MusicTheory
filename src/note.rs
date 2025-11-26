@@ -18,7 +18,7 @@ impl Note {
     pub const MIDDLE_C: Self = Self { pitch: Pitch::C, octave: 4 };
     pub const A4: Self = Self { pitch: Pitch::A, octave: 4 };
     
-    pub fn new(pitch: Pitch, octave: i16) -> Self {
+    pub const fn new(pitch: Pitch, octave: i16) -> Self {
         Self { pitch, octave }
     }
     
