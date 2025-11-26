@@ -106,6 +106,7 @@ impl RomanChord {
         )
     }
 
+    // TODO: should this factor in inversions?
     pub fn intervals(&self) -> Vec<Interval> {
         use Interval as I;
         use Quality as Q;
