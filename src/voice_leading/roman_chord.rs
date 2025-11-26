@@ -11,6 +11,16 @@ pub enum ScaleDegree {
     VII = 7,
 }
 
+impl ScaleDegree {
+    pub fn as_idx(self) -> u8 {
+        (self as u8) - 1
+    }
+
+    pub fn from_idx(idx: u8) -> Option<Self> {
+        Self::from_repr(idx + 1)
+    }
+}
+
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum Quality {
     Major,
