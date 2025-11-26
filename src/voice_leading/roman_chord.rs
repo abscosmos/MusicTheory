@@ -205,6 +205,7 @@ impl RomanChord {
         }
     }
 
+    // TODO: should this be in mode instead of in key, since the pitch is irrelevant?
     pub fn diatonic_in_key(
         degree: ScaleDegree,
         key: Key,
