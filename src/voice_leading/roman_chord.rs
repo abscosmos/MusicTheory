@@ -5,6 +5,16 @@ use crate::pitch::Pitch;
 use crate::scales::heptatonic::DiatonicMode;
 use strum_macros::FromRepr;
 
+// not typed at all!
+pub mod inversions {
+    pub const INV_ROOT: u8 = 0;
+    pub const INV_6: u8 = 1;
+    pub const INV_64: u8 = 2;
+    pub const INV_65: u8 = 1;
+    pub const INV_43: u8 = 2;
+    pub const INV_42: u8 = 3;
+}
+
 #[repr(u8)]
 #[derive(Copy, Clone, Debug, Eq, PartialEq, FromRepr)]
 pub enum ScaleDegree {
