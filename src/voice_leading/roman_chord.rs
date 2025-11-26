@@ -92,4 +92,17 @@ impl RomanChord {
     pub fn seventh_quality(&self) -> Option<Quality> {
         self.seventh_quality
     }
+
+    pub fn inversion(&self) -> u8 {
+        self.inversion
+    }
+
+    pub fn with_inversion(self, inversion: u8) -> Result<Self, InvalidInversionError> {
+        Self::new(
+            self.degree,
+            self.triad_quality,
+            self.seventh_quality,
+            inversion,
+        )
+    }
 }
