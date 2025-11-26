@@ -1,5 +1,5 @@
 use crate::chord::{Chord, InvalidInversion};
-use crate::interval::Interval;
+use crate::interval::{Interval, IntervalQuality};
 use crate::key::Key;
 use crate::pitch::Pitch;
 use crate::scales::heptatonic::DiatonicMode;
@@ -202,6 +202,65 @@ impl RomanChord {
             Some(false)
         } else {
             None
+        }
+    }
+
+    pub fn diatonic_in_key(
+        degree: ScaleDegree,
+        key: Key,
+        with_seventh: bool,
+    ) -> Self {
+        use Quality as Q;
+        use Interval as I;
+        use IntervalQuality as IQ;
+
+        let mut scale = {
+            let mut scale = key.scale().build_default();
+
+            if matches!(degree, ScaleDegree::V | ScaleDegree::VII) && Self::mode_has_raised_leading_tone(key.mode) {
+                scale[6] = scale[6].transpose(Interval::AUGMENTED_UNISON);
+            }
+
+            scale
+        };
+
+        let degree_idx = degree.as_idx() as usize;
+
+        scale.rotate_left(degree_idx);
+
+        let root = scale[0];
+        let third = scale[2];
+        let fifth = scale[4];
+
+        let third_interval = root.distance_to(third).as_simple();
+        let fifth_interval = root.distance_to(fifth).as_simple();
+
+        let triad_quality = match (third_interval, fifth_interval) {
+            (I::MAJOR_THIRD, I::PERFECT_FIFTH) => Q::Major,
+            (I::MINOR_THIRD, I::PERFECT_FIFTH) => Q::Minor,
+            (I::MINOR_THIRD, I::DIMINISHED_FIFTH) => Q::Diminished,
+            (I::MAJOR_THIRD, I::AUGMENTED_FIFTH) => Q::Augmented,
+            _ => unreachable!("diatonic triad intervals must be either maj, min, dim, or aug"),
+        };
+
+        let seventh_quality = with_seventh.then(|| {
+            let seventh = scale[6];
+
+            match root.distance_to(seventh).as_simple().quality() {
+                IQ::Major => Q::Major,
+                IQ::Minor => Q::Minor,
+                IQ::DIMINISHED => Q::Diminished,
+                IQ::AUGMENTED => Q::Augmented,
+                IQ::Perfect => unreachable!("sevenths cannot be perfect"),
+                IQ::Diminished(_) | IQ::Augmented(_) => unreachable!("sevenths cannot be multiply diminished or augmented")
+            }
+        });
+
+        Self {
+            degree,
+            triad_quality,
+            seventh_quality,
+            inversion: 0,
         }
     }
 }
