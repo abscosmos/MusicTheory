@@ -139,6 +139,20 @@ impl RomanChord {
         matches!(mode, DiatonicMode::Aeolian | DiatonicMode::Dorian)
     }
 
+    pub fn root_in_key(&self, key: Key) -> Pitch {
+        let degree_index = (self.degree as u8 - 1) as usize;
+        // TODO: this scale function is experimental
+        let scale = key.scale().build_default();
+        let mut root = scale[degree_index];
+
+        // TODO: maybe this function is overkill?
+        if self.should_raise_leading_tone(key).unwrap_or(false) {
+            root = root.transpose(Interval::MINOR_SECOND);
+        }
+
+        root
+    }
+
     fn should_raise_leading_tone(&self, key: Key) -> Option<bool> {
         if !matches!(self.degree, ScaleDegree::V | ScaleDegree::VII) && Self::mode_has_raised_leading_tone(key.mode) {
             return Some(false);
