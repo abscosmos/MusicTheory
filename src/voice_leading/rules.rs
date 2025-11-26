@@ -1,4 +1,9 @@
 use crate::interval::Interval;
+use crate::key::Key;
+use crate::note::Note;
+use crate::pcset::PitchClassSet;
+use crate::pitch::Pitch;
+use crate::voice_leading::roman_chord::RomanChord;
 use crate::voice_leading::{Voice, Voicing};
 
 pub fn check_range(v: Voicing) -> Result<(), Voice> {
@@ -30,6 +35,25 @@ pub fn check_range(v: Voicing) -> Result<(), Voice> {
     }
 
     Ok(())
+}
+
+pub fn completely_voiced(v: Voicing, chord: RomanChord, key: Key) -> bool {
+    let voicing_set = v.into_iter()
+        .map(|p| p.as_pitch_class())
+        .collect::<PitchClassSet>();
+
+    let chord_pitches = chord.pitches(key);
+
+    let full_chord = chord_pitches.iter()
+        .copied()
+        .map(Pitch::as_pitch_class)
+        .collect::<PitchClassSet>();
+
+    let eliminated_fifth = full_chord.with_cleared(chord_pitches[2].as_pitch_class());
+
+    // sevenths must be fully voiced
+    // also, eliminating the fifth is only valid in some cases
+    voicing_set == full_chord || (chord.has_seventh() && voicing_set == eliminated_fifth)
 }
 
 pub fn check_spacing(v: Voicing) -> Result<(), (Voice, Voice)> {
