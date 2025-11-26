@@ -158,7 +158,7 @@ impl RomanChord {
             return Some(false);
         }
 
-        fn intervals_match(scale: [Pitch; 7], intervals: &[Interval], degree: ScaleDegree) -> bool {
+        fn intervals_match(mut scale: [Pitch; 7], intervals: &[Interval], degree: ScaleDegree) -> bool {
             assert!(
                 (3..=4).contains(&intervals.len()),
                 "triad or seventh must have either 3 or four intervals"
@@ -166,10 +166,12 @@ impl RomanChord {
 
             let degree = degree.as_idx() as usize;
 
-            let bass = scale[degree];
-            let third = scale[(degree + 2) % 7];
-            let fifth = scale[(degree + 4) % 7];
-            let seventh = scale[(degree + 6) % 7];
+            scale.rotate_left(degree);
+
+            let bass = scale[0];
+            let third = scale[2];
+            let fifth = scale[4];
+            let seventh = scale[6];
 
             let exp_third = bass.distance_to(third).as_simple();
             let exp_fifth = bass.distance_to(fifth).as_simple();
