@@ -56,6 +56,10 @@ pub fn completely_voiced(v: Voicing, chord: RomanChord, key: Key) -> bool {
     voicing_set == full_chord || (chord.has_seventh() && voicing_set == eliminated_fifth)
 }
 
+pub fn check_bass_note(v: Voicing, chord: RomanChord, key: Key) -> bool {
+    v[Voice::Bass].pitch == chord.bass(key)
+}
+
 pub fn check_spacing(v: Voicing) -> Result<(), (Voice, Voice)> {
     let [s, a, t, b] = *v;
 
