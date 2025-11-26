@@ -1,6 +1,7 @@
 use std::fmt;
 use crate::interval::{Interval, IntervalQuality};
 use crate::key::Key;
+use crate::pcset::PitchClassSet;
 use crate::pitch::Pitch;
 use crate::scales::heptatonic::DiatonicMode;
 use strum_macros::FromRepr;
@@ -225,6 +226,13 @@ impl RomanChord {
         root.transpose(
             *intervals.get(self.inversion as usize).expect("should be valid inversion")
         )
+    }
+
+    pub fn pitch_class_set(&self, key: Key) -> PitchClassSet {
+        self.pitches(key)
+            .into_iter()
+            .map(Pitch::as_pitch_class)
+            .collect()
     }
 
     // TODO: should this be in mode instead of in key, since the pitch is irrelevant?
