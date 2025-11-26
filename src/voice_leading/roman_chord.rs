@@ -78,4 +78,14 @@ impl RomanChord {
             inversion,
         })
     }
+
+    pub fn triad(degree: ScaleDegree, triad_quality: Quality) -> Self {
+        Self::new(degree, triad_quality, None, inversions::INV_ROOT)
+            .expect("root position inversion always valid")
+    }
+
+    pub fn seventh(degree: ScaleDegree, triad_quality: Quality, seventh_quality: Quality) -> Self {
+        Self::new(degree, triad_quality, Some(seventh_quality), inversions::INV_ROOT)
+            .expect("root position inversion always valid")
+    }
 }
