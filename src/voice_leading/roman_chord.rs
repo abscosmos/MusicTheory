@@ -1,3 +1,4 @@
+use std::fmt;
 use crate::interval::{Interval, IntervalQuality};
 use crate::key::Key;
 use crate::pitch::Pitch;
@@ -261,5 +262,66 @@ impl RomanChord {
             seventh_quality,
             inversion: 0,
         }
+    }
+}
+
+impl fmt::Display for RomanChord {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        use Quality as Q;
+
+        let mut s = format!("{:?}", self.degree);
+
+        if matches!(self.triad_quality, Q::Minor | Q::Diminished) {
+            s = s.to_ascii_lowercase();
+        }
+
+        fn push_irregular_quality(s: &mut String, triad: Quality, seventh: Quality) {
+            fn quality_char(q: Quality) -> char {
+                match q {
+                    Q::Major => 'M',
+                    Q::Minor => 'm',
+                    Q::Diminished => 'd',
+                    Q::Augmented => 'A',
+                }
+            }
+
+            s.push('(');
+            s.push(quality_char(triad));
+            s.push(quality_char(seventh));
+            s.push(')');
+        }
+
+        match (self.triad_quality, self.seventh_quality()) {
+            (Q::Major, None) => { /* none */ },
+            (Q::Major, Some(Q::Major)) => { /* none */ },
+            (Q::Major, Some(Q::Minor)) => { /* none */ }, // dominant
+            (Q::Major, Some(seventh)) => push_irregular_quality(&mut s, Q::Major, seventh),
+            (Q::Minor, None) => { /* none */ },
+            (Q::Minor, Some(Q::Minor)) => { /* none */ },
+            (Q::Minor, Some(seventh)) => push_irregular_quality(&mut s, Q::Minor, seventh),
+            (Q::Augmented, None) => s.push('+'),
+            (Q::Augmented, Some(seventh)) => push_irregular_quality(&mut s, Q::Augmented, seventh),
+            (Q::Diminished, None) => s.push('o'),
+            (Q::Diminished, Some(Q::Diminished)) => s.push('o'),
+            (Q::Diminished, Some(Q::Minor)) => s.push('ø'),
+            (Q::Diminished, Some(seventh)) => push_irregular_quality(&mut s, Q::Diminished, seventh),
+        }
+
+        match (self.seventh_quality().is_some(), self.inversion) {
+            // root
+            (false, 0) => { /* none */ },
+            (true, 0) => s.push('7'),
+            // first
+            (false, 1) => s.push('6'),
+            (true, 1) => s.push_str("6/5"),
+            // second
+            (false, 2) => s.push_str("6/4"),
+            (true, 2) => s.push_str("4/3"),
+            // third
+            (true, 3) => s.push_str("4/2"),
+            _ => unreachable!("invalid inversion for chord type"),
+        }
+
+        f.write_str(&s)
     }
 }
