@@ -37,6 +37,7 @@ pub fn check_range(v: Voicing) -> Result<(), Voice> {
     Ok(())
 }
 
+// this does not check spelling, which it probably should
 pub fn completely_voiced(v: Voicing, chord: RomanChord, key: Key) -> bool {
     let voicing_set = v.into_iter()
         .map(|p| p.as_pitch_class())
