@@ -147,7 +147,7 @@ impl RomanChord {
 
         // TODO: maybe this function is overkill?
         if self.should_raise_leading_tone(key).unwrap_or(false) {
-            root = root.transpose(Interval::MINOR_SECOND);
+            root = root.transpose(Interval::AUGMENTED_UNISON);
         }
 
         root
@@ -188,7 +188,7 @@ impl RomanChord {
 
         let scale_raised = {
             let mut s = scale;
-            s[6] = s[6].transpose(Interval::MINOR_SECOND);
+            s[6] = s[6].transpose(Interval::AUGMENTED_UNISON);
             s
         };
 
