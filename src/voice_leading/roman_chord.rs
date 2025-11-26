@@ -205,6 +205,18 @@ impl RomanChord {
         }
     }
 
+    pub fn pitches(&self, key: Key) -> Vec<Pitch> {
+        let root = self.root_in_key(key);
+
+        let mut pitches = self.intervals().into_iter()
+            .map(|i| root.transpose(i))
+            .collect::<Vec<_>>();
+
+        pitches.rotate_left(self.inversion as _);
+
+        pitches
+    }
+
     // TODO: should this be in mode instead of in key, since the pitch is irrelevant?
     pub fn diatonic_in_key(
         degree: ScaleDegree,
