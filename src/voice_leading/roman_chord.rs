@@ -88,4 +88,8 @@ impl RomanChord {
         Self::new(degree, triad_quality, Some(seventh_quality), inversions::INV_ROOT)
             .expect("root position inversion always valid")
     }
+
+    pub fn seventh_quality(&self) -> Option<Quality> {
+        self.seventh_quality
+    }
 }
