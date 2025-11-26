@@ -138,4 +138,54 @@ impl RomanChord {
     fn mode_has_raised_leading_tone(mode: DiatonicMode) -> bool {
         matches!(mode, DiatonicMode::Aeolian | DiatonicMode::Dorian)
     }
+
+    fn should_raise_leading_tone(&self, key: Key) -> Option<bool> {
+        if !matches!(self.degree, ScaleDegree::V | ScaleDegree::VII) && Self::mode_has_raised_leading_tone(key.mode) {
+            return Some(false);
+        }
+
+        fn intervals_match(scale: [Pitch; 7], intervals: &[Interval], degree: ScaleDegree) -> bool {
+            assert!(
+                (3..=4).contains(&intervals.len()),
+                "triad or seventh must have either 3 or four intervals"
+            );
+
+            let degree = degree.as_idx() as usize;
+
+            let bass = scale[degree];
+            let third = scale[(degree + 2) % 7];
+            let fifth = scale[(degree + 4) % 7];
+            let seventh = scale[(degree + 6) % 7];
+
+            let exp_third = bass.distance_to(third).as_simple();
+            let exp_fifth = bass.distance_to(fifth).as_simple();
+            let exp_seventh = bass.distance_to(seventh).as_simple();
+
+            let [_, third, fifth, ..] = *intervals else {
+                unreachable!("triad or seventh must have at least 3 intervals");
+            };
+
+            let seventh = intervals.get(3).copied();
+
+            exp_third == third && exp_fifth == fifth && seventh.is_none_or(|s| s == exp_seventh)
+        }
+
+        let scale = key.scale().build_default();
+
+        let scale_raised = {
+            let mut s = scale;
+            s[6] = s[6].transpose(Interval::MINOR_SECOND);
+            s
+        };
+
+        let intervals = self.intervals();
+
+        if intervals_match(scale_raised, &intervals, self.degree) {
+            Some(true)
+        } else if intervals_match(scale, &intervals, self.degree) {
+            Some(false)
+        } else {
+            None
+        }
+    }
 }
