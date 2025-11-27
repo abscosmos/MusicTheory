@@ -42,7 +42,7 @@ pub fn score_single(voicing: Voicing, chord: RomanChord, key: Key) -> Result<u16
     use crate::voice_leading::rules::{
         check_bass_note,
         check_completely_voiced,
-        check_no_illegal_doubling,
+        check_leading_tone_not_doubled,
         check_range,
         check_six_four_doubling,
         check_spacing,
@@ -65,7 +65,7 @@ pub fn score_single(voicing: Voicing, chord: RomanChord, key: Key) -> Result<u16
     }
 
     // 3. doubling
-    if !check_no_illegal_doubling(voicing, chord, key) {
+    if !check_leading_tone_not_doubled(voicing, chord, key) {
         return Err(Kind::IllegalDoubling);
     }
 

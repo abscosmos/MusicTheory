@@ -65,7 +65,7 @@ pub fn check_bass_note(v: Voicing, chord: RomanChord, key: Key) -> bool {
     v[Voice::Bass].pitch == chord.bass(key)
 }
 
-pub fn check_no_illegal_doubling(v: Voicing, chord: RomanChord, key: Key) -> bool {
+pub fn check_leading_tone_not_doubled(v: Voicing, chord: RomanChord, key: Key) -> bool {
     // sanity check it's fully voiced
     assert!(
         check_completely_voiced(v, chord, key),
