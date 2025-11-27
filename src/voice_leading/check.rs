@@ -144,6 +144,10 @@ pub fn check_voice_leading(key: Key, progression: &[RomanChord], voicings: &[Voi
         })?;
     }
 
+    if voicings.len() == 1 {
+        return Ok(score);
+    }
+
     for loc in 0..(voicings.len() - 1) {
         let c_first = progression[loc];
         let c_second = progression[loc + 1];
