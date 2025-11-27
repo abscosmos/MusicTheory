@@ -62,6 +62,32 @@ pub fn check_bass_note(v: Voicing, chord: RomanChord, key: Key) -> bool {
     v[Voice::Bass].pitch == chord.bass(key)
 }
 
+pub fn check_six_four_doubling(v: Voicing, chord: RomanChord, key: Key) -> bool {
+    // sanity check the chord is voiced correctly
+    assert!(
+        completely_voiced(v, chord, key),
+        "chord must be completely voiced for 6/4 doubling check",
+    );
+
+    // also, ensure the bass is correct
+    assert!(
+        check_bass_note(v, chord, key),
+        "bass note must be correct for 6/4 doubling check",
+    );
+
+    if chord.inversion() != 2 || chord.has_seventh() {
+        return true;
+    }
+
+    let bass_pc = chord.bass(key).as_pitch_class();
+
+    let count = v.iter()
+        .filter(|n| n.as_pitch_class() == bass_pc)
+        .count();
+
+    count >= 2
+}
+
 pub fn check_spacing(v: Voicing) -> Result<(), (Voice, Voice)> {
     let [s, a, t, b] = *v;
 
