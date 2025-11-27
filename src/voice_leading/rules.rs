@@ -345,6 +345,10 @@ enum VoiceMotion {
 }
 
 fn get_motion_between(voice_1: Voice, voice_2: Voice, first: Voicing, second: Voicing) -> VoiceMotion {
+    if voice_1 == voice_2 {
+        return VoiceMotion::Oblique;
+    }
+
     let soprano_first = first[voice_1];
     let soprano_second = second[voice_1];
     let bass_first = first[voice_2];
