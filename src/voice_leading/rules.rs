@@ -410,7 +410,7 @@ pub fn score_outer_voice_motion(first: Voicing, second: Voicing) -> u16 {
     }
 }
 
-fn score_melodic_intervals(first: Voicing, second: Voicing) -> u16 {
+pub fn score_melodic_intervals(first: Voicing, second: Voicing) -> u16 {
     let mut penalty = 0;
 
     for voice in Voice::iter() {
@@ -445,7 +445,7 @@ fn score_melodic_intervals(first: Voicing, second: Voicing) -> u16 {
     penalty
 }
 
-fn score_common_tones(first: Voicing, second: Voicing, first_chord: RomanChord, second_chord: RomanChord, key: Key) -> u16 {
+pub fn score_common_tones(first: Voicing, second: Voicing, first_chord: RomanChord, second_chord: RomanChord, key: Key) -> u16 {
     assert!(
         check_completely_voiced(first, first_chord, key),
         "first chord must be completely voiced for common tone scoring",
