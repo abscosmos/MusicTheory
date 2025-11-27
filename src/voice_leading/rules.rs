@@ -57,7 +57,8 @@ pub fn check_completely_voiced(v: Voicing, chord: RomanChord, key: Key) -> bool 
 
     // sevenths must be fully voiced
     // also, eliminating the fifth is only valid in some cases
-    voicing_set == full_chord || (chord.has_seventh() && voicing_set == eliminated_fifth)
+    // TODO: needs to check that the previous chord has a seventh
+    voicing_set == full_chord || voicing_set == eliminated_fifth
 }
 
 pub fn check_bass_note(v: Voicing, chord: RomanChord, key: Key) -> bool {
