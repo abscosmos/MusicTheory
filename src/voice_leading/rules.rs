@@ -4,7 +4,7 @@ use crate::key::Key;
 use crate::note::Note;
 use crate::pcset::PitchClassSet;
 use crate::pitch::Pitch;
-use crate::voice_leading::roman_chord::RomanChord;
+use crate::voice_leading::roman_chord::{RomanChord, ScaleDegree};
 use crate::voice_leading::{Voice, Voicing};
 
 pub fn check_range(v: Voicing) -> Result<(), Voice> {
