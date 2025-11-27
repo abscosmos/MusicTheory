@@ -1,9 +1,11 @@
+use std::cmp::Ordering;
 use strum::IntoEnumIterator;
-use crate::interval::Interval;
+use crate::interval::{Interval, IntervalQuality};
 use crate::key::Key;
 use crate::note::Note;
 use crate::pcset::PitchClassSet;
 use crate::pitch::Pitch;
+use crate::prelude::IntervalNumber;
 use crate::voice_leading::roman_chord::{RomanChord, ScaleDegree};
 use crate::voice_leading::{Voice, Voicing};
 
@@ -331,6 +333,32 @@ pub fn check_chordal_seventh_resolution(
             && !matches!(-first_note.distance_to(second_note), Interval::MAJOR_SECOND | Interval::MINOR_SECOND)
         {
             return Err(voice)
+        }
+    }
+
+    Ok(())
+}
+
+pub fn check_melodic_intervals(first: Voicing, second: Voicing) -> Result<(), Voice> {
+    use IntervalQuality as IQ;
+
+    for voice in Voice::iter() {
+        let first_note = first[voice];
+        let second_note = second[voice];
+
+        if first_note == second_note {
+            continue;
+        }
+
+        let interval = first_note.distance_to(second_note);
+
+        match interval.quality() {
+            IQ::Augmented(_) => return Err(voice),
+            IQ::Diminished(_) if interval != Interval::DIMINISHED_FIFTH => return Err(voice),
+            // okay
+            IQ::Diminished(_) if interval == Interval::DIMINISHED_FIFTH => {}
+            IQ::Major | IQ::Minor | IQ::Perfect => {}
+            _ => unreachable!("all cases covered"),
         }
     }
 
