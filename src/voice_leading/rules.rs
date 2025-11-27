@@ -431,13 +431,13 @@ fn score_melodic_intervals(first: Voicing, second: Voicing) -> u16 {
             // unison to step
             0..=2 => 0,
             // min/maj thirds
-            3..=4 => 2,
+            3..=4 => 1,
             // fourth / tritone
-            5..=6 => 5,
+            5..=6 => 2,
             // fifths
-            7 => 8,
+            7 => 4,
             // larger
-            8..=12 => 12,
+            8..=12 => 8,
             _ => unreachable!("simple intervals have semitone count in [0,12)"),
         };
     }
