@@ -12,7 +12,7 @@ pub struct VoiceLeadingError {
 pub enum VoiceLeadingErrorKind {
     MismatchedSizes,
     OutOfRange(Voice),
-    InvalidSpacing(Voice, Voice),
+    InvalidSpacing(Voice, Voice, Interval),
     IncompleteVoicing,
     InvalidBass,
     IllegalDoubling,
@@ -39,7 +39,7 @@ pub fn score_single(voicing: Voicing, chord: RomanChord, key: Key) -> Result<u16
     // 1. range & spacing
     check_range(voicing).map_err(|voice| Kind::OutOfRange(voice))?;
 
-    check_spacing(voicing).map_err(|(v1, v2)| Kind::InvalidSpacing(v1, v2))?;
+    check_spacing(voicing).map_err(|(v1, v2, ivl)| Kind::InvalidSpacing(v1, v2, ivl))?;
 
     // 2. voicing
     if !check_completely_voiced(voicing, chord, key) {

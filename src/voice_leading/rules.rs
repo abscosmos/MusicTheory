@@ -133,7 +133,7 @@ pub fn check_six_four_doubling(v: Voicing, chord: RomanChord, key: Key) -> bool 
     count >= 2
 }
 
-pub fn check_spacing(v: Voicing) -> Result<(), (Voice, Voice)> {
+pub fn check_spacing(v: Voicing) -> Result<(), (Voice, Voice, Interval)> {
     let [s, a, t, b] = *v;
 
     // TODO: this should maybe check diatonically
@@ -143,17 +143,22 @@ pub fn check_spacing(v: Voicing) -> Result<(), (Voice, Voice)> {
     let tenth_range = Interval::MAJOR_TENTH.semitones();
     let tenth_range = 0..=tenth_range.0;
 
+    let a_s = a.distance_to(s);
 
-    if !octave_range.contains(&s.semitones_to(a).0) {
-        return Err((Voice::Soprano, Voice::Alto));
+    if !octave_range.contains(&a_s.semitones().0) {
+        return Err((Voice::Soprano, Voice::Alto, a_s));
     }
 
-    if !octave_range.contains(&a.semitones_to(t).0) {
-        return Err((Voice::Alto, Voice::Tenor));
+    let t_a = t.distance_to(a);
+
+    if !octave_range.contains(&t_a.semitones().0) {
+        return Err((Voice::Alto, Voice::Tenor, t_a));
     }
 
-    if !tenth_range.contains(&t.semitones_to(b).0) {
-        return Err((Voice::Tenor, Voice::Bass));
+    let b_t = b.distance_to(t);
+
+    if !tenth_range.contains(&b_t.semitones().0) {
+        return Err((Voice::Tenor, Voice::Bass, b_t));
     }
 
     assert!(
