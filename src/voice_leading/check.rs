@@ -44,6 +44,7 @@ pub fn score_single(voicing: Voicing, chord: RomanChord, key: Key) -> Result<u16
         check_completely_voiced,
         check_leading_tone_not_doubled,
         check_range,
+        check_root_position_doubling,
         check_six_four_doubling,
         check_spacing,
     };
@@ -66,6 +67,10 @@ pub fn score_single(voicing: Voicing, chord: RomanChord, key: Key) -> Result<u16
 
     // 3. doubling
     if !check_leading_tone_not_doubled(voicing, chord, key) {
+        return Err(Kind::IllegalDoubling);
+    }
+
+    if !check_root_position_doubling(voicing, chord, key) {
         return Err(Kind::IllegalDoubling);
     }
 

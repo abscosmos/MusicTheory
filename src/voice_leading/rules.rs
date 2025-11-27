@@ -65,6 +65,31 @@ pub fn check_bass_note(v: Voicing, chord: RomanChord, key: Key) -> bool {
     v[Voice::Bass].pitch == chord.bass(key)
 }
 
+// TODO: not sure if this method is right
+pub fn check_root_position_doubling(voicing: Voicing, chord: RomanChord, key: Key) -> bool {
+    // sanity check it's fully voiced
+    assert!(
+        check_completely_voiced(voicing, chord, key),
+        "chord must be completely voiced for doubling check",
+    );
+
+    if chord.inversion() != 0 {
+        return true;
+    }
+
+    let root = chord.root_in_key(key).as_pitch_class();
+
+    // don't double the leading tone!
+    if RomanChord::mode_has_raised_leading_tone(key.mode) && chord.degree == ScaleDegree::VII {
+        return true;
+    }
+
+    voicing.iter()
+        .map(|n| n.as_pitch_class())
+        .filter(|&p| p == root)
+        .count() >= 2
+}
+
 pub fn check_leading_tone_not_doubled(v: Voicing, chord: RomanChord, key: Key) -> bool {
     // sanity check it's fully voiced
     assert!(
