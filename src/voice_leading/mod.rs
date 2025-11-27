@@ -1,6 +1,5 @@
-
 use std::ops::{Deref, Index, IndexMut};
-use strum_macros::FromRepr;
+use strum_macros::{EnumIter, FromRepr};
 use crate::note::Note;
 
 pub mod rules;
@@ -10,7 +9,7 @@ pub mod roman_chord;
 pub struct Voicing(pub [Note; 4]);
 
 #[repr(u8)]
-#[derive(Copy, Clone, Eq, PartialEq, Debug, FromRepr)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug, FromRepr, EnumIter)]
 pub enum Voice {
     Soprano = 0,
     Alto = 1,

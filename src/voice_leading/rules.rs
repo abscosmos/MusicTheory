@@ -1,3 +1,4 @@
+use strum::IntoEnumIterator;
 use crate::interval::Interval;
 use crate::key::Key;
 use crate::note::Note;
@@ -93,26 +94,18 @@ pub fn check_spacing(v: Voicing) -> Result<(), (Voice, Voice)> {
 }
 
 fn check_parallel_interval(first: Voicing, second: Voicing, interval: Interval) -> Result<(), (Voice, Voice)> {
-    const NUM_VOICES: usize = 4;
-
-    // make indexing easier
-    let (first, second) = (*first, *second);
-
-    for i in 0..NUM_VOICES {
-        for j in (i + 1)..NUM_VOICES {
-            let v1_first = first[i];
-            let v2_first = first[j];
-            let v1_second = second[i];
-            let v2_second = second[j];
+    for v1 in Voice::iter() {
+        for v2 in Voice::iter() {
+            let v1_first = first[v1];
+            let v2_first = first[v2];
+            let v1_second = second[v1];
+            let v2_second = second[v2];
 
             if v1_first != v2_first
                 && v1_first.semitones_to(v2_first) == interval.semitones()
                 && v1_second.semitones_to(v2_second) == interval.semitones()
             {
-                return Err((
-                    Voice::from_repr(i as u8).expect("valid voice"),
-                    Voice::from_repr(j as u8).expect("valid voice")
-                ));
+                return Err((v1, v2));
             }
         }
     }
