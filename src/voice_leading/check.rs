@@ -18,7 +18,7 @@ pub enum VoiceLeadingErrorKind {
     IllegalDoubling,
     IllegalParallel(Voice, Voice, Interval),
     UnequalFifths(Voice, Voice),
-    DirectFifths(Voice),
+    DirectFifthsOrOctaves(Voice),
     LeadingToneNotResolved(Voice),
     ChordalSeventhNotResolved(Voice),
     InvalidMelodicInterval(Voice, Interval),
@@ -83,7 +83,7 @@ pub fn score_window(v_first: Voicing, v_second: Voicing, c_first: RomanChord, c_
     // 5. fifths
     check_unequal_fifths(v_first, v_second).map_err(|(v1, v2)| Kind::UnequalFifths(v1, v2))?;
 
-    check_direct_fifths_octaves(v_first, v_second).map_err(|voice| Kind::DirectFifths(voice))?;
+    check_direct_fifths_octaves(v_first, v_second).map_err(|voice| Kind::DirectFifthsOrOctaves(voice))?;
 
     // 6. resolution
     check_leading_tone_resolution(v_first, v_second, c_second, key).map_err(|voice| Kind::LeadingToneNotResolved(voice))?;
