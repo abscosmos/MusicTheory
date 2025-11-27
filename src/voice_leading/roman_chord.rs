@@ -140,7 +140,7 @@ impl RomanChord {
 
     // source of truth for alterations
     // TODO: move this somewhere else?
-    fn mode_has_raised_leading_tone(mode: DiatonicMode) -> bool {
+    pub(crate) fn mode_has_raised_leading_tone(mode: DiatonicMode) -> bool {
         matches!(mode, DiatonicMode::Aeolian | DiatonicMode::Dorian)
     }
 
