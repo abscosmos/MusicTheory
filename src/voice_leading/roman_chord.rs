@@ -159,7 +159,7 @@ impl RomanChord {
     }
 
     fn should_raise_leading_tone(&self, key: Key) -> Option<bool> {
-        if !matches!(self.degree, ScaleDegree::V | ScaleDegree::VII) && Self::mode_has_raised_leading_tone(key.mode) {
+        if !matches!(self.degree, ScaleDegree::V | ScaleDegree::VII) || !Self::mode_has_raised_leading_tone(key.mode) {
             return Some(false);
         }
 
