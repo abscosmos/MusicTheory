@@ -404,9 +404,9 @@ fn get_motion_between(voice_1: Voice, voice_2: Voice, first: Voicing, second: Vo
 pub fn score_outer_voice_motion(first: Voicing, second: Voicing) -> u16 {
     match get_motion_between(Voice::Soprano, Voice::Bass, first, second) {
         VoiceMotion::Oblique => 0,
-        VoiceMotion::Contrary => 2,
-        VoiceMotion::Similar => 5,
-        VoiceMotion::Parallel => 10,
+        VoiceMotion::Contrary => 1,
+        VoiceMotion::Similar => 2,
+        VoiceMotion::Parallel => 4,
     }
 }
 
