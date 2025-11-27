@@ -62,6 +62,49 @@ pub fn check_bass_note(v: Voicing, chord: RomanChord, key: Key) -> bool {
     v[Voice::Bass].pitch == chord.bass(key)
 }
 
+pub fn check_no_illegal_doubling(v: Voicing, chord: RomanChord, key: Key) -> bool {
+    // sanity check it's fully voiced
+    assert!(
+        completely_voiced(v, chord, key),
+        "chord must be completely voiced for doubling check",
+    );
+
+    let voicing_pitch_classes = v.iter()
+        .map(|n| n.pitch)
+        .collect::<Vec<_>>();
+
+    let chord_pitches = chord.pitches(key);
+
+    let leading_tone = {
+        let mut vii = key.scale().build_default()[6];
+
+        if RomanChord::mode_has_raised_leading_tone(key.mode) {
+            vii = vii.transpose(Interval::AUGMENTED_UNISON);
+        }
+
+        vii
+    };
+
+    let chordal_seventh = chord.has_seventh().then(|| chord_pitches[3]);
+
+    for pc in voicing_pitch_classes.iter() {
+        let count = voicing_pitch_classes.iter().filter(|&p| p == pc).count();
+
+        if count > 1 {
+            if *pc == leading_tone {
+                return false;
+            }
+
+            assert!(
+                chordal_seventh.is_none_or(|seventh| *pc != seventh),
+                "chordal seventh doubling should've already been caught",
+            );
+        }
+    }
+
+    true
+}
+
 pub fn check_six_four_doubling(v: Voicing, chord: RomanChord, key: Key) -> bool {
     // sanity check the chord is voiced correctly
     assert!(
