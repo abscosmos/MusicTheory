@@ -165,6 +165,11 @@ pub fn check_spacing(v: Voicing) -> Result<(), (Voice, Voice)> {
 }
 
 fn check_parallel_interval(first: Voicing, second: Voicing, interval: Interval) -> Result<(), (Voice, Voice)> {
+    fn check(v1: Note, v2: Note, interval: Interval) -> bool {
+        v1.distance_to(v2).as_simple().abs().semitones() == interval.semitones()
+    }
+
+    // TODO: this double checks
     for v1 in Voice::iter() {
         for v2 in Voice::iter() {
             let v1_first = first[v1];
@@ -172,9 +177,9 @@ fn check_parallel_interval(first: Voicing, second: Voicing, interval: Interval) 
             let v1_second = second[v1];
             let v2_second = second[v2];
 
-            if v1_first != v2_first
-                && v1_first.semitones_to(v2_first) == interval.semitones()
-                && v1_second.semitones_to(v2_second) == interval.semitones()
+            if v1_first != v2_first // oblique is fine
+                && check(v1_first, v2_first, interval)
+                && check(v1_second, v2_second, interval)
             {
                 return Err((v1, v2));
             }
