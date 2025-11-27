@@ -73,7 +73,7 @@ pub fn check_root_position_doubling(voicing: Voicing, chord: RomanChord, key: Ke
         "chord must be completely voiced for doubling check",
     );
 
-    if chord.inversion() != 0 {
+    if chord.inversion() != 0 || chord.has_seventh() {
         return true;
     }
 
