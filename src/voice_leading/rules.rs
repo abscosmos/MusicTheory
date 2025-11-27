@@ -170,7 +170,7 @@ pub fn check_spacing(v: Voicing) -> Result<(), (Voice, Voice, Interval)> {
     Ok(())
 }
 
-fn check_parallel_interval(first: Voicing, second: Voicing, interval: Interval) -> Result<(), (Voice, Voice)> {
+pub fn check_parallel_interval(first: Voicing, second: Voicing, interval: Interval) -> Result<(), (Voice, Voice)> {
     fn check(v1: Note, v2: Note, interval: Interval) -> bool {
         v1.distance_to(v2).as_simple().abs().semitones() == interval.semitones()
     }
@@ -193,14 +193,6 @@ fn check_parallel_interval(first: Voicing, second: Voicing, interval: Interval) 
     }
 
     Ok(())
-}
-
-pub fn check_parallel_fifths(first: Voicing, second: Voicing) -> Result<(), (Voice, Voice)> {
-    check_parallel_interval(first, second, Interval::PERFECT_FIFTH)
-}
-
-pub fn check_parallel_octaves(first: Voicing, second: Voicing) -> Result<(), (Voice, Voice)> {
-    check_parallel_interval(first, second, Interval::PERFECT_OCTAVE)
 }
 
 pub fn check_unequal_fifths(first: Voicing, second: Voicing) -> Result<(), (Voice, Voice)> {

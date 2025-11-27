@@ -2,7 +2,6 @@ use crate::interval::Interval;
 use crate::key::Key;
 use crate::voice_leading::roman_chord::RomanChord;
 use crate::voice_leading::{Voice, Voicing};
-use crate::voice_leading::rules::{score_common_tones, score_melodic_intervals, score_outer_voice_motion};
 
 #[derive(Debug, thiserror::Error)]
 #[error("Error in chord {location}: {kind}")]
@@ -80,20 +79,22 @@ pub fn score_single(voicing: Voicing, chord: RomanChord, key: Key) -> Result<u16
 pub fn score_window(v_first: Voicing, v_second: Voicing, c_first: RomanChord, c_second: RomanChord, key: Key) -> Result<u16, VoiceLeadingErrorKind> {
     use crate::voice_leading::rules::{
         check_direct_fifths_octaves,
-        check_parallel_fifths,
-        check_parallel_octaves,
+        check_parallel_interval,
         check_unequal_fifths,
         check_leading_tone_resolution,
         check_chordal_seventh_resolution,
         check_melodic_intervals,
+        score_outer_voice_motion,
+        score_melodic_intervals,
+        score_common_tones,
     };
     
     use VoiceLeadingErrorKind as Kind;
 
     // 4. parallels
-    check_parallel_fifths(v_first, v_second).map_err(|(v1, v2)| Kind::IllegalParallel(v1, v2, Interval::PERFECT_FIFTH))?;
-
-    check_parallel_octaves(v_first, v_second).map_err(|(v1, v2)| Kind::IllegalParallel(v1, v2, Interval::PERFECT_OCTAVE))?;
+    for interval in [Interval::PERFECT_UNISON, Interval::PERFECT_FIFTH, Interval::PERFECT_OCTAVE] {
+        check_parallel_interval(v_first, v_second, interval).map_err(|(v1, v2)| Kind::IllegalParallel(v1, v2, interval))?;
+    }
 
     // 5. fifths
     check_unequal_fifths(v_first, v_second).map_err(|(v1, v2)| Kind::UnequalFifths(v1, v2))?;
@@ -102,7 +103,6 @@ pub fn score_window(v_first: Voicing, v_second: Voicing, c_first: RomanChord, c_
 
     // 6. resolution
     check_leading_tone_resolution(v_first, v_second, c_second, key).map_err(|voice| Kind::LeadingToneNotResolved(voice))?;
-
 
     check_chordal_seventh_resolution(v_first, c_first, v_second, key).map_err(|voice| Kind::ChordalSeventhNotResolved(voice))?;
 
