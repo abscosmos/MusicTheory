@@ -373,3 +373,38 @@ pub fn score_outer_voice_motion(first: Voicing, second: Voicing) -> u16 {
     }
 }
 
+fn score_melodic_intervals(first: Voicing, second: Voicing) -> u16 {
+    let mut penalty = 0;
+
+    for voice in Voice::iter() {
+        let first_note = first[voice];
+        let second_note = second[voice];
+
+        if first_note == second_note {
+            continue;
+        }
+
+        let semis = first_note.distance_to(second_note)
+            .as_simple()
+            .semitones()
+            .0
+            .abs();
+
+        penalty += match semis {
+            // unison to step
+            0..=2 => 0,
+            // min/maj thirds
+            3..=4 => 2,
+            // fourth / tritone
+            5..=6 => 5,
+            // fifths
+            7 => 8,
+            // larger
+            8..=12 => 12,
+            _ => unreachable!("simple intervals have semitone count in [0,12)"),
+        };
+    }
+
+    penalty
+}
+
