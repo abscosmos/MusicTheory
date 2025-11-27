@@ -359,9 +359,9 @@ pub fn check_melodic_intervals(first: Voicing, second: Voicing) -> Result<(), Vo
 
         match interval.quality() {
             IQ::Augmented(_) => return Err(voice),
-            IQ::Diminished(_) if interval != Interval::DIMINISHED_FIFTH => return Err(voice),
+            IQ::Diminished(_) if interval.abs() != Interval::DIMINISHED_FIFTH => return Err(voice),
             // okay
-            IQ::Diminished(_) if interval == Interval::DIMINISHED_FIFTH => {}
+            IQ::Diminished(_) if interval.abs() == Interval::DIMINISHED_FIFTH => {}
             IQ::Major | IQ::Minor | IQ::Perfect => {}
             _ => unreachable!("all cases covered"),
         }
