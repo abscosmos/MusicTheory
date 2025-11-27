@@ -4,23 +4,38 @@ use crate::voice_leading::roman_chord::RomanChord;
 use crate::voice_leading::{Voice, Voicing};
 use crate::voice_leading::rules::{score_common_tones, score_melodic_intervals, score_outer_voice_motion};
 
+#[derive(Debug, thiserror::Error)]
+#[error("Error in chord {location}: {kind}")]
 pub struct VoiceLeadingError {
     pub kind: VoiceLeadingErrorKind,
     pub location: u16,
 }
 
+#[derive(Debug, thiserror::Error)]
 pub enum VoiceLeadingErrorKind {
+    #[error("The progression and voicings were different lengths")]
     MismatchedSizes,
+    #[error("The {0:?} part was out of range")]
     OutOfRange(Voice),
+    #[error("There was in invalid interval of {2} between {0:?} and {1:?}")]
     InvalidSpacing(Voice, Voice, Interval),
+    #[error("The chord was not fully voiced")]
     IncompleteVoicing,
+    #[error("The bass note was incorrect")]
     InvalidBass,
+    #[error("An invalid note was doubled")]
     IllegalDoubling,
+    #[error("There was a parallel {2} between {0:?} and {1:?}")]
     IllegalParallel(Voice, Voice, Interval),
+    #[error("There were unequal fifths between {0:?} and {1:?}")]
     UnequalFifths(Voice, Voice),
+    #[error("There were direct fifths or octaves between {:?} and {0:?}", Voice::Soprano)]
     DirectFifthsOrOctaves(Voice),
+    #[error("The leading tone in {0:?} was not resolved")]
     LeadingToneNotResolved(Voice),
+    #[error("The chordal seventh in {0:?} was not resolved")]
     ChordalSeventhNotResolved(Voice),
+    #[error("There was an invalid melodic interval of {1:?} in {0:?}")]
     InvalidMelodicInterval(Voice, Interval),
 }
 
