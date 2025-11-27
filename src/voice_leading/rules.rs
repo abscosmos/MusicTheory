@@ -344,7 +344,7 @@ pub fn check_chordal_seventh_resolution(
     Ok(())
 }
 
-pub fn check_melodic_intervals(first: Voicing, second: Voicing) -> Result<(), Voice> {
+pub fn check_melodic_intervals(first: Voicing, second: Voicing) -> Result<(), (Voice, Interval)> {
     use IntervalQuality as IQ;
 
     for voice in Voice::iter() {
@@ -358,8 +358,8 @@ pub fn check_melodic_intervals(first: Voicing, second: Voicing) -> Result<(), Vo
         let interval = first_note.distance_to(second_note);
 
         match interval.quality() {
-            IQ::Augmented(_) => return Err(voice),
-            IQ::Diminished(_) if interval.abs() != Interval::DIMINISHED_FIFTH => return Err(voice),
+            IQ::Augmented(_) => return Err((voice, interval)),
+            IQ::Diminished(_) if interval.abs() != Interval::DIMINISHED_FIFTH => return Err((voice, interval)),
             // okay
             IQ::Diminished(_) if interval.abs() == Interval::DIMINISHED_FIFTH => {}
             IQ::Major | IQ::Minor | IQ::Perfect => {}
