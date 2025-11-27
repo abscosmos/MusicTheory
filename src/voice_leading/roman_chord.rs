@@ -145,10 +145,9 @@ impl RomanChord {
     }
 
     pub fn root_in_key(&self, key: Key) -> Pitch {
-        let degree_index = (self.degree as u8 - 1) as usize;
         // TODO: this scale function is experimental
         let scale = key.scale().build_default();
-        let mut root = scale[degree_index];
+        let mut root = scale[self.degree.as_idx() as usize];
 
         // TODO: maybe this function is overkill?
         if self.should_raise_leading_tone(key).unwrap_or(false) {
