@@ -4,6 +4,7 @@ use crate::note::Note;
 
 pub mod rules;
 pub mod roman_chord;
+pub mod check;
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub struct Voicing(pub [Note; 4]);
