@@ -41,7 +41,7 @@ pub fn check_range(v: Voicing) -> Result<(), Voice> {
 }
 
 // this does not check spelling, which it probably should
-pub fn completely_voiced(v: Voicing, chord: RomanChord, key: Key) -> bool {
+pub fn check_completely_voiced(v: Voicing, chord: RomanChord, key: Key) -> bool {
     let voicing_set = v.into_iter()
         .map(|p| p.as_pitch_class())
         .collect::<PitchClassSet>();
@@ -67,7 +67,7 @@ pub fn check_bass_note(v: Voicing, chord: RomanChord, key: Key) -> bool {
 pub fn check_no_illegal_doubling(v: Voicing, chord: RomanChord, key: Key) -> bool {
     // sanity check it's fully voiced
     assert!(
-        completely_voiced(v, chord, key),
+        check_completely_voiced(v, chord, key),
         "chord must be completely voiced for doubling check",
     );
 
@@ -110,7 +110,7 @@ pub fn check_no_illegal_doubling(v: Voicing, chord: RomanChord, key: Key) -> boo
 pub fn check_six_four_doubling(v: Voicing, chord: RomanChord, key: Key) -> bool {
     // sanity check the chord is voiced correctly
     assert!(
-        completely_voiced(v, chord, key),
+        check_completely_voiced(v, chord, key),
         "chord must be completely voiced for 6/4 doubling check",
     );
 
@@ -271,7 +271,7 @@ pub fn check_leading_tone_resolution(
 ) -> Result<(), Voice> {
     // for sanity, check the second chord is accurately voiced
     assert!(
-        completely_voiced(second, second_chord, key),
+        check_completely_voiced(second, second_chord, key),
         "second chord must be completely voiced for leading tone resolution check",
     );
 
@@ -447,12 +447,12 @@ fn score_melodic_intervals(first: Voicing, second: Voicing) -> u16 {
 
 fn score_common_tones(first: Voicing, second: Voicing, first_chord: RomanChord, second_chord: RomanChord, key: Key) -> u16 {
     assert!(
-        completely_voiced(first, first_chord, key),
+        check_completely_voiced(first, first_chord, key),
         "first chord must be completely voiced for common tone scoring",
     );
 
     assert!(
-        completely_voiced(second, second_chord, key),
+        check_completely_voiced(second, second_chord, key),
         "second chord must be completely voiced for common tone scoring",
     );
 
