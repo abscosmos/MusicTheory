@@ -2,8 +2,9 @@ use std::fmt;
 use std::num::{NonZeroI16, ParseIntError};
 use std::ops::Neg;
 use std::str::FromStr;
+use serde::{Deserialize, Serialize};
 
-#[derive(Copy, Clone, Eq, PartialEq, Debug)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Serialize, Deserialize)]
 pub struct IntervalNumber(pub NonZeroI16);
 
 impl IntervalNumber {
