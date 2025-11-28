@@ -6,6 +6,7 @@ use crate::voice_leading::check::{check_voice_leading, score_single, score_windo
 use crate::voice_leading::roman_chord::RomanChord;
 use crate::voice_leading::{Voice, Voicing};
 
+#[doc(hidden)]
 pub fn brute_force_search(
     progression: &[RomanChord],
     starting_voicing: Option<Voicing>,
