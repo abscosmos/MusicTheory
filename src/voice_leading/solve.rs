@@ -29,8 +29,6 @@ pub fn brute_force_search(
         .map(|v| v.len())
         .product();
 
-    dbg!(total_permutations);
-
     if total_permutations == 0 || all_voicings.is_empty() {
         return vec![];
     }
