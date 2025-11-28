@@ -72,14 +72,12 @@ pub fn generate_voice_leadings(
     progression: &[RomanChord],
     key: Key,
     starting_voicing: Option<Voicing>,
-    limit: Option<usize>,
 ) -> Vec<(u16, Vec<Voicing>)> {
     if progression.is_empty() {
         return vec![];
     }
 
     let mut results = Vec::new();
-    let limit = limit.unwrap_or(usize::MAX);
 
     let first_chord = progression[0];
     let first_voicings = if let Some(start) = starting_voicing {
@@ -102,12 +100,7 @@ pub fn generate_voice_leadings(
             key,
             1,
             &mut results,
-            limit,
         );
-
-        if results.len() >= limit {
-            break;
-        }
     }
 
     results.sort_by_key(|(score, _)| *score);
@@ -122,12 +115,7 @@ fn backtrack(
     key: Key,
     chord_index: usize,
     results: &mut Vec<(u16, Vec<Voicing>)>,
-    limit: usize,
 ) {
-    if results.len() >= limit {
-        return;
-    }
-
     if chord_index >= progression.len() {
         results.push((current_score, current_solution.clone()));
         return;
@@ -151,11 +139,7 @@ fn backtrack(
 
         current_solution.push(voicing);
 
-        backtrack(current_solution, new_score, progression, key, chord_index + 1, results, limit);
-
-        if results.len() >= limit {
-            return;
-        }
+        backtrack(current_solution, new_score, progression, key, chord_index + 1, results);
 
         current_solution.pop();
     }
