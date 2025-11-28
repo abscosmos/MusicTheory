@@ -18,7 +18,12 @@ pub fn brute_force_search(
 
     let mut all_voicings: Vec<Vec<Voicing>> = progression
         .iter()
-        .map(|chord| generate_voicings_for_chord(*chord, key))
+        .map(|chord| {
+            generate_voicings_for_chord(*chord, key)
+                .into_iter()
+                .map(|(_score, v)| v)
+                .collect()
+        })
         .collect();
 
     if let Some(start) = starting_voicing {
@@ -76,32 +81,30 @@ pub fn generate_voice_leadings(
         return vec![];
     }
 
-    let all_voicings: Vec<Vec<Voicing>> = progression
+    let all_voicings: Vec<Vec<(u16, Voicing)>> = progression
         .iter()
         .map(|chord| generate_voicings_for_chord(*chord, key))
         .collect();
 
-    let first_voicings = if let Some(start) = starting_voicing {
-        vec![start]
+    let (first_scores, first_voicings): (Vec<u16>, Vec<Voicing>) = if let Some(start) = starting_voicing {
+        let score = score_single(start, progression[0], key).expect("starting voicing must be valid");
+        (vec![score], vec![start])
     } else {
-        all_voicings[0].clone()
+        all_voicings[0].iter().copied().unzip()
     };
 
     let mut results = Vec::new();
-    let first_chord = progression[0];
 
     // index-based backtracking
     let mut current_indices = Vec::with_capacity(progression.len());
 
-    for (idx, &first_voicing) in first_voicings.iter().enumerate() {
-        let first_score = score_single(first_voicing, first_chord, key).expect("already checked!");
-
+    for idx in 0..first_voicings.len() {
         current_indices.clear();
         current_indices.push(idx);
 
         backtrack_indexed(
             &mut current_indices,
-            first_score,
+            first_scores[idx],
             progression,
             key,
             1,
@@ -122,7 +125,7 @@ fn backtrack_indexed(
     progression: &[RomanChord],
     key: Key,
     chord_index: usize,
-    all_voicings: &[Vec<Voicing>],
+    all_voicings: &[Vec<(u16, Voicing)>],
     first_voicings: &[Voicing],
     results: &mut Vec<(u16, Vec<Voicing>)>,
 ) {
@@ -134,7 +137,7 @@ fn backtrack_indexed(
                 if i == 0 {
                     first_voicings[idx]
                 } else {
-                    all_voicings[i][idx]
+                    all_voicings[i][idx].1
                 }
             })
             .collect();
@@ -149,15 +152,12 @@ fn backtrack_indexed(
     let previous_voicing = if chord_index == 1 {
         first_voicings[prev_idx]
     } else {
-        all_voicings[chord_index - 1][prev_idx]
+        all_voicings[chord_index - 1][prev_idx].1
     };
 
     let candidate_voicings = &all_voicings[chord_index];
 
-    for (voicing_idx, &voicing) in candidate_voicings.iter().enumerate() {
-        let voicing_score = score_single(voicing, current_chord, key)
-            .expect("pre-generated voicings should always pass score_single");
-
+    for (voicing_idx, &(voicing_score, voicing)) in candidate_voicings.iter().enumerate() {
         let window_score = match score_window(previous_voicing, voicing, previous_chord, current_chord, key) {
             Ok(score) => score,
             Err(_) => continue,
@@ -173,7 +173,7 @@ fn backtrack_indexed(
     }
 }
 
-fn generate_voicings_for_chord(chord: RomanChord, key: Key) -> Vec<Voicing> {
+fn generate_voicings_for_chord(chord: RomanChord, key: Key) -> Vec<(u16, Voicing)> {
     let pitches = chord.pitches(key);
 
     let soprano_notes = generate_notes_in_range(&pitches, Voice::Soprano.range());
@@ -193,8 +193,8 @@ fn generate_voicings_for_chord(chord: RomanChord, key: Key) -> Vec<Voicing> {
                 for &b in &bass_notes {
                     let voicing = Voicing::new([s, a, t, b]);
 
-                    if score_single(voicing, chord, key).is_ok() {
-                        voicings.push(voicing);
+                    if let Ok(score) = score_single(voicing, chord, key) {
+                        voicings.push((score, voicing));
                     }
 
                 }
