@@ -296,20 +296,32 @@ mod tests {
         ];
 
         // without starting chord, the brute force gets issued a SIGKILL
-        let starting_chord = Voicing([
+        let chord_i = Voicing([
             Note::new(Pitch::B_FLAT, 4),
             Note::new(Pitch::E_FLAT, 4),
             Note::new(Pitch::G, 3),
             Note::new(Pitch::E_FLAT, 3),
         ]);
 
-        let brute = brute_force_search(&progression, key, Some(&[starting_chord]));
+        let chord_v6 = Voicing([
+            Note::new(Pitch::B_FLAT, 4),
+            Note::new(Pitch::F, 4),
+            Note::new(Pitch::F, 3),
+            Note::new(Pitch::D, 3),
+        ]);
 
-        let solver = generate_voice_leadings(&progression, key, Some(&[starting_chord])).expect("starting chord is valid");
+        let brute = brute_force_search(&progression, key, Some(&[chord_i]));
 
-        assert_eq!(
-            brute, solver,
-            "brute force and optimized solver should produce the same results"
-        );
+        let solver = generate_voice_leadings(&progression, key, Some(&[chord_i])).expect("starting chord is valid");
+
+        assert_eq!(brute, solver, "brute force and optimized solver should produce the same results");
+
+        // check longer starting chords
+
+        let brute = brute_force_search(&progression, key, Some(&[chord_i, chord_v6]));
+
+        let solver = generate_voice_leadings(&progression, key, Some(&[chord_i, chord_v6])).expect("starting chord is valid");
+
+        assert_eq!(brute, solver, "brute force and optimized solver should produce the same results (2 starting chords)");
     }
 }
