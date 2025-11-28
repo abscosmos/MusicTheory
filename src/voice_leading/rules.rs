@@ -381,6 +381,21 @@ pub fn check_melodic_intervals(first: Voicing, second: Voicing) -> Result<(), (V
     Ok(())
 }
 
+pub fn check_similar_into_unison(first: Voicing, second: Voicing) -> Result<(), (Voice, Voice)> {
+    for v1 in Voice::iter() {
+        for v2 in Voice::iter() {
+            if v2 > v1
+                && second[v1] == second[v2]
+                && get_motion_between(v1, v2, first, second) == VoiceMotion::Similar
+            {
+                return Err((v1, v2));
+            }
+        }
+    }
+
+    Ok(())
+}
+
 pub fn check_eliminated_fifths(first_chord: Option<RomanChord>, second_chord: RomanChord, second_voicing: Voicing, key: Key) -> bool {
     assert!(
         check_completely_voiced(second_voicing, second_chord, key),
@@ -416,6 +431,7 @@ pub fn check_eliminated_fifths(first_chord: Option<RomanChord>, second_chord: Ro
     false
 }
 
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 enum VoiceMotion {
     Oblique,
     Contrary,

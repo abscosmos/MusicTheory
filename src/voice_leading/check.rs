@@ -36,6 +36,8 @@ pub enum VoiceLeadingErrorKind {
     ChordalSeventhNotResolved(Voice),
     #[error("There was an invalid melodic interval of {1:?} in {0:?}")]
     InvalidMelodicInterval(Voice, Interval),
+    #[error("Both {0:?} and {1:?} moved to a unison by similar motion")]
+    SimilarIntoUnison(Voice, Voice),
 }
 
 pub fn score_single(voicing: Voicing, chord: RomanChord, key: Key) -> Result<u16, VoiceLeadingErrorKind> {
@@ -94,6 +96,7 @@ pub fn score_window(v_first: Voicing, v_second: Voicing, c_first: RomanChord, c_
         check_leading_tone_resolution,
         check_chordal_seventh_resolution,
         check_melodic_intervals,
+        check_similar_into_unison,
         check_eliminated_fifths,
         score_outer_voice_motion,
         score_melodic_intervals,
@@ -119,6 +122,8 @@ pub fn score_window(v_first: Voicing, v_second: Voicing, c_first: RomanChord, c_
 
     // 7. intervals
     check_melodic_intervals(v_first, v_second).map_err(|(voice, interval)| Kind::InvalidMelodicInterval(voice, interval))?;
+    
+    check_similar_into_unison(v_first, v_second).map_err(|(v1, v2)| Kind::SimilarIntoUnison(v1, v2))?;
 
     // 8. eliminated fifths TODO: this error displays in the wrong place
     if !check_eliminated_fifths(Some(c_first), c_second, v_second, key) {
