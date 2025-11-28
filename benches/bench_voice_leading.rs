@@ -44,7 +44,6 @@ fn backtracking(c: &mut Criterion) {
     let (key, progression) = progression();
 
     let mut group = c.benchmark_group("VL Solver");
-    group.sample_size(15);
 
     group.bench_function("VL Solver: backtracking solver, full & starting chord", |b|
         b.iter(|| generate_voice_leadings(&progression, key, None))
