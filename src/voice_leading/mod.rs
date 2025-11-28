@@ -10,7 +10,7 @@ pub mod check;
 pub struct Voicing(pub [Note; 4]);
 
 #[repr(u8)]
-#[derive(Copy, Clone, Eq, PartialEq, Debug, FromRepr, EnumIter)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug, FromRepr, EnumIter, Ord, PartialOrd)]
 pub enum Voice {
     Soprano = 0,
     Alto = 1,

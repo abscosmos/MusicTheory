@@ -203,6 +203,10 @@ pub fn check_parallel_interval(first: Voicing, second: Voicing, interval: Interv
     // TODO: this double checks
     for v1 in Voice::iter() {
         for v2 in Voice::iter() {
+            if v2 <= v1 {
+                continue;
+            }
+
             let v1_first = first[v1];
             let v2_first = first[v2];
             let v1_second = second[v1];
@@ -223,7 +227,7 @@ pub fn check_parallel_interval(first: Voicing, second: Voicing, interval: Interv
 pub fn check_unequal_fifths(first: Voicing, second: Voicing) -> Result<(), (Voice, Voice)> {
     for v1 in Voice::iter() {
         for v2 in Voice::iter() {
-            if v1 == v2 {
+            if v2 <= v1 {
                 continue;
             }
 
