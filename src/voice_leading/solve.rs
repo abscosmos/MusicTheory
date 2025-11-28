@@ -155,7 +155,8 @@ fn generate_voicings_for_chord(chord: RomanChord, key: Key) -> Vec<Voicing> {
 
     let bass_notes = generate_notes_in_range(&pitches, Voice::Bass.range());
 
-    let mut voicings = Vec::new();
+    let max_capacity = soprano_notes.len() * alto_notes.len() * tenor_notes.len() * bass_notes.len();
+    let mut voicings = Vec::with_capacity(max_capacity);
 
     for &s in &soprano_notes {
         for &a in &alto_notes {
