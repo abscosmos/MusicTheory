@@ -30,7 +30,7 @@ fn compare_with_brute_force(c: &mut Criterion) {
     let mut group = c.benchmark_group("VL Solver, medium");
 
     group.bench_function("Brute force solver", |b|
-        b.iter(|| brute_force_search(&progression[2..], None, key))
+        b.iter(|| brute_force_search(&progression[2..], key, None))
     );
 
     group.bench_function("Backtracking solver", |b|

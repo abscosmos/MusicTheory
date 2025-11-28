@@ -9,8 +9,8 @@ use crate::voice_leading::{Voice, Voicing};
 #[doc(hidden)]
 pub fn brute_force_search(
     progression: &[RomanChord],
-    starting_voicing: Option<Voicing>,
     key: Key,
+    starting_voicing: Option<Voicing>,
 ) -> Vec<(u16, Vec<Voicing>)> {
     if progression.len() == 0 {
         return vec![];
@@ -226,7 +226,7 @@ mod tests {
             Note::new(Pitch::E_FLAT, 3),
         ]);
 
-        let brute = brute_force_search(&progression, Some(starting_chord), key);
+        let brute = brute_force_search(&progression, key, Some(starting_chord));
 
         let solver = generate_voice_leadings(&progression, key, Some(starting_chord));
 
