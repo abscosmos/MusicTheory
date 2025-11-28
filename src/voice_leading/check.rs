@@ -94,6 +94,7 @@ pub fn score_window(v_first: Voicing, v_second: Voicing, c_first: RomanChord, c_
         check_leading_tone_resolution,
         check_chordal_seventh_resolution,
         check_melodic_intervals,
+        check_eliminated_fifths,
         score_outer_voice_motion,
         score_melodic_intervals,
         score_common_tones,
@@ -118,8 +119,13 @@ pub fn score_window(v_first: Voicing, v_second: Voicing, c_first: RomanChord, c_
 
     // 7. intervals
     check_melodic_intervals(v_first, v_second).map_err(|(voice, interval)| Kind::InvalidMelodicInterval(voice, interval))?;
-    
-    // 8. scores
+
+    // 8. eliminated fifths TODO: this error displays in the wrong place
+    if !check_eliminated_fifths(Some(c_first), c_second, v_second, key) {
+        return Err(Kind::IncompleteVoicing);
+    }
+
+    // 9. scores
     let mut score = 0;
     
     score += score_outer_voice_motion(v_first, v_second) * 2;
@@ -157,6 +163,8 @@ pub fn check_voice_leading(key: Key, progression: &[RomanChord], voicings: &[Voi
     if voicings.len() == 1 {
         return Ok(score);
     }
+
+
 
     for loc in 0..(voicings.len() - 1) {
         let c_first = progression[loc];
