@@ -1,6 +1,7 @@
 use std::ops::{Add, Neg, Sub};
+use serde::{Deserialize, Serialize};
 
-#[derive(Copy, Clone, Eq, PartialEq, Debug, Default, Ord, PartialOrd)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Default, Serialize, Deserialize)]
 pub struct Semitone(pub i16);
 
 impl Add for Semitone {

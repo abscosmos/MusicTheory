@@ -1,6 +1,7 @@
 use std::cmp::Ordering;
 use std::fmt;
 use std::ops::{Add, Deref, DerefMut, Sub};
+use serde::{Deserialize, Serialize};
 use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
 use crate::interval::Interval;
 use crate::letter::Letter;
@@ -8,7 +9,7 @@ use crate::pitch::Pitch;
 use crate::pitch_class::PitchClass;
 use crate::semitone::Semitone;
 
-#[derive(Copy, Clone, Eq, PartialEq, Debug)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Serialize, Deserialize)]
 pub struct Note {
     pub pitch: Pitch,
     pub octave: i16,

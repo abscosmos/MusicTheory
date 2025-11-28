@@ -235,6 +235,7 @@ dependencies = [
  "paste",
  "regex",
  "rustc-hash",
+ "serde",
  "strum",
  "strum_macros",
  "thiserror",

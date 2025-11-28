@@ -18,6 +18,7 @@ regex = "1.10.6"
 paste = "1.0.15"
 mt_macros = { path = "mt_macros" }
 rustc-hash = "2.1"
+serde = { version = "1.0.228", features = ["derive"] }
 
 [dev-dependencies]
 criterion = "0.7.0"

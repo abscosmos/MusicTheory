@@ -1,6 +1,7 @@
 use std::fmt;
 use std::ops::{Add, Sub};
 use std::str::FromStr;
+use serde::{Deserialize, Serialize};
 use strum_macros::{EnumIter, FromRepr};
 use crate::accidental::AccidentalSign;
 use crate::enharmonic::EnharmonicEq;
@@ -10,7 +11,7 @@ use crate::pitch::{Pitch, PitchFromStrError};
 use crate::semitone::Semitone;
 
 #[repr(u8)]
-#[derive(Copy, Clone, Eq, PartialEq, Debug, FromRepr, EnumIter, Ord, PartialOrd)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug, FromRepr, EnumIter, Ord, PartialOrd, Serialize, Deserialize)]
 pub enum PitchClass {
     C = 0,  /* C /B# */
     Cs, /* C#/D♭ */
