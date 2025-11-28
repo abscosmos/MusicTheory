@@ -507,3 +507,16 @@ pub fn score_common_tones(first: Voicing, second: Voicing, first_chord: RomanCho
     penalty
 }
 
+pub fn score_unison(v: Voicing) -> u16 {
+    let mut penalty = 0;
+
+    for v1 in Voice::iter() {
+        for v2 in Voice::iter() {
+            if v2 > v1 && v[v1] == v[v2] {
+                penalty += 1;
+            }
+        }
+    }
+
+    penalty
+}

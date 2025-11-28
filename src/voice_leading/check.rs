@@ -47,6 +47,7 @@ pub fn score_single(voicing: Voicing, chord: RomanChord, key: Key) -> Result<u16
         check_root_position_doubling,
         check_six_four_doubling,
         check_spacing,
+        score_unison,
     };
 
     use VoiceLeadingErrorKind as Kind;
@@ -77,8 +78,12 @@ pub fn score_single(voicing: Voicing, chord: RomanChord, key: Key) -> Result<u16
     if !check_six_four_doubling(voicing, chord, key) {
         return Err(Kind::IllegalDoubling);
     }
-    
-    Ok(0)
+
+    let mut score = 0;
+
+    score += score_unison(voicing) * 3;
+
+    Ok(score)
 }
 
 pub fn score_window(v_first: Voicing, v_second: Voicing, c_first: RomanChord, c_second: RomanChord, key: Key) -> Result<u16, VoiceLeadingErrorKind> {
