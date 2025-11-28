@@ -1,4 +1,5 @@
 use std::ops::RangeInclusive;
+use rustc_hash::FxHashMap;
 use crate::key::Key;
 use crate::note::Note;
 use crate::pitch::Pitch;
@@ -81,35 +82,58 @@ pub fn generate_voice_leadings(
         return vec![];
     }
 
-    let all_voicings: Vec<Vec<(u16, Voicing)>> = progression
+    let mut all_voicings: Vec<Vec<(u16, Voicing)>> = progression
         .iter()
         .map(|chord| generate_voicings_for_chord(*chord, key))
         .collect();
 
-    let (first_scores, first_voicings): (Vec<u16>, Vec<Voicing>) = if let Some(start) = starting_voicing {
-        let score = score_single(start, progression[0], key).expect("starting voicing must be valid");
-        (vec![score], vec![start])
-    } else {
-        all_voicings[0].iter().copied().unzip()
-    };
+    if let Some(start) = starting_voicing {
+        let Ok(score) = score_single(start, progression[0], key) else {
+            return vec![];
+        };
+
+        all_voicings[0] = vec![(score, start)];
+    }
+    
+    let mut transition_cache: Vec<FxHashMap<(usize, usize), u16>> = Vec::with_capacity(progression.len() - 1);
+
+    for chord_idx in 1..progression.len() {
+        let mut transitions = FxHashMap::default();
+        let prev_chord = progression[chord_idx - 1];
+        let curr_chord = progression[chord_idx];
+
+        let prev_voicings = &all_voicings[chord_idx - 1];
+        let curr_voicings = &all_voicings[chord_idx];
+
+        for (from_idx, &(_, from_voicing)) in prev_voicings.iter().enumerate() {
+            for (to_idx, &(_, to_voicing)) in curr_voicings.iter().enumerate() {
+                if let Ok(score) = score_window(from_voicing, to_voicing, prev_chord, curr_chord, key) {
+                    transitions.insert((from_idx, to_idx), score);
+                }
+            }
+        }
+
+        transition_cache.push(transitions);
+    }
 
     let mut results = Vec::new();
 
     // index-based backtracking
     let mut current_indices = Vec::with_capacity(progression.len());
 
-    for idx in 0..first_voicings.len() {
+    for idx in 0..all_voicings[0].len() {
         current_indices.clear();
         current_indices.push(idx);
 
+        let first_score = all_voicings[0][idx].0;
+
         backtrack_indexed(
             &mut current_indices,
-            first_scores[idx],
+            first_score,
             progression,
-            key,
             1,
             &all_voicings,
-            &first_voicings,
+            &transition_cache,
             &mut results,
         );
     }
@@ -123,42 +147,30 @@ fn backtrack_indexed(
     current_indices: &mut Vec<usize>,
     current_score: u16,
     progression: &[RomanChord],
-    key: Key,
     chord_index: usize,
     all_voicings: &[Vec<(u16, Voicing)>],
-    first_voicings: &[Voicing],
+    transition_cache: &[FxHashMap<(usize, usize), u16>],
     results: &mut Vec<(u16, Vec<Voicing>)>,
 ) {
     if chord_index >= progression.len() {
         let solution: Vec<Voicing> = current_indices
             .iter()
             .enumerate()
-            .map(|(i, &idx)| {
-                if i == 0 {
-                    first_voicings[idx]
-                } else {
-                    all_voicings[i][idx].1
-                }
-            })
+            .map(|(i, &idx)| all_voicings[i][idx].1)
             .collect();
         results.push((current_score, solution));
         return;
     }
 
-    let current_chord = progression[chord_index];
-    let previous_chord = progression[chord_index - 1];
+    let prev_idx = *current_indices.last().expect("has to be called after at least one voicing added");
 
-    let prev_idx = *current_indices.last().unwrap();
-    let previous_voicing = if chord_index == 1 {
-        first_voicings[prev_idx]
-    } else {
-        all_voicings[chord_index - 1][prev_idx].1
-    };
+    let transitions = &transition_cache[chord_index - 1];
 
-    let candidate_voicings = &all_voicings[chord_index];
+    let candidate_voicings = &all_voicings[chord_index - 1];
 
-    for (voicing_idx, &(voicing_score, voicing)) in candidate_voicings.iter().enumerate() {
-        let Ok(window_score) = score_window(previous_voicing, voicing, previous_chord, current_chord, key) else {
+    for (voicing_idx, &(voicing_score, _voicing)) in candidate_voicings.iter().enumerate() {
+        let Some(&window_score) = transitions.get(&(prev_idx, voicing_idx)) else {
+            // invalid transitions aren't added to cache, so this means the transition was invalid
             continue;
         };
 
@@ -166,7 +178,7 @@ fn backtrack_indexed(
 
         current_indices.push(voicing_idx);
 
-        backtrack_indexed(current_indices, new_score, progression, key, chord_index + 1, all_voicings, first_voicings, results);
+        backtrack_indexed(current_indices, new_score, progression, chord_index + 1, all_voicings, transition_cache, results);
 
         current_indices.pop();
     }
