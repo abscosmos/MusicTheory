@@ -4,6 +4,7 @@ use std::iter::Sum;
 use std::num::{NonZeroI16, NonZeroU16, ParseIntError};
 use std::ops::{Add, Neg, Sub};
 use std::str::FromStr;
+use serde::{Deserialize, Serialize};
 use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
 use crate::note::Note;
 use crate::pitch::Pitch;
@@ -20,7 +21,7 @@ mod consts;
 #[cfg(test)]
 mod tests;
 
-#[derive(Copy, Clone, Eq, PartialEq, Debug)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Serialize, Deserialize)]
 pub struct Interval {
     quality: IntervalQuality,
     number: IntervalNumber,

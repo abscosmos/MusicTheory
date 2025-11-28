@@ -1,11 +1,12 @@
 use std::fmt;
 use std::str::FromStr;
+use serde::{Deserialize, Serialize};
 use strum_macros::{EnumIter, FromRepr};
 use crate::key::Key;
 use crate::pitch::Pitch;
 
 #[repr(u8)]
-#[derive(Copy, Clone, Eq, PartialEq, Debug, EnumIter, FromRepr, Ord, PartialOrd)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug, EnumIter, FromRepr, Ord, PartialOrd, Serialize, Deserialize)]
 pub enum Letter {
     C = 0,
     D,
@@ -52,7 +53,7 @@ impl fmt::Display for Letter {
     }
 }
 
-#[derive(Debug, thiserror::Error)]
+#[derive(Debug, thiserror::Error, Serialize, Deserialize)]
 #[error("Letter must be A, B, C, D, E, F, or G")]
 pub struct InvalidLetter;
 

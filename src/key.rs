@@ -1,4 +1,5 @@
 use std::array;
+use serde::{Deserialize, Serialize};
 use crate::accidental::AccidentalSign;
 use crate::interval::Interval;
 use crate::letter::Letter;
@@ -8,7 +9,7 @@ use crate::scales::rooted::RootedSizedScale;
 use crate::scales::{Numeral7, ScaleMode};
 use crate::scales::sized_scale::SizedScale;
 
-#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Key {
     pub tonic: Pitch,
     pub mode: DiatonicMode,

@@ -1,8 +1,9 @@
 use std::fmt;
 use std::num::NonZeroU16;
 use std::str::FromStr;
+use serde::{Deserialize, Serialize};
 
-#[derive(Copy, Clone, Eq, PartialEq, Debug)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Serialize, Deserialize)]
 pub enum IntervalQuality {
     Diminished(NonZeroU16),
     Minor,
