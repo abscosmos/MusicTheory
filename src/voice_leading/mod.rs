@@ -6,6 +6,7 @@ use crate::pitch::Pitch;
 pub mod rules;
 pub mod roman_chord;
 pub mod check;
+pub mod solve;
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub struct Voicing(pub [Note; 4]);
