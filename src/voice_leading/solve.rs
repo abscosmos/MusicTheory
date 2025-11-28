@@ -168,7 +168,7 @@ fn backtrack_indexed(
 
     let transitions = &transition_cache[chord_index - 1];
 
-    let candidate_voicings = &all_voicings[chord_index - 1];
+    let candidate_voicings = &all_voicings[chord_index];
 
     for (voicing_idx, &(voicing_score, _voicing)) in candidate_voicings.iter().enumerate() {
         let Some(&window_score) = transitions.get(&(prev_idx, voicing_idx)) else {
