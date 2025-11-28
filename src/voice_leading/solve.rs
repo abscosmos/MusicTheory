@@ -67,7 +67,7 @@ pub fn brute_force_search(
         })
         .collect::<Vec<_>>();
 
-    results.sort_by_key(|(score, _)| *score);
+    results.sort_unstable_by_key(|(score, _)| *score);
 
     results
 }
@@ -114,7 +114,7 @@ pub fn generate_voice_leadings(
         );
     }
 
-    results.sort_by_key(|(score, _)| *score);
+    results.sort_unstable_by_key(|(score, _)| *score);
 
     results
 }
