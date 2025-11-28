@@ -111,6 +111,14 @@ impl RomanChord {
         self.seventh_quality.is_some()
     }
 
+    pub fn len(&self) -> u8 {
+        if self.has_seventh() {
+            4
+        } else {
+            3
+        }
+    }
+
     // TODO: should this factor in inversions?
     pub fn intervals(&self) -> Vec<Interval> {
         use Interval as I;
