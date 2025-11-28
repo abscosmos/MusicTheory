@@ -206,9 +206,11 @@ fn generate_voicings_for_chord(chord: RomanChord, key: Key) -> Vec<Voicing> {
 }
 
 fn generate_notes_in_range(pitches: &[Pitch], range: RangeInclusive<Note>) -> Vec<Note> {
-    let mut notes = Vec::new();
-
     let (min, max) = (range.start(), range.end());
+
+    // each pitch can appear in ~3-4 octaves typically
+    let estimated_capacity = pitches.len() * 4;
+    let mut notes = Vec::with_capacity(estimated_capacity);
 
     for &pitch in pitches {
         for octave in (min.octave - 1)..=(max.octave + 1) {
