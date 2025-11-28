@@ -52,7 +52,7 @@ pub fn check_bass_note(v: Voicing, chord: RomanChord, key: Key) -> bool {
 // TODO: not sure if this method is right
 pub fn check_root_position_doubling(voicing: Voicing, chord: RomanChord, key: Key) -> bool {
     // sanity check it's fully voiced
-    assert!(
+    debug_assert!(
         check_completely_voiced(voicing, chord, key),
         "chord must be completely voiced for doubling check",
     );
@@ -76,7 +76,7 @@ pub fn check_root_position_doubling(voicing: Voicing, chord: RomanChord, key: Ke
 
 pub fn check_leading_tone_not_doubled(v: Voicing, chord: RomanChord, key: Key) -> bool {
     // sanity check it's fully voiced
-    assert!(
+    debug_assert!(
         check_completely_voiced(v, chord, key),
         "chord must be completely voiced for doubling check",
     );
@@ -107,10 +107,13 @@ pub fn check_leading_tone_not_doubled(v: Voicing, chord: RomanChord, key: Key) -
                 return false;
             }
 
-            assert!(
-                chordal_seventh.is_none_or(|seventh| *pc != seventh),
-                "chordal seventh doubling should've already been caught",
-            );
+            let chordal_seventh_not_doubled = chordal_seventh.is_none_or(|seventh| *pc != seventh);
+
+            debug_assert!(chordal_seventh_not_doubled, "chordal seventh doubling should've already been caught");
+
+            if !chordal_seventh_not_doubled {
+                return false;
+            }
         }
     }
 
@@ -119,13 +122,13 @@ pub fn check_leading_tone_not_doubled(v: Voicing, chord: RomanChord, key: Key) -
 
 pub fn check_six_four_doubling(v: Voicing, chord: RomanChord, key: Key) -> bool {
     // sanity check the chord is voiced correctly
-    assert!(
+    debug_assert!(
         check_completely_voiced(v, chord, key),
         "chord must be completely voiced for 6/4 doubling check",
     );
 
     // also, ensure the bass is correct
-    assert!(
+    debug_assert!(
         check_bass_note(v, chord, key),
         "bass note must be correct for 6/4 doubling check",
     );
@@ -171,7 +174,7 @@ pub fn check_spacing(v: Voicing) -> Result<(), (Voice, Voice, Interval)> {
         return Err((Voice::Tenor, Voice::Bass, b_t));
     }
 
-    assert!(
+    debug_assert!(
         s >= a && a >= t && t >= b,
         "voice ordering should've been caught by 0 boundary"
     );
@@ -281,7 +284,7 @@ pub fn check_leading_tone_resolution(
     key: Key,
 ) -> Result<(), Voice> {
     // for sanity, check the second chord is accurately voiced
-    assert!(
+    debug_assert!(
         check_completely_voiced(second, second_chord, key),
         "second chord must be completely voiced for leading tone resolution check",
     );
@@ -397,7 +400,7 @@ pub fn check_similar_into_unison(first: Voicing, second: Voicing) -> Result<(), 
 }
 
 pub fn check_eliminated_fifths(first_chord: Option<RomanChord>, second_chord: RomanChord, second_voicing: Voicing, key: Key) -> bool {
-    assert!(
+    debug_assert!(
         check_completely_voiced(second_voicing, second_chord, key),
         "second chord must be completely voiced for eliminated fifth check",
     );
@@ -508,12 +511,12 @@ pub fn score_melodic_intervals(first: Voicing, second: Voicing) -> u16 {
 }
 
 pub fn score_common_tones(first: Voicing, second: Voicing, first_chord: RomanChord, second_chord: RomanChord, key: Key) -> u16 {
-    assert!(
+    debug_assert!(
         check_completely_voiced(first, first_chord, key),
         "first chord must be completely voiced for common tone scoring",
     );
 
-    assert!(
+    debug_assert!(
         check_completely_voiced(second, second_chord, key),
         "second chord must be completely voiced for common tone scoring",
     );
