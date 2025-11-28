@@ -425,7 +425,11 @@ pub fn check_eliminated_fifths(first_chord: Option<RomanChord>, second_chord: Ro
     };
 
     // valid cases
-    if second_chord.degree == ScaleDegree::I && second_chord.inversion() == 0 && prev_is_root_v7 {
+    if second_chord.degree == ScaleDegree::I
+        && second_chord.inversion() == 0
+        /*&& second_voicing.iter().filter(|n| n.pitch == key.tonic).count() == 3*/
+        && prev_is_root_v7
+    {
         return true;
     }
 
