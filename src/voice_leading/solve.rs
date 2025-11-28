@@ -76,28 +76,37 @@ pub fn generate_voice_leadings(
         return vec![];
     }
 
-    let mut results = Vec::new();
+    let all_voicings: Vec<Vec<Voicing>> = progression
+        .iter()
+        .map(|chord| generate_voicings_for_chord(*chord, key))
+        .collect();
 
-    let first_chord = progression[0];
     let first_voicings = if let Some(start) = starting_voicing {
         vec![start]
     } else {
-        generate_voicings_for_chord(first_chord, key)
+        all_voicings[0].clone()
     };
 
-    for first_voicing in first_voicings {
-        let first_score = match score_single(first_voicing, first_chord, key) {
-            Ok(score) => score,
-            Err(_) => continue,
-        };
+    let mut results = Vec::new();
+    let first_chord = progression[0];
 
-        let mut current_solution = vec![first_voicing];
-        backtrack(
-            &mut current_solution,
+    // index-based backtracking
+    let mut current_indices = Vec::with_capacity(progression.len());
+
+    for (idx, &first_voicing) in first_voicings.iter().enumerate() {
+        let first_score = score_single(first_voicing, first_chord, key).expect("already checked!");
+
+        current_indices.clear();
+        current_indices.push(idx);
+
+        backtrack_indexed(
+            &mut current_indices,
             first_score,
             progression,
             key,
             1,
+            &all_voicings,
+            &first_voicings,
             &mut results,
         );
     }
@@ -107,27 +116,47 @@ pub fn generate_voice_leadings(
     results
 }
 
-fn backtrack(
-    current_solution: &mut Vec<Voicing>,
+fn backtrack_indexed(
+    current_indices: &mut Vec<usize>,
     current_score: u16,
     progression: &[RomanChord],
     key: Key,
     chord_index: usize,
+    all_voicings: &[Vec<Voicing>],
+    first_voicings: &[Voicing],
     results: &mut Vec<(u16, Vec<Voicing>)>,
 ) {
     if chord_index >= progression.len() {
-        results.push((current_score, current_solution.clone()));
+        let solution: Vec<Voicing> = current_indices
+            .iter()
+            .enumerate()
+            .map(|(i, &idx)| {
+                if i == 0 {
+                    first_voicings[idx]
+                } else {
+                    all_voicings[i][idx]
+                }
+            })
+            .collect();
+        results.push((current_score, solution));
         return;
     }
 
     let current_chord = progression[chord_index];
-    let previous_voicing = *current_solution.last().unwrap();
     let previous_chord = progression[chord_index - 1];
 
-    let candidate_voicings = generate_voicings_for_chord(current_chord, key);
+    let prev_idx = *current_indices.last().unwrap();
+    let previous_voicing = if chord_index == 1 {
+        first_voicings[prev_idx]
+    } else {
+        all_voicings[chord_index - 1][prev_idx]
+    };
 
-    for voicing in candidate_voicings {
-        let voicing_score = score_single(voicing, current_chord, key).expect("already checked!");
+    let candidate_voicings = &all_voicings[chord_index];
+
+    for (voicing_idx, &voicing) in candidate_voicings.iter().enumerate() {
+        let voicing_score = score_single(voicing, current_chord, key)
+            .expect("pre-generated voicings should always pass score_single");
 
         let window_score = match score_window(previous_voicing, voicing, previous_chord, current_chord, key) {
             Ok(score) => score,
@@ -136,11 +165,11 @@ fn backtrack(
 
         let new_score = current_score + voicing_score + window_score;
 
-        current_solution.push(voicing);
+        current_indices.push(voicing_idx);
 
-        backtrack(current_solution, new_score, progression, key, chord_index + 1, results);
+        backtrack_indexed(current_indices, new_score, progression, key, chord_index + 1, all_voicings, first_voicings, results);
 
-        current_solution.pop();
+        current_indices.pop();
     }
 }
 
