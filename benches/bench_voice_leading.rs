@@ -34,7 +34,7 @@ fn compare_with_brute_force(c: &mut Criterion) {
     );
 
     group.bench_function("Backtracking solver", |b|
-        b.iter(|| generate_voice_leadings(&progression[2..], key, None))
+        b.iter(|| generate_voice_leadings(&progression[2..], key, None).expect("no starting voicing, so should not error"))
     );
 
     group.finish();
@@ -46,7 +46,7 @@ fn backtracking(c: &mut Criterion) {
     let mut group = c.benchmark_group("VL Solver");
 
     group.bench_function("VL Solver: backtracking solver, full & starting chord", |b|
-        b.iter(|| generate_voice_leadings(&progression, key, None))
+        b.iter(|| generate_voice_leadings(&progression, key, None).expect("no starting voicing, so should not error"))
     );
 
     group.finish();

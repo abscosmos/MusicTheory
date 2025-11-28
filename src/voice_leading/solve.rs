@@ -3,7 +3,7 @@ use rustc_hash::FxHashMap;
 use crate::key::Key;
 use crate::note::Note;
 use crate::pitch::Pitch;
-use crate::voice_leading::check::{check_voice_leading, score_single, score_window};
+use crate::voice_leading::check::{check_voice_leading, score_single, score_window, VoiceLeadingError};
 use crate::voice_leading::roman_chord::RomanChord;
 use crate::voice_leading::{Voice, Voicing};
 
@@ -84,23 +84,44 @@ pub enum StartingVoicingError {
 pub fn generate_voice_leadings(
     progression: &[RomanChord],
     key: Key,
-    starting_voicing: Option<Voicing>,
-) -> Vec<(u16, Vec<Voicing>)> {
+    starting_voicing: Option<&[Voicing]>,
+) -> Result<Vec<(u16, Vec<Voicing>)>, StartingVoicingError> {
+    if let Some(starting_voicing) = starting_voicing {
+        if starting_voicing.len() > progression.len() {
+            return Err(StartingVoicingError::SizeMismatch);
+        }
+
+        // verify it's valid
+        let score = check_voice_leading(key, &progression[..starting_voicing.len()], starting_voicing)
+            .map_err(StartingVoicingError::InvalidStartingVoicing)?;
+
+        if starting_voicing.len() == progression.len() {
+            return Ok(vec![(score, starting_voicing.to_vec())]);
+        }
+    }
+
     if progression.is_empty() {
-        return vec![];
+        return Ok(vec![]);
     }
 
     let mut all_voicings: Vec<Vec<(u16, Voicing)>> = progression
         .iter()
+        // TODO: don't do this for one's we're going to overwrite
         .map(|chord| generate_voicings_for_chord(*chord, key))
         .collect();
 
-    if let Some(start) = starting_voicing {
-        let Ok(score) = score_single(start, progression[0], key) else {
-            return vec![];
-        };
+    if let Some(starting_voicing) = starting_voicing {
+        // indices?
+        for (i, (&voicing, &chord)) in starting_voicing.iter()
+            .zip(progression)
+            .enumerate()
+        {
+            let Ok(score) = score_single(voicing, chord, key) else {
+                unreachable!("progression already checked to be valid");
+            };
 
-        all_voicings[0] = vec![(score, start)];
+            all_voicings[i] = vec![(score, voicing)];
+        }
     }
     
     let mut transition_cache: Vec<FxHashMap<(usize, usize), u16>> = Vec::with_capacity(progression.len() - 1);
@@ -150,7 +171,7 @@ pub fn generate_voice_leadings(
 
     results.sort_unstable_by_key(|(score, _)| *score);
 
-    results
+    Ok(results)
 }
 
 fn backtrack_indexed(
@@ -281,7 +302,7 @@ mod tests {
 
         let brute = brute_force_search(&progression, key, Some(starting_chord));
 
-        let solver = generate_voice_leadings(&progression, key, Some(starting_chord));
+        let solver = generate_voice_leadings(&progression, key, Some(&[starting_chord])).expect("starting chord is valid");
 
         assert_eq!(
             brute, solver,
