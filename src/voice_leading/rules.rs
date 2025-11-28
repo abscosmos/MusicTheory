@@ -10,31 +10,10 @@ use crate::voice_leading::roman_chord::{Quality, RomanChord, ScaleDegree};
 use crate::voice_leading::{Voice, Voicing};
 
 pub fn check_range(v: Voicing) -> Result<(), Voice> {
-    let [s, a, t, b] = *v;
-
-    const SOPRANO_MIN: Note = Note::new(Pitch::C, 4);
-    const SOPRANO_MAX: Note = Note::new(Pitch::G, 5);
-    const ALTO_MIN: Note = Note::new(Pitch::G, 3);
-    const ALTO_MAX: Note = Note::new(Pitch::D, 5);
-    const TENOR_MIN: Note = Note::new(Pitch::C, 3);
-    const TENOR_MAX: Note = Note::new(Pitch::G, 4);
-    const BASS_MIN: Note = Note::new(Pitch::E, 2);
-    const BASS_MAX: Note = Note::new(Pitch::D, 4);
-
-    if !(SOPRANO_MIN..=SOPRANO_MAX).contains(&s) {
-        return Err(Voice::Soprano);
-    }
-
-    if !(ALTO_MIN..=ALTO_MAX).contains(&a) {
-        return Err(Voice::Alto);
-    }
-
-    if !(TENOR_MIN..=TENOR_MAX).contains(&t) {
-        return Err(Voice::Tenor);
-    }
-
-    if !(BASS_MIN..=BASS_MAX).contains(&b) {
-        return Err(Voice::Bass);
+    for voice in Voice::iter() {
+        if !voice.range().contains(&v[voice]) {
+            return Err(voice);
+        }
     }
 
     Ok(())

@@ -1,6 +1,7 @@
-use std::ops::{Deref, Index, IndexMut};
+use std::ops::{Deref, Index, IndexMut, RangeInclusive};
 use strum_macros::{EnumIter, FromRepr};
 use crate::note::Note;
+use crate::pitch::Pitch;
 
 pub mod rules;
 pub mod roman_chord;
@@ -16,6 +17,17 @@ pub enum Voice {
     Alto = 1,
     Tenor = 2,
     Bass = 3,
+}
+
+impl Voice {
+    pub const fn range(self) -> RangeInclusive<Note> {
+        match self {
+            Voice::Soprano => Note::new(Pitch::C, 4)..=Note::new(Pitch::G, 5),
+            Voice::Alto => Note::new(Pitch::G, 3)..=Note::new(Pitch::D, 5),
+            Voice::Tenor => Note::new(Pitch::C, 3)..=Note::new(Pitch::G, 4),
+            Voice::Bass => Note::new(Pitch::E, 2)..=Note::new(Pitch::D, 4),
+        }
+    }
 }
 
 impl Voicing {
