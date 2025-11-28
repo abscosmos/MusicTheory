@@ -1,4 +1,4 @@
-use std::time::Duration;
+use std::hint::black_box;
 use criterion::{criterion_group, criterion_main, Criterion};
 use music_theory::key::Key;
 use music_theory::note::Note;
@@ -43,11 +43,39 @@ fn compare_with_brute_force(c: &mut Criterion) {
 fn backtracking(c: &mut Criterion) {
     let (key, progression) = progression();
 
+    let chord_i = Voicing([
+        Note::new(Pitch::B_FLAT, 4),
+        Note::new(Pitch::E_FLAT, 4),
+        Note::new(Pitch::G, 3),
+        Note::new(Pitch::E_FLAT, 3),
+    ]);
+
+    let chord_v6 = Voicing([
+        Note::new(Pitch::B_FLAT, 4),
+        Note::new(Pitch::F, 4),
+        Note::new(Pitch::F, 3),
+        Note::new(Pitch::D, 3),
+    ]);
+
     let mut group = c.benchmark_group("VL Solver");
 
-    group.bench_function("VL Solver: backtracking solver, full & starting chord", |b|
-        b.iter(|| generate_voice_leadings(&progression, key, None).expect("no starting voicing, so should not error"))
-    );
+    let inputs: [Option<&[Voicing]>; _] = [
+        None,
+        Some(&[chord_i]),
+        Some(&[chord_i, chord_v6]),
+        Some(&[chord_i, chord_v6, chord_i]),
+    ];
+
+    for starting_chord in inputs {
+        let id = format!("VL Solver: backtracking solver, {} starting chords", starting_chord.map_or(0, <[_]>::len));
+
+        group.bench_with_input(id, &starting_chord, |b, &starting_chord| {
+            b.iter(||
+                generate_voice_leadings(black_box(&progression), black_box(key), black_box(starting_chord))
+                    .expect("starting voicing should be valid, if present")
+            )
+        });
+    }
 
     group.finish();
 }
