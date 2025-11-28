@@ -98,12 +98,14 @@ pub fn generate_voice_leadings(
     let mut transition_cache: Vec<FxHashMap<(usize, usize), u16>> = Vec::with_capacity(progression.len() - 1);
 
     for chord_idx in 1..progression.len() {
-        let mut transitions = FxHashMap::default();
         let prev_chord = progression[chord_idx - 1];
         let curr_chord = progression[chord_idx];
 
         let prev_voicings = &all_voicings[chord_idx - 1];
         let curr_voicings = &all_voicings[chord_idx];
+
+        let max_transitions = prev_voicings.len() * curr_voicings.len();
+        let mut transitions = FxHashMap::with_capacity_and_hasher(max_transitions, Default::default());
 
         for (from_idx, &(_, from_voicing)) in prev_voicings.iter().enumerate() {
             for (to_idx, &(_, to_voicing)) in curr_voicings.iter().enumerate() {
