@@ -2,7 +2,7 @@ use std::ops::RangeInclusive;
 use crate::key::Key;
 use crate::note::Note;
 use crate::pitch::Pitch;
-use crate::voice_leading::check::{check_voice_leading, score_single};
+use crate::voice_leading::check::{check_voice_leading, score_single, score_window};
 use crate::voice_leading::roman_chord::RomanChord;
 use crate::voice_leading::{Voice, Voicing};
 
@@ -66,6 +66,99 @@ pub fn brute_force_search(
     results.sort_by_key(|(score, _)| *score);
 
     results
+}
+
+pub fn generate_voice_leadings(
+    progression: &[RomanChord],
+    key: Key,
+    starting_voicing: Option<Voicing>,
+    limit: Option<usize>,
+) -> Vec<(u16, Vec<Voicing>)> {
+    if progression.is_empty() {
+        return vec![];
+    }
+
+    let mut results = Vec::new();
+    let limit = limit.unwrap_or(usize::MAX);
+
+    let first_chord = progression[0];
+    let first_voicings = if let Some(start) = starting_voicing {
+        vec![start]
+    } else {
+        generate_voicings_for_chord(first_chord, key)
+    };
+
+    for first_voicing in first_voicings {
+        let first_score = match score_single(first_voicing, first_chord, key) {
+            Ok(score) => score,
+            Err(_) => continue,
+        };
+
+        let mut current_solution = vec![first_voicing];
+        backtrack(
+            &mut current_solution,
+            first_score,
+            progression,
+            key,
+            1,
+            &mut results,
+            limit,
+        );
+
+        if results.len() >= limit {
+            break;
+        }
+    }
+
+    results.sort_by_key(|(score, _)| *score);
+
+    results
+}
+
+fn backtrack(
+    current_solution: &mut Vec<Voicing>,
+    current_score: u16,
+    progression: &[RomanChord],
+    key: Key,
+    chord_index: usize,
+    results: &mut Vec<(u16, Vec<Voicing>)>,
+    limit: usize,
+) {
+    if results.len() >= limit {
+        return;
+    }
+
+    if chord_index >= progression.len() {
+        results.push((current_score, current_solution.clone()));
+        return;
+    }
+
+    let current_chord = progression[chord_index];
+    let previous_voicing = *current_solution.last().unwrap();
+    let previous_chord = progression[chord_index - 1];
+
+    let candidate_voicings = generate_voicings_for_chord(current_chord, key);
+
+    for voicing in candidate_voicings {
+        let voicing_score = score_single(voicing, current_chord, key).expect("already checked!");
+
+        let window_score = match score_window(previous_voicing, voicing, previous_chord, current_chord, key) {
+            Ok(score) => score,
+            Err(_) => continue,
+        };
+
+        let new_score = current_score + voicing_score + window_score;
+
+        current_solution.push(voicing);
+
+        backtrack(current_solution, new_score, progression, key, chord_index + 1, results, limit);
+
+        if results.len() >= limit {
+            return;
+        }
+
+        current_solution.pop();
+    }
 }
 
 fn generate_voicings_for_chord(chord: RomanChord, key: Key) -> Vec<Voicing> {
