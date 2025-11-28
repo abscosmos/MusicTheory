@@ -20,3 +20,7 @@ mt_macros = { path = "mt_macros" }
 
 [dev-dependencies]
 criterion = "0.7.0"
+
+[[bench]]
+name = "bench_voice_leading"
+harness = false
