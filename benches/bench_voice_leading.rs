@@ -43,16 +43,14 @@ fn compare_with_brute_force(c: &mut Criterion) {
 fn backtracking(c: &mut Criterion) {
     let (key, progression) = progression();
 
-    let starting_chord = Voicing([
-        Note::new(Pitch::B_FLAT, 4),
-        Note::new(Pitch::E_FLAT, 4),
-        Note::new(Pitch::G, 3),
-        Note::new(Pitch::E_FLAT, 3),
-    ]);
+    let mut group = c.benchmark_group("VL Solver");
+    group.sample_size(15);
 
-    c.bench_function("VL Solver: backtracking solver, full & starting chord", |b|
-        b.iter(|| generate_voice_leadings(&progression, key, Some(starting_chord)))
+    group.bench_function("VL Solver: backtracking solver, full & starting chord", |b|
+        b.iter(|| generate_voice_leadings(&progression, key, None))
     );
+
+    group.finish();
 }
 
 
