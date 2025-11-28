@@ -193,3 +193,47 @@ fn generate_notes_in_range(pitches: &[Pitch], range: RangeInclusive<Note>) -> Ve
 
     notes
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::pitch::Pitch;
+    use crate::key::Key;
+    use crate::note::Note;
+    use crate::voice_leading::roman_chord::{RomanChord, ScaleDegree};
+    use crate::voice_leading::solve::{brute_force_search, generate_voice_leadings};
+    use crate::voice_leading::Voicing;
+
+    // this should take around ~30s to run in release
+    #[test]
+    fn backtracking_solver_finds_all() {
+        use ScaleDegree as D;
+
+        let key = Key::major(Pitch::E_FLAT);
+
+        let progression = [
+            RomanChord::diatonic_in_key(D::I, key, false),
+            RomanChord::diatonic_in_key(D::V, key, false).with_inversion(1).expect("valid inversion"),
+            RomanChord::diatonic_in_key(D::I, key, false),
+            RomanChord::diatonic_in_key(D::IV, key, false),
+            RomanChord::diatonic_in_key(D::V, key, true),
+            RomanChord::diatonic_in_key(D::I, key, false),
+        ];
+
+        // without starting chord, the brute force gets issued a SIGKILL
+        let starting_chord = Voicing([
+            Note::new(Pitch::B_FLAT, 4),
+            Note::new(Pitch::E_FLAT, 4),
+            Note::new(Pitch::G, 3),
+            Note::new(Pitch::E_FLAT, 3),
+        ]);
+
+        let brute = brute_force_search(&progression, Some(starting_chord), key);
+
+        let solver = generate_voice_leadings(&progression, key, Some(starting_chord));
+
+        assert_eq!(
+            brute, solver,
+            "brute force and optimized solver should produce the same results"
+        );
+    }
+}
