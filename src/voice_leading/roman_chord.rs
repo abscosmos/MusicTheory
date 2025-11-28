@@ -1,4 +1,5 @@
 use std::fmt;
+use serde::{Deserialize, Serialize};
 use crate::interval::{Interval, IntervalQuality};
 use crate::key::Key;
 use crate::pcset::PitchClassSet;
@@ -17,7 +18,7 @@ pub mod inversions {
 }
 
 #[repr(u8)]
-#[derive(Copy, Clone, Debug, Eq, PartialEq, FromRepr)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, FromRepr, Serialize, Deserialize)]
 pub enum ScaleDegree {
     I = 1,
     II = 2,
@@ -38,7 +39,7 @@ impl ScaleDegree {
     }
 }
 
-#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub enum Quality {
     Major,
     Minor,
@@ -47,11 +48,11 @@ pub enum Quality {
 }
 
 
-#[derive(Debug, thiserror::Error, Clone, Eq, PartialEq)]
+#[derive(Debug, thiserror::Error, Clone, Eq, PartialEq, Serialize, Deserialize)]
 #[error("Invalid inversion for chord type")]
 pub struct InvalidInversionError;
 
-#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct RomanChord {
     pub degree: ScaleDegree,
     pub triad_quality: Quality,

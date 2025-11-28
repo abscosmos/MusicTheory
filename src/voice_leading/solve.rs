@@ -1,5 +1,6 @@
 use std::ops::RangeInclusive;
 use rustc_hash::FxHashMap;
+use serde::{Deserialize, Serialize};
 use crate::key::Key;
 use crate::note::Note;
 use crate::pitch::Pitch;
@@ -76,7 +77,7 @@ pub fn brute_force_search(
     results
 }
 
-#[derive(Debug, thiserror::Error)]
+#[derive(Debug, thiserror::Error, Serialize, Deserialize)]
 pub enum StartingVoicingError {
     #[error("Starting voicing length is longer than progression length")]
     SizeMismatch,
