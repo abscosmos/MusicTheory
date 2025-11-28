@@ -158,9 +158,8 @@ fn backtrack_indexed(
     let candidate_voicings = &all_voicings[chord_index];
 
     for (voicing_idx, &(voicing_score, voicing)) in candidate_voicings.iter().enumerate() {
-        let window_score = match score_window(previous_voicing, voicing, previous_chord, current_chord, key) {
-            Ok(score) => score,
-            Err(_) => continue,
+        let Ok(window_score) = score_window(previous_voicing, voicing, previous_chord, current_chord, key) else {
+            continue;
         };
 
         let new_score = current_score + voicing_score + window_score;
