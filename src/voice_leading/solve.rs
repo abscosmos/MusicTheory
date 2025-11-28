@@ -73,6 +73,14 @@ pub fn brute_force_search(
     results
 }
 
+#[derive(Debug, thiserror::Error)]
+pub enum StartingVoicingError {
+    #[error("Starting voicing length is longer than progression length")]
+    SizeMismatch,
+    #[error("Starting voicing does not match progression: {0}")]
+    InvalidStartingVoicing(VoiceLeadingError),
+}
+
 pub fn generate_voice_leadings(
     progression: &[RomanChord],
     key: Key,
