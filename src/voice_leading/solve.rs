@@ -11,7 +11,7 @@ use crate::voice_leading::{Voice, Voicing};
 pub fn brute_force_search(
     progression: &[RomanChord],
     key: Key,
-    starting_voicing: Option<Voicing>,
+    starting_voicing: Option<&[Voicing]>,
 ) -> Vec<(u16, Vec<Voicing>)> {
     if progression.len() == 0 {
         return vec![];
@@ -27,8 +27,11 @@ pub fn brute_force_search(
         })
         .collect();
 
-    if let Some(start) = starting_voicing {
-        all_voicings[0] = vec![start];
+    if let Some(starting_voicing) = starting_voicing {
+        for (i, &voicing) in starting_voicing.iter().enumerate() {
+
+            all_voicings[i] = vec![voicing];
+        }
     }
 
     let total_permutations: usize = all_voicings
@@ -300,7 +303,7 @@ mod tests {
             Note::new(Pitch::E_FLAT, 3),
         ]);
 
-        let brute = brute_force_search(&progression, key, Some(starting_chord));
+        let brute = brute_force_search(&progression, key, Some(&[starting_chord]));
 
         let solver = generate_voice_leadings(&progression, key, Some(&[starting_chord])).expect("starting chord is valid");
 
