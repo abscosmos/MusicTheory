@@ -5,7 +5,7 @@ use crate::key::Key;
 use crate::pcset::PitchClassSet;
 use crate::pitch::Pitch;
 use crate::scales::heptatonic::DiatonicMode;
-use strum_macros::FromRepr;
+use strum_macros::{EnumIter, EnumString, FromRepr};
 
 // not typed at all!
 pub mod inversions {
@@ -18,7 +18,7 @@ pub mod inversions {
 }
 
 #[repr(u8)]
-#[derive(Copy, Clone, Debug, Eq, PartialEq, FromRepr, Serialize, Deserialize)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, FromRepr, EnumString, EnumIter, Serialize, Deserialize)]
 pub enum ScaleDegree {
     I = 1,
     II = 2,
