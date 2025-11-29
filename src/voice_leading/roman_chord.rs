@@ -1,4 +1,5 @@
 use std::fmt;
+use std::str::FromStr;
 use serde::{Deserialize, Serialize};
 use crate::interval::{Interval, IntervalQuality};
 use crate::key::Key;
@@ -337,7 +338,8 @@ impl fmt::Display for RomanChord {
         match (self.triad_quality, self.seventh_quality()) {
             (Q::Major, None) => { /* none */ },
             (Q::Major, Some(Q::Major)) => { /* none */ },
-            (Q::Major, Some(Q::Minor)) => { /* none */ }, // dominant
+            (Q::Major, Some(Q::Minor)) if self.degree == ScaleDegree::V => { /* none */ }, // dominant
+            (Q::Major, Some(Q::Minor)) => push_irregular_quality(&mut s, Q::Major, Q::Minor),
             (Q::Major, Some(seventh)) => push_irregular_quality(&mut s, Q::Major, seventh),
             (Q::Minor, None) => { /* none */ },
             (Q::Minor, Some(Q::Minor)) => { /* none */ },
@@ -366,6 +368,142 @@ impl fmt::Display for RomanChord {
         }
 
         f.write_str(&s)
+    }
+}
+
+#[derive(Debug, thiserror::Error, Eq, PartialEq)]
+pub enum RomanChordFromStrError {
+    #[error("Invalid numeral")]
+    InvalidNumeral,
+    #[error("Couldn't parse a valid quality")]
+    InvalidQuality,
+    #[error("Invalid inversion")]
+    InvalidInversion,
+}
+
+impl FromStr for RomanChord {
+    type Err = RomanChordFromStrError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let non_numeral = s.char_indices()
+            .find(|(_, c)| !matches!(c.to_ascii_uppercase(), 'I' | 'V'))
+            .map(|(i, _)| i)
+            .unwrap_or(s.len());
+
+        let numeral = s[..non_numeral]
+            .to_ascii_uppercase()
+            .parse::<ScaleDegree>()
+            .map_err(|_| RomanChordFromStrError::InvalidNumeral)?;
+
+        let is_upper = {
+            let is_upper = s[..non_numeral].chars().all(|c| c.is_ascii_uppercase());
+            let is_lower = s[..non_numeral].chars().all(|c| c.is_ascii_lowercase());
+
+            if !is_upper && !is_lower {
+                return Err(RomanChordFromStrError::InvalidQuality);
+            }
+
+            is_upper
+        };
+
+        let rest = &s[non_numeral..];
+        let mut rest_chars = rest.chars().peekable();
+
+        let (triad_quality, seventh_quality, explicit) = match rest_chars.peek() {
+            Some('+') => {
+                rest_chars.next();
+
+                (Quality::Augmented, None, false)
+            },
+            Some('o') => {
+                rest_chars.next();
+
+                (Quality::Diminished, Some(Quality::Diminished), false)
+            },
+            Some('ø') => {
+                rest_chars.next();
+
+                (Quality::Diminished, Some(Quality::Minor), true)
+            },
+            Some('(') => {
+                rest_chars.next();
+
+                fn from_quality_char(c: char) -> Option<Quality> {
+                    match c {
+                        'M' => Some(Quality::Major),
+                        'm' => Some(Quality::Minor),
+                        'd' => Some(Quality::Diminished),
+                        'A' => Some(Quality::Augmented),
+                        _ => None,
+                    }
+                }
+
+                let triad_quality = from_quality_char(
+                    rest_chars.next().ok_or(RomanChordFromStrError::InvalidQuality)?
+                )
+                    .ok_or(RomanChordFromStrError::InvalidQuality)?;
+
+                let seventh_quality = from_quality_char(
+                    rest_chars.next().ok_or(RomanChordFromStrError::InvalidQuality)?
+                )
+                    .ok_or(RomanChordFromStrError::InvalidQuality)?;
+
+                if rest_chars.next() != Some(')') {
+                    return Err(RomanChordFromStrError::InvalidQuality);
+                }
+
+                (triad_quality, Some(seventh_quality), true)
+            },
+            None => {
+                let triad_quality = if is_upper {
+                    Quality::Major
+                } else {
+                    Quality::Minor
+                };
+
+                return Ok(RomanChord::triad(numeral, triad_quality));
+            },
+            _ if is_upper => (Quality::Major, Some(Quality::Major), false),
+            _ if !is_upper => (Quality::Minor, Some(Quality::Minor), false),
+            _ => unreachable!("all cases covered"),
+        };
+
+        use inversions::*;
+
+        let inversion = rest_chars.collect::<String>();
+
+        // this parses V7 as dominant seventh
+        // if !explicit && matches!((numeral, triad_quality, seventh_quality), (ScaleDegree::V, Quality::Major, Some(Quality::Major))) {
+        //     seventh_quality = Some(Quality::Minor)
+        // }
+
+        // TODO: this collect isn't ideal :(
+        match inversion.as_str() {
+            "" if !explicit => Ok(Self::triad(numeral, triad_quality)),
+            "6" if !explicit => Ok(Self::triad(numeral, triad_quality).with_inversion(INV_6).expect("valid")),
+            "6/4" if !explicit => Ok(Self::triad(numeral, triad_quality).with_inversion(INV_64).expect("valid")),
+
+            "6" | "6/4" if explicit => Err(RomanChordFromStrError::InvalidInversion),
+
+            "" if explicit => Ok(Self::seventh(numeral, triad_quality, seventh_quality.expect("should be some"))),
+            "7" if seventh_quality.is_some() => Ok(
+                Self::seventh(numeral, triad_quality, seventh_quality.expect("should be some"))
+            ),
+            "6/5" if seventh_quality.is_some() => Ok(
+                Self::seventh(numeral, triad_quality, seventh_quality.expect("should be some"))
+                    .with_inversion(INV_65).expect("valid")
+            ),
+            "4/3" if seventh_quality.is_some() => Ok(
+                Self::seventh(numeral, triad_quality, seventh_quality.expect("should be some"))
+                    .with_inversion(INV_43).expect("valid")
+            ),
+            "4/2" if seventh_quality.is_some() => Ok(
+                Self::seventh(numeral, triad_quality, seventh_quality.expect("should be some"))
+                    .with_inversion(INV_42).expect("valid")
+            ),
+
+            _ => Err(RomanChordFromStrError::InvalidInversion),
+        }
     }
 }
 
