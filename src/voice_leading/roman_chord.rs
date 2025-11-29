@@ -509,6 +509,7 @@ impl FromStr for RomanChord {
 
 #[cfg(test)]
 mod tests {
+    use strum::IntoEnumIterator;
     use crate::key::Key;
     use crate::pitch::Pitch;
     use super::{RomanChord, ScaleDegree, Quality};
@@ -550,5 +551,31 @@ mod tests {
         assert_diatonic_chord(min, D::V, Q::Major, Q::Minor);
         assert_diatonic_chord(min, D::VI, Q::Major, Q::Major);
         assert_diatonic_chord(min, D::VII, Q::Diminished, Q::Diminished);
+    }
+
+    #[test]
+    fn from_str_correct() {
+        let qualities = [Quality::Major, Quality::Minor, Quality::Diminished, Quality::Augmented];
+        let some_qualities = qualities.map(Some);
+
+        for deg in ScaleDegree::iter() {
+            for triad in qualities {
+                for seventh_qualities in some_qualities.iter()
+                    .copied()
+                    .chain(std::iter::once(None))
+                {
+                    for inv in 0..=3 {
+                        if let Ok(chord) = RomanChord::new(deg, triad, seventh_qualities, inv)
+                            && !matches!((deg, triad, seventh_qualities), (ScaleDegree::V, Quality::Major, Some(Quality::Minor)))
+                        {
+                            assert_eq!(
+                                Ok(chord), chord.to_string().parse(),
+                                "Failed to parse: {chord}",
+                            );
+                        }
+                    }
+                }
+            }
+        }
     }
 }
