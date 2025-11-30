@@ -347,10 +347,12 @@ pub fn check_chordal_seventh_resolution(
         let first_note = first[voice];
         let second_note = second[voice];
 
-        if first_note.as_pitch_class() == seventh.as_pitch_class()
-            && !matches!(-first_note.distance_to(second_note), Interval::MAJOR_SECOND | Interval::MINOR_SECOND | Interval::PERFECT_UNISON)
-        {
-            return Err(voice)
+        if first_note.as_pitch_class() == seventh.as_pitch_class() {
+            let dist = first_note.distance_to(second_note);
+
+            if dist != Interval::PERFECT_UNISON && !matches!(-first_note.distance_to(second_note), Interval::MAJOR_SECOND | Interval::MINOR_SECOND) {
+                return Err(voice)
+            }
         }
     }
 
