@@ -511,6 +511,7 @@ impl FromStr for RomanChord {
 
 #[cfg(test)]
 mod tests {
+    use std::str::FromStr;
     use strum::IntoEnumIterator;
     use crate::key::Key;
     use crate::pitch::Pitch;
@@ -579,5 +580,95 @@ mod tests {
                 }
             }
         }
+    }
+
+    #[test]
+        fn from_str_invalid_inputs() {
+        use super::RomanChordFromStrError as Error;
+
+        assert_eq!(
+            RomanChord::from_str(""), Err(Error::InvalidNumeral),
+            "empty string should fail"
+        );
+
+        assert_eq!(
+            RomanChord::from_str("VIII"), Err(Error::InvalidNumeral),
+            "invalid numeral should fail"
+        );
+
+        assert_eq!(
+            RomanChord::from_str("X"), Err(Error::InvalidNumeral),
+            "invalid characters in numeral position should fail"
+        );
+
+        assert_eq!(
+            RomanChord::from_str("Iv"), Err(Error::InvalidQuality),
+            "mixed case in numeral (inconsistent case) should fail"
+        );
+
+        assert_eq!(
+            RomanChord::from_str("iv+"), Err(Error::InvalidQuality),
+            "lowercase augmented marker should fail"
+        );
+
+        assert_eq!(
+            RomanChord::from_str("IVo"), Err(Error::InvalidQuality),
+            "uppercase diminished marker should fail"
+        );
+
+        assert_eq!(
+            RomanChord::from_str("IIø"), Err(Error::InvalidQuality),
+            "half-diminished on uppercase should fail"
+        );
+
+        assert_eq!(
+            RomanChord::from_str("I(Mm"), Err(Error::InvalidQuality),
+            "missing closing paren should fail"
+        );
+
+        assert_eq!(
+            RomanChord::from_str("I(MX)"), Err(Error::InvalidQuality),
+            "invalid quality parenthetical should fail"
+        );
+
+        assert_eq!(
+            RomanChord::from_str("i(Mm)"), Err(Error::InvalidQuality),
+            "invalid wrong case should fail"
+        );
+
+        assert_eq!(
+            RomanChord::from_str("I8"), Err(Error::InvalidInversion),
+            "invalid inversion marker should fail"
+        );
+
+        assert_eq!(
+            RomanChord::from_str("I+7"), Err(Error::InvalidInversion),
+            "augmented triad cannot be a seventh, since seventh's quality is ambiguous"
+        );
+
+        assert_eq!(
+            RomanChord::from_str("III+4/3"), Err(Error::InvalidInversion),
+            "augmented triad cannot use seventh inversion"
+        );
+
+        assert_eq!(
+            RomanChord::from_str("I(Mm)6"), Err(Error::InvalidInversion),
+            "explicit seventh quality cannot use triad inversions"
+        );
+
+        assert_eq!(
+            RomanChord::from_str("V(Mm)6/4"), Err(Error::InvalidInversion),
+            "explicit seventh quality cannot use triad inversions"
+        );
+
+        assert_eq!(
+            RomanChord::from_str("iiø6"), Err(Error::InvalidInversion),
+            "half-diminished cannot use triad inversions"
+        );
+
+        assert_eq!(
+            RomanChord::from_str("viiø6/4"), Err(Error::InvalidInversion),
+            "half-diminished cannot use triad inversions"
+        );
     }
 }
