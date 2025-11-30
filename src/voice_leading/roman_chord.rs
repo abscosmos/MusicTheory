@@ -412,7 +412,7 @@ impl FromStr for RomanChord {
         let mut rest_chars = rest.chars().peekable();
 
         let (triad_quality, seventh_quality, explicit) = match rest_chars.peek() {
-            Some('+') => {
+            Some('+') if is_upper => {
                 rest_chars.next();
 
                 (Q::Augmented, None, false)
@@ -420,9 +420,13 @@ impl FromStr for RomanChord {
             Some('o') => {
                 rest_chars.next();
 
+                if is_upper {
+                    return Err(RomanChordFromStrError::InvalidQuality);
+                }
+
                 (Q::Diminished, Some(Q::Diminished), false)
             },
-            Some('ø') => {
+            Some('ø') if !is_upper => {
                 rest_chars.next();
 
                 (Q::Diminished, Some(Q::Minor), true)
@@ -451,6 +455,13 @@ impl FromStr for RomanChord {
                     .ok_or(RomanChordFromStrError::InvalidQuality)?;
 
                 if rest_chars.next() != Some(')') {
+                    return Err(RomanChordFromStrError::InvalidQuality);
+                }
+
+                if matches!(
+                    (triad_quality, is_upper),
+                    (Q::Major | Q::Augmented, false) | (Q::Minor | Q::Diminished, true)
+                ) {
                     return Err(RomanChordFromStrError::InvalidQuality);
                 }
 
