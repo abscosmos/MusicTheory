@@ -160,7 +160,7 @@ impl RomanChord {
         let mut root = scale[self.degree.as_idx() as usize];
 
         // TODO: maybe this function is overkill?
-        if self.should_raise_leading_tone(key).unwrap_or(false) {
+        if self.degree == ScaleDegree::VII && self.should_raise_leading_tone(key).unwrap_or(false) {
             root = root.transpose(Interval::AUGMENTED_UNISON);
         }
 
