@@ -583,7 +583,7 @@ mod tests {
     }
 
     #[test]
-        fn from_str_invalid_inputs() {
+    fn from_str_invalid_inputs() {
         use super::RomanChordFromStrError as Error;
 
         assert_eq!(
