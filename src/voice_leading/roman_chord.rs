@@ -411,7 +411,7 @@ impl FromStr for RomanChord {
         let rest = &s[non_numeral..];
         let mut rest_chars = rest.chars().peekable();
 
-        let (triad_quality, seventh_quality, explicit) = match rest_chars.peek() {
+        let (triad_quality, mut seventh_quality, explicit) = match rest_chars.peek() {
             Some('+') if is_upper => {
                 rest_chars.next();
 
@@ -475,9 +475,9 @@ impl FromStr for RomanChord {
         let inversion = rest_chars.collect::<String>();
 
         // this parses V7 as dominant seventh
-        // if !explicit && matches!((numeral, triad_quality, seventh_quality), (ScaleDegree::V, Quality::Major, Some(Quality::Major))) {
-        //     seventh_quality = Some(Quality::Minor)
-        // }
+        if !explicit && matches!((numeral, triad_quality, seventh_quality), (ScaleDegree::V, Quality::Major, Some(Quality::Major))) {
+            seventh_quality = Some(Quality::Minor)
+        }
 
         // TODO: this collect isn't ideal :(
         match inversion.as_str() {
@@ -568,9 +568,7 @@ mod tests {
                     .chain(std::iter::once(None))
                 {
                     for inv in 0..=3 {
-                        if let Ok(chord) = RomanChord::new(deg, triad, seventh_qualities, inv)
-                            && !matches!((deg, triad, seventh_qualities), (ScaleDegree::V, Quality::Major, Some(Quality::Minor)))
-                        {
+                        if let Ok(chord) = RomanChord::new(deg, triad, seventh_qualities, inv) {
                             assert_eq!(
                                 Ok(chord), chord.to_string().parse(),
                                 "Failed to parse: {chord}",
