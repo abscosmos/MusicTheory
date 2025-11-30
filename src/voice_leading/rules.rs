@@ -187,7 +187,6 @@ pub fn check_parallel_interval(first: Voicing, second: Voicing, interval: Interv
         v1.distance_to(v2).as_simple().abs().semitones() == interval.semitones()
     }
 
-    // TODO: this double checks
     for v1 in Voice::iter() {
         for v2 in Voice::iter() {
             if v2 <= v1 {
