@@ -249,19 +249,16 @@ impl RomanChord {
     }
 
     // TODO: should this be in mode instead of in key, since the pitch is irrelevant?
-    pub fn diatonic_in_key(
-        degree: ScaleDegree,
-        key: Key,
-        with_seventh: bool,
-    ) -> Self {
+    pub fn diatonic_in_mode(degree: ScaleDegree, mode: DiatonicMode, with_seventh: bool) -> Self {
         use Quality as Q;
         use Interval as I;
         use IntervalQuality as IQ;
 
         let mut scale = {
-            let mut scale = key.scale().build_default();
+            // this is the easiest way to do this
+            let mut scale = Key::new(Pitch::C, mode).scale().build_default();
 
-            if matches!(degree, ScaleDegree::V | ScaleDegree::VII) && Self::mode_has_raised_leading_tone(key.mode) {
+            if matches!(degree, ScaleDegree::V | ScaleDegree::VII) && Self::mode_has_raised_leading_tone(mode) {
                 scale[6] = scale[6].transpose(Interval::AUGMENTED_UNISON);
             }
 
@@ -306,6 +303,10 @@ impl RomanChord {
             seventh_quality,
             inversion: 0,
         }
+    }
+
+    pub fn diatonic_in_key(degree: ScaleDegree, key: Key, with_seventh: bool) -> Self {
+        Self::diatonic_in_mode(degree, key.mode, with_seventh)
     }
 }
 
