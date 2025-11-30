@@ -198,7 +198,7 @@ pub fn check_parallel_interval(first: Voicing, second: Voicing, interval: Interv
             let v1_second = second[v1];
             let v2_second = second[v2];
 
-            if v1_first != v2_first // oblique is fine
+            if v1_first != v1_second // oblique is fine
                 && check(v1_first, v2_first, interval)
                 && check(v1_second, v2_second, interval)
             {
