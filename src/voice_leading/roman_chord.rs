@@ -417,12 +417,9 @@ impl FromStr for RomanChord {
 
                 (Q::Augmented, None, false)
             },
-            Some('o') => {
+            Some('+') if !is_upper => return Err(RomanChordFromStrError::InvalidQuality),
+            Some('o') if !is_upper => {
                 rest_chars.next();
-
-                if is_upper {
-                    return Err(RomanChordFromStrError::InvalidQuality);
-                }
 
                 (Q::Diminished, Some(Q::Diminished), false)
             },
@@ -431,6 +428,7 @@ impl FromStr for RomanChord {
 
                 (Q::Diminished, Some(Q::Minor), true)
             },
+            Some('o') | Some('ø') if is_upper => return Err(RomanChordFromStrError::InvalidQuality),
             Some('(') => {
                 rest_chars.next();
 
