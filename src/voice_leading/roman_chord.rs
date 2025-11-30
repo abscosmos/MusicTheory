@@ -467,15 +467,6 @@ impl FromStr for RomanChord {
 
                 (triad_quality, Some(seventh_quality), true)
             },
-            None => {
-                let triad_quality = if is_upper {
-                    Quality::Major
-                } else {
-                    Quality::Minor
-                };
-
-                return Ok(RomanChord::triad(numeral, triad_quality));
-            },
             _ if is_upper => (Q::Major, Some(Q::Major), false),
             _ if !is_upper => (Q::Minor, Some(Q::Minor), false),
             _ => unreachable!("all cases covered"),
