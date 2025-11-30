@@ -385,6 +385,8 @@ impl FromStr for RomanChord {
     type Err = RomanChordFromStrError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
+        use Quality as Q;
+
         let non_numeral = s.char_indices()
             .find(|(_, c)| !matches!(c.to_ascii_uppercase(), 'I' | 'V'))
             .map(|(i, _)| i)
@@ -413,27 +415,27 @@ impl FromStr for RomanChord {
             Some('+') => {
                 rest_chars.next();
 
-                (Quality::Augmented, None, false)
+                (Q::Augmented, None, false)
             },
             Some('o') => {
                 rest_chars.next();
 
-                (Quality::Diminished, Some(Quality::Diminished), false)
+                (Q::Diminished, Some(Q::Diminished), false)
             },
             Some('ø') => {
                 rest_chars.next();
 
-                (Quality::Diminished, Some(Quality::Minor), true)
+                (Q::Diminished, Some(Q::Minor), true)
             },
             Some('(') => {
                 rest_chars.next();
 
                 fn from_quality_char(c: char) -> Option<Quality> {
                     match c {
-                        'M' => Some(Quality::Major),
-                        'm' => Some(Quality::Minor),
-                        'd' => Some(Quality::Diminished),
-                        'A' => Some(Quality::Augmented),
+                        'M' => Some(Q::Major),
+                        'm' => Some(Q::Minor),
+                        'd' => Some(Q::Diminished),
+                        'A' => Some(Q::Augmented),
                         _ => None,
                     }
                 }
@@ -463,8 +465,8 @@ impl FromStr for RomanChord {
 
                 return Ok(RomanChord::triad(numeral, triad_quality));
             },
-            _ if is_upper => (Quality::Major, Some(Quality::Major), false),
-            _ if !is_upper => (Quality::Minor, Some(Quality::Minor), false),
+            _ if is_upper => (Q::Major, Some(Q::Major), false),
+            _ if !is_upper => (Q::Minor, Some(Q::Minor), false),
             _ => unreachable!("all cases covered"),
         };
 
