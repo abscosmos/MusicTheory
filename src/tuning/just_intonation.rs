@@ -1,5 +1,7 @@
+use std::ops::Index;
 use serde::{Deserialize, Serialize};
 use typed_floats::tf32::StrictlyPositiveFinite;
+use crate::pitch_class::PitchClass;
 
 #[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct JustIntonation {
@@ -48,4 +50,12 @@ pub enum JustIntonationRatiosError {
     UnisonNotIdentity,
     #[error("Ratios must be strictly increasing order")]
     NotStrictlyIncreasing,
+}
+
+impl Index<PitchClass> for JustIntonationRatios {
+    type Output = StrictlyPositiveFinite;
+
+    fn index(&self, index: PitchClass) -> &Self::Output {
+        self.0.get(index.chroma() as usize).expect("PitchClass::chroma is in [0,12)")
+    }
 }
