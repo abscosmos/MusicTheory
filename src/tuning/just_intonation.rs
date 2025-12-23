@@ -39,7 +39,7 @@ impl JustIntonationRatios {
                     unreachable!("window size is two");
                 };
 
-                a <= b
+                a >= b
             })
         {
             return Err(JustIntonationRatiosError::NotStrictlyIncreasing);
