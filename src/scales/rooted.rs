@@ -40,6 +40,10 @@ impl<R: Clone + Add<Interval, Output = R> + Into<Pitch> + Ord> RootedDynamicScal
 
         get_scale_degree_and_accidental_inner(target.into(), &scale)
     }
+
+    pub fn contains(&self, target: R) -> bool {
+        self.get_scale_degree(target).is_some()
+    }
     
     pub fn build_default(&self) -> Box<[R]> {
         self.scale.build_from(self.root.clone())
@@ -92,6 +96,10 @@ impl<R: Clone + Add<Interval, Output = R> + Into<Pitch> + Ord, const N: usize, S
         let scale = self.scale.build_from(self.root.clone().into());
         
         get_scale_degree_and_accidental_inner(target.into(), &scale)
+    }
+
+    pub fn contains(&self, target: R) -> bool {
+        self.get_scale_degree(target).is_some()
     }
     
     pub fn build_default(&self) -> [R; N] {
