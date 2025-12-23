@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use crate::note::Note;
+use typed_floats::tf32::StrictlyPositiveFinite;
 
 // TODO: cents type
 
@@ -11,5 +12,5 @@ pub trait Tuning {
 
 #[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct TwelveToneEqualTemperament {
-    a4_hz: f32,
+    pub a4_hz: StrictlyPositiveFinite,
 }

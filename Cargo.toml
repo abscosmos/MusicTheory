@@ -18,3 +18,4 @@ regex = "1.10.6"
 paste = "1.0.15"
 mt_macros = { path = "mt_macros" }
 serde = { version = "1.0.228", features = ["derive"] }
+typed_floats = { version = "1.0.7", features = ["ensure_no_undefined_behavior", "serde"] }
