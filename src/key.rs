@@ -76,22 +76,8 @@ impl Key {
         }
     }
 
-    pub fn relative(self) -> Option<Self> {
-        use DiatonicMode as M;
-        
-        let offset_fifths = match self.mode {
-            M::MAJOR => 3,
-            M::NATURAL_MINOR => -3,
-            _ => return None,
-        };
-        
-        let new_tonic = self.tonic.transpose_fifths(offset_fifths); 
-        
-        Some(
-            self.with_tonic(new_tonic)
-                .parallel()
-                .expect("should be major/minor since we just checked")
-        )
+    pub fn relative(self, mode: DiatonicMode) -> Self {
+        Self::from_sharps(self.sharps(), mode)
     }
     
     pub fn from_pitch_degree(degree: Numeral7, pitch: Pitch, mode: DiatonicMode) -> Self {
