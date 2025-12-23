@@ -18,7 +18,7 @@ pub struct InvalidInversion {
 
 #[derive(Clone, Debug, Eq)]
 pub struct Chord {
-    pub root: Pitch,
+    pub tonic: Pitch,
     intervals: Vec<Interval>,
     ty: Option<ChordType>,
     inversion: u8,
@@ -33,7 +33,7 @@ impl Chord {
         Self::from_intervals_inner(None, intervals, root, inversion)
     }
 
-    fn from_intervals_inner(ty: Option<ChordType>, mut intervals: Vec<Interval>, root: Pitch, inversion: u8) -> Result<Self, InvalidInversion> {
+    fn from_intervals_inner(ty: Option<ChordType>, mut intervals: Vec<Interval>, tonic: Pitch, inversion: u8) -> Result<Self, InvalidInversion> {
         if inversion as usize >= intervals.len() {
             return Err(InvalidInversion { intervals: intervals.len() as _, attempted: inversion });
         }
@@ -44,7 +44,7 @@ impl Chord {
             Self {
                 intervals,
                 ty,
-                root,
+                tonic,
                 inversion,
             }
         )
@@ -90,7 +90,7 @@ impl Chord {
     #[inline]
     fn pitches_iter(&self) -> impl Iterator<Item=Pitch> {
         self.intervals.iter()
-            .map(|&ivl| self.root.transpose(ivl))
+            .map(|&ivl| self.tonic.transpose(ivl))
             .cycle()
             .skip(self.inversion as _)
             .take(self.intervals.len())
@@ -110,7 +110,7 @@ impl Chord {
 impl PartialEq for Chord {
     fn eq(&self, other: &Self) -> bool {
         self.intervals == other.intervals &&
-            self.root == other.root &&
+            self.tonic == other.tonic &&
             self.inversion == other.inversion
     }
 }
