@@ -86,13 +86,17 @@ impl Chord {
             .collect()
     }
 
-    pub fn pitches(&self) -> Vec<Pitch> {
+    #[inline]
+    fn pitches_iter(&self) -> impl Iterator<Item=Pitch> {
         self.intervals.iter()
             .map(|&ivl| self.root.transpose(ivl))
             .cycle()
             .skip(self.inversion as _)
             .take(self.intervals.len())
-            .collect()
+    }
+
+    pub fn pitches(&self) -> Vec<Pitch> {
+        self.pitches_iter().collect()
     }
 }
 
