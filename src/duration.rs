@@ -60,6 +60,18 @@ impl WrittenDuration {
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub struct Duration(Ratio<u32>);
 
+impl Duration {
+    pub const fn ratio(self) -> Ratio<u32> {
+        self.0
+    }
+
+    pub fn as_f32(self) -> f32 {
+        let (n, d) = self.0.into_raw();
+
+        n as f32 / d as f32
+    }
+}
+
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct Tempo(pub NonZeroU16);
 
