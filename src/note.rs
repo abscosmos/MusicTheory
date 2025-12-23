@@ -2,12 +2,14 @@ use std::cmp::Ordering;
 use std::fmt;
 use std::ops::{Add, Deref, DerefMut, Sub};
 use serde::{Deserialize, Serialize};
+use typed_floats::tf32::StrictlyPositiveFinite;
 use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
 use crate::interval::Interval;
 use crate::letter::Letter;
 use crate::pitch::Pitch;
 use crate::pitch_class::PitchClass;
 use crate::semitone::Semitone;
+use crate::tuning::{Tuning, TwelveToneEqualTemperament};
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Serialize, Deserialize)]
 pub struct Note {
@@ -37,39 +39,8 @@ impl Note {
     }
     
     // TODO: this includes spelling, when it probably shouldn't
-    pub fn from_frequency_hz(hz: f32) -> Option<(Self, f32)> {
-        if hz <= 0.0 || !hz.is_finite() {
-            return None;
-        }
-
-        let semitones_from_a4 = 12.0 * (hz / 440.0).log2();
-
-        if !semitones_from_a4.is_finite() {
-            return None;
-        }
-
-        let semitones_from_c0 = semitones_from_a4.round() as i16 + 9 + 4 * 12;
-
-        let octave = semitones_from_c0.div_euclid(12);
-
-        let pitch = semitones_from_c0.rem_euclid(12)
-            .try_into()
-            .expect("i32::rem_euclid(12) must be within [0,12)");
-
-        let pitch = PitchClass::from_repr(pitch)
-            .expect("i32::rem_euclid(12) must be within [0,12)");
-
-        let cents = {
-            let fract = if semitones_from_a4.trunc() == semitones_from_a4.round() {
-                semitones_from_a4.fract()
-            } else {
-                semitones_from_a4.fract() - 1.0
-            };
-
-            fract * 100.0
-        };
-
-        Some(( Self { pitch: Pitch::from(pitch), octave }, cents ))
+    pub fn from_frequency_hz(hz: StrictlyPositiveFinite) -> Option<Self> {
+        TwelveToneEqualTemperament::HZ_440.freq_to_note(hz).map(|(n, _)| n)
     }
 
     /*
@@ -80,10 +51,8 @@ impl Note {
             - well temperament
             - equal temperament
     */ 
-    pub fn as_frequency_hz(self) -> f32 {
-        let semitones_from_a4 = Self::A4.semitones_to(self);
-
-        440.0 * 2.0_f32.powf(semitones_from_a4.0 as f32 / 12.0)
+    pub fn as_frequency_hz(self) -> Option<StrictlyPositiveFinite> {
+        TwelveToneEqualTemperament::HZ_440.note_to_freq_hz(self)
     }
 
     pub fn transpose(self, interval: Interval) -> Self {
