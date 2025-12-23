@@ -64,6 +64,17 @@ pub struct Duration(Ratio<u32>);
 pub struct Tempo(pub NonZeroU16);
 
 impl Tempo {
+    pub const LARGHISSIMO: Self = Self::new(20).expect("nonzero");
+    pub const GRAVE: Self = Self::new(40).expect("nonzero");
+    pub const LARGO: Self = Self::new(50).expect("nonzero");
+    pub const ADAGIO: Self = Self::new(70).expect("nonzero");
+    pub const ANDANTE: Self = Self::new(80).expect("nonzero");
+    pub const MODERATO: Self = Self::new(110).expect("nonzero");
+    pub const ALLEGRO: Self = Self::new(120).expect("nonzero");
+    pub const VIVACE: Self = Self::new(140).expect("nonzero");
+    pub const PRESTO: Self = Self::new(180).expect("nonzero");
+    pub const PRESTISSIMO: Self = Self::new(200).expect("nonzero");
+
     pub const fn new(bpm: u16) -> Option<Self> {
         match NonZeroU16::new(bpm) {
             Some(nz) => Some(Self(nz)),
