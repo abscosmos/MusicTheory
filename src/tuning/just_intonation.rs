@@ -42,6 +42,10 @@ impl JustIntonationRatios {
 
         Ok(Self(ratios))
     }
+
+    pub const fn as_array(self) -> [StrictlyPositiveFinite; 12] {
+        self.0
+    }
 }
 
 #[derive(thiserror::Error, Debug, Eq, PartialEq)]
