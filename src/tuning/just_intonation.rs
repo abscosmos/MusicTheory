@@ -95,3 +95,19 @@ impl Index<PitchClass> for JustIntonationRatios {
         self.0.get(index.chroma() as usize).expect("PitchClass::chroma is in [0,12)")
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn limit_5_const_valid() {
+        use JustIntonationRatios as Ratios;
+
+        // this is because Ratios::expect_valid doesn't check invariants, so we check it in a test
+        assert_eq!(
+            Ratios::new(Ratios::LIMIT_5.as_array()), Ok(Ratios::LIMIT_5),
+            "constants should also hold invariants of type"
+        );
+    }
+}
