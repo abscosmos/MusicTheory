@@ -29,6 +29,7 @@ impl Chord {
         Self::from_intervals_inner(Some(chord_type), chord_type.intervals(), root, inversion)
     }
 
+    // TODO: don't allow chords with zero notes, ensure the type matches
     pub fn from_intervals(intervals: Vec<Interval>, root: Pitch, inversion: u8) -> Result<Self, InvalidInversion> {
         Self::from_intervals_inner(None, intervals, root, inversion)
     }
