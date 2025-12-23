@@ -14,3 +14,14 @@ pub trait Tuning {
 pub struct TwelveToneEqualTemperament {
     pub a4_hz: StrictlyPositiveFinite,
 }
+
+impl TwelveToneEqualTemperament {
+    pub const HZ_440: Self = Self::new(440.0).expect("440.0 is strictly positive and finite");
+
+    pub const fn new(a4_hz: f32) -> Option<Self> {
+        match StrictlyPositiveFinite::new(a4_hz) {
+            Ok(a4_hz) => Some(Self { a4_hz }),
+            Err(_) => None,
+        }
+    }
+}
