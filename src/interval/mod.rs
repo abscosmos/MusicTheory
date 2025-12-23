@@ -335,6 +335,12 @@ pub enum Stability {
     Dissonance,
 }
 
+impl Stability {
+    pub fn is_consonant(self) -> bool {
+        matches!(self, Self::PerfectConsonance | Self::ImperfectConsonance)
+    }
+}
+
 impl Add for Interval {
     type Output = Self;
 
