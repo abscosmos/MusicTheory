@@ -32,7 +32,7 @@ impl Key {
         Self { tonic, .. self }
     }
 
-    pub fn with_mode(self, mode: DiatonicMode) -> Self {
+    pub fn parallel(self, mode: DiatonicMode) -> Self {
         Self { mode, .. self }
     }
     
@@ -64,16 +64,6 @@ impl Key {
             .expect("should be within [1,7]");
         
         Some(Self::new(tonic, mode))
-    }
-
-    pub fn parallel(self) -> Option<Self> {
-        use DiatonicMode as M;
-
-        match self.mode {
-            M::MAJOR => Some(self.with_mode(M::NATURAL_MINOR)),
-            M::NATURAL_MINOR => Some(self.with_mode(M::MAJOR)),
-            _ => None,
-        }
     }
 
     pub fn relative(self, mode: DiatonicMode) -> Self {
