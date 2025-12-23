@@ -33,16 +33,6 @@ impl JustIntonationRatios {
             return Err(JustIntonationRatiosError::UnisonNotIdentity);
         }
 
-        for window in ratios.windows(2) {
-            let &[a, b] = window else {
-                unreachable!("window size is two");
-            };
-
-            if a <= b {
-                return Err(JustIntonationRatiosError::NotStrictlyIncreasing);
-            }
-        }
-
         if ratios.windows(2)
             .any(|window| {
                 let &[a, b] = window else {
