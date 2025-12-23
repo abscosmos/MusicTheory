@@ -21,7 +21,7 @@ impl Cents {
 }
 
 pub trait Tuning {
-    fn freq_to_note(&self, hz: StrictlyPositiveFinite) -> Option<(Note, f32)>;
+    fn freq_to_note(&self, hz: StrictlyPositiveFinite) -> Option<(Note, Cents)>;
 
     fn note_to_freq_hz(&self, note: Note) -> Option<StrictlyPositiveFinite>;
 }
@@ -43,7 +43,7 @@ impl TwelveToneEqualTemperament {
 }
 
 impl Tuning for TwelveToneEqualTemperament {
-    fn freq_to_note(&self, hz: StrictlyPositiveFinite) -> Option<(Note, f32)> {
+    fn freq_to_note(&self, hz: StrictlyPositiveFinite) -> Option<(Note, Cents)> {
         let semitones_from_a4 = 12.0 * (hz / self.a4_hz).log2().get();
 
         if !semitones_from_a4.is_finite() {
@@ -68,7 +68,7 @@ impl Tuning for TwelveToneEqualTemperament {
                 semitones_from_a4.fract() - 1.0
             };
 
-            fract * 100.0
+            Cents::new(fract * 100.0).expect("must be in range")
         };
 
         Some(( Note { pitch: Pitch::from(pitch), octave }, cents ))
