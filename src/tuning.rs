@@ -5,7 +5,7 @@ use typed_floats::tf32::StrictlyPositiveFinite;
 // TODO: cents type
 
 pub trait Tuning {
-    fn freq_to_note(&self, hz: StrictlyPositiveFinite) -> (Note, f32);
+    fn freq_to_note(&self, hz: StrictlyPositiveFinite) -> Option<(Note, f32)>;
 
     fn note_to_freq_hz(&self, note: Note) -> StrictlyPositiveFinite;
 }
