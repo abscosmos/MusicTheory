@@ -8,6 +8,10 @@ use crate::scales::numeral::Numeral;
 pub trait SizedScale<const N: usize> {
     fn relative_intervals(&self) -> [Interval; N];
 
+    fn intervals_from_root(&self) -> [Interval; N] {
+        self.build_from(Interval::PERFECT_UNISON)
+    }
+
     fn build_from<T: Add<Interval, Output = T> + Clone>(&self, root: T) -> [T; N] {
         scales::build_from(self.relative_intervals(), root)
     }
