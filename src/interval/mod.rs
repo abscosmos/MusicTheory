@@ -117,6 +117,23 @@ impl Interval {
         Interval::new(quality, number).expect("should be valid")
     }
 
+    /// Returns `None` for P4, which is consonant melodically but dissonant harmonically
+    pub fn stability(&self) -> Option<Stability> {
+        use IntervalQuality as Q;
+        use IntervalNumber as N;
+
+        match self.quality {
+            Q::Diminished(_) | Q::Augmented(_) => Some(Stability::Dissonance),
+            _ => match self.number.as_simple() {
+                N::UNISON | N::FIFTH | N::OCTAVE => Some(Stability::PerfectConsonance),
+                N::THIRD | N::SIXTH => Some(Stability::ImperfectConsonance),
+                N::SECOND | N::SEVENTH => Some(Stability::Dissonance),
+                N::FOURTH => None,
+                _ => unreachable!("as_simple should return number in [1,8]"),
+            }
+        }
+    }
+
     // TODO: does this work for descending intervals?
     pub fn is_subzero(&self) -> bool {
         let semitones = self.semitones().0;
