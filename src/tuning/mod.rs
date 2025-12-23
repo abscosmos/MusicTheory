@@ -3,7 +3,9 @@ use crate::note::Note;
 use typed_floats::tf32::{StrictlyPositiveFinite, NonNaNFinite};
 
 mod twelve_tet;
+mod just_intonation;
 pub use twelve_tet::*;
+pub use just_intonation::*;
 
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
