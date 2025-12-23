@@ -37,7 +37,7 @@ impl Note {
     }
     
     // TODO: this includes spelling, when it probably shouldn't
-    pub fn from_frequency_hz(hz: f32) -> Option<Self> {
+    pub fn from_frequency_hz(hz: f32) -> Option<(Self, f32)> {
         if hz <= 0.0 || !hz.is_finite() {
             return None;
         }
@@ -59,7 +59,17 @@ impl Note {
         let pitch = PitchClass::from_repr(pitch)
             .expect("i32::rem_euclid(12) must be within [0,12)");
 
-        Some( Self { pitch: Pitch::from(pitch), octave } )
+        let cents = {
+            let fract = if semitones_from_a4.trunc() == semitones_from_a4.round() {
+                semitones_from_a4.fract()
+            } else {
+                semitones_from_a4.fract() - 1.0
+            };
+
+            fract * 100.0
+        };
+
+        Some(( Self { pitch: Pitch::from(pitch), octave }, cents ))
     }
 
     /*
