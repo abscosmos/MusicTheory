@@ -1,6 +1,7 @@
 use crate::chord::types::ChordType;
 use crate::enharmonic::EnharmonicOrd;
 use crate::interval::Interval;
+use crate::pcset::PitchClassSet;
 use crate::pitch::Pitch;
 
 pub mod quality;
@@ -97,6 +98,12 @@ impl Chord {
 
     pub fn pitches(&self) -> Vec<Pitch> {
         self.pitches_iter().collect()
+    }
+
+    pub fn pcset(&self) -> PitchClassSet {
+        self.pitches_iter()
+            .map(Pitch::as_pitch_class)
+            .collect()
     }
 }
 
