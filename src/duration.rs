@@ -1,3 +1,4 @@
+use std::num::NonZeroU16;
 use num_rational::Ratio;
 
 #[derive(Debug, Copy, Clone)]
@@ -58,3 +59,15 @@ impl WrittenDuration {
 // TODO: change name to avoid collision with std::time::Duration?
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub struct Duration(Ratio<u32>);
+
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+pub struct Tempo(pub NonZeroU16);
+
+impl Tempo {
+    pub const fn new(bpm: u16) -> Option<Self> {
+        match NonZeroU16::new(bpm) {
+            Some(nz) => Some(Self(nz)),
+            None => None,
+        }
+    }
+}
