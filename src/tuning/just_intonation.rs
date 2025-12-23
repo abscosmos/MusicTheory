@@ -1,6 +1,6 @@
 use std::ops::Index;
 use serde::{Deserialize, Serialize};
-use typed_floats::tf32::StrictlyPositiveFinite;
+use typed_floats::tf32::{self, StrictlyPositiveFinite};
 use crate::pitch_class::PitchClass;
 
 #[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -45,6 +45,23 @@ impl JustIntonationRatios {
 
     pub const fn as_array(self) -> [StrictlyPositiveFinite; 12] {
         self.0
+    }
+
+    /// This function should only be used to define constants!
+    const fn expect_valid(ratios: [f32; 12]) -> Self {
+        let mut res = [tf32::MAX; 12];
+
+        let mut i = 0;
+        while i < 12 {
+            res[i] = match StrictlyPositiveFinite::new(ratios[i]) {
+                Ok(ratio) => ratio,
+                Err(_) => panic!("all ratios must be strictly positive and finite"),
+            };
+
+            i += 1;
+        }
+
+        Self(res)
     }
 }
 
