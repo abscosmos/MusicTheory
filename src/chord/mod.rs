@@ -68,6 +68,11 @@ impl Chord {
         self.pitches_iter().next().expect("chord should have at least one pitch")
     }
 
+    pub fn transpose(mut self, ivl: Interval) -> Self {
+        self.tonic = self.tonic + ivl;
+        self
+    }
+
     pub fn chord_type(&self) -> Option<ChordType> {
         self.ty
     }
