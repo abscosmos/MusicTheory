@@ -70,6 +70,22 @@ impl Chord {
         &self.intervals
     }
 
+    pub fn successive_intervals(&self) -> Vec<Interval> {
+        if self.inversion != 0 {
+            todo!("Chord::successive_intervals doesn't work with inversions yet");
+        }
+
+        self.intervals.windows(2)
+            .map(|window| {
+                let [a, b] = window else {
+                    unreachable!("set to windows of two");
+                };
+
+                *b - *a
+            })
+            .collect()
+    }
+
     pub fn pitches(&self) -> Vec<Pitch> {
         self.intervals.iter()
             .map(|&ivl| self.root.transpose(ivl))
