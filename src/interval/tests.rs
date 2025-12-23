@@ -482,3 +482,46 @@ fn between_notes_transpose_inverses() {
         }
     }
 }
+
+#[test]
+fn test_stability() {
+    assert_eq!(
+        Interval::PERFECT_FOURTH.stability(), None,
+        "P5 can be either consonant or dissonant depending on context",
+    );
+
+    assert_eq!(
+        Interval::AUGMENTED_FOURTH.stability(), Some(Stability::Dissonance),
+        "augmented intervals are dissonant",
+    );
+
+    assert_eq!(
+        Interval::MAJOR_SECOND.stability(), Some(Stability::Dissonance),
+        "seconds are dissonant",
+    );
+
+    assert_eq!(
+        Interval::MAJOR_SIXTH.stability(), Some(Stability::ImperfectConsonance),
+        "sixths are imperfect consonances",
+    );
+
+    assert_eq!(
+        Interval::PERFECT_FIFTH.stability(), Some(Stability::PerfectConsonance),
+        "fifths are perfect consonances",
+    );
+
+    assert_eq!(
+        (Interval::MAJOR_THIRD + Interval::PERFECT_OCTAVE).stability(), Some(Stability::ImperfectConsonance),
+        "should be able to check stability of compound intervals",
+    );
+
+    for ivl in Interval::ALL_CONSTS {
+        // ensure all cases are covered, else would panic on unreachable
+        let _ = ivl.stability();
+    }
+
+    assert!(
+        Stability::PerfectConsonance.is_consonant() && Stability::ImperfectConsonance.is_consonant(),
+        "consonances should be consonant",
+    );
+}
