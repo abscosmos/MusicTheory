@@ -1,5 +1,7 @@
 use std::ops::Add;
 use crate::interval::Interval;
+use crate::pcset::PitchClassSet;
+use crate::pitch_class::PitchClass;
 use crate::scales;
 use crate::scales::{ScaleDefinition, ScaleMode};
 use crate::scales::typed_scale::TypedScale;
@@ -54,6 +56,14 @@ pub trait DynScale {
 
     fn intervals_from_root(&self) -> Box<[Interval]> {
         self.build_from(Interval::PERFECT_UNISON)
+    }
+
+    fn pcset_from_tonic(&self, tonic: PitchClass) -> PitchClassSet {
+        self.build_from(tonic).into_iter().collect()
+    }
+
+    fn pcset(&self) -> PitchClassSet {
+        self.pcset_from_tonic(PitchClass::C)
     }
 
     fn build_from<T: Add<Interval, Output = T> + Clone>(&self, root: T) -> Box<[T]>;
