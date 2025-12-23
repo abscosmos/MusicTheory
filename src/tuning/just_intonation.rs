@@ -13,6 +13,21 @@ pub struct JustIntonation {
 pub struct JustIntonationRatios([StrictlyPositiveFinite; 12]);
 
 impl JustIntonationRatios {
+    pub const LIMIT_5: Self = Self::expect_valid([
+        1.0,
+        16.0/15.0,
+        9.0/8.0,
+        6.0/5.0,
+        5.0/4.0,
+        4.0/3.0,
+        45.0/32.0,
+        3.0/2.0,
+        8.0/5.0,
+        5.0/3.0,
+        9.0/5.0,
+        15.0/8.0,
+    ]);
+
     pub fn new(ratios: [StrictlyPositiveFinite; 12]) -> Result<Self, JustIntonationRatiosError> {
         if ratios[0] != 1.0 {
             return Err(JustIntonationRatiosError::UnisonNotIdentity);
