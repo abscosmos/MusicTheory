@@ -311,6 +311,13 @@ impl Interval {
     }
 }
 
+#[derive(Copy, Clone, Eq, PartialEq, Debug)]
+pub enum Stability {
+    PerfectConsonance,
+    ImperfectConsonance,
+    Dissonance,
+}
+
 impl Add for Interval {
     type Output = Self;
 
