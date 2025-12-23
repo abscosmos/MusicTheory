@@ -63,6 +63,10 @@ impl Chord {
         }
     }
 
+    pub fn bass(&self) -> Pitch {
+        self.pitches_iter().next().expect("chord should have at least one pitch")
+    }
+
     pub fn chord_type(&self) -> Option<ChordType> {
         self.ty
     }
