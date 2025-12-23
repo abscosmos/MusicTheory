@@ -52,6 +52,10 @@ pub trait DynScale {
     
     fn relative_intervals(&self) -> &[Interval];
 
+    fn intervals_from_root(&self) -> Box<[Interval]> {
+        self.build_from(Interval::PERFECT_UNISON)
+    }
+
     fn build_from<T: Add<Interval, Output = T> + Clone>(&self, root: T) -> Box<[T]>;
 }
 
