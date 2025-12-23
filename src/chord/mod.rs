@@ -73,6 +73,10 @@ impl Chord {
     }
 
     pub fn intervals(&self) -> &[Interval] {
+        if self.inversion != 0 {
+            todo!("Chord::intervals doesn't work with inversions yet");
+        }
+
         &self.intervals
     }
 
