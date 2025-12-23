@@ -61,3 +61,9 @@ impl Tuning for TwelveToneEqualTemperament {
         StrictlyPositiveFinite::new(hz).ok()
     }
 }
+
+impl Default for TwelveToneEqualTemperament {
+    fn default() -> Self {
+        Self::HZ_440
+    }
+}
