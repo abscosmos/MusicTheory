@@ -194,6 +194,12 @@ impl Tuning for JustIntonation {
     }
 }
 
+impl Default for JustIntonation {
+    fn default() -> Self {
+        Self::HZ_440_LIMIT_5
+    }
+}
+
 #[derive(thiserror::Error, Debug, Eq, PartialEq)]
 pub enum JustIntonationRatiosError {
     #[error("Ratio between unisons must be 1/1")]
