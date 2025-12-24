@@ -26,6 +26,34 @@ impl Cents {
     pub const fn get(self) -> f32 {
         self.0.get()
     }
+
+    /// Calculate cents between two frequencies.
+    ///
+    /// Returns the logarithmic distance from `reference_freq` to `target_freq`:
+    /// - Positive result = target is sharp of reference
+    /// - Negative result = target is flat of reference
+    ///
+    /// Formula: `cents = 1200 × log2(target_freq / reference_freq)`
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::tuning::Cents;
+    /// # use typed_floats::tf32::StrictlyPositiveFinite;
+    /// // A4 at 442 Hz is about 7.85 cents sharp of 440 Hz
+    /// let cents = Cents::between_frequencies(
+    ///     StrictlyPositiveFinite::new(440.0).unwrap(),
+    ///     StrictlyPositiveFinite::new(442.0).unwrap(),
+    /// ).unwrap();
+    /// assert!((cents.get() - 7.85).abs() < 0.1);
+    /// ```
+    pub fn between_frequencies(
+        reference: StrictlyPositiveFinite,
+        target: StrictlyPositiveFinite,
+    ) -> Option<Self> {
+        Self::new(
+            Self::OCTAVE.0 * (target / reference).log2()
+        )
+    }
 }
 
 pub trait Tuning {
