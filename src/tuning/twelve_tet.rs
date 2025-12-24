@@ -7,15 +7,16 @@ use crate::tuning::{Cents, Tuning};
 
 #[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct TwelveToneEqualTemperament {
-    pub a4_hz: StrictlyPositiveFinite,
+    pub reference: Note,
+    pub freq_hz: StrictlyPositiveFinite,
 }
 
 impl TwelveToneEqualTemperament {
-    pub const HZ_440: Self = Self::new(440.0).expect("440.0 is strictly positive and finite");
+    pub const A4_440: Self = Self::new(Note::A4, 440.0).expect("440.0 is strictly positive and finite");
 
-    pub const fn new(a4_hz: f32) -> Option<Self> {
-        match StrictlyPositiveFinite::new(a4_hz) {
-            Ok(a4_hz) => Some(Self { a4_hz }),
+    pub const fn new(reference: Note, freq_hz: f32) -> Option<Self> {
+        match StrictlyPositiveFinite::new(freq_hz) {
+            Ok(freq_hz) => Some(Self { reference, freq_hz }),
             Err(_) => None,
         }
     }
@@ -23,13 +24,13 @@ impl TwelveToneEqualTemperament {
 
 impl Tuning for TwelveToneEqualTemperament {
     fn freq_to_note(&self, hz: StrictlyPositiveFinite) -> Option<(Note, Cents)> {
-        let semitones_from_a4 = 12.0 * (hz / self.a4_hz).log2().get();
+        let semitones_from_reference = 12.0 * (hz / self.freq_hz).log2().get();
 
-        if !semitones_from_a4.is_finite() {
+        if !semitones_from_reference.is_finite() {
             return None;
         }
 
-        let semitones_from_c0 = semitones_from_a4.round() as i16 + 9 + 4 * 12;
+        let semitones_from_c0 = semitones_from_reference.round() as i16 + Note::new(Pitch::C, 4).semitones_to(self.reference).0;
 
         let octave = semitones_from_c0.div_euclid(12);
 
@@ -44,10 +45,10 @@ impl Tuning for TwelveToneEqualTemperament {
         let note = Note { pitch, octave };
 
         let cents = {
-            let fract = if semitones_from_a4.trunc() == semitones_from_a4.round() {
-                semitones_from_a4.fract()
+            let fract = if semitones_from_reference.trunc() == semitones_from_reference.round() {
+                semitones_from_reference.fract()
             } else {
-                semitones_from_a4.fract().abs() - 1.0
+                semitones_from_reference.fract().abs() - 1.0
             };
 
             Cents::new(fract * 100.0).expect("must be in range")
@@ -66,9 +67,9 @@ impl Tuning for TwelveToneEqualTemperament {
     }
 
     fn note_to_freq_hz(&self, note: Note) -> Option<StrictlyPositiveFinite> {
-        let semitones_from_a4 = Note::A4.semitones_to(note);
+        let semitones_from_reference = self.reference.semitones_to(note);
 
-        let hz = self.a4_hz.get() * 2.0_f32.powf(semitones_from_a4.0 as f32 / 12.0);
+        let hz = self.freq_hz.get() * 2.0_f32.powf(semitones_from_reference.0 as f32 / 12.0);
 
         StrictlyPositiveFinite::new(hz).ok()
     }
@@ -76,7 +77,7 @@ impl Tuning for TwelveToneEqualTemperament {
 
 impl Default for TwelveToneEqualTemperament {
     fn default() -> Self {
-        Self::HZ_440
+        Self::A4_440
     }
 }
 
@@ -91,7 +92,7 @@ mod tests {
 
     #[test]
     fn test_tuning() {
-        let tuning = TwelveToneEqualTemperament::HZ_440;
+        let tuning = TwelveToneEqualTemperament::A4_440;
 
         // D5(-7c)
         let hz = StrictlyPositiveFinite::new(585.0).expect("valid float");

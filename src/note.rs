@@ -40,7 +40,7 @@ impl Note {
     
     // TODO: this includes spelling, when it probably shouldn't
     pub fn from_frequency_hz(hz: StrictlyPositiveFinite) -> Option<Self> {
-        TwelveToneEqualTemperament::HZ_440.freq_to_note(hz).map(|(n, _)| n)
+        TwelveToneEqualTemperament::A4_440.freq_to_note(hz).map(|(n, _)| n)
     }
 
     /*
@@ -52,7 +52,7 @@ impl Note {
             - equal temperament
     */ 
     pub fn as_frequency_hz(self) -> Option<StrictlyPositiveFinite> {
-        TwelveToneEqualTemperament::HZ_440.note_to_freq_hz(self)
+        TwelveToneEqualTemperament::A4_440.note_to_freq_hz(self)
     }
 
     pub fn transpose(self, interval: Interval) -> Self {

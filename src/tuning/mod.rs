@@ -77,7 +77,7 @@ mod tests {
     #[test]
     fn note_freq_inverses() {
         let tunings = [
-            &TwelveToneEqualTemperament::HZ_440 as &dyn Tuning,
+            &TwelveToneEqualTemperament::A4_440 as &dyn Tuning,
             &JustIntonation::HZ_440_LIMIT_5 as &dyn Tuning,
         ];
 
