@@ -3,7 +3,9 @@ use std::ops::Index;
 use const_soft_float::soft_f32::SoftF32;
 use serde::{Deserialize, Serialize};
 use typed_floats::tf32::{self, StrictlyPositiveFinite};
+use crate::note::Note;
 use crate::pitch_class::PitchClass;
+use crate::tuning::{Cents, Tuning};
 
 #[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct JustIntonation {
@@ -13,6 +15,8 @@ pub struct JustIntonation {
 
 impl JustIntonation {
     pub const HZ_440_LIMIT_5: Self = Self::new(440.0, JustIntonationRatios::LIMIT_5).expect("440 is in (0, inf)");
+
+    const REFERENCE: Note = Note::A4;
 
     pub const fn new(a4_hz: f32, ratios: JustIntonationRatios) -> Option<Self> {
         match StrictlyPositiveFinite::new(a4_hz) {
@@ -141,6 +145,28 @@ impl JustIntonationRatios {
             Some(Ordering::Greater) => Err(JustIntonationRatiosError::InvalidRatio),
             None => panic!("unreachable!: uncomparable values already handled"),
         }
+    }
+}
+
+impl Tuning for JustIntonation {
+    fn freq_to_note(&self, hz: StrictlyPositiveFinite) -> Option<(Note, Cents)> {
+        todo!()
+    }
+
+    fn note_to_freq_hz(&self, note: Note) -> Option<StrictlyPositiveFinite> {
+        let pitch_ratio = self.ratios[note.pitch.as_pitch_class()];
+
+        let a_to_c = self.ratios[Self::REFERENCE.as_pitch_class()];
+
+        let octave_diff = (note.octave - Self::REFERENCE.octave) as _;
+
+        // a4_freq * (c / a) * 2^(octave_diff) * pitch_ratio
+        let hz = self.a4_hz.get()
+            * a_to_c.recip().get()
+            * 2.0_f32.powf(octave_diff)
+            * pitch_ratio.get();
+
+        StrictlyPositiveFinite::new(hz).ok()
     }
 }
 
