@@ -7,14 +7,15 @@ mod just_intonation;
 pub use twelve_tet::*;
 pub use just_intonation::*;
 
-
+// this isn't restricted to be in [-100. 100]
+// since alternate tuning systems might have higher differences
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
-pub struct Cents(NonNaNFinite);
+pub struct Cents(pub NonNaNFinite);
 
 impl Cents {
     pub fn new(c: f32) -> Option<Self> {
         match NonNaNFinite::new(c) {
-            Ok(c) if -100.0 <= c && c <= 100.0 => Some(Self(c)),
+            Ok(c) => Some(Self(c)),
             _ => None,
         }
     }
