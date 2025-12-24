@@ -9,18 +9,18 @@ use crate::tuning::{Cents, Tuning};
 
 #[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct JustIntonation {
-    pub a4_hz: StrictlyPositiveFinite,
+    pub reference: Note,
+    pub freq_hz: StrictlyPositiveFinite,
     pub ratios: JustIntonationRatios,
 }
 
 impl JustIntonation {
-    pub const HZ_440_LIMIT_5: Self = Self::new(440.0, JustIntonationRatios::LIMIT_5).expect("440 is in (0, inf)");
+    pub const A4_440_LIMIT_5: Self = Self::new(Note::A4, 440.0, JustIntonationRatios::LIMIT_5)
+        .expect("440 is in (0, inf)");
 
-    const REFERENCE: Note = Note::A4;
-
-    pub const fn new(a4_hz: f32, ratios: JustIntonationRatios) -> Option<Self> {
-        match StrictlyPositiveFinite::new(a4_hz) {
-            Ok(a4_hz) => Some(Self { a4_hz, ratios }),
+    pub const fn new(reference: Note, freq_hz: f32, ratios: JustIntonationRatios) -> Option<Self> {
+        match StrictlyPositiveFinite::new(freq_hz) {
+            Ok(freq_hz) => Some(Self { reference, freq_hz, ratios }),
             Err(_) => None,
         }
     }
@@ -150,8 +150,8 @@ impl JustIntonationRatios {
 
 impl Tuning for JustIntonation {
     fn freq_to_note(&self, hz: StrictlyPositiveFinite) -> Option<(Note, Cents)> {
-        let a_to_c = self.ratios[Self::REFERENCE.as_pitch_class().chroma() as usize];
-        let c0_freq = self.a4_hz.get() * a_to_c.recip().get() * 2.0_f32.powf(-Self::REFERENCE.octave as _);
+        let ref_to_c = self.ratios[self.reference.as_pitch_class().chroma() as usize];
+        let c0_freq = self.freq_hz.get() * ref_to_c.recip().get() * 2.0_f32.powf(-self.reference.octave as _);
 
         let ratio_from_c0 = hz.get() / c0_freq;
         let octave = ratio_from_c0.log2().floor() as i16;
@@ -180,13 +180,13 @@ impl Tuning for JustIntonation {
     fn note_to_freq_hz(&self, note: Note) -> Option<StrictlyPositiveFinite> {
         let pitch_ratio = self.ratios[note.pitch.as_pitch_class().chroma() as usize];
 
-        let a_to_c = self.ratios[Self::REFERENCE.as_pitch_class().chroma() as usize];
+        let ref_to_c = self.ratios[self.reference.pitch.as_pitch_class().chroma() as usize];
 
-        let octave_diff = (note.octave - Self::REFERENCE.octave) as _;
+        let octave_diff = (note.octave - self.reference.octave) as _;
 
-        // a4_freq * (c / a) * 2^(octave_diff) * pitch_ratio
-        let hz = self.a4_hz.get()
-            * a_to_c.recip().get()
+        // reference_freq * (c / reference_pitch) * 2^(octave_diff) * pitch_ratio
+        let hz = self.freq_hz.get()
+            * ref_to_c.recip().get()
             * 2.0_f32.powf(octave_diff)
             * pitch_ratio.get();
 
@@ -196,7 +196,7 @@ impl Tuning for JustIntonation {
 
 impl Default for JustIntonation {
     fn default() -> Self {
-        Self::HZ_440_LIMIT_5
+        Self::A4_440_LIMIT_5
     }
 }
 
