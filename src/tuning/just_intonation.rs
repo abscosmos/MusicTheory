@@ -1,4 +1,6 @@
+use std::cmp::Ordering;
 use std::ops::Index;
+use const_soft_float::soft_f32::SoftF32;
 use serde::{Deserialize, Serialize};
 use typed_floats::tf32::{self, StrictlyPositiveFinite};
 use crate::pitch_class::PitchClass;
@@ -52,21 +54,62 @@ impl JustIntonationRatios {
         self.0
     }
 
-    /// This function should only be used to define constants!
-    const fn expect_valid(ratios: [f32; 12]) -> Self {
+    pub const fn with_ratios(
+        minor_second: f32,
+        major_second: f32,
+        minor_third: f32,
+        major_third: f32,
+        perfect_fourth: f32,
+        tritone: f32,
+        perfect_fifth: f32,
+        minor_sixth: f32,
+        major_sixth: f32,
+        minor_seventh: f32,
+        major_seventh: f32,
+    ) -> Result<Self, JustIntonationRatiosError> {
+        let ratios = [
+            1.0,
+            minor_second,
+            major_second,
+            minor_third,
+            major_third,
+            perfect_fourth,
+            tritone,
+            perfect_fifth,
+            minor_sixth,
+            major_sixth,
+            minor_seventh,
+            major_seventh,
+        ];
+
         let mut res = [tf32::MAX; 12];
 
+        // check strictly ascending
         let mut i = 0;
-        while i < 12 {
-            res[i] = match StrictlyPositiveFinite::new(ratios[i]) {
-                Ok(ratio) => ratio,
-                Err(_) => panic!("all ratios must be strictly positive and finite"),
+        while i < ratios.len() {
+            let a = SoftF32(ratios[i]);
+            let b = SoftF32(ratios[i + 1]);
+
+            if i != ratios.len() && matches!(a.cmp(b), Some(Ord::Greater | Ord::Equal)) {
+                return Err(JustIntonationRatiosError::NotStrictlyIncreasing);
+            }
+
+            // this ensures ratio is in (1.0, 2.0), complicated because of const
+            res[i] = match StrictlyPositiveFinite::new(a.0) {
+                Ok(checked) => checked,
+                _ => return Err(JustIntonationRatiosError::InvalidRatio),
             };
 
             i += 1;
         }
 
-        Self(res)
+        // instead of checking if all are in [1.0, 2.0), since already checked strictly increasing
+        // and first is 1.0, only need to check last!
+        match SoftF32(*ratios.last().expect("should have 12 elems")).cmp(SoftF32(2.0)) {
+            Some(Ordering::Less | Ordering::Equal) => Ok(Self(res)),
+            Some(Ordering::Greater) => Err(JustIntonationRatiosError::InvalidRatio),
+            None => panic!("unreachable!: uncomparable values already handled"),
+        }
     }
 }
 
