@@ -13,7 +13,7 @@ pub use just_intonation::*;
 pub struct Cents(pub NonNaNFinite);
 
 impl Cents {
-    pub fn new(c: f32) -> Option<Self> {
+    pub const fn new(c: f32) -> Option<Self> {
         match NonNaNFinite::new(c) {
             Ok(c) => Some(Self(c)),
             _ => None,
