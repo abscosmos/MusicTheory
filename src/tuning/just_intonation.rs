@@ -150,7 +150,31 @@ impl JustIntonationRatios {
 
 impl Tuning for JustIntonation {
     fn freq_to_note(&self, hz: StrictlyPositiveFinite) -> Option<(Note, Cents)> {
-        todo!()
+        let a_to_c = self.ratios[Self::REFERENCE.as_pitch_class()];
+        let c0_freq = self.a4_hz.get() * a_to_c.recip().get() * 2.0_f32.powf(-Self::REFERENCE.octave as _);
+
+        let ratio_from_c0 = hz.get() / c0_freq;
+        let octave = ratio_from_c0.log2().floor() as i16;
+        let ratio_within_octave = StrictlyPositiveFinite::new(ratio_from_c0 / 2.0_f32.powf(octave as _))
+            .expect("ratio shouldn't be negative, nan, or infinity (unless octave is very very large)");
+
+        let best_pc = (0..12)
+            .map(|c| PitchClass::from_repr(c).expect("in range"))
+            .min_by_key(|&pc| (self.ratios[pc] - ratio_within_octave).abs() )?;
+
+        let best_note = Note {
+            pitch: best_pc.into(),
+            octave,
+        };
+
+        let cents = Cents::between_frequencies(self.ratios[best_pc], ratio_within_octave)?;
+
+        debug_assert!(
+            (cents.get() - Cents::from_note(best_note, hz, self).expect("should be in range").get()).abs() < 0.001,
+            "using difference within an octave should be valid",
+        );
+
+        Some((best_note, cents))
     }
 
     fn note_to_freq_hz(&self, note: Note) -> Option<StrictlyPositiveFinite> {
