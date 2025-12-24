@@ -44,7 +44,7 @@ impl Tuning for TwelveToneEqualTemperament {
             let fract = if semitones_from_a4.trunc() == semitones_from_a4.round() {
                 semitones_from_a4.fract()
             } else {
-                semitones_from_a4.fract() - 1.0
+                semitones_from_a4.fract().abs() - 1.0
             };
 
             Cents::new(fract * 100.0).expect("must be in range")
