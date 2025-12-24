@@ -30,28 +30,41 @@ impl JustIntonationRatios {
         15.0/8.0,
     ]);
 
-    pub fn new(ratios: [StrictlyPositiveFinite; 12]) -> Result<Self, JustIntonationRatiosError> {
-        if ratios[0] != 1.0 {
+    // this calls Self::with_ratios internally for a single source of truth
+    pub const fn new(ratios: [StrictlyPositiveFinite; 12]) -> Result<Self, JustIntonationRatiosError> {
+        let [
+            unison,
+            minor_second,
+            major_second,
+            minor_third,
+            major_third,
+            perfect_fourth,
+            tritone,
+            perfect_fifth,
+            minor_sixth,
+            major_sixth,
+            minor_seventh,
+            major_seventh,
+        ] = ratios;
+
+        // if unison != 1.0 (complicated because of const)
+        if !matches!(SoftF32(unison.get()).cmp(SoftF32(1.0)), Some(Ordering::Equal)) {
             return Err(JustIntonationRatiosError::UnisonNotIdentity);
         }
 
-        if ratios.windows(2)
-            .any(|window| {
-                let &[a, b] = window else {
-                    unreachable!("window size is two");
-                };
-
-                a >= b
-            })
-        {
-            return Err(JustIntonationRatiosError::NotStrictlyIncreasing);
-        }
-
-        Ok(Self(ratios))
-    }
-
-    pub const fn as_array(self) -> [StrictlyPositiveFinite; 12] {
-        self.0
+        Self::with_ratios(
+            minor_second.get(),
+            major_second.get(),
+            minor_third.get(),
+            major_third.get(),
+            perfect_fourth.get(),
+            tritone.get(),
+            perfect_fifth.get(),
+            minor_sixth.get(),
+            major_sixth.get(),
+            minor_seventh.get(),
+            major_seventh.get(),
+        )
     }
 
     pub const fn with_ratios(
