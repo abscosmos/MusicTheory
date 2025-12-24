@@ -13,7 +13,8 @@ pub use just_intonation::*;
 pub struct Cents(pub NonNaNFinite);
 
 impl Cents {
-    pub const OCTAVE: Self = Self::new(1200.0).expect("finite float");
+    pub const SEMITONE: Self = Self::new(100.0).expect("finite float");
+    pub const OCTAVE: Self = Self::new(Self::SEMITONE.get() * 12.0).expect("finite float");
 
     pub const fn new(c: f32) -> Option<Self> {
         match NonNaNFinite::new(c) {
