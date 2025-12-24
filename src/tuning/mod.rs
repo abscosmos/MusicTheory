@@ -69,3 +69,38 @@ pub trait Tuning {
 
     fn note_to_freq_hz(&self, note: Note) -> Option<StrictlyPositiveFinite>;
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn note_freq_inverses() {
+        let tunings = [
+            &TwelveToneEqualTemperament::HZ_440 as &dyn Tuning,
+            &JustIntonation::HZ_440_LIMIT_5 as &dyn Tuning,
+        ];
+
+        for tuning in tunings {
+            for note in (0..=u8::MAX).map(Note::from_midi) {
+                let freq_hz = tuning.note_to_freq_hz(note).expect("all midi notes should be in freq range");
+
+                if note == Note::new(crate::prelude::Pitch::F, 3) {
+                    assert!(note.octave > 0);
+                }
+
+                let (calc_note, calc_cents) = tuning.freq_to_note(freq_hz).expect("all midi notes should be in freq range");
+
+                assert_eq!(
+                    note, calc_note,
+                    "tuning methods should be inverses of each other",
+                );
+
+                assert!(
+                    calc_cents.get().abs() < 1e-4,
+                    "should be exact conversion (got {calc_cents:?} for {note})",
+                );
+            }
+        }
+    }
+}
