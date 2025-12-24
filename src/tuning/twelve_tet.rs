@@ -38,7 +38,10 @@ impl Tuning for TwelveToneEqualTemperament {
             .expect("i32::rem_euclid(12) must be within [0,12)");
 
         let pitch = PitchClass::from_repr(pitch)
-            .expect("i32::rem_euclid(12) must be within [0,12)");
+            .expect("i32::rem_euclid(12) must be within [0,12)")
+            .into();
+
+        let note = Note { pitch, octave };
 
         let cents = {
             let fract = if semitones_from_a4.trunc() == semitones_from_a4.round() {
@@ -50,7 +53,16 @@ impl Tuning for TwelveToneEqualTemperament {
             Cents::new(fract * 100.0).expect("must be in range")
         };
 
-        Some(( Note { pitch: Pitch::from(pitch), octave }, cents ))
+        if cfg!(debug_assertions) {
+            let cents_exp = Cents::from_note(note, hz, self).expect("should be in range");
+
+            assert!(
+                (cents.get() - cents_exp.get()).abs() < 0.001,
+                "using fract component should be valid (fract: {cents:?}, exp: {cents_exp:?} | note: {note}, hz: {hz})",
+            );
+        }
+
+        Some((note, cents))
     }
 
     fn note_to_freq_hz(&self, note: Note) -> Option<StrictlyPositiveFinite> {
