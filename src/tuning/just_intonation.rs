@@ -11,6 +11,17 @@ pub struct JustIntonation {
     pub ratios: JustIntonationRatios,
 }
 
+impl JustIntonation {
+    pub const HZ_440_LIMIT_5: Self = Self::new(440.0, JustIntonationRatios::LIMIT_5).expect("440 is in (0, inf)");
+
+    pub const fn new(a4_hz: f32, ratios: JustIntonationRatios) -> Option<Self> {
+        match StrictlyPositiveFinite::new(a4_hz) {
+            Ok(a4_hz) => Some(Self { a4_hz, ratios }),
+            Err(_) => None,
+        }
+    }
+}
+
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
 pub struct JustIntonationRatios([StrictlyPositiveFinite; 12]);
 
