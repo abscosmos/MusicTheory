@@ -30,7 +30,7 @@ impl Tuning for TwelveToneEqualTemperament {
             return None;
         }
 
-        let semitones_from_c0 = semitones_from_reference.round() as i16 + Note::new(Pitch::C, 4).semitones_to(self.reference).0;
+        let semitones_from_c0 = semitones_from_reference.round() as i16 + Note::new(Pitch::C, 0).semitones_to(self.reference).0;
 
         let octave = semitones_from_c0.div_euclid(12);
 
