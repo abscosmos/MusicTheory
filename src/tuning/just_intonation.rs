@@ -119,7 +119,7 @@ impl JustIntonationRatios {
             let a = SoftF32(ratios[i]);
             let b = SoftF32(ratios[i + 1]);
 
-            if i != ratios.len() && matches!(a.cmp(b), Some(Ord::Greater | Ord::Equal)) {
+            if i != ratios.len() && matches!(a.cmp(b), Some(Ordering::Greater | Ordering::Equal)) {
                 return Err(JustIntonationRatiosError::NotStrictlyIncreasing);
             }
 
