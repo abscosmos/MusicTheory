@@ -79,3 +79,40 @@ impl Default for TwelveToneEqualTemperament {
         Self::HZ_440
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[inline(always)]
+    fn is_relative_eq(lhs: f32, rhs: f32, error: f32) -> bool {
+        ((lhs - rhs) / lhs).abs() < error
+    }
+
+    #[test]
+    fn test_tuning() {
+        let tuning = TwelveToneEqualTemperament::HZ_440;
+
+        // D5(-7c)
+        let hz = StrictlyPositiveFinite::new(585.0).expect("valid float");
+        let (note, cents) = tuning.freq_to_note(hz).expect("should be able to calculate");
+
+        assert_eq!(note, Note::new(Pitch::D, 5));
+
+        assert!(
+            is_relative_eq(cents.get(), -6.8803, 1e-5),
+            "got cents: {}", cents.get(),
+        );
+
+        // B2(+21c)
+        let hz = StrictlyPositiveFinite::new(125.0).expect("valid float");
+        let (note, cents) = tuning.freq_to_note(hz).expect("should be able to calculate");
+
+        assert_eq!(note, Note::new(Pitch::B, 2));
+
+        assert!(
+            is_relative_eq(cents.get(), 21.3095, 1e-5),
+            "got cents: {}", cents.get(),
+        );
+    }
+}
