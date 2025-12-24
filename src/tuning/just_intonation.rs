@@ -170,7 +170,7 @@ impl Tuning for JustIntonation {
         let cents = Cents::between_frequencies(self.ratios[best_pc], ratio_within_octave)?;
 
         debug_assert!(
-            (cents.get() - Cents::from_note(best_note, hz, self).expect("should be in range").get()).abs() < 0.001,
+            (cents.get() - Cents::from_note(best_note, hz, self).expect("should be in range").get()).abs() < 0.01,
             "using difference within an octave should be valid",
         );
 

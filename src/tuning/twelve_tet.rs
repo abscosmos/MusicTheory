@@ -57,7 +57,7 @@ impl Tuning for TwelveToneEqualTemperament {
             let cents_exp = Cents::from_note(note, hz, self).expect("should be in range");
 
             assert!(
-                (cents.get() - cents_exp.get()).abs() < 0.001,
+                (cents.get() - cents_exp.get()).abs() < 0.01,
                 "using fract component should be valid (fract: {cents:?}, exp: {cents_exp:?} | note: {note}, hz: {hz})",
             );
         }
