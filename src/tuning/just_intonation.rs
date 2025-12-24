@@ -76,6 +76,8 @@ pub enum JustIntonationRatiosError {
     UnisonNotIdentity,
     #[error("Ratios must be strictly increasing order")]
     NotStrictlyIncreasing,
+    #[error("The ratios were not in range [1.0, 2.0)")]
+    InvalidRatio,
 }
 
 impl Index<PitchClass> for JustIntonationRatios {
