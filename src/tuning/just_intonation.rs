@@ -116,15 +116,17 @@ impl JustIntonationRatios {
         // check strictly ascending
         let mut i = 0;
         while i < ratios.len() {
-            let a = SoftF32(ratios[i]);
-            let b = SoftF32(ratios[i + 1]);
-
-            if i != ratios.len() && matches!(a.cmp(b), Some(Ordering::Greater | Ordering::Equal)) {
+            if i + 1 != ratios.len() &&
+                matches!(
+                    SoftF32(ratios[i]).cmp(SoftF32(ratios[i + 1])),
+                    Some(Ordering::Greater | Ordering::Equal),
+                )
+            {
                 return Err(JustIntonationRatiosError::NotStrictlyIncreasing);
             }
 
             // this ensures ratio is in (1.0, 2.0), complicated because of const
-            res[i] = match StrictlyPositiveFinite::new(a.0) {
+            res[i] = match StrictlyPositiveFinite::new(ratios[i]) {
                 Ok(checked) => checked,
                 _ => return Err(JustIntonationRatiosError::InvalidRatio),
             };
