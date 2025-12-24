@@ -150,7 +150,7 @@ impl JustIntonationRatios {
 
 impl Tuning for JustIntonation {
     fn freq_to_note(&self, hz: StrictlyPositiveFinite) -> Option<(Note, Cents)> {
-        let a_to_c = self.ratios[Self::REFERENCE.as_pitch_class()];
+        let a_to_c = self.ratios[Self::REFERENCE.as_pitch_class().chroma() as usize];
         let c0_freq = self.a4_hz.get() * a_to_c.recip().get() * 2.0_f32.powf(-Self::REFERENCE.octave as _);
 
         let ratio_from_c0 = hz.get() / c0_freq;
@@ -160,14 +160,14 @@ impl Tuning for JustIntonation {
 
         let best_pc = (0..12)
             .map(|c| PitchClass::from_repr(c).expect("in range"))
-            .min_by_key(|&pc| (self.ratios[pc] - ratio_within_octave).abs() )?;
+            .min_by_key(|&pc| (self.ratios[pc.chroma() as usize] - ratio_within_octave).abs() )?;
 
         let best_note = Note {
             pitch: best_pc.into(),
             octave,
         };
 
-        let cents = Cents::between_frequencies(self.ratios[best_pc], ratio_within_octave)?;
+        let cents = Cents::between_frequencies(self.ratios[best_pc.chroma() as usize], ratio_within_octave)?;
 
         debug_assert!(
             (cents.get() - Cents::from_note(best_note, hz, self).expect("should be in range").get()).abs() < 0.01,
@@ -178,9 +178,9 @@ impl Tuning for JustIntonation {
     }
 
     fn note_to_freq_hz(&self, note: Note) -> Option<StrictlyPositiveFinite> {
-        let pitch_ratio = self.ratios[note.pitch.as_pitch_class()];
+        let pitch_ratio = self.ratios[note.pitch.as_pitch_class().chroma() as usize];
 
-        let a_to_c = self.ratios[Self::REFERENCE.as_pitch_class()];
+        let a_to_c = self.ratios[Self::REFERENCE.as_pitch_class().chroma() as usize];
 
         let octave_diff = (note.octave - Self::REFERENCE.octave) as _;
 
@@ -210,10 +210,10 @@ pub enum JustIntonationRatiosError {
     InvalidRatio,
 }
 
-impl Index<PitchClass> for JustIntonationRatios {
+impl Index<usize> for JustIntonationRatios {
     type Output = StrictlyPositiveFinite;
 
-    fn index(&self, index: PitchClass) -> &Self::Output {
-        self.0.get(index.chroma() as usize).expect("PitchClass::chroma is in [0,12)")
+    fn index(&self, index: usize) -> &Self::Output {
+        self.0.index(index)
     }
 }
