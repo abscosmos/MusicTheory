@@ -54,6 +54,14 @@ impl Cents {
             Self::OCTAVE.0 * (target / reference).log2()
         )
     }
+
+    pub fn from_note(reference: Note, target: StrictlyPositiveFinite, tuning: &impl Tuning) -> Option<Self> {
+        Self::between_frequencies(tuning.note_to_freq_hz(reference)?, target)
+    }
+
+    pub fn between_notes(lhs: Note, rhs: Note, tuning: &impl Tuning) -> Option<Self> {
+        Self::from_note(lhs, tuning.note_to_freq_hz(rhs)?, tuning)
+    }
 }
 
 pub trait Tuning {
