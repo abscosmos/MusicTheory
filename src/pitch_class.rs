@@ -60,6 +60,19 @@ impl PitchClass {
         *self as u8
     }
 
+    /// Returns how many semitones `rhs` is from `self`. Always positive, in `[0,11]`.
+    /// # Examples
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// assert_eq!(PitchClass::C.semitones_to(PitchClass::E), Semitone(4));
+    /// assert_eq!(PitchClass::Fs.semitones_to(PitchClass::B), Semitone(5));
+    /// // Wraps around the octave
+    /// assert_eq!(PitchClass::B.semitones_to(PitchClass::D), Semitone(3));
+    /// ```
+    pub fn semitones_to(self, rhs: Self) -> Semitone {
+        Semitone((rhs.chroma() as i16 - self.chroma() as i16).rem_euclid(12))
+    }
+
     // TODO: better name?
     pub fn bias(&self, sharp: bool) -> Pitch {
         if self.accidental() == AccidentalSign::NATURAL || sharp {
