@@ -16,13 +16,19 @@ pub struct RatioBasedTuning {
 }
 
 impl RatioBasedTuning {
-    pub const DEFAULT_JUST_INTONATION: Self = Self::new(Note::A4, 440.0, OctaveRatios::JUST_INTONATION_LIMIT_5, PitchClass::C)
-        .expect("440 is in (0, inf)");
+    pub const DEFAULT_JUST_INTONATION: Self = Self::a4_440hz(OctaveRatios::JUST_INTONATION_LIMIT_5, PitchClass::C);
 
     pub const fn new(reference: Note, freq_hz: f32, ratios: OctaveRatios, ratios_base: PitchClass) -> Option<Self> {
         match StrictlyPositiveFinite::new(freq_hz) {
             Ok(freq_hz) => Some(Self { reference, freq_hz, ratios, ratios_base }),
             Err(_) => None,
+        }
+    }
+
+    pub const fn a4_440hz(ratios: OctaveRatios, ratios_base: PitchClass) -> Self {
+        match Self::new(Note::A4, 440.0, ratios, ratios_base) {
+            Some(tuning) => tuning,
+            None => panic!("unreachable!: 440 in range (0, inf)"),
         }
     }
 
