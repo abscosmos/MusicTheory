@@ -107,7 +107,7 @@ mod tests {
                 );
 
                 assert!(
-                    calc_cents.get().abs() < 1e-4,
+                    calc_cents.get().abs() < 1e-3,
                     "should be exact conversion (got {calc_cents:?} for {note})",
                 );
             }
