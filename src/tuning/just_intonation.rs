@@ -217,3 +217,34 @@ impl Index<usize> for JustIntonationRatios {
         self.0.index(index)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::pitch::Pitch;
+
+    /// This test does not check that the returned frequencies are "correct",
+    /// as I cannot find a reliable source of note to freq conversions for
+    /// any sort of just intonation tuning.
+    ///
+    /// This simply tests that, between changes in implementation, the results are still the same.
+    #[test]
+    fn consistent_freq_to_hz() {
+        let cases = [
+            (Note::new(Pitch::A_SHARP, 1), 59.399998),
+            (Note::new(Pitch::B, 2), 123.75),
+            (Note::new(Pitch::C, 4), 264.0),
+            (Note::new(Pitch::F_SHARP, 5), 742.5),
+            (Note::new(Pitch::E, 12), 84480.0),
+            (Note::new(Pitch::C_SHARP, 18), 4613734.5),
+        ];
+
+        let tuning = JustIntonation::A4_440_LIMIT_5;
+
+        for (note, hz) in cases {
+            let hz = StrictlyPositiveFinite::new(hz).expect("hz in range");
+
+            assert_eq!(tuning.note_to_freq_hz(note), Some(hz));
+        }
+    }
+}
