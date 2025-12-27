@@ -308,7 +308,7 @@ mod tests {
 
         for note in (u8::MIN..=u8::MAX).map(Note::from_midi) {
             let hz_eq_temp = tuning_eq_temp.note_to_freq_hz(note).expect("should return some for all MIDI notes");
-            let hz_ratios = tuning_ratios.note_to_freq_hz(note).expect("should return some for all MIDI notes");;
+            let hz_ratios = tuning_ratios.note_to_freq_hz(note).expect("should return some for all MIDI notes");
 
             let abs_diff = (hz_eq_temp - hz_ratios).abs();
 
