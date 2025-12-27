@@ -39,8 +39,11 @@ impl RatioBasedTuning {
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
 pub struct OctaveRatios([StrictlyPositiveFinite; 12]);
 
+// TODO: handle different ratios between A4 & d5
 impl OctaveRatios {
     // TODO: constants are defined like this since neither Result::ok nor Result::expect are const yet
+
+    // this interprets an interval of 6 semitones (tritone) as an A4
     pub const JUST_INTONATION_LIMIT_5: Self = {
         let Ok(ratios) = Self::with_ratios(
             16.0/15.0,
