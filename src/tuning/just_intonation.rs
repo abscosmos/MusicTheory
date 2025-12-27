@@ -300,4 +300,22 @@ mod tests {
             assert_eq!(tuning.note_to_freq_hz(note), Some(hz));
         }
     }
+
+    #[test]
+    fn twelve_tet_ratios() {
+        let tuning_eq_temp = TwelveToneEqualTemperament::A4_440;
+        let tuning_ratios = JustIntonation::from_twelve_tet(tuning_eq_temp);
+
+        for note in (u8::MIN..=u8::MAX).map(Note::from_midi) {
+            let hz_eq_temp = tuning_eq_temp.note_to_freq_hz(note).expect("should return some for all MIDI notes");
+            let hz_ratios = tuning_ratios.note_to_freq_hz(note).expect("should return some for all MIDI notes");;
+
+            let abs_diff = (hz_eq_temp - hz_ratios).abs();
+
+            assert!(
+                (abs_diff / hz_eq_temp).get() < 1e-6,
+                "calculating freq using precomputed ratios should give same answer; failed: {note}, eq_temp: {hz_eq_temp}, ratios: {hz_ratios}, diff: {abs_diff}",
+            );
+        }
+    }
 }
