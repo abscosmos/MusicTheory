@@ -16,7 +16,7 @@ pub struct RatioBasedTuning {
 }
 
 impl RatioBasedTuning {
-    pub const A4_440_LIMIT_5: Self = Self::new(Note::A4, 440.0, OctaveRatios::LIMIT_5, PitchClass::C)
+    pub const DEFAULT_JUST_INTONATION: Self = Self::new(Note::A4, 440.0, OctaveRatios::JUST_INTONATION_LIMIT_5, PitchClass::C)
         .expect("440 is in (0, inf)");
 
     pub const fn new(reference: Note, freq_hz: f32, ratios: OctaveRatios, base: PitchClass) -> Option<Self> {
@@ -40,7 +40,7 @@ impl RatioBasedTuning {
 pub struct OctaveRatios([StrictlyPositiveFinite; 12]);
 
 impl OctaveRatios {
-    pub const LIMIT_5: Self = {
+    pub const JUST_INTONATION_LIMIT_5: Self = {
         let Ok(ratios) = Self::with_ratios(
             16.0/15.0,
             9.0/8.0,
@@ -249,7 +249,7 @@ impl Tuning for RatioBasedTuning {
 
 impl Default for RatioBasedTuning {
     fn default() -> Self {
-        Self::A4_440_LIMIT_5
+        Self::DEFAULT_JUST_INTONATION
     }
 }
 
@@ -292,7 +292,7 @@ mod tests {
             (Note::new(Pitch::C_SHARP, 18), 4613734.5),
         ];
 
-        let tuning = RatioBasedTuning::A4_440_LIMIT_5;
+        let tuning = RatioBasedTuning::DEFAULT_JUST_INTONATION;
 
         for (note, hz) in cases {
             let hz = StrictlyPositiveFinite::new(hz).expect("hz in range");
