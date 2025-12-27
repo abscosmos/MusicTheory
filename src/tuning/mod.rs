@@ -7,6 +7,16 @@ mod ratio_based;
 pub use twelve_tet::*;
 pub use ratio_based::*;
 
+/*
+    There's two reasons TwelveToneEqualTemperament exists when it could be represented by RatioBased.
+        1. When calculating cents (given by Tuning::freq_to_note), TwelveToneEqualTemperament,
+           which internally uses the fractional component after taking the logarithm, is slightly
+           more accurate, getting ~2 more (base-10) digits of accuracy.
+        2. Much less importantly, in micro-benchmarks, while converting from frequency -> note is
+           very similar for both TwelveToneEqualTemperament and RatioBased, TwelveToneEqualTemperament
+           is slightly faster (2.1871µs vs 2.8318µs).
+*/
+
 // this isn't restricted to be in [-100. 100]
 // since alternate tuning systems might have higher differences
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
