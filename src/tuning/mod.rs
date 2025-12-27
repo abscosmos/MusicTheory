@@ -3,9 +3,9 @@ use crate::note::Note;
 use typed_floats::tf32::{StrictlyPositiveFinite, NonNaNFinite};
 
 mod twelve_tet;
-mod just_intonation;
+mod ratio_based;
 pub use twelve_tet::*;
-pub use just_intonation::*;
+pub use ratio_based::*;
 
 // this isn't restricted to be in [-100. 100]
 // since alternate tuning systems might have higher differences
@@ -78,7 +78,7 @@ mod tests {
     fn note_freq_inverses() {
         let tunings = [
             &TwelveToneEqualTemperament::A4_440 as &dyn Tuning,
-            &JustIntonation::A4_440_LIMIT_5 as &dyn Tuning,
+            &RatioBasedTuning::A4_440_LIMIT_5 as &dyn Tuning,
         ];
 
         for tuning in tunings {

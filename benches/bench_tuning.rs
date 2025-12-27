@@ -1,7 +1,7 @@
 use std::hint::black_box;
 use criterion::{criterion_group, criterion_main, Criterion};
 use music_theory::note::Note;
-use music_theory::tuning::{JustIntonation, Tuning, TwelveToneEqualTemperament};
+use music_theory::tuning::{RatioBasedTuning, Tuning, TwelveToneEqualTemperament};
 
 fn twelve_tet_tuning(c: &mut Criterion) {
     let mut g = c.benchmark_group("12TET, note to freq");
@@ -10,7 +10,7 @@ fn twelve_tet_tuning(c: &mut Criterion) {
     let notes = (u8::MIN..=u8::MAX).map(Note::from_midi).collect::<Vec<_>>();
 
     let tuning_eq_temp = TwelveToneEqualTemperament::A4_440;
-    let tuning_ratios = JustIntonation::from_twelve_tet(tuning_eq_temp);
+    let tuning_ratios = RatioBasedTuning::from_twelve_tet(tuning_eq_temp);
 
     g.bench_function("original", |b| b.iter(|| {
         for note in &notes {

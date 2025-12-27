@@ -8,14 +8,14 @@ use crate::pitch_class::PitchClass;
 use crate::tuning::{Cents, Tuning, TwelveToneEqualTemperament};
 
 #[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct JustIntonation {
+pub struct RatioBasedTuning {
     pub reference: Note,
     pub freq_hz: StrictlyPositiveFinite,
     pub ratios: OctaveRatios,
     pub ratios_base: PitchClass,
 }
 
-impl JustIntonation {
+impl RatioBasedTuning {
     pub const A4_440_LIMIT_5: Self = Self::new(Note::A4, 440.0, OctaveRatios::LIMIT_5, PitchClass::C)
         .expect("440 is in (0, inf)");
 
@@ -194,7 +194,7 @@ impl OctaveRatios {
     }
 }
 
-impl Tuning for JustIntonation {
+impl Tuning for RatioBasedTuning {
     fn freq_to_note(&self, hz: StrictlyPositiveFinite) -> Option<(Note, Cents)> {
         let ref_offset = self.ratios_base.semitones_to(self.reference.as_pitch_class()).0 as usize;
         let ref_to_base = self.ratios[ref_offset];
@@ -247,7 +247,7 @@ impl Tuning for JustIntonation {
     }
 }
 
-impl Default for JustIntonation {
+impl Default for RatioBasedTuning {
     fn default() -> Self {
         Self::A4_440_LIMIT_5
     }
@@ -292,7 +292,7 @@ mod tests {
             (Note::new(Pitch::C_SHARP, 18), 4613734.5),
         ];
 
-        let tuning = JustIntonation::A4_440_LIMIT_5;
+        let tuning = RatioBasedTuning::A4_440_LIMIT_5;
 
         for (note, hz) in cases {
             let hz = StrictlyPositiveFinite::new(hz).expect("hz in range");
@@ -304,7 +304,7 @@ mod tests {
     #[test]
     fn twelve_tet_ratios() {
         let tuning_eq_temp = TwelveToneEqualTemperament::A4_440;
-        let tuning_ratios = JustIntonation::from_twelve_tet(tuning_eq_temp);
+        let tuning_ratios = RatioBasedTuning::from_twelve_tet(tuning_eq_temp);
 
         for note in (u8::MIN..=u8::MAX).map(Note::from_midi) {
             let hz_eq_temp = tuning_eq_temp.note_to_freq_hz(note).expect("should return some for all MIDI notes");
