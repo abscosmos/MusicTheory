@@ -40,6 +40,7 @@ impl RatioBasedTuning {
 pub struct OctaveRatios([StrictlyPositiveFinite; 12]);
 
 impl OctaveRatios {
+    // TODO: constants are defined like this since neither Result::ok nor Result::expect are const yet
     pub const JUST_INTONATION_LIMIT_5: Self = {
         let Ok(ratios) = Self::with_ratios(
             16.0/15.0,
