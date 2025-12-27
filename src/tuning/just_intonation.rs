@@ -220,8 +220,8 @@ impl Tuning for JustIntonation {
         let best_offset = self.base.semitones_to(best_pc).0 as usize;
         let cents = Cents::between_frequencies(self.ratios[best_offset], ratio_within_octave)?;
 
-        debug_assert!(
-            (cents.get() - Cents::from_note(best_note, hz, self).expect("should be in range").get()).abs() < 0.01,
+        debug_assert_eq!(
+            cents.get(), Cents::from_note(best_note, hz, self).expect("should be in range").get(),
             "using difference within an octave should be valid",
         );
 
