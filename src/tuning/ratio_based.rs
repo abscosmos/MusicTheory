@@ -71,6 +71,27 @@ impl OctaveRatios {
     };
 
     // this interprets an interval of 6 semitones (tritone) as a d5
+    pub const JUST_INTONATION_LIMIT_7: Self = {
+        let Ok(ratios) = Self::with_ratios(
+            15.0 / 14.0,
+            8.0 / 7.0,
+            6.0 / 5.0,
+            5.0 / 4.0,
+            4.0 / 3.0,
+            10.0 / 7.0,
+            3.0 / 2.0,
+            8.0 / 5.0,
+            5.0 / 3.0,
+            7.0 / 4.0,
+            15.0 / 8.0,
+        ) else {
+            panic!("unreachable!: should be valid ratios");
+        };
+
+        ratios
+    };
+
+    // this interprets an interval of 6 semitones (tritone) as a d5
     pub const PYTHAGOREAN: Self = {
         let Ok(ratios) = Self::with_ratios(
             256.0/243.0,
