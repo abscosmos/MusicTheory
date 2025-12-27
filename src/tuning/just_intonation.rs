@@ -51,6 +51,43 @@ impl JustIntonationRatios {
         ratios
     };
 
+    pub const TWELVE_TET: Self = {
+        // 2^(1/12), can't calculate const so hardcoded
+        const SPACING: SoftF32 = SoftF32(1.0594630943);
+
+        let Ok(one) = StrictlyPositiveFinite::new(1.0) else {
+            panic!("unreachable!: 1.0 in (0, inf)");
+        };
+
+        let mut ratios = [one; 12];
+
+        let mut i = 1;
+
+        while i < ratios.len() {
+            let soft_next = SoftF32(ratios[i - 1].get()).mul(SPACING);
+
+            ratios[i] = match StrictlyPositiveFinite::new(soft_next.0) {
+                Ok(next) => next,
+                _ => panic!("unreachable!: must be within (0, inf)")
+            };
+
+            i += 1;
+        }
+
+        let octave = SoftF32(ratios[11].get()).mul(SPACING);
+
+        assert!(
+            matches!(octave.sub(SoftF32(2.0)).cmp(SoftF32(1e-5)), Some(Ordering::Less)),
+            "should equal two at the end"
+        );
+
+        let Ok(ratios) = Self::new(ratios) else {
+            panic!("ratios should be monotonically increasing, and in [1, 2)");
+        };
+
+        ratios
+    };
+
     // this calls Self::with_ratios internally for a single source of truth
     pub const fn new(ratios: [StrictlyPositiveFinite; 12]) -> Result<Self, JustIntonationRatiosError> {
         let [
