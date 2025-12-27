@@ -43,7 +43,7 @@ pub struct OctaveRatios([StrictlyPositiveFinite; 12]);
 impl OctaveRatios {
     // TODO: constants are defined like this since neither Result::ok nor Result::expect are const yet
 
-    // this interprets an interval of 6 semitones (tritone) as an A4
+    // this interprets an interval of 6 semitones (tritone) as a d5
     pub const JUST_INTONATION_LIMIT_5: Self = {
         let Ok(ratios) = Self::with_ratios(
             16.0/15.0,
@@ -51,7 +51,7 @@ impl OctaveRatios {
             6.0/5.0,
             5.0/4.0,
             4.0/3.0,
-            45.0/32.0,
+            64.0/45.0,
             3.0/2.0,
             8.0/5.0,
             5.0/3.0,
