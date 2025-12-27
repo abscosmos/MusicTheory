@@ -12,15 +12,16 @@ pub struct JustIntonation {
     pub reference: Note,
     pub freq_hz: StrictlyPositiveFinite,
     pub ratios: JustIntonationRatios,
+    pub base: PitchClass,
 }
 
 impl JustIntonation {
-    pub const A4_440_LIMIT_5: Self = Self::new(Note::A4, 440.0, JustIntonationRatios::LIMIT_5)
+    pub const A4_440_LIMIT_5: Self = Self::new(Note::A4, 440.0, JustIntonationRatios::LIMIT_5, PitchClass::C)
         .expect("440 is in (0, inf)");
 
-    pub const fn new(reference: Note, freq_hz: f32, ratios: JustIntonationRatios) -> Option<Self> {
+    pub const fn new(reference: Note, freq_hz: f32, ratios: JustIntonationRatios, base: PitchClass) -> Option<Self> {
         match StrictlyPositiveFinite::new(freq_hz) {
-            Ok(freq_hz) => Some(Self { reference, freq_hz, ratios }),
+            Ok(freq_hz) => Some(Self { reference, freq_hz, ratios, base }),
             Err(_) => None,
         }
     }
@@ -149,24 +150,29 @@ impl JustIntonationRatios {
 
 impl Tuning for JustIntonation {
     fn freq_to_note(&self, hz: StrictlyPositiveFinite) -> Option<(Note, Cents)> {
-        let ref_to_c = self.ratios[self.reference.as_pitch_class().chroma() as usize];
-        let c0_freq = self.freq_hz.get() * ref_to_c.recip().get() * 2.0_f32.powf(-self.reference.octave as _);
+        let ref_offset = self.base.semitones_to(self.reference.as_pitch_class()).0 as usize;
+        let ref_to_base = self.ratios[ref_offset];
+        let base0_freq = self.freq_hz.get() * ref_to_base.recip().get() * 2.0_f32.powf(-self.reference.octave as _);
 
-        let ratio_from_c0 = hz.get() / c0_freq;
-        let octave = ratio_from_c0.log2().floor() as i16;
-        let ratio_within_octave = StrictlyPositiveFinite::new(ratio_from_c0 / 2.0_f32.powf(octave as _))
+        let ratio_from_base0 = hz.get() / base0_freq;
+        let octave = ratio_from_base0.log2().floor() as i16;
+        let ratio_within_octave = StrictlyPositiveFinite::new(ratio_from_base0 / 2.0_f32.powf(octave as _))
             .expect("ratio shouldn't be negative, nan, or infinity (unless octave is very very large)");
 
         let best_pc = (0..12)
             .map(|c| PitchClass::from_repr(c).expect("in range"))
-            .min_by_key(|&pc| (self.ratios[pc.chroma() as usize] - ratio_within_octave).abs() )?;
+            .min_by_key(|&pc| {
+                let offset = self.base.semitones_to(pc).0 as usize;
+                (self.ratios[offset] - ratio_within_octave).abs()
+            })?;
 
         let best_note = Note {
             pitch: best_pc.into(),
             octave,
         };
 
-        let cents = Cents::between_frequencies(self.ratios[best_pc.chroma() as usize], ratio_within_octave)?;
+        let best_offset = self.base.semitones_to(best_pc).0 as usize;
+        let cents = Cents::between_frequencies(self.ratios[best_offset], ratio_within_octave)?;
 
         debug_assert!(
             (cents.get() - Cents::from_note(best_note, hz, self).expect("should be in range").get()).abs() < 0.01,
@@ -177,15 +183,17 @@ impl Tuning for JustIntonation {
     }
 
     fn note_to_freq_hz(&self, note: Note) -> Option<StrictlyPositiveFinite> {
-        let pitch_ratio = self.ratios[note.pitch.as_pitch_class().chroma() as usize];
+        let pitch_offset = self.base.semitones_to(note.pitch.as_pitch_class()).0 as usize;
+        let pitch_ratio = self.ratios[pitch_offset];
 
-        let ref_to_c = self.ratios[self.reference.pitch.as_pitch_class().chroma() as usize];
+        let ref_offset = self.base.semitones_to(self.reference.pitch.as_pitch_class()).0 as usize;
+        let ref_to_base = self.ratios[ref_offset];
 
         let octave_diff = (note.octave - self.reference.octave) as _;
 
-        // reference_freq * (c / reference_pitch) * 2^(octave_diff) * pitch_ratio
+        // reference_freq * (base / reference_pitch) * 2^(octave_diff) * pitch_ratio
         let hz = self.freq_hz.get()
-            * ref_to_c.recip().get()
+            * ref_to_base.recip().get()
             * 2.0_f32.powf(octave_diff)
             * pitch_ratio.get();
 
