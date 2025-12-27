@@ -91,6 +91,28 @@ impl OctaveRatios {
         ratios
     };
 
+    // this interprets an interval of 6 semitones (tritone) as a d5
+    // TODO: this can be calculate with a formula: https://en.wikipedia.org/wiki/Quarter-comma_meantone#12-tone_scale
+    pub const QUARTER_COMMA_MEANTONE: Self = {
+        let Ok(ratios) = Self::with_ratios(
+            1.06998448796,
+            1.11803398875,
+            1.19627902498,
+            1.25,
+            1.33748060995,
+            1.4310835056,
+            1.49534878122,
+            1.6,
+            1.67185076244,
+            1.788854382,
+            1.86918597653,
+        ) else {
+            panic!("unreachable!: should be valid ratios");
+        };
+
+        ratios
+    };
+
     pub const TWELVE_TET: Self = {
         // 2^(1/12), can't calculate const so hardcoded
         const SPACING: SoftF32 = SoftF32(1.0594630943);
