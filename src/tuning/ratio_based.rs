@@ -113,6 +113,100 @@ impl OctaveRatios {
         ratios
     };
 
+    pub const WERCKMEISTER_I: Self = {
+        const SQRT_2: f32 = std::f32::consts::SQRT_2;
+        const TWO_4TH_ROOT: f32 = 1.18920711500272106671750;
+
+        let Ok(ratios) = Self::with_ratios(
+            256.0 / 243.0,
+            64.0 / 81.0 * SQRT_2,
+            32.0 / 27.0,
+            256.0 / 243.0 * TWO_4TH_ROOT,
+            4.0 / 3.0,
+            1024.0 / 729.0,
+            8.0 / 9.0 * TWO_4TH_ROOT * TWO_4TH_ROOT * TWO_4TH_ROOT,
+            128.0 / 81.0,
+            1024.0 / 729.0 * TWO_4TH_ROOT,
+            16.0 / 9.0,
+            128.0 / 81.0 * TWO_4TH_ROOT,
+        ) else {
+            panic!("unreachable!: should be valid ratios");
+        };
+
+        ratios
+    };
+
+    pub const WERCKMEISTER_II: Self = {
+        const CUBE_ROOT_2: f32 = 1.25992104989487316476721;
+        const CUBE_ROOT_4: f32 = 1.58740105196819947475171;
+
+        let Ok(ratios) = Self::with_ratios(
+            16384.0 / 19683.0 * CUBE_ROOT_2,
+            8.0 / 9.0 * CUBE_ROOT_2,
+            32.0 / 27.0,
+            64.0 / 81.0 * CUBE_ROOT_4,
+            4.0 / 3.0,
+            1024.0 / 729.0,
+            32.0 / 27.0 * CUBE_ROOT_2,
+            8192.0 / 6561.0 * CUBE_ROOT_2,
+            256.0 / 243.0 * CUBE_ROOT_4,
+            9.0 / (4.0 * CUBE_ROOT_2),
+            4096.0 / 2187.0,
+        ) else {
+            panic!("unreachable!: should be valid ratios");
+        };
+
+        ratios
+    };
+
+    pub const WERCKMEISTER_III: Self = {
+        const TWO_4TH_ROOT: f32 = 1.18920711500272106671750;
+        const SQRT_2: f32 = std::f32::consts::SQRT_2;
+        const EIGHT_4TH_ROOT: f32 = 1.68179283050742908606225;
+
+        let Ok(ratios) = Self::with_ratios(
+            8.0 / 9.0 * TWO_4TH_ROOT,
+            9.0 / 8.0,
+            1.0 * TWO_4TH_ROOT,
+            8.0 / 9.0 * SQRT_2,
+            9.0 / 8.0 * TWO_4TH_ROOT,
+            1.0 * SQRT_2,
+            3.0 / 2.0,
+            128.0 / 81.0,
+            1.0 * EIGHT_4TH_ROOT,
+            3.0 / EIGHT_4TH_ROOT,
+            4.0 / 3.0 * SQRT_2,
+        ) else {
+            panic!("unreachable!: should be valid ratios");
+        };
+
+        ratios
+    };
+
+    /// This has the 2 semitone interval at ratio of 28/25, not 49/44 as originally written,
+    /// as the value written by Werckmeister [might be incorrect][wikipedia].
+    ///
+    /// [wikipedia]: https://en.wikipedia.org/wiki/Werckmeister_temperament#Werckmeister_IV_(VI):_the_Septenarius_tunings
+    pub const WERCKMEISTER_IV: Self = {
+        let Ok(ratios) = Self::with_ratios(
+            98.0 / 93.0,
+            28.0 / 25.0,
+            196.0 / 165.0,
+            49.0 / 39.0,
+            4.0 / 3.0,
+            196.0 / 139.0,
+            196.0 / 131.0,
+            49.0 / 31.0,
+            196.0 / 117.0,
+            98.0 / 55.0,
+            49.0 / 26.0,
+        ) else {
+            panic!("unreachable!: should be valid ratios");
+        };
+
+        ratios
+    };
+
     pub const TWELVE_TET: Self = {
         // 2^(1/12), can't calculate const so hardcoded
         const SPACING: SoftF32 = SoftF32(1.0594630943);
