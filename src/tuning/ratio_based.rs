@@ -70,6 +70,27 @@ impl OctaveRatios {
         ratios
     };
 
+    // this interprets an interval of 6 semitones (tritone) as a d5
+    pub const PYTHAGOREAN: Self = {
+        let Ok(ratios) = Self::with_ratios(
+            256.0/243.0,
+            9.0/8.0,
+            32.0/27.0,
+            81.0/64.0,
+            4.0/3.0,
+            1024.0/729.0,
+            3.0/2.0,
+            128.0/81.0,
+            27.0/16.0,
+            16.0/9.0,
+            243.0/128.0,
+        ) else {
+            panic!("unreachable!: should be valid ratios");
+        };
+
+        ratios
+    };
+
     pub const TWELVE_TET: Self = {
         // 2^(1/12), can't calculate const so hardcoded
         const SPACING: SoftF32 = SoftF32(1.0594630943);
