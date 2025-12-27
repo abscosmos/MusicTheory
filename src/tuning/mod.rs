@@ -14,7 +14,7 @@ pub use ratio_based::*;
            more accurate, getting ~2 more (base-10) digits of accuracy.
         2. Much less importantly, in micro-benchmarks, while converting from frequency -> note is
            very similar for both TwelveToneEqualTemperament and RatioBased, TwelveToneEqualTemperament
-           is slightly faster (2.1871µs vs 2.8318µs).
+           is slightly faster at converting note -> frequency (2.1871µs vs 2.8318µs).
 */
 
 // this isn't restricted to be in [-100, 100]
