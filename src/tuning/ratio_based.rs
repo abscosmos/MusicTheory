@@ -19,9 +19,9 @@ impl RatioBasedTuning {
     pub const DEFAULT_JUST_INTONATION: Self = Self::new(Note::A4, 440.0, OctaveRatios::JUST_INTONATION_LIMIT_5, PitchClass::C)
         .expect("440 is in (0, inf)");
 
-    pub const fn new(reference: Note, freq_hz: f32, ratios: OctaveRatios, base: PitchClass) -> Option<Self> {
+    pub const fn new(reference: Note, freq_hz: f32, ratios: OctaveRatios, ratios_base: PitchClass) -> Option<Self> {
         match StrictlyPositiveFinite::new(freq_hz) {
-            Ok(freq_hz) => Some(Self { reference, freq_hz, ratios, ratios_base: base }),
+            Ok(freq_hz) => Some(Self { reference, freq_hz, ratios, ratios_base }),
             Err(_) => None,
         }
     }
