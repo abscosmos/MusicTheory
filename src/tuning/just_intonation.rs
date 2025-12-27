@@ -11,15 +11,15 @@ use crate::tuning::{Cents, Tuning, TwelveToneEqualTemperament};
 pub struct JustIntonation {
     pub reference: Note,
     pub freq_hz: StrictlyPositiveFinite,
-    pub ratios: JustIntonationRatios,
+    pub ratios: OctaveRatios,
     pub base: PitchClass,
 }
 
 impl JustIntonation {
-    pub const A4_440_LIMIT_5: Self = Self::new(Note::A4, 440.0, JustIntonationRatios::LIMIT_5, PitchClass::C)
+    pub const A4_440_LIMIT_5: Self = Self::new(Note::A4, 440.0, OctaveRatios::LIMIT_5, PitchClass::C)
         .expect("440 is in (0, inf)");
 
-    pub const fn new(reference: Note, freq_hz: f32, ratios: JustIntonationRatios, base: PitchClass) -> Option<Self> {
+    pub const fn new(reference: Note, freq_hz: f32, ratios: OctaveRatios, base: PitchClass) -> Option<Self> {
         match StrictlyPositiveFinite::new(freq_hz) {
             Ok(freq_hz) => Some(Self { reference, freq_hz, ratios, base }),
             Err(_) => None,
@@ -30,16 +30,16 @@ impl JustIntonation {
         Self {
             reference: twelve_tet.reference,
             freq_hz: twelve_tet.freq_hz,
-            ratios: JustIntonationRatios::TWELVE_TET,
+            ratios: OctaveRatios::TWELVE_TET,
             base: PitchClass::C, // doesn't matter, theoretically
         }
     }
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
-pub struct JustIntonationRatios([StrictlyPositiveFinite; 12]);
+pub struct OctaveRatios([StrictlyPositiveFinite; 12]);
 
-impl JustIntonationRatios {
+impl OctaveRatios {
     pub const LIMIT_5: Self = {
         let Ok(ratios) = Self::with_ratios(
             16.0/15.0,
@@ -263,7 +263,7 @@ pub enum JustIntonationRatiosError {
     InvalidRatio,
 }
 
-impl Index<usize> for JustIntonationRatios {
+impl Index<usize> for OctaveRatios {
     type Output = StrictlyPositiveFinite;
 
     fn index(&self, index: usize) -> &Self::Output {
