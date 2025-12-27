@@ -17,7 +17,7 @@ pub use ratio_based::*;
            is slightly faster (2.1871µs vs 2.8318µs).
 */
 
-// this isn't restricted to be in [-100. 100]
+// this isn't restricted to be in [-100, 100]
 // since alternate tuning systems might have higher differences
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
 pub struct Cents(pub NonNaNFinite);
