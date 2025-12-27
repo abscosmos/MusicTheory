@@ -129,7 +129,6 @@ impl JustIntonationRatios {
                 return Err(JustIntonationRatiosError::NotStrictlyIncreasing);
             }
 
-            // this ensures ratio is in (1.0, 2.0), complicated because of const
             res[i] = match StrictlyPositiveFinite::new(ratios[i]) {
                 Ok(checked) => checked,
                 _ => return Err(JustIntonationRatiosError::InvalidRatio),
