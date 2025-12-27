@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use typed_floats::tf32::{self, StrictlyPositiveFinite};
 use crate::note::Note;
 use crate::pitch_class::PitchClass;
-use crate::tuning::{Cents, Tuning};
+use crate::tuning::{Cents, Tuning, TwelveToneEqualTemperament};
 
 #[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct JustIntonation {
@@ -23,6 +23,15 @@ impl JustIntonation {
         match StrictlyPositiveFinite::new(freq_hz) {
             Ok(freq_hz) => Some(Self { reference, freq_hz, ratios, base }),
             Err(_) => None,
+        }
+    }
+
+    pub const fn from_twelve_tet(twelve_tet: TwelveToneEqualTemperament) -> Self {
+        Self {
+            reference: twelve_tet.reference,
+            freq_hz: twelve_tet.freq_hz,
+            ratios: JustIntonationRatios::TWELVE_TET,
+            base: PitchClass::C, // doesn't matter, theoretically
         }
     }
 }
