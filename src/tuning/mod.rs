@@ -82,13 +82,16 @@ pub trait Tuning {
 
 #[cfg(test)]
 mod tests {
+    use crate::pitch_class::PitchClass;
     use super::*;
 
     #[test]
     fn note_freq_inverses() {
         let tunings = [
             &TwelveToneEqualTemperament::A4_440 as &dyn Tuning,
-            &RatioBasedTuning::DEFAULT_JUST_INTONATION as &dyn Tuning,
+            &RatioBasedTuning::DEFAULT_JUST_INTONATION,
+            &RatioBasedTuning::a4_440hz(OctaveRatios::TWELVE_TET, PitchClass::A),
+            &RatioBasedTuning::a4_440hz(OctaveRatios::WERCKMEISTER_II, PitchClass::Fs),
         ];
 
         for tuning in tunings {
