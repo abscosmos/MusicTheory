@@ -79,7 +79,7 @@ impl Cents {
 
     /// Convert cents to a frequency ratio.
     ///
-    /// This is the inverse of `between_frequencies`:
+    /// This is the inverse of [Self::from_ratio]:
     /// - `ratio = 2^(cents / 1200)`
     ///
     /// Returns `None` if the result is not a strictly positive finite number.
@@ -106,6 +106,40 @@ impl Cents {
     pub fn to_ratio(self) -> Option<StrictlyPositiveFinite> {
         let ratio = 2.0_f32.powf(self.0 / Self::OCTAVE.0);
         StrictlyPositiveFinite::new(ratio).ok()
+    }
+
+    /// Convert a frequency ratio to cents.
+    ///
+    /// This is the inverse of [Self::to_ratio]:
+    /// - `cents = 1200 × log2(ratio)`
+    ///
+    /// Returns `None` if the result is not a strictly positive finite number.
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::tuning::Cents;
+    /// # use typed_floats::tf32::StrictlyPositiveFinite;
+    /// use StrictlyPositiveFinite as F;
+    ///
+    /// # fn main() -> Option<()> {
+    /// // Octave (2:1) = 1200 cents
+    /// let cents = Cents::from_ratio(F::new(2.0).ok()?)?;
+    /// assert!((cents.get() - 1200.0).abs() < 0.001);
+    ///
+    /// // Perfect fifth in just intonation (3:2) ≈ 702 cents
+    /// let cents = Cents::from_ratio(F::new(1.5).ok()?)?;
+    /// assert!((cents.get() - 701.955).abs() < 0.001);
+    ///
+    /// // Unison (1:1) = 0 cents
+    /// let cents = Cents::from_ratio(F::new(1.0).ok()?)?;
+    /// assert!((cents.get() - 0.0).abs() < 0.001);
+    /// # Some(())
+    /// # }
+    /// ```
+    pub fn from_ratio(ratio: StrictlyPositiveFinite) -> Option<Self> {
+        let cents = Self::OCTAVE.0 * ratio.log2();
+
+        Self::new(cents.get())
     }
 }
 
