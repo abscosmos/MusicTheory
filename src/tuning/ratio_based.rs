@@ -229,6 +229,75 @@ impl OctaveRatios {
         ratios
     };
 
+    pub const KIRNBERGER_I: Self = {
+        let Ok(ratios) = Self::with_ratios(
+            256.0 / 243.0,
+            9.0 / 8.0,
+            32.0 / 27.0,
+            5.0 / 4.0,
+            4.0 / 3.0,
+            45.0 / 32.0,
+            3.0 / 2.0,
+            128.0 / 81.0,
+            5.0 / 3.0,
+            16.0 / 9.0,
+            15.0 / 8.0,
+        ) else {
+            panic!("unreachable!: should be valid ratios");
+        };
+
+        ratios
+    };
+
+    // fun fact: the wikipedia entry for this has a typo for the exact frequency ratio for A!
+    // It says 3 * sqrt(5) / 2 instead of 3 * sqrt(5) / 4
+    //
+    // TODO: suggest an edit to wikipedia?
+    // https://en.wikipedia.org/wiki/Kirnberger_temperament#Practical_temperaments:_Kirnberger_II
+    pub const KIRNBERGER_II: Self = {
+        const SQRT_5: f32 = 2.23606797749978969640917;
+
+        let Ok(ratios) = Self::with_ratios(
+            256.0 / 243.0,
+            9.0 / 8.0,
+            32.0 / 27.0,
+            5.0 / 4.0,
+            4.0 / 3.0,
+            45.0 / 32.0,
+            3.0 / 2.0,
+            128.0 / 81.0,
+            3.0 / 4.0 * SQRT_5,
+            16.0 / 9.0,
+            15.0 / 8.0,
+        ) else {
+            panic!("unreachable!: should be valid ratios");
+        };
+
+        ratios
+    };
+
+    pub const KIRNBERGER_III: Self = {
+        const FIVE_4TH_ROOT: f32 = 1.49534878122122054191190;
+
+        let Ok(ratios) = Self::with_ratios(
+            256.0 / 243.0,
+            FIVE_4TH_ROOT * FIVE_4TH_ROOT / 2.0,
+            32.0 / 27.0,
+            5.0 / 4.0,
+            4.0 / 3.0,
+            45.0 / 32.0,
+            1.0 * FIVE_4TH_ROOT,
+            128.0 / 81.0,
+            FIVE_4TH_ROOT * FIVE_4TH_ROOT * FIVE_4TH_ROOT / 2.0,
+            16.0 / 9.0,
+            15.0 / 8.0,
+        ) else {
+            panic!("unreachable!: should be valid ratios");
+        };
+
+        ratios
+    };
+
     pub const TWELVE_TET: Self = {
         // 2^(1/12), can't calculate const so hardcoded
         const SPACING: SoftF32 = SoftF32(1.0594630943);
