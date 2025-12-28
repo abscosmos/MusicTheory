@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use typed_floats::tf32::{self, StrictlyPositiveFinite};
 use crate::note::Note;
 use crate::pitch_class::PitchClass;
-use crate::tuning::{Cents, Tuning, TwelveToneEqualTemperament};
+use crate::tuning::{self, Cents, DeviationBetweenError, Tuning, TwelveToneEqualTemperament};
 
 #[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct RatioBasedTuning {
@@ -359,6 +359,50 @@ impl OctaveRatios {
             Some(Ordering::Greater) => Err(JustIntonationRatiosError::InvalidRatio),
             None => panic!("unreachable!: uncomparable values already handled"),
         }
+    }
+
+    pub fn deviation_from(self, other: Self, reference: Note, ref_freq_hz: StrictlyPositiveFinite) -> Result<[Cents; 12], DeviationBetweenError> {
+        // TODO: is there a way to calculate this without having to actually compute frequencies? can it be computed just from ratios?
+
+        tuning::deviation_between(
+            &RatioBasedTuning {
+                reference,
+                freq_hz: ref_freq_hz,
+                ratios: other,
+                ratios_base: reference.as_pitch_class(),
+            },
+            &RatioBasedTuning {
+                reference,
+                freq_hz: ref_freq_hz,
+                ratios: self,
+                ratios_base: reference.as_pitch_class(),
+            },
+            reference.as_pitch_class(),
+        )
+    }
+
+    pub fn deviation_from_twelve_tet(self) -> [Cents; 12] {
+        let reference = Note::MIDDLE_C;
+
+        let freq_hz = reference.as_frequency_hz()
+            .expect("middle c should be in range for hz conversion");
+
+
+        let res = tuning::deviation_between(
+            &TwelveToneEqualTemperament {
+                reference,
+                freq_hz
+            },
+            &RatioBasedTuning {
+                reference,
+                freq_hz,
+                ratios: self,
+                ratios_base: reference.as_pitch_class(),
+            },
+            reference.as_pitch_class(),
+        );
+
+        res.expect("since ratios are bound (1, 2), and since using 12TET tuning of C4, should always be valid")
     }
 }
 
