@@ -90,6 +90,10 @@ impl Cents {
     /// let ratio = Cents::new(100.0).unwrap().to_ratio().unwrap();
     /// assert!((ratio.get() - 2.0f32.powf(12.0f32.recip())).abs() < 0.0001); // 2^(1/12)
     ///
+    /// // 600 cents = half octave
+    /// let ratio = Cents::new(600.0).unwrap().to_ratio().unwrap();
+    /// assert!((ratio.get() - 2f32.sqrt()).abs() < 0.0001); // 2^(1/12)
+    ///
     /// // 1200 cents = one octave
     /// let ratio = Cents::OCTAVE.to_ratio().unwrap();
     /// assert!((ratio.get() - 2.0).abs() < 0.0001);
