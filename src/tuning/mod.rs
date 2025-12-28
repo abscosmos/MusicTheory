@@ -1,4 +1,4 @@
-use std::ops::Neg;
+use std::ops::{Add, Neg, Sub};
 use serde::{Deserialize, Serialize};
 use crate::note::Note;
 use typed_floats::tf32::{StrictlyPositiveFinite, NonNaNFinite};
@@ -140,6 +140,22 @@ impl Cents {
         let cents = Self::OCTAVE.0 * ratio.log2();
 
         Self::new(cents.get())
+    }
+}
+
+impl Add for Cents {
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        Self::new((self.0 + rhs.0).get()).expect("error: cents overflowed during arithmetic operation")
+    }
+}
+
+impl Sub for Cents {
+    type Output = Self;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        self + (-rhs)
     }
 }
 
