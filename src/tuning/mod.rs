@@ -153,7 +153,6 @@ pub trait Tuning {
     fn note_to_freq_hz(&self, note: Note) -> Option<StrictlyPositiveFinite>;
 }
 
-// TODO: replace checked version of this function, which returns which failed and where
 pub fn deviation_between(lhs: &impl Tuning, rhs: &impl Tuning, base: PitchClass) -> Result<[Cents; 12], DeviationBetweenError> {
     use DeviationBetweenError as DevErr;
 
