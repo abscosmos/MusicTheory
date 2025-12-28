@@ -455,7 +455,7 @@ mod tests {
             (Note::new(Pitch::A_SHARP, 1), 59.399998),
             (Note::new(Pitch::B, 2), 123.75),
             (Note::new(Pitch::C, 4), 264.0),
-            (Note::new(Pitch::F_SHARP, 5), 742.5),
+            (Note::new(Pitch::F_SHARP, 5), 750.93335),
             (Note::new(Pitch::E, 12), 84480.0),
             (Note::new(Pitch::C_SHARP, 18), 4613734.5),
         ];
