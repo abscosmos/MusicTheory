@@ -159,7 +159,7 @@ pub fn deviation_between(lhs: &impl Tuning, rhs: &impl Tuning, base: PitchClass)
 
     let mut cents = [Cents::default(); 12];
 
-    for chroma in 0..cents.len() {
+    for (chroma, deviation) in cents.iter_mut().enumerate() {
         let pitch_class = base + Semitone(chroma as _);
 
         let note = Note::new(pitch_class.into(), 4);
@@ -167,7 +167,7 @@ pub fn deviation_between(lhs: &impl Tuning, rhs: &impl Tuning, base: PitchClass)
         let lhs_freq = lhs.note_to_freq_hz(note).ok_or(DevErr::NoteToFreqError { pitch_class, lhs: true })?;
         let rhs_freq = rhs.note_to_freq_hz(note).ok_or(DevErr::NoteToFreqError { pitch_class, lhs: false })?;
 
-        cents[chroma] = Cents::between_frequencies(lhs_freq, rhs_freq).ok_or(DevErr::InvalidCents(pitch_class))?;
+        *deviation = Cents::between_frequencies(lhs_freq, rhs_freq).ok_or(DevErr::InvalidCents(pitch_class))?;
     }
 
     Ok(cents)
