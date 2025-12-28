@@ -615,6 +615,53 @@ mod tests {
     }
 
     #[test]
+    fn deviation_from_by_ratios() {
+        let pairs = [
+            (OctaveRatios::PYTHAGOREAN, OctaveRatios::JUST_INTONATION_LIMIT_5),
+        ];
+
+        for (lhs, rhs) in pairs {
+            let by_ratios = lhs.deviation_from(rhs).unwrap();
+
+            for reference in (u8::MIN..=u8::MAX).map(Note::from_midi) {
+                let freqs = [
+                    reference.as_frequency_hz().unwrap(),
+                    Note::A4.as_frequency_hz().unwrap(),
+                    StrictlyPositiveFinite::new(0.1).unwrap(),
+                ];
+
+                for freq_hz in freqs {
+                    let by_notes = tuning::deviation_between(
+                        &RatioBasedTuning {
+                            reference,
+                            freq_hz,
+                            ratios: rhs,
+                            ratios_base: reference.as_pitch_class(),
+                        },
+                        &RatioBasedTuning {
+                            reference,
+                            freq_hz,
+                            ratios: lhs,
+                            ratios_base: reference.as_pitch_class(),
+                        },
+                        reference.as_pitch_class(),
+                    ).unwrap();
+
+                    for (by_ratios, by_notes) in by_ratios.into_iter().zip(by_notes) {
+                        let diff = (by_ratios.get() - by_notes.get()).abs();
+
+                        assert!(
+                            diff == 0.0 || (diff / by_ratios.get()) < 1e-4,
+                            "deviation from by ratios should match deviation from by notes; failed for {reference} @ {freq_hz}, {} vs {} (diff: {diff})",
+                            by_ratios.get(), by_notes.get()
+                        );
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
     fn twelve_tet_ratios() {
         let tuning_eq_temp = TwelveToneEqualTemperament::A4_440;
 
