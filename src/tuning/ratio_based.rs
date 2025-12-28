@@ -117,18 +117,21 @@ impl OctaveRatios {
     // this interprets an interval of 6 semitones (tritone) as a d5
     // TODO: this can be calculate with a formula: https://en.wikipedia.org/wiki/Quarter-comma_meantone#12-tone_scale
     pub const QUARTER_COMMA_MEANTONE: Self = {
+        const FIVE_4TH_ROOT: f32 = 1.49534878122122054191190;
+        const FIVE_SQRT: f32 = FIVE_4TH_ROOT * FIVE_4TH_ROOT;
+
         let Ok(ratios) = Self::with_ratios(
-            1.06998448796,
-            1.11803398875,
-            1.19627902498,
-            1.25,
-            1.33748060995,
-            1.4310835056,
-            1.49534878122,
-            1.6,
-            1.67185076244,
-            1.788854382,
-            1.86918597653,
+            8.0 / 25.0 * FIVE_SQRT * FIVE_4TH_ROOT,
+            FIVE_SQRT / 2.0,
+            4.0 / 5.0 * FIVE_4TH_ROOT,
+            5.0 / 4.0,
+            2.0 / 5.0 * FIVE_SQRT * FIVE_4TH_ROOT,
+            16.0 / 25.0 * FIVE_SQRT,
+            1.0 * FIVE_4TH_ROOT,
+            8.0 / 5.0,
+            FIVE_SQRT * FIVE_4TH_ROOT / 2.0,
+            4.0 / 5.0 * FIVE_SQRT,
+            5.0 / 4.0 * FIVE_4TH_ROOT,
         ) else {
             panic!("unreachable!: should be valid ratios");
         };
