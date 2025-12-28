@@ -1,3 +1,4 @@
+use std::{array, slice};
 use std::cmp::Ordering;
 use std::ops::Index;
 use const_soft_float::soft_f32::SoftF32;
@@ -404,6 +405,10 @@ impl OctaveRatios {
 
         res.expect("since ratios are bound (1, 2), and since using 12TET tuning of C4, should always be valid")
     }
+
+    pub fn iter(&self) -> slice::Iter<'_, StrictlyPositiveFinite> {
+        self.0.iter()
+    }
 }
 
 impl Tuning for RatioBasedTuning {
@@ -497,6 +502,15 @@ impl Index<usize> for OctaveRatios {
 
     fn index(&self, index: usize) -> &Self::Output {
         self.0.index(index)
+    }
+}
+
+impl IntoIterator for OctaveRatios {
+    type Item = StrictlyPositiveFinite;
+    type IntoIter = array::IntoIter<StrictlyPositiveFinite, 12>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.0.into_iter()
     }
 }
 
