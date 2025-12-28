@@ -19,7 +19,7 @@ pub use ratio_based::*;
 
 // this isn't restricted to be in [-100, 100]
 // since alternate tuning systems might have higher differences
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
+#[derive(Copy, Clone, Default, Debug, PartialEq, Eq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
 pub struct Cents(pub NonNaNFinite);
 
 impl Cents {
