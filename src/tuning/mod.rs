@@ -1,4 +1,5 @@
 use std::array;
+use std::ops::Neg;
 use serde::{Deserialize, Serialize};
 use crate::note::Note;
 use typed_floats::tf32::{StrictlyPositiveFinite, NonNaNFinite};
@@ -74,6 +75,14 @@ impl Cents {
 
     pub fn between_notes(lhs: Note, rhs: Note, tuning: &impl Tuning) -> Option<Self> {
         Self::from_note(lhs, tuning.note_to_freq_hz(rhs)?, tuning)
+    }
+}
+
+impl Neg for Cents {
+    type Output = Self;
+
+    fn neg(self) -> Self::Output {
+        Self(-self.0)
     }
 }
 
