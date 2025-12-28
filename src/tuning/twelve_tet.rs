@@ -44,15 +44,8 @@ impl Tuning for TwelveToneEqualTemperament {
 
         let note = Note { pitch, octave };
 
-        let cents = {
-            let fract = if semitones_from_reference.trunc() == semitones_from_reference.round() {
-                semitones_from_reference.fract()
-            } else {
-                semitones_from_reference.fract().abs() - 1.0
-            };
-
-            Cents::new(fract * 100.0).expect("must be in range")
-        };
+        let semitone_deviation = semitones_from_reference - semitones_from_reference.round();
+        let cents = Cents::new(semitone_deviation * 100.0).expect("must be in range");
 
         if cfg!(debug_assertions) {
             let cents_exp = Cents::from_note(note, hz, self).expect("should be in range");
