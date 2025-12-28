@@ -76,6 +76,37 @@ impl Cents {
     pub fn between_notes(lhs: Note, rhs: Note, tuning: &impl Tuning) -> Option<Self> {
         Self::from_note(lhs, tuning.note_to_freq_hz(rhs)?, tuning)
     }
+
+    /// Convert cents to a frequency ratio.
+    ///
+    /// This is the inverse of `between_frequencies`:
+    /// - `ratio = 2^(cents / 1200)`
+    ///
+    /// Returns `None` if the result is not a strictly positive finite number.
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::tuning::Cents;
+    /// // 100 cents = one semitone in 12-TET
+    /// let ratio = Cents::new(100.0).unwrap().to_ratio().unwrap();
+    /// assert!((ratio.get() - 2.0f32.powf(12.0f32.recip())).abs() < 0.0001); // 2^(1/12)
+    ///
+    /// // 1200 cents = one octave
+    /// let ratio = Cents::OCTAVE.to_ratio().unwrap();
+    /// assert!((ratio.get() - 2.0).abs() < 0.0001);
+    ///
+    /// // 0 cents = unison (ratio 1.0)
+    /// let ratio = Cents::new(0.0).unwrap().to_ratio().unwrap();
+    /// assert!((ratio.get() - 1.0).abs() < 0.0001);
+    ///
+    /// // -1200 cents = one octave down
+    /// let ratio = (-Cents::OCTAVE).to_ratio().unwrap();
+    /// assert!((ratio.get() - 0.5).abs() < 0.0001);
+    /// ```
+    pub fn to_ratio(self) -> Option<StrictlyPositiveFinite> {
+        let ratio = 2.0_f32.powf(self.0 / Self::OCTAVE.0);
+        StrictlyPositiveFinite::new(ratio).ok()
+    }
 }
 
 impl Neg for Cents {
