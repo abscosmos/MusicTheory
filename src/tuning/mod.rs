@@ -121,20 +121,17 @@ impl Cents {
     /// # use typed_floats::tf32::StrictlyPositiveFinite;
     /// use StrictlyPositiveFinite as F;
     ///
-    /// # fn main() -> Option<()> {
     /// // Octave (2:1) = 1200 cents
-    /// let cents = Cents::from_ratio(F::new(2.0).ok()?)?;
+    /// let cents = Cents::from_ratio(F::new(2.0).unwrap()).unwrap();
     /// assert!((cents.get() - 1200.0).abs() < 0.001);
     ///
     /// // Perfect fifth in just intonation (3:2) ≈ 702 cents
-    /// let cents = Cents::from_ratio(F::new(1.5).ok()?)?;
+    /// let cents = Cents::from_ratio(F::new(1.5).unwrap()).unwrap();
     /// assert!((cents.get() - 701.955).abs() < 0.001);
     ///
     /// // Unison (1:1) = 0 cents
-    /// let cents = Cents::from_ratio(F::new(1.0).ok()?)?;
+    /// let cents = Cents::from_ratio(F::new(1.0).unwrap()).unwrap();
     /// assert!((cents.get() - 0.0).abs() < 0.001);
-    /// # Some(())
-    /// # }
     /// ```
     pub fn from_ratio(ratio: StrictlyPositiveFinite) -> Option<Self> {
         let cents = Self::OCTAVE.0 * ratio.log2();
