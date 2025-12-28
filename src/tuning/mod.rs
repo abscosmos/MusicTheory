@@ -1,6 +1,9 @@
+use std::array;
 use serde::{Deserialize, Serialize};
 use crate::note::Note;
 use typed_floats::tf32::{StrictlyPositiveFinite, NonNaNFinite};
+use crate::pitch_class::PitchClass;
+use crate::semitone::Semitone;
 
 mod twelve_tet;
 mod ratio_based;
@@ -78,6 +81,20 @@ pub trait Tuning {
     fn freq_to_note(&self, hz: StrictlyPositiveFinite) -> Option<(Note, Cents)>;
 
     fn note_to_freq_hz(&self, note: Note) -> Option<StrictlyPositiveFinite>;
+}
+
+// TODO: replace checked version of this function, which returns which failed and where
+pub fn deviation_between(lhs: &impl Tuning, rhs: &impl Tuning, base: PitchClass) -> [Cents; 12] {
+    array::from_fn(|chroma| {
+        let pitch_class = base + Semitone(chroma as _);
+
+        let note = Note::new(pitch_class.into(), 4);
+
+        let lhs_freq = lhs.note_to_freq_hz(note).expect("implementations of Tuning should ideally return Some for all MIDI notes");
+        let rhs_freq = rhs.note_to_freq_hz(note).expect("implementations of Tuning should ideally return Some for all MIDI notes");
+
+        Cents::between_frequencies(lhs_freq, rhs_freq).expect("difference should be finite and not NaN")
+    })
 }
 
 #[cfg(test)]
