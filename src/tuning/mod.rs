@@ -84,17 +84,38 @@ pub trait Tuning {
 }
 
 // TODO: replace checked version of this function, which returns which failed and where
-pub fn deviation_between(lhs: &impl Tuning, rhs: &impl Tuning, base: PitchClass) -> [Cents; 12] {
-    array::from_fn(|chroma| {
+pub fn deviation_between(lhs: &impl Tuning, rhs: &impl Tuning, base: PitchClass) -> Result<[Cents; 12], DeviationBetweenError> {
+    use DeviationBetweenError as DevErr;
+
+    let mut cents = [Cents::default(); 12];
+
+    for chroma in 0..cents.len() {
         let pitch_class = base + Semitone(chroma as _);
 
         let note = Note::new(pitch_class.into(), 4);
 
-        let lhs_freq = lhs.note_to_freq_hz(note).expect("implementations of Tuning should ideally return Some for all MIDI notes");
-        let rhs_freq = rhs.note_to_freq_hz(note).expect("implementations of Tuning should ideally return Some for all MIDI notes");
+        let lhs_freq = lhs.note_to_freq_hz(note).ok_or(DevErr::NoteToFreqError { pitch_class, lhs: true })?;
+        let rhs_freq = rhs.note_to_freq_hz(note).ok_or(DevErr::NoteToFreqError { pitch_class, lhs: false })?;
 
-        Cents::between_frequencies(lhs_freq, rhs_freq).expect("difference should be finite and not NaN")
-    })
+        cents[chroma] = Cents::between_frequencies(lhs_freq, rhs_freq).ok_or(DevErr::InvalidCents(pitch_class))?;
+    }
+
+    Ok(cents)
+}
+
+#[derive(Clone, thiserror::Error, Debug, Eq, PartialEq)]
+pub enum DeviationBetweenError {
+    #[error(
+        "The {tuning} tuning failed to calculate a frequency for {note}",
+        note = Note::new((*pitch_class).into(), 4),
+        tuning = if *lhs { "lhs" } else { "rhs" },
+    )]
+    NoteToFreqError {
+        pitch_class: PitchClass,
+        lhs: bool,
+    },
+    #[error("Calculating the cents between tunings of {0} was either NaN or infinite")]
+    InvalidCents(PitchClass),
 }
 
 #[cfg(test)]
