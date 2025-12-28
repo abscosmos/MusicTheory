@@ -439,24 +439,17 @@ impl OctaveRatios {
         self.0
     }
 
-    pub fn deviation_from(self, other: Self, reference: Note, ref_freq_hz: StrictlyPositiveFinite) -> Result<[Cents; 12], DeviationBetweenError> {
-        // TODO: is there a way to calculate this without having to actually compute frequencies? can it be computed just from ratios?
+    pub fn deviation_from(self, other: Self) -> Option<[Cents; 12]> {
+        let mut cents = [Cents::default(); 12];
 
-        tuning::deviation_between(
-            &RatioBasedTuning {
-                reference,
-                freq_hz: ref_freq_hz,
-                ratios: other,
-                ratios_base: reference.as_pitch_class(),
-            },
-            &RatioBasedTuning {
-                reference,
-                freq_hz: ref_freq_hz,
-                ratios: self,
-                ratios_base: reference.as_pitch_class(),
-            },
-            reference.as_pitch_class(),
-        )
+        for (dev, (lhs, rhs)) in cents
+            .iter_mut()
+            .zip(other.into_iter().zip(self))
+        {
+            *dev = Cents::from_ratio(rhs)? - Cents::from_ratio(lhs)?;
+        }
+
+        Some(cents)
     }
 
     pub fn deviation_from_twelve_tet(self) -> [Cents; 12] {
