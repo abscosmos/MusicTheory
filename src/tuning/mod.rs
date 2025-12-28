@@ -1,4 +1,3 @@
-use std::array;
 use std::ops::Neg;
 use serde::{Deserialize, Serialize};
 use crate::note::Note;
