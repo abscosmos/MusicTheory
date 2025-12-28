@@ -361,6 +361,10 @@ impl OctaveRatios {
             None => panic!("unreachable!: uncomparable values already handled"),
         }
     }
+    
+    pub fn as_array(self) -> [StrictlyPositiveFinite; 12] {
+        self.0
+    }
 
     pub fn deviation_from(self, other: Self, reference: Note, ref_freq_hz: StrictlyPositiveFinite) -> Result<[Cents; 12], DeviationBetweenError> {
         // TODO: is there a way to calculate this without having to actually compute frequencies? can it be computed just from ratios?
