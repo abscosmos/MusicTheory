@@ -366,11 +366,18 @@ impl Tuning for RatioBasedTuning {
     fn freq_to_note(&self, hz: StrictlyPositiveFinite) -> Option<(Note, Cents)> {
         let ref_offset = self.ratios_base.semitones_to(self.reference.as_pitch_class()).0 as usize;
         let ref_to_base = self.ratios[ref_offset];
-        let base0_freq = self.freq_hz.get() * ref_to_base.recip().get() * 2.0_f32.powf(-self.reference.octave as _);
+
+        // if the reference pitch class is before the pitch class of the base
+        // add one, since the "ratio octave" is different
+        // (see comment in note_to_freq_hz)
+        let ref_adj = (self.reference.as_pitch_class() < self.ratios_base) as i16;
+        let ref_ratio_octave = self.reference.octave - ref_adj;
+
+        let base0_freq = self.freq_hz.get() * ref_to_base.recip().get() * 2.0_f32.powf(-ref_ratio_octave as _);
 
         let ratio_from_base0 = hz.get() / base0_freq;
-        let octave = ratio_from_base0.log2().floor() as i16;
-        let ratio_within_octave = StrictlyPositiveFinite::new(ratio_from_base0 / 2.0_f32.powf(octave as _))
+        let ratio_octave = ratio_from_base0.log2().floor() as i16;
+        let ratio_within_octave = StrictlyPositiveFinite::new(ratio_from_base0 / 2.0_f32.powf(ratio_octave as _))
             .expect("ratio shouldn't be negative, nan, or infinity (unless octave is very very large)");
 
         let best_pc = (0..12)
@@ -380,9 +387,13 @@ impl Tuning for RatioBasedTuning {
                 (self.ratios[offset] - ratio_within_octave).abs()
             })?;
 
+        // +1 if the note's pitch class is less than the base,
+        // as it would be in a different "ratio octave" then
+        let note_adj = (best_pc < self.ratios_base) as i16;
+
         let best_note = Note {
             pitch: best_pc.into(),
-            octave,
+            octave: ratio_octave + note_adj,
         };
 
         let best_offset = self.ratios_base.semitones_to(best_pc).0 as usize;
@@ -403,12 +414,18 @@ impl Tuning for RatioBasedTuning {
         let ref_offset = self.ratios_base.semitones_to(self.reference.pitch.as_pitch_class()).0 as usize;
         let ref_to_base = self.ratios[ref_offset];
 
-        let octave_diff = (note.octave - self.reference.octave) as _;
+        // octaves are C->B, but "ratio octaves" are base->(base-1).
+        // for example, if base=B:  A4 and B4 are in different ratio octaves
+        // adjust by -1 for notes whose pitch class is "before" the base.
+        let ref_ratio_adj = (self.reference.pitch.as_pitch_class() < self.ratios_base) as i16;
+        let note_ratio_adj = (note.pitch.as_pitch_class() < self.ratios_base) as i16;
+
+        let octave_diff = (note.octave - self.reference.octave) + (ref_ratio_adj - note_ratio_adj);
 
         // reference_freq * (base / reference_pitch) * 2^(octave_diff) * pitch_ratio
         let hz = self.freq_hz.get()
             * ref_to_base.recip().get()
-            * 2.0_f32.powf(octave_diff)
+            * 2.0_f32.powf(octave_diff as _)
             * pitch_ratio.get();
 
         StrictlyPositiveFinite::new(hz).ok()
@@ -472,7 +489,13 @@ mod tests {
     #[test]
     fn twelve_tet_ratios() {
         let tuning_eq_temp = TwelveToneEqualTemperament::A4_440;
-        let tuning_ratios = RatioBasedTuning::from_twelve_tet(tuning_eq_temp);
+
+        let tuning_ratios = {
+            let mut ratio_based = RatioBasedTuning::from_twelve_tet(tuning_eq_temp);
+            ratio_based.ratios_base = PitchClass::B;
+
+            ratio_based
+        };
 
         for note in (u8::MIN..=u8::MAX).map(Note::from_midi) {
             let hz_eq_temp = tuning_eq_temp.note_to_freq_hz(note).expect("should return some for all MIDI notes");
