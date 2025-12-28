@@ -298,6 +298,8 @@ impl OctaveRatios {
         ratios
     };
 
+    // TODO: implement Vallotti & Young temperaments
+
     pub const TWELVE_TET: Self = {
         // 2^(1/12), can't calculate const so hardcoded
         const SPACING: SoftF32 = SoftF32(1.0594630943);
