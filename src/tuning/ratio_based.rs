@@ -47,6 +47,7 @@ impl RatioBasedTuning {
 pub struct OctaveRatios([StrictlyPositiveFinite; 12]);
 
 // TODO: handle different ratios between A4 & d5
+#[expect(clippy::excessive_precision, reason = "ensures values are as accurate as possible")]
 impl OctaveRatios {
     // TODO: constants are defined like this since neither Result::ok nor Result::expect are const yet
 
