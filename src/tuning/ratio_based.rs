@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use typed_floats::tf32::{self, StrictlyPositiveFinite};
 use crate::note::Note;
 use crate::pitch_class::PitchClass;
-use crate::tuning::{self, Cents, DeviationBetweenError, Tuning, TwelveToneEqualTemperament};
+use crate::tuning::{self, Cents, Tuning, TwelveToneEqualTemperament};
 
 #[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct RatioBasedTuning {
