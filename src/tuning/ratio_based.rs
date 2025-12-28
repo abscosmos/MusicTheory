@@ -43,7 +43,7 @@ impl RatioBasedTuning {
     }
 }
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct OctaveRatios([StrictlyPositiveFinite; 12]);
 
 // TODO: handle different ratios between A4 & d5
