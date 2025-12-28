@@ -374,6 +374,7 @@ impl OctaveRatios {
         )
     }
 
+    #[expect(clippy::too_many_arguments, reason = "one argument for each semitone ivl in octave")]
     pub const fn with_ratios(
         minor_second: f32,
         major_second: f32,
