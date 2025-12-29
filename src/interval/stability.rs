@@ -8,7 +8,7 @@ use serde::{Serialize, Deserialize};
 ///
 /// # Examples
 ///
-/// ```
+/// ```rust
 /// # use music_theory::prelude::*;
 /// // Check if an interval is consonant
 /// let stability = Interval::MAJOR_THIRD.stability().unwrap();
