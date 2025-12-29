@@ -6,12 +6,6 @@ use serde::{Serialize, Deserialize};
 /// music theory. Consonant intervals sound stable and at rest, while dissonant
 /// intervals create tension that typically resolves to consonances.
 ///
-/// # Variants
-///
-/// - [`PerfectConsonance`](Self::PerfectConsonance): The most stable intervals - perfect unisons, fifths, and octaves
-/// - [`ImperfectConsonance`](Self::ImperfectConsonance): Consonant but less pure - major and minor thirds and sixths
-/// - [`Dissonance`](Self::Dissonance): Unstable intervals that create tension - seconds, sevenths, and augmented/diminished intervals
-///
 /// # Examples
 ///
 /// ```
@@ -35,8 +29,11 @@ use serde::{Serialize, Deserialize};
 /// ```
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Hash, Serialize, Deserialize)]
 pub enum Stability {
+    /// The most stable intervals: perfect unisons, fifths, and octaves
     PerfectConsonance,
+    /// Less "pure" intervals: major and minor thirds and sixths
     ImperfectConsonance,
+    /// Unstable intervals that create tensions: seconds, sevenths, and augmented/diminished intervals
     Dissonance,
 }
 
