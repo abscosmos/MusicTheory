@@ -91,6 +91,40 @@ impl IntervalClassVector {
         Some(Self(arr))
     }
 
+    /// Returns `true` if this ICV could have been derived from some pitch class set.
+    ///
+    /// Not all valid ICVs correspond to an actual pitch class set.
+    /// This checks whether there exists any [`PitchClassSet`] whose ICV equals `self`.
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// # use music_theory::set::{IntervalClassVector, PitchClassSet};
+    /// let major_triad = PitchClassSet::from_iter([
+    ///     PitchClass::C,
+    ///     PitchClass::E,
+    ///     PitchClass::G,
+    /// ]);
+    /// // since this is built from a pitch class set,
+    /// // it (obviously) came from a pitch class set
+    /// assert!(major_triad.interval_class_vector().came_from_pitch_class_set());
+    ///
+    /// // manually constructed ICV that happens to match a pcset
+    /// let icv = IntervalClassVector::new([0, 0, 1, 1, 1, 0]).unwrap();
+    /// assert!(icv.came_from_pitch_class_set());
+    ///
+    /// // valid ICV that doesn't correspond to any pitch class set
+    /// let invalid = IntervalClassVector::new([1, 0, 0, 0, 0, 1]).unwrap();
+    /// assert!(!invalid.came_from_pitch_class_set());
+    /// ```
+    pub fn came_from_pitch_class_set(self) -> bool {
+        // TODO: before checking all possible pcsets, check if total() is a triangular number; might be faster on average, bench
+
+        (0..=PitchClassSet::CHROMATIC_AGGREGATE.get())
+            .map(|set| PitchClassSet::new_masked(set).interval_class_vector())
+            .any(|icv| icv == self)
+    }
+
     /// Returns the total count of all intervals in the ICV.
     ///
     /// This should not be confused with calling `icv.len()`, which will always return `6`
