@@ -1,3 +1,16 @@
+pub mod heptatonic;
+pub mod pentatonic;
+pub mod chromatic;
+pub mod hexatonic;
+pub mod octatonic;
+
+// constants to help defining scales
+const T: Interval = Interval::MAJOR_SECOND;
+const S: Interval = Interval::MINOR_SECOND;
+const TS: Interval = Interval::MINOR_THIRD;
+const TT: Interval = Interval::MAJOR_THIRD;
+const A2: Interval = Interval::AUGMENTED_SECOND;
+
 macro_rules! define_scale {
     (
         name = $name:ident,
@@ -131,4 +144,5 @@ macro_rules! define_scale {
     };
 }
 
-pub(in crate::scales) use define_scale;
+use define_scale;
+use crate::interval::Interval;

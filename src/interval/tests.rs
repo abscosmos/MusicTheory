@@ -1,10 +1,10 @@
 use super::*;
+use crate::pitch::{Letter, AccidentalSign};
 use std::num::NonZeroU16;
+
 use Interval as I;
 use IntervalQuality as IQ;
 use IntervalNumber as IN;
-use crate::accidental::AccidentalSign;
-use crate::letter::Letter;
 
 const FOUR: NonZeroU16 = NonZeroU16::new(4).expect("nonzero");
 const SIX: NonZeroU16 = NonZeroU16::new(6).expect("nonzero");

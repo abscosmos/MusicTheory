@@ -24,6 +24,8 @@
 //! assert_eq!(c_sharp + Interval::AUGMENTED_SIXTH, a_double_sharp);
 //! ```
 
+// TODO: module docs need updating, since many other types have been moved into this module
+
 use std::cmp::Ordering;
 use std::fmt;
 use std::ops::{Add, Sub};
@@ -34,10 +36,16 @@ use serde::{Deserialize, Serialize};
 use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
 use crate::interval::Interval;
 use crate::interval::IntervalQuality;
-use crate::accidental::AccidentalSign;
-use crate::letter::Letter;
-use crate::pitch_class::PitchClass;
 use crate::semitone::Semitone;
+
+mod class;
+pub use class::*;
+
+mod letter;
+pub use letter::*;
+
+mod accidental;
+pub use accidental::*;
 
 mod consts;
 

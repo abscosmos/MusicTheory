@@ -1,8 +1,5 @@
+use super::*;
 use strum::IntoEnumIterator;
-use crate::accidental::AccidentalSign;
-use crate::enharmonic::EnharmonicEq;
-use crate::letter::Letter;
-use crate::pitch::Pitch;
 
 #[test]
 fn simplify() {

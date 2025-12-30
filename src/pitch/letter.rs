@@ -2,7 +2,7 @@ use std::fmt;
 use std::str::FromStr;
 use serde::{Deserialize, Serialize};
 use strum_macros::{EnumIter, FromRepr};
-use crate::key::Key;
+use crate::harmony::Key;
 use crate::pitch::Pitch;
 
 #[repr(u8)]
