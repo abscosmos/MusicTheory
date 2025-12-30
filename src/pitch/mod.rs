@@ -24,6 +24,8 @@
 //! assert_eq!(c_sharp + Interval::AUGMENTED_SIXTH, a_double_sharp);
 //! ```
 
+// TODO: module docs need updating, since many other types have been moved into this module
+
 use std::cmp::Ordering;
 use std::fmt;
 use std::ops::{Add, Sub};
