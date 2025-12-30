@@ -1,5 +1,6 @@
 use std::fmt;
 use std::ops::Deref;
+use crate::set::PitchClassSet;
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub struct IntervalClassVector([u8; 6]);
@@ -28,6 +29,12 @@ impl Deref for IntervalClassVector {
 
     fn deref(&self) -> &Self::Target {
         &self.0
+    }
+}
+
+impl From<PitchClassSet> for IntervalClassVector {
+    fn from(pcset: PitchClassSet) -> Self {
+        pcset.interval_class_vector()
     }
 }
 
