@@ -54,3 +54,19 @@ impl NoteGenerator {
         zero.semitones_to(note).0 as _
     }
 }
+
+impl Iterator for NoteGenerator {
+    type Item = Note;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let note = Self::repr_to_note(self.current);
+
+        if self.reverse {
+            self.current -= 1;
+        } else {
+            self.current += 1;
+        }
+
+        Some(note)
+    }
+}
