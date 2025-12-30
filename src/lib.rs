@@ -10,6 +10,7 @@ pub mod analyze;
 pub mod prelude;
 pub mod set;
 pub mod notation;
+pub mod mode;
 /*
 TODO:
     - add prelude
