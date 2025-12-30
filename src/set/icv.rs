@@ -62,4 +62,15 @@ mod tests {
             IntervalClassVector::CHROMATIC_AGGREGATE,
         )
     }
+
+    #[test]
+    pub fn total() {
+        for pcset in (0x000..=0xfff).map(PitchClassSet::new_masked) {
+            assert_eq!(
+                pcset.interval_class_vector().total(),
+                pcset.len() * pcset.len().saturating_sub(1) / 2,
+                "should be 'n choose 2', since each pair of pitches"
+            );
+        }
+    }
 }
