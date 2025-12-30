@@ -61,8 +61,7 @@ impl PartialOrd for OctaveLetter {
 
 #[cfg(test)]
 mod tests {
-    use crate::pitch::Letter;
-    use crate::notation::OctaveLetter;
+    use super::*;
 
     #[test]
     fn test_offset_to() {

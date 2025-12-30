@@ -178,9 +178,7 @@ pub struct TablatureClef;
 
 #[cfg(test)]
 mod tests {
-    use crate::pitch::Letter;
-    use crate::notation::octave_letter::OctaveLetter;
-    use super::{PitchClef as Clef, StaffPosition as Pos, *};
+    use super::{*, PitchClef as Clef, StaffPosition as Pos};
 
     const ALL_CONSTS: [PitchClef; 14] = [
         Clef::TREBLE,
