@@ -19,7 +19,7 @@ impl NoteGenerator {
 
         Note {
             pitch: pitch.into(),
-            octave: oct as i16 - 1,
+            octave: oct as i16,
         }
     }
 
@@ -28,7 +28,7 @@ impl NoteGenerator {
     //     'semitones_to' due to the size of the repr
     #[inline]
     fn note_to_repr(note: Note) -> i32 {
-        let zero = Note { pitch: Pitch::C, octave: -1 };
+        let zero = Note { pitch: Pitch::C, octave: 0 };
 
         zero.semitones_to(note).0 as _
     }
