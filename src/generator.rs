@@ -2,7 +2,7 @@ use std::iter::{FusedIterator, Take};
 use crate::note::Note;
 use crate::pitch::{Pitch, PitchClass};
 
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct NoteGenerator {
     // doing it from a "midi like" representation is implementation detail
     current: i32,
