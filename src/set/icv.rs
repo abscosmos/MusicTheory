@@ -38,3 +38,16 @@ impl fmt::Display for IntervalClassVector {
         write!(f, "<{ic1}, {ic2}, {ic3}, {ic4}, {ic5}, {ic6}>")
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::set::{IntervalClassVector, PitchClassSet};
+
+    #[test]
+    fn chromatic_aggregate() {
+        assert_eq!(
+            PitchClassSet::CHROMATIC_AGGREGATE.interval_class_vector(),
+            IntervalClassVector::CHROMATIC_AGGREGATE,
+        )
+    }
+}
