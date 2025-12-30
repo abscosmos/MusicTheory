@@ -57,17 +57,18 @@ impl PitchClassSet {
     pub fn interval_class_vector(self) -> [u8; 6] {
         let mut icv = [0u8; 6];
 
-        for i in 0..12 {
-            if self.is_set(PitchClass::from_repr(i).expect("in range")) {
-                for j in (i + 1)..12 {
-                    if self.is_set(PitchClass::from_repr(j).expect("in range")) {
-                        let interval = (j as i8 - i as i8).abs();
-                        let ic = if interval > 6 { 12 - interval } else { interval };
-                        if ic > 0 {
-                            icv[(ic - 1) as usize] += 1;
-                        }
-                    }
-                }
+        for pc1 in PitchClass::iter()
+            .filter(|pc| self.is_set(*pc))
+        {
+            for pc2 in PitchClass::iter()
+                .skip(pc1.chroma() as usize + 1)
+                .filter(|pc| self.is_set(*pc))
+            {
+                let interval = pc1.semitones_to(pc2).0;
+
+                let ic = if interval > 6 { 12 - interval } else { interval };
+
+                icv[(ic - 1) as usize] += 1;
             }
         }
 
