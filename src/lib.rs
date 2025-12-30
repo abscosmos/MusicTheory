@@ -8,7 +8,6 @@ pub mod scales;
 pub mod key;
 pub mod analyze;
 pub mod prelude;
-pub mod octave_letter;
 pub mod set;
 pub mod notation;
 /*

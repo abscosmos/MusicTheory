@@ -2,8 +2,7 @@ use std::fmt;
 use std::num::NonZeroU8;
 use std::ops::RangeInclusive;
 use crate::pitch::Letter;
-use crate::notation::{StemDirection, GetStemDirectionParams};
-use crate::octave_letter::OctaveLetter;
+use crate::notation::{OctaveLetter, StemDirection, GetStemDirectionParams};
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub struct PitchClef {
@@ -180,7 +179,7 @@ pub struct TablatureClef;
 #[cfg(test)]
 mod tests {
     use crate::pitch::Letter;
-    use crate::octave_letter::OctaveLetter;
+    use crate::notation::octave_letter::OctaveLetter;
     use super::{PitchClef as Clef, StaffPosition as Pos, *};
 
     const ALL_CONSTS: [PitchClef; 14] = [
