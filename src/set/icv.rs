@@ -1,4 +1,4 @@
-use std::fmt;
+use std::{array, fmt};
 use std::ops::Deref;
 use crate::pitch::PitchClass;
 use crate::set::PitchClassSet;
@@ -27,6 +27,58 @@ impl IntervalClassVector {
     // TODO: might get confused with (*icv).len() due to auto-deref
     pub fn total(self) -> u8 {
         self.0.iter().sum()
+    }
+
+    pub fn hamming_distance(self, other: Self) -> u8 {
+        self.0
+            .into_iter()
+            .zip(other.0)
+            .filter(|(a, b)| a != b)
+            .count() as _
+    }
+
+    pub fn distinct_classes(self) -> u8 {
+        self.0.iter().filter(|&&count| count != 0).count() as u8
+    }
+
+    pub fn has_all_classes(self) -> bool {
+        self.distinct_classes() == 6
+    }
+
+    pub fn is_all_interval(self) -> bool {
+        self.into_iter().all(|ic| ic == 1)
+    }
+
+    pub fn complement(self) -> Self {
+        Self::CHROMATIC_AGGREGATE
+            .difference(self)
+            .expect("chromatic aggregate is superset of all")
+    }
+
+    pub fn is_superset_of(self, other: Self) -> bool {
+        self.0
+            .iter()
+            .zip(other.0.iter())
+            .all(|(a, b)| a >= b)
+    }
+
+    #[inline]
+    pub fn is_subset_of(self, other: Self) -> bool {
+        other.is_superset_of(self)
+    }
+
+    pub fn difference(self, other: Self) -> Option<Self> {
+        if !other.is_subset_of(self) {
+            return None;
+        }
+
+        // yes, this expects just to wrap it in Some again,
+        // but this checks that the only case this function returns
+        // None is if 'other' isn't a subset of self
+        let diff = Self::new(array::from_fn(|i| self[i] - other[i]))
+            .expect("should be valid ICV");
+
+        Some(diff)
     }
 }
 
@@ -79,5 +131,25 @@ mod tests {
                 "should be 'n choose 2', since each pair of pitches"
             );
         }
+    }
+
+    #[test]
+    fn all_interval_tetrachords() {
+        fn from_chromas(chromas: [u8; 4]) -> IntervalClassVector {
+            chromas
+                .into_iter()
+                .map(|chroma| PitchClass::from_repr(chroma).expect("valid chromas"))
+                .collect()
+        }
+
+        assert!(
+            from_chromas([0, 1, 4, 6]).is_all_interval(),
+            "[0, 1, 4, 6] should be all interval tetrachord",
+        );
+
+        assert!(
+            from_chromas([0, 1, 3, 7]).is_all_interval(),
+            "[0, 1, 3, 7] should be all interval tetrachord",
+        );
     }
 }
