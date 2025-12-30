@@ -3,7 +3,7 @@ use std::ops::Deref;
 use crate::pitch::PitchClass;
 use crate::set::PitchClassSet;
 
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+#[derive(Default, Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub struct IntervalClassVector([u8; 6]);
 
 impl IntervalClassVector {
