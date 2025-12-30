@@ -4,6 +4,8 @@ use serde::{Deserialize, Serialize};
 use strum::IntoEnumIterator;
 use crate::pitch::PitchClass;
 
+// TODO: implement IntoIterator for PitchClassSet
+
 #[derive(Copy, Clone, Eq, PartialEq, Default, Serialize, Deserialize)]
 pub struct PitchClassSet(u16);
 
