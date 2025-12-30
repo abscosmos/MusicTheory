@@ -70,6 +70,30 @@ impl Iterator for NoteGenerator {
 
         Some(note)
     }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        (usize::MAX, None)
+    }
+
+    fn nth(&mut self, n: usize) -> Option<Self::Item> {
+        let offset: i32 = n.try_into().expect("nth offset exceeds i32 bounds");
+
+        if self.reverse {
+            self.current -= offset;
+        } else {
+            self.current += offset;
+        }
+
+        self.next()
+    }
+
+    fn count(self) -> usize where Self: Sized {
+        panic!("NoteGenerator is infinite, cannot count");
+    }
+
+    fn last(self) -> Option<Self::Item> where Self: Sized {
+        panic!("NoteGenerator is infinite, has no last element");
+    }
 }
 
 impl FusedIterator for NoteGenerator {}
