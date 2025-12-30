@@ -1,9 +1,35 @@
 use crate::note::Note;
+use crate::pitch::{Pitch, PitchClass};
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub struct NoteGenerator {
+    // doing it from a "midi like" representation is implementation detail
     current: i32,
     reverse: bool,
 }
 
+impl NoteGenerator {
+    // this is copy Note::from_midi with types changed
+    #[inline]
+    fn repr_to_note(repr: i32) -> Note {
+        let pitch = PitchClass::from_repr(repr.rem_euclid(12) as _)
+            .expect("% 12 must be [0, 11]");
 
+        let oct = repr.div_euclid(12);
+
+        Note {
+            pitch: pitch.into(),
+            octave: oct as i16 - 1,
+        }
+    }
+
+    // this is copy Note::as_midi with types changed
+    // TODO: an implementation that's an inverse of the above might be better instead of
+    //     'semitones_to' due to the size of the repr
+    #[inline]
+    fn note_to_repr(note: Note) -> i32 {
+        let zero = Note { pitch: Pitch::C, octave: -1 };
+
+        zero.semitones_to(note).0 as _
+    }
+}
