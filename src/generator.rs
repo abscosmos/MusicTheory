@@ -90,14 +90,9 @@ impl NoteGenerator {
         }
     }
 
-    // this is copy Note::as_midi with types changed
-    // TODO: an implementation that's an inverse of the above might be better instead of
-    //     'semitones_to' due to the size of the repr
     #[inline]
     fn note_to_repr(note: Note) -> i32 {
-        let zero = Note { pitch: Pitch::C, octave: 0 };
-
-        zero.semitones_to(note).0 as _
+        note.octave as i32 * 12 + note.pitch.as_pitch_class() as i32
     }
 }
 
