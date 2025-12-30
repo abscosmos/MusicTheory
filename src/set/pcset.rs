@@ -10,7 +10,7 @@ use crate::set::IntervalClassVector;
 pub struct PitchClassSet(u16);
 
 impl PitchClassSet {
-    pub const CHROMATIC_AGGREGATE: Self = Self(0xfff);
+    pub const CHROMATIC_AGGREGATE: Self = Self(Self::MASK);
 
     const MASK: u16 = 0xfff;
     
