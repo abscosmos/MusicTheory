@@ -1,3 +1,4 @@
+use std::iter::FusedIterator;
 use crate::note::Note;
 use crate::pitch::{Pitch, PitchClass};
 
@@ -70,3 +71,5 @@ impl Iterator for NoteGenerator {
         Some(note)
     }
 }
+
+impl FusedIterator for NoteGenerator {}
