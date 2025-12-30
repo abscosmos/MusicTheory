@@ -2,10 +2,11 @@ use std::array;
 use serde::{Deserialize, Serialize};
 use crate::interval::Interval;
 use crate::pitch::{Pitch, Letter, AccidentalSign};
-use crate::scales::definition::heptatonic::{DiatonicMode, DiatonicScale};
+use crate::mode::DiatonicMode;
+use crate::scales::definition::heptatonic::{DiatonicMode as DiatonicModeExperimental, DiatonicScale};
 use crate::scales::rooted::RootedSizedScale;
-use crate::scales::{Numeral7, ScaleMode};
-use crate::scales::sized_scale::SizedScale;
+use crate::scales::{Numeral7, ScaleMode as _};
+use crate::scales::sized_scale::SizedScale as _;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Key {
@@ -53,15 +54,15 @@ impl Key {
     pub fn try_from_sharps_tonic(sharps: i16, tonic: Pitch) -> Option<Self> {
         let major_tonic = Pitch::from_fifths_from_c(sharps);
 
-        let pos = DiatonicScale::new(DiatonicMode::MAJOR)
+        let pos = DiatonicScale::new(DiatonicMode::MAJOR.as_experimental())
             .build_from(major_tonic)
             .iter()
             .position(|p| *p == tonic)?;
 
-        let mode = DiatonicMode::from_num((pos + 1) as _)
+        let mode = DiatonicModeExperimental::from_num((pos + 1) as _)
             .expect("should be within [1,7]");
         
-        Some(Self::new(tonic, mode))
+        Some(Self::new(tonic, DiatonicMode::from_experimental(mode)))
     }
 
     pub fn parallel(self) -> Option<Self> {
@@ -100,7 +101,7 @@ impl Key {
         let letter = Letter::from_step(letter_step)
             .expect("must be in range of [0,6]");
 
-        let expect = RootedSizedScale { root: Pitch::from(letter), scale: DiatonicScale::new(mode) }.get(degree);
+        let expect = RootedSizedScale { root: Pitch::from(letter), scale: DiatonicScale::new(mode.as_experimental()) }.get(degree);
         
         assert_eq!(
             pitch.letter(), expect.letter(),
@@ -157,15 +158,16 @@ impl Key {
     pub fn scale(&self) -> RootedSizedScale<Pitch, 7, DiatonicScale> {
         RootedSizedScale {
             root: self.tonic,
-            scale: DiatonicScale::new(self.mode),
+            scale: DiatonicScale::new(self.mode.as_experimental()),
         }
     }
-    
+
+    // TODO: this should be gated under experimental/scales feature too, once feature gates are added
     pub fn chord_scales(&self) -> [RootedSizedScale<Pitch, 7, DiatonicScale>; 7] {
         let scale = self.scale().build_default();
         
         array::from_fn(|i| {
-            let mode = DiatonicMode::from_num((self.mode.as_num() - 1 + i as u8) % 7 + 1)
+            let mode = DiatonicModeExperimental::from_num((self.mode.as_experimental().as_num() - 1 + i as u8) % 7 + 1)
                 .expect("should be in [1, 7]");
             
             let root = *scale.get(i).expect("scale and ret array should be the same size");
