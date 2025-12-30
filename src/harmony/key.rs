@@ -2,7 +2,7 @@ use std::array;
 use serde::{Deserialize, Serialize};
 use crate::interval::Interval;
 use crate::pitch::{Pitch, Letter, AccidentalSign};
-use crate::mode::DiatonicMode;
+use crate::harmony::mode::DiatonicMode;
 use crate::scales::definition::heptatonic::{DiatonicMode as DiatonicModeExperimental, DiatonicScale};
 use crate::scales::rooted::RootedSizedScale;
 use crate::scales::{Numeral7, ScaleMode as _};
