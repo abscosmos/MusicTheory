@@ -75,6 +75,14 @@ impl Iterator for NoteGenerator {
         (usize::MAX, None)
     }
 
+    fn count(self) -> usize where Self: Sized {
+        panic!("NoteGenerator is infinite, cannot count");
+    }
+
+    fn last(self) -> Option<Self::Item> where Self: Sized {
+        panic!("NoteGenerator is infinite, has no last element");
+    }
+
     fn nth(&mut self, n: usize) -> Option<Self::Item> {
         let offset: i32 = n.try_into().expect("nth offset exceeds i32 bounds");
 
@@ -85,14 +93,6 @@ impl Iterator for NoteGenerator {
         }
 
         self.next()
-    }
-
-    fn count(self) -> usize where Self: Sized {
-        panic!("NoteGenerator is infinite, cannot count");
-    }
-
-    fn last(self) -> Option<Self::Item> where Self: Sized {
-        panic!("NoteGenerator is infinite, has no last element");
     }
 }
 
