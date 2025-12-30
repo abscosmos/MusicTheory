@@ -12,7 +12,6 @@ pub mod key;
 pub mod analyze;
 pub mod prelude;
 pub mod octave_letter;
-pub mod stem_direction;
 pub mod set;
 pub mod notation;
 /*

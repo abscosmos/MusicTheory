@@ -2,7 +2,7 @@ use std::fmt;
 use std::num::NonZeroU8;
 use std::ops::RangeInclusive;
 use crate::letter::Letter;
-use crate::stem_direction::StemDirection;
+use crate::notation::StemDirection;
 use crate::octave_letter::OctaveLetter;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
