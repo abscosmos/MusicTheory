@@ -48,7 +48,7 @@ impl fmt::Display for IntervalClassVector {
 
 #[cfg(test)]
 mod tests {
-    use crate::set::{IntervalClassVector, PitchClassSet};
+    use super::*;
 
     #[test]
     fn chromatic_aggregate() {
