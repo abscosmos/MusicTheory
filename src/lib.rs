@@ -14,7 +14,6 @@ pub mod prelude;
 pub mod clef;
 pub mod octave_letter;
 pub mod stem_direction;
-pub mod pcset;
 pub mod set;
 /*
 TODO:

@@ -141,7 +141,7 @@ impl BitXor for PitchClassSet {
 
 #[cfg(test)]
 mod tests {
-    use crate::pcset::PitchClassSet;
+    use crate::set::pcset::PitchClassSet;
     use crate::pitch_class::PitchClass;
 
     #[test]
