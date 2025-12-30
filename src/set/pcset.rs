@@ -3,7 +3,7 @@ use std::ops::{BitAnd, BitXor, Not};
 use serde::{Deserialize, Serialize};
 use strum::IntoEnumIterator;
 use crate::pitch::PitchClass;
-
+use crate::set::IntervalClassVector;
 // TODO: implement IntoIterator for PitchClassSet
 
 #[derive(Copy, Clone, Eq, PartialEq, Default, Serialize, Deserialize)]
@@ -54,7 +54,7 @@ impl PitchClassSet {
             .collect()
     }
 
-    pub fn interval_class_vector(self) -> [u8; 6] {
+    pub fn interval_class_vector(self) -> IntervalClassVector {
         let mut icv = [0u8; 6];
 
         for pc1 in PitchClass::iter()
@@ -72,7 +72,7 @@ impl PitchClassSet {
             }
         }
 
-        icv
+        IntervalClassVector::new(icv).expect("all pcsets should be valid icvs")
     }
     
     pub fn is_set(self, pc: PitchClass) -> bool {
