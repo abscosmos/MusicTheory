@@ -10,6 +10,7 @@ pub mod prelude;
 pub mod set;
 pub mod notation;
 pub mod harmony;
+pub mod generator;
 /*
 TODO:
     - add prelude
