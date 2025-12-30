@@ -1,4 +1,4 @@
-use std::iter::FusedIterator;
+use std::iter::{FusedIterator, Take};
 use crate::note::Note;
 use crate::pitch::{Pitch, PitchClass};
 
@@ -23,6 +23,28 @@ impl NoteGenerator {
 
     pub fn reversed(current: Note) -> Self {
         Self::new(current).reverse()
+    }
+
+    pub fn range(start: Note, end: Note) -> Take<Self> {
+        let start_repr = Self::note_to_repr(start);
+        let end_repr = Self::note_to_repr(end);
+
+        if start_repr <= end_repr {
+            Self::new(start).take((end_repr - start_repr) as _)
+        } else {
+            Self::reversed(start).take((start_repr - end_repr) as _)
+        }
+    }
+
+    pub fn range_inclusive(start: Note, end: Note) -> Take<Self> {
+        let start_repr = Self::note_to_repr(start);
+        let end_repr = Self::note_to_repr(end);
+
+        if start_repr <= end_repr {
+            Self::new(start).take((end_repr - start_repr) as usize + 1)
+        } else {
+            Self::reversed(start).take((start_repr - end_repr) as usize + 1)
+        }
     }
 
     // this is copy Note::from_midi with types changed
