@@ -1,6 +1,6 @@
 use std::cmp::Ordering;
 use std::fmt;
-use crate::letter::Letter;
+use crate::pitch::Letter;
 use crate::note::Note;
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
@@ -61,7 +61,7 @@ impl PartialOrd for OctaveLetter {
 
 #[cfg(test)]
 mod tests {
-    use crate::letter::Letter;
+    use crate::pitch::Letter;
     use crate::octave_letter::OctaveLetter;
 
     #[test]

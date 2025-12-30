@@ -34,12 +34,16 @@ use serde::{Deserialize, Serialize};
 use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
 use crate::interval::Interval;
 use crate::interval::IntervalQuality;
-use crate::accidental::AccidentalSign;
-use crate::letter::Letter;
 use crate::semitone::Semitone;
 
 mod class;
 pub use class::*;
+
+mod letter;
+pub use letter::*;
+
+mod accidental;
+pub use accidental::*;
 
 mod consts;
 
