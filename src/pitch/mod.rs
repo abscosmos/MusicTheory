@@ -36,8 +36,10 @@ use crate::interval::Interval;
 use crate::interval::IntervalQuality;
 use crate::accidental::AccidentalSign;
 use crate::letter::Letter;
-use crate::pitch_class::PitchClass;
 use crate::semitone::Semitone;
+
+mod class;
+pub use class::*;
 
 mod consts;
 
