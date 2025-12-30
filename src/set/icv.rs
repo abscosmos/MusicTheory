@@ -1,6 +1,7 @@
 use std::fmt;
 use std::ops::Deref;
 
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub struct IntervalClassVector([u8; 6]);
 
 impl IntervalClassVector {
