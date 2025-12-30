@@ -4,7 +4,7 @@ use crate::accidental::AccidentalSign;
 use crate::interval::Interval;
 use crate::letter::Letter;
 use crate::pitch::Pitch;
-use crate::scales::heptatonic::{DiatonicMode, DiatonicScale};
+use crate::scales::definition::heptatonic::{DiatonicMode, DiatonicScale};
 use crate::scales::rooted::RootedSizedScale;
 use crate::scales::{Numeral7, ScaleMode};
 use crate::scales::sized_scale::SizedScale;
