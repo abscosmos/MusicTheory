@@ -5,6 +5,8 @@ use std::ops::Deref;
 pub struct IntervalClassVector([u8; 6]);
 
 impl IntervalClassVector {
+    pub const CHROMATIC_AGGREGATE: Self = Self([12, 12, 12, 12, 12, 6]);
+
     pub const fn new(arr: [u8; 6]) -> Option<Self> {
         // interval classes 1-5 (indices 0-4) can appear 0-12 times
         // interval class 6 (index 5, tritone) can only appear 0-6 times
