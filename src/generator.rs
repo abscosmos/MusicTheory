@@ -62,6 +62,14 @@ impl NoteGenerator {
         }
     }
 
+    pub fn full_note_range(reverse: bool) -> Take<Self> {
+        if !reverse {
+            Self::range_inclusive(Self::MIN_NOTE, Self::MAX_NOTE)
+        } else {
+            Self::range_inclusive(Self::MAX_NOTE, Self::MIN_NOTE)
+        }
+    }
+
     // this is copy Note::from_midi with types changed
     #[inline]
     fn repr_to_note(repr: i32) -> Note {
