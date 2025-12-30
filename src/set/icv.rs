@@ -1,3 +1,4 @@
+use std::fmt;
 use std::ops::Deref;
 
 pub struct IntervalClassVector([u8; 6]);
@@ -24,5 +25,13 @@ impl Deref for IntervalClassVector {
 
     fn deref(&self) -> &Self::Target {
         &self.0
+    }
+}
+
+impl fmt::Display for IntervalClassVector {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let [ic1, ic2, ic3, ic4, ic5, ic6] = self.0;
+
+        write!(f, "<{ic1}, {ic2}, {ic3}, {ic4}, {ic5}, {ic6}>")
     }
 }
