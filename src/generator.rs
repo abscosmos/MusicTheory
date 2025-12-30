@@ -17,9 +17,15 @@ impl NoteGenerator {
 
         let oct = repr.div_euclid(12);
 
+        // it seems using #[cfg(overflow_checks)] isn't stable
+        debug_assert!(
+            (i16::MIN as i32..=i16::MAX as i32).contains(&oct),
+            "octave must be in [-32768, 32767], got {oct}"
+        );
+
         Note {
             pitch: pitch.into(),
-            octave: oct as i16,
+            octave: oct as _,
         }
     }
 
