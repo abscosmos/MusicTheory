@@ -9,6 +9,21 @@ pub struct NoteGenerator {
 }
 
 impl NoteGenerator {
+    pub fn new(current: Note) -> Self {
+        Self {
+            current: Self::note_to_repr(current),
+            reverse: false
+        }
+    }
+
+    pub fn reverse(self) -> Self {
+        Self { reverse: !self.reverse, ..self }
+    }
+
+    pub fn reversed(current: Note) -> Self {
+        Self::new(current).reverse()
+    }
+
     // this is copy Note::from_midi with types changed
     #[inline]
     fn repr_to_note(repr: i32) -> Note {
