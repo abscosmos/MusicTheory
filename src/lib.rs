@@ -15,6 +15,7 @@ pub mod clef;
 pub mod octave_letter;
 pub mod stem_direction;
 pub mod set;
+pub mod notation;
 /*
 TODO:
     - add prelude
