@@ -1,5 +1,6 @@
 use std::fmt;
 use std::ops::Deref;
+use crate::pitch::PitchClass;
 use crate::set::PitchClassSet;
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
@@ -40,6 +41,12 @@ impl Deref for IntervalClassVector {
 impl From<PitchClassSet> for IntervalClassVector {
     fn from(pcset: PitchClassSet) -> Self {
         pcset.interval_class_vector()
+    }
+}
+
+impl FromIterator<PitchClass> for IntervalClassVector {
+    fn from_iter<T: IntoIterator<Item = PitchClass>>(iter: T) -> Self {
+        PitchClassSet::from_iter(iter).into()
     }
 }
 
