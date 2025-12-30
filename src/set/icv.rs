@@ -1,3 +1,5 @@
+use std::ops::Deref;
+
 pub struct IntervalClassVector([u8; 6]);
 
 impl IntervalClassVector {
@@ -14,5 +16,13 @@ impl IntervalClassVector {
             return None;
         }
         Some(Self(arr))
+    }
+}
+
+impl Deref for IntervalClassVector {
+    type Target = [u8; 6];
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
     }
 }
