@@ -22,6 +22,11 @@ impl IntervalClassVector {
         }
         Some(Self(arr))
     }
+
+    // TODO: might get confused with (*icv).len() due to auto-deref
+    pub fn total(self) -> u8 {
+        self.0.iter().sum()
+    }
 }
 
 impl Deref for IntervalClassVector {
