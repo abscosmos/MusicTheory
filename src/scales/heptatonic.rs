@@ -1,6 +1,6 @@
 #![allow(dead_code, unused_imports,  reason = "most of these constants aren't going to be used")]
 
-use crate::scales::define::define_scale;
+use crate::scales::definition::define_scale;
 use super::{S, T, TS, TT, A2};
 
 define_scale! {

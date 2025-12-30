@@ -7,7 +7,7 @@ pub mod sized_scale;
 pub mod dyn_scale;
 mod build_from;
 pub mod numeral;
-mod define;
+mod definition;
 pub mod heptatonic;
 pub mod pentatonic;
 pub mod chromatic;
