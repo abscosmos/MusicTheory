@@ -10,6 +10,9 @@ pub struct NoteGenerator {
 }
 
 impl NoteGenerator {
+    const MIN_NOTE: Note = Note { pitch: Pitch::C, octave: i16::MIN };
+    const MAX_NOTE: Note = Note { pitch: Pitch::B, octave: i16::MAX };
+
     pub fn new(current: Note) -> Self {
         Self {
             current: Self::note_to_repr(current),
@@ -44,6 +47,18 @@ impl NoteGenerator {
             Self::new(start).take((end_repr - start_repr) as usize + 1)
         } else {
             Self::reversed(start).take((start_repr - end_repr) as usize + 1)
+        }
+    }
+
+    pub fn take_until_overflow(self) -> Take<Self> {
+        let Self { current, reverse } = self;
+
+        let current = Self::repr_to_note(current);
+
+        if !reverse {
+            Self::range_inclusive(current, Self::MAX_NOTE)
+        } else {
+            Self::range_inclusive(current, Self::MIN_NOTE)
         }
     }
 
