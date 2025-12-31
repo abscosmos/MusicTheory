@@ -3,6 +3,10 @@ use strum::IntoEnumIterator;
 use crate::pitch::PitchClass;
 use crate::set::PitchClassSet;
 
+// TODO: unsure if there should be a separate wrapper type returned when calling into_iter?
+//     since the into_iter type is just a wrapper, the iterator impls could be directly on PitchClassSet
+//     it might be confusing to be able to call .last(), .next(), on a collection type
+
 /// An iterator over the pitch classes in a [`PitchClassSet`].
 ///
 /// Iterates in ascending order from C to B.
