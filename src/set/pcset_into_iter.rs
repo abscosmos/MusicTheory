@@ -10,6 +10,7 @@ use crate::set::PitchClassSet;
 /// An iterator over the pitch classes in a [`PitchClassSet`].
 ///
 /// Iterates in ascending order from C to B.
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct PitchClassSetIntoIter(PitchClassSet);
 
 impl Iterator for PitchClassSetIntoIter {
