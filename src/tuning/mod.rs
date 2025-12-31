@@ -10,6 +10,8 @@ mod ratio_based;
 pub use twelve_tet::*;
 pub use ratio_based::*;
 
+pub mod validate;
+
 /*
     There's two reasons TwelveToneEqualTemperament exists when it could be represented by RatioBased.
         1. When calculating cents (given by Tuning::freq_to_note), TwelveToneEqualTemperament,
