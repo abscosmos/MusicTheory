@@ -228,10 +228,6 @@ mod tests {
             for note in NoteGenerator::range_inclusive(Note::new(Pitch::C, -30), Note::new(Pitch::C, 30)) {
                 let freq_hz = tuning.note_to_freq_hz(note).expect("all midi notes should be in freq range");
 
-                if note == Note::new(crate::prelude::Pitch::F, 3) {
-                    assert!(note.octave > 0);
-                }
-
                 let (calc_note, calc_cents) = tuning.freq_to_note(freq_hz).expect("all midi notes should be in freq range");
 
                 assert_eq!(
