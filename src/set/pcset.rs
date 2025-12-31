@@ -52,13 +52,11 @@ impl PitchClassSet {
     pub fn interval_class_vector(self) -> IntervalClassVector {
         let mut icv = [0u8; 6];
 
-        for pc1 in PitchClass::iter()
-            .filter(|pc| self.is_set(*pc))
-        {
-            for pc2 in PitchClass::iter()
-                .skip(pc1.chroma() as usize + 1)
-                .filter(|pc| self.is_set(*pc))
-            {
+        let mut remaining = self.into_iter();
+
+        while let Some(pc1) = remaining.next() {
+            // this only iterates over the remaining (which haven't yet been consumed)
+            for pc2 in remaining.clone() {
                 let interval = pc1.semitones_to(pc2).0;
 
                 let ic = if interval > 6 { 12 - interval } else { interval };
