@@ -209,6 +209,8 @@ pub enum DeviationBetweenError {
 
 #[cfg(test)]
 mod tests {
+    use crate::generator::NoteGenerator;
+    use crate::pitch::Pitch;
     use super::*;
 
     #[test]
@@ -221,7 +223,7 @@ mod tests {
         ];
 
         for tuning in tunings {
-            for note in (0..=u8::MAX).map(Note::from_midi) {
+            for note in NoteGenerator::range_inclusive(Note::new(Pitch::C, -30), Note::new(Pitch::C, 30)) {
                 let freq_hz = tuning.note_to_freq_hz(note).expect("all midi notes should be in freq range");
 
                 if note == Note::new(crate::prelude::Pitch::F, 3) {

@@ -1,13 +1,15 @@
 use std::hint::black_box;
 use criterion::{criterion_group, criterion_main, Criterion};
+use music_theory::generator::NoteGenerator;
 use music_theory::note::Note;
+use music_theory::pitch::Pitch;
 use music_theory::tuning::{RatioBasedTuning, Tuning, TwelveToneEqualTemperament};
 
 fn twelve_tet_tuning(c: &mut Criterion) {
     let mut g = c.benchmark_group("12TET, note to freq");
     g.sample_size(300);
 
-    let notes = (u8::MIN..=u8::MAX).map(Note::from_midi).collect::<Vec<_>>();
+    let notes = NoteGenerator::range_inclusive(Note::new(Pitch::C, -30), Note::new(Pitch::C, 30)).collect::<Vec<_>>();
 
     let tuning_eq_temp = TwelveToneEqualTemperament::A4_440;
     let tuning_ratios = RatioBasedTuning::from_twelve_tet(tuning_eq_temp);
