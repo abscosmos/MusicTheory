@@ -42,12 +42,6 @@ impl PitchClassSet {
     fn index(pc: PitchClass) -> u8 {
         11 - pc.chroma()
     }
-    
-    pub fn pitch_classes(self) -> Vec<PitchClass> {
-        PitchClass::iter()
-            .filter(|pc| self.is_set(*pc))
-            .collect()
-    }
 
     pub fn interval_class_vector(self) -> IntervalClassVector {
         let mut icv = [0u8; 6];
@@ -175,23 +169,6 @@ mod tests {
         assert_eq!(format!("{cde:?}"), "PitchClassSet(0b101010000000)");
         
         assert_eq!(cde, PitchClassSet::from_iter([PitchClass::C, PitchClass::D, PitchClass::E]));
-    }
-    
-    #[test]
-    fn pitch_classes() {
-        let pcs = [
-            PitchClass::Cs,
-            PitchClass::D,
-            PitchClass::F,
-            PitchClass::G,
-            PitchClass::As,
-        ];
-
-        let set = PitchClassSet::from_iter(pcs);
-
-        assert_eq!(set.pitch_classes(), pcs);
-
-        assert_eq!(pcs.len(), set.len() as _);
     }
     
     #[test]
