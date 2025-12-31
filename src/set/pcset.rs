@@ -43,13 +43,6 @@ impl PitchClassSet {
         11 - pc.chroma()
     }
     
-    pub fn from_pitch_classes(pitch_classes: &[PitchClass]) -> Self {
-        pitch_classes.iter().copied().fold(
-            PitchClassSet::default(),
-            PitchClassSet::with_set,
-        )
-    }
-    
     pub fn pitch_classes(self) -> Vec<PitchClass> {
         PitchClass::iter()
             .filter(|pc| self.is_set(*pc))
@@ -183,7 +176,7 @@ mod tests {
         
         assert_eq!(format!("{cde:?}"), "PitchClassSet(0b101010000000)");
         
-        assert_eq!(cde, PitchClassSet::from_pitch_classes(&[PitchClass::C, PitchClass::D, PitchClass::E]));
+        assert_eq!(cde, PitchClassSet::from_iter([PitchClass::C, PitchClass::D, PitchClass::E]));
     }
     
     #[test]
@@ -196,7 +189,7 @@ mod tests {
             PitchClass::As,
         ];
 
-        let set = PitchClassSet::from_pitch_classes(&pcs);
+        let set = PitchClassSet::from_iter(pcs);
 
         assert_eq!(set.pitch_classes(), pcs);
 
@@ -229,8 +222,8 @@ mod tests {
             PitchClass::G,
         ];
         
-        let pcs_cmaj = PitchClassSet::from_pitch_classes(&cmaj);
-        let pcs_cmaj_pentatonic = PitchClassSet::from_pitch_classes(&cmaj_pentatonic);
+        let pcs_cmaj = PitchClassSet::from_iter(cmaj);
+        let pcs_cmaj_pentatonic = PitchClassSet::from_iter(cmaj_pentatonic);
         
         assert!(pcs_cmaj.is_superset_of(pcs_cmaj_pentatonic));
         assert!(pcs_cmaj_pentatonic.is_subset_of(pcs_cmaj));
