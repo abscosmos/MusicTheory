@@ -68,3 +68,129 @@ impl IntoIterator for PitchClassSet {
         PitchClassSetIntoIter(self)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn iter_forward() {
+        let set = PitchClassSet::from_iter([
+            PitchClass::C,
+            PitchClass::E,
+            PitchClass::G,
+        ]);
+
+        assert_eq!(
+            set.into_iter().collect::<Vec<_>>(),
+            [PitchClass::C, PitchClass::E, PitchClass::G]
+        );
+    }
+
+    #[test]
+    fn iter_backward() {
+        let set = PitchClassSet::from_iter([
+            PitchClass::C,
+            PitchClass::E,
+            PitchClass::G,
+        ]);
+
+        assert_eq!(
+            set.into_iter().rev().collect::<Vec<_>>(),
+            vec![PitchClass::G, PitchClass::E, PitchClass::C]
+        );
+    }
+
+    #[test]
+    fn iter_empty() {
+        let set = PitchClassSet::default();
+
+        assert_eq!(set.into_iter().count(), 0);
+        assert_eq!(set.into_iter().next(), None);
+        assert_eq!(set.into_iter().next_back(), None);
+    }
+
+    #[test]
+    fn iter_full() {
+        assert_eq!(
+            PitchClassSet::CHROMATIC_AGGREGATE.into_iter().collect::<Vec<_>>(),
+            PitchClass::iter().collect::<Vec<_>>()
+        );
+    }
+
+    #[test]
+    fn iter_size_hint() {
+        let set = PitchClassSet::from_iter([
+            PitchClass::C,
+            PitchClass::E,
+            PitchClass::G,
+        ]);
+
+        let mut iter = set.into_iter();
+        assert_eq!(iter.size_hint(), (3, Some(3)));
+        assert_eq!(iter.len(), 3);
+
+        iter.next();
+        assert_eq!(iter.size_hint(), (2, Some(2)));
+        assert_eq!(iter.len(), 2);
+    }
+
+    #[test]
+    fn iter_nth() {
+        let set = PitchClassSet::from_iter([
+            PitchClass::C,
+            PitchClass::D,
+            PitchClass::E,
+            PitchClass::F,
+            PitchClass::G,
+        ]);
+
+        let mut iter = set.into_iter();
+        assert_eq!(iter.nth(2), Some(PitchClass::E));
+        assert_eq!(iter.next(), Some(PitchClass::F));
+    }
+
+    #[test]
+    fn iter_nth_back() {
+        let set = PitchClassSet::from_iter([
+            PitchClass::C,
+            PitchClass::D,
+            PitchClass::E,
+            PitchClass::F,
+            PitchClass::G,
+        ]);
+
+        let mut iter = set.into_iter();
+        assert_eq!(iter.nth_back(2), Some(PitchClass::E));
+        assert_eq!(iter.next_back(), Some(PitchClass::D));
+    }
+
+    #[test]
+    fn iter_last() {
+        let set = PitchClassSet::from_iter([
+            PitchClass::C,
+            PitchClass::E,
+            PitchClass::G,
+        ]);
+
+        assert_eq!(set.into_iter().last(), Some(PitchClass::G));
+    }
+
+    #[test]
+    fn iter_double_ended() {
+        let set = PitchClassSet::from_iter([
+            PitchClass::C,
+            PitchClass::D,
+            PitchClass::E,
+            PitchClass::F,
+        ]);
+
+        let mut iter = set.into_iter();
+        assert_eq!(iter.next(), Some(PitchClass::C));
+        assert_eq!(iter.next_back(), Some(PitchClass::F));
+        assert_eq!(iter.next(), Some(PitchClass::D));
+        assert_eq!(iter.next_back(), Some(PitchClass::E));
+        assert_eq!(iter.next(), None);
+        assert_eq!(iter.next_back(), None);
+    }
+}
