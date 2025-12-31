@@ -3,11 +3,9 @@ use std::ops::{Add, Sub};
 use std::str::FromStr;
 use serde::{Deserialize, Serialize};
 use strum_macros::{EnumIter, FromRepr};
-use crate::accidental::AccidentalSign;
 use crate::enharmonic::EnharmonicEq;
 use crate::interval::Interval;
-use crate::letter::Letter;
-use crate::pitch::{Pitch, PitchFromStrError};
+use crate::pitch::{Pitch, Letter, AccidentalSign, PitchFromStrError};
 use crate::semitone::Semitone;
 
 #[repr(u8)]

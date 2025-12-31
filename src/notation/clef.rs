@@ -1,9 +1,8 @@
 use std::fmt;
 use std::num::NonZeroU8;
 use std::ops::RangeInclusive;
-use crate::letter::Letter;
-use crate::stem_direction::StemDirection;
-use crate::octave_letter::OctaveLetter;
+use crate::pitch::Letter;
+use crate::notation::{OctaveLetter, StemDirection, GetStemDirectionParams};
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub struct PitchClef {
@@ -135,17 +134,6 @@ impl PitchClef {
     }
 }
 
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Default)]
-pub enum GetStemDirectionParams {
-    /// Only the first note and last note are considered (Default)
-    #[default]
-    EndsOnly,
-    /// Only the note furthest above the middle line and furthest below the middle line are considered.
-    ExtremesOnly,
-    /// All notes are considered
-    AllNotes,
-}
-
 impl fmt::Display for PitchClef {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match *self {
@@ -190,9 +178,7 @@ pub struct TablatureClef;
 
 #[cfg(test)]
 mod tests {
-    use crate::letter::Letter;
-    use crate::octave_letter::OctaveLetter;
-    use super::{PitchClef as Clef, StaffPosition as Pos, *};
+    use super::{*, PitchClef as Clef, StaffPosition as Pos};
 
     const ALL_CONSTS: [PitchClef; 14] = [
         Clef::TREBLE,

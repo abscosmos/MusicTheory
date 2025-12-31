@@ -1,8 +1,7 @@
 use serde::{Deserialize, Serialize};
 use typed_floats::tf32::StrictlyPositiveFinite;
 use crate::note::Note;
-use crate::pitch::Pitch;
-use crate::pitch_class::PitchClass;
+use crate::pitch::{PitchClass, Pitch};
 use crate::tuning::{Cents, Tuning};
 
 #[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]

@@ -2,7 +2,7 @@ use std::ops::{Add, Neg, Sub};
 use serde::{Deserialize, Serialize};
 use crate::note::Note;
 use typed_floats::tf32::{StrictlyPositiveFinite, NonNaNFinite};
-use crate::pitch_class::PitchClass;
+use crate::pitch::PitchClass;
 use crate::semitone::Semitone;
 
 mod twelve_tet;
@@ -209,7 +209,6 @@ pub enum DeviationBetweenError {
 
 #[cfg(test)]
 mod tests {
-    use crate::pitch_class::PitchClass;
     use super::*;
 
     #[test]

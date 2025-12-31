@@ -5,7 +5,7 @@ use const_soft_float::soft_f32::SoftF32;
 use serde::{Deserialize, Serialize};
 use typed_floats::tf32::{self, StrictlyPositiveFinite};
 use crate::note::Note;
-use crate::pitch_class::PitchClass;
+use crate::pitch::PitchClass;
 use crate::tuning::{self, Cents, Tuning, TwelveToneEqualTemperament};
 
 #[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]

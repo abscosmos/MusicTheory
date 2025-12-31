@@ -1,5 +1,5 @@
 use std::ops::Add;
-use crate::accidental::AccidentalSign;
+use crate::pitch::AccidentalSign;
 use crate::interval::Interval;
 use crate::pitch::Pitch;
 use crate::scales::dyn_scale::{DynScale, DynamicScale};

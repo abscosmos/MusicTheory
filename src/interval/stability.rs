@@ -1,0 +1,44 @@
+use serde::{Serialize, Deserialize};
+
+/// The harmonic stability level of an interval.
+///
+/// Represents the degree of consonance or dissonance of an interval in traditional
+/// music theory. Consonant intervals sound stable and at rest, while dissonant
+/// intervals create tension that typically resolves to consonances.
+///
+/// # Examples
+///
+/// ```rust
+/// # use music_theory::prelude::*;
+/// // Check if an interval is consonant
+/// let stability = Interval::MAJOR_THIRD.stability().unwrap();
+/// assert!(stability.is_consonant());
+///
+/// // Perfect consonances are the most stable
+/// let perfect = Interval::PERFECT_FIFTH.stability().unwrap();
+/// assert_eq!(perfect, Stability::PerfectConsonance);
+///
+/// // Dissonances create harmonic tension
+/// let dissonance = Interval::MAJOR_SEVENTH.stability().unwrap();
+/// assert_eq!(dissonance, Stability::Dissonance);
+/// assert!(!dissonance.is_consonant());
+///
+/// // Perfect fourths are consonant melodically, but dissonant harmonically
+/// let ambiguous = Interval::PERFECT_FOURTH.stability();
+/// assert_eq!(ambiguous, None);
+/// ```
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Hash, Serialize, Deserialize)]
+pub enum Stability {
+    /// The most stable intervals: perfect unisons, fifths, and octaves
+    PerfectConsonance,
+    /// Less "pure" intervals: major and minor thirds and sixths
+    ImperfectConsonance,
+    /// Unstable intervals that create tensions: seconds, sevenths, and augmented/diminished intervals
+    Dissonance,
+}
+
+impl Stability {
+    pub fn is_consonant(self) -> bool {
+        matches!(self, Self::PerfectConsonance | Self::ImperfectConsonance)
+    }
+}

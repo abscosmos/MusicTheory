@@ -2,7 +2,7 @@ use std::fmt;
 use std::ops::{BitAnd, BitXor, Not};
 use serde::{Deserialize, Serialize};
 use strum::IntoEnumIterator;
-use crate::pitch_class::PitchClass;
+use crate::pitch::PitchClass;
 
 #[derive(Copy, Clone, Eq, PartialEq, Default, Serialize, Deserialize)]
 pub struct PitchClassSet(u16);
@@ -141,8 +141,7 @@ impl BitXor for PitchClassSet {
 
 #[cfg(test)]
 mod tests {
-    use crate::pcset::PitchClassSet;
-    use crate::pitch_class::PitchClass;
+    use super::*;
 
     #[test]
     fn new() {

@@ -3,18 +3,13 @@ pub mod enharmonic;
 pub mod interval;
 pub mod semitone;
 pub mod chord;
-pub mod pitch_class;
-pub mod accidental;
 pub mod pitch;
-pub mod letter;
 pub mod scales;
-pub mod key;
 pub mod analyze;
 pub mod prelude;
-pub mod clef;
-pub mod octave_letter;
-pub mod stem_direction;
-pub mod pcset;
+pub mod set;
+pub mod notation;
+pub mod harmony;
 pub mod tuning;
 /*
 TODO:

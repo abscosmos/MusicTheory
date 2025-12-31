@@ -5,9 +5,7 @@ use serde::{Deserialize, Serialize};
 use typed_floats::tf32::StrictlyPositiveFinite;
 use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
 use crate::interval::Interval;
-use crate::letter::Letter;
-use crate::pitch::Pitch;
-use crate::pitch_class::PitchClass;
+use crate::pitch::{Pitch, PitchClass, Letter};
 use crate::semitone::Semitone;
 use crate::tuning::{Tuning, TwelveToneEqualTemperament};
 

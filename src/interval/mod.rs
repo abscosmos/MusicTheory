@@ -16,6 +16,9 @@ pub use quality::*;
 mod number;
 pub use number::*;
 
+mod stability;
+pub use stability::*;
+
 mod consts;
 
 #[cfg(test)]
@@ -115,6 +118,50 @@ impl Interval {
         };
         
         Interval::new(quality, number).expect("should be valid")
+    }
+
+    /// Returns the harmonic stability of the interval.
+    ///
+    /// Intervals are either perfect or imperfect consonances, or dissonances
+    /// based on traditional music theory principles of harmonic stability.
+    ///
+    /// # Returns
+    ///
+    /// Returns `None` for perfect fourths, which are consonant melodically but dissonant
+    /// harmonically. All other intervals return `Some(Stability)`.
+    /// See [Stability] for what intervals fall in each category.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use music_theory::prelude::*;
+    /// // Perfect consonances
+    /// assert_eq!(Interval::PERFECT_FIFTH.stability(), Some(Stability::PerfectConsonance));
+    ///
+    /// // Imperfect consonances
+    /// assert_eq!(Interval::MAJOR_THIRD.stability(), Some(Stability::ImperfectConsonance));
+    ///
+    /// // Dissonances
+    /// assert_eq!(Interval::MAJOR_SECOND.stability(), Some(Stability::Dissonance));
+    /// assert_eq!(Interval::AUGMENTED_FOURTH.stability(), Some(Stability::Dissonance));
+    ///
+    /// // Perfect fourth is ambiguous
+    /// assert_eq!(Interval::PERFECT_FOURTH.stability(), None);
+    /// ```
+    pub fn stability(&self) -> Option<Stability> {
+        use IntervalQuality as Q;
+        use IntervalNumber as N;
+
+        match self.quality {
+            Q::Diminished(_) | Q::Augmented(_) => Some(Stability::Dissonance),
+            _ => match self.number.as_simple() {
+                N::UNISON | N::FIFTH | N::OCTAVE => Some(Stability::PerfectConsonance),
+                N::THIRD | N::SIXTH => Some(Stability::ImperfectConsonance),
+                N::SECOND | N::SEVENTH => Some(Stability::Dissonance),
+                N::FOURTH => None,
+                _ => unreachable!("as_simple should return number in [1,8]"),
+            }
+        }
     }
 
     // TODO: does this work for descending intervals?
