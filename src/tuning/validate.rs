@@ -12,49 +12,27 @@ pub enum ValidRangesError {
     InvalidCheckRange,
 }
 
+// this is in a newtype to define the EXACT and UNCHECKED constants
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
-pub struct ValidRangesCentsThreshold {
-    pub threshold: PositiveFinite,
-    pub relative_threshold: PositiveFinite
-}
+pub struct CentsThreshold(pub PositiveFinite);
 
-impl ValidRangesCentsThreshold {
-    pub const EXACT: Self = {
-        let Ok(zero) = PositiveFinite::new(0.0) else {
-            panic!("unreachable!: 0.0 is in [0, inf)");
-        };
-
-        Self {
-            threshold: zero,
-            relative_threshold: zero,
-        }
+impl CentsThreshold {
+    pub const EXACT: Self = match PositiveFinite::new(0.0) {
+        Ok(zero) => Self(zero),
+        Err(_) => panic!("unreachable!: 0.0 is in [0, inf)"),
     };
 
-    pub const UNCHECKED: Self = {
-        let Ok(max) = PositiveFinite::new(tf32::MAX.get()) else {
-            panic!("unreachable!: 0.0 is in [0, inf)");
-        };
-
-        Self {
-            threshold: max,
-            relative_threshold: max,
-        }
+    pub const UNCHECKED: Self = match PositiveFinite::new(tf32::MAX.get()) {
+        Ok(zero) => Self(zero),
+        Err(_) => panic!("unreachable!: every strictly positive finite value is positive finite"),
     };
-
-    pub fn absolute(threshold: PositiveFinite) -> Self {
-        Self {
-            threshold,
-            .. Self::EXACT
-        }
-    }
 }
 
-impl Default for ValidRangesCentsThreshold {
+impl Default for CentsThreshold {
     fn default() -> Self {
-        Self {
-            threshold: PositiveFinite::new(1e-9).expect("is in [0, inf)"),
-            relative_threshold: PositiveFinite::new(1e-3).expect("is in [0, inf)"),
-        }
+        Self (
+            PositiveFinite::new(1e-6).expect("is in [0, inf)")
+        )
     }
 }
 
@@ -65,7 +43,7 @@ pub struct ValidRangesResult {
     pub cents_within_threshold: Option<RangeInclusive<Note>>,
 }
 
-pub fn valid_ranges(tuning: &impl Tuning, start: Note, check_range: Option<RangeInclusive<Note>>, cents_threshold: ValidRangesCentsThreshold) -> Result<ValidRangesResult, ValidRangesError> {
+pub fn valid_ranges(tuning: &impl Tuning, start: Note, check_range: Option<RangeInclusive<Note>>, cents_threshold: CentsThreshold) -> Result<ValidRangesResult, ValidRangesError> {
     // no need to check for empty, since the contains test will catch that
     if check_range.as_ref().is_some_and(|range| !range.contains(&start)){
         return Err(ValidRangesError::InvalidCheckRange);
@@ -123,11 +101,7 @@ pub fn valid_ranges(tuning: &impl Tuning, start: Note, check_range: Option<Range
         }
 
         // 3. cents in threshold
-        let cents_abs = cents.get().abs();
-
-        if !state.hit_invalid_cents && !state.hit_invalid_inverse
-            && (cents_abs < cents_threshold.threshold || cents_abs / freq_hz.get() < cents_threshold.relative_threshold)
-        {
+        if !state.hit_invalid_cents && !state.hit_invalid_inverse && cents.0.abs() < cents_threshold.0 {
             state.last_valid_cents = Some(note);
         } else {
             state.hit_invalid_cents = true;
