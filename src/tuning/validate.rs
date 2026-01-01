@@ -1,5 +1,5 @@
 use std::ops::{ControlFlow, RangeInclusive};
-use typed_floats::tf32::{self, PositiveFinite};
+use typed_floats::tf32::{self, StrictlyPositiveFinite};
 use crate::generator::NoteGenerator;
 use crate::note::Note;
 use crate::tuning::Tuning;
@@ -14,15 +14,16 @@ pub enum ValidRangesError {
 
 // this is in a newtype to define the EXACT and UNCHECKED constants
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
-pub struct CentsThreshold(pub PositiveFinite);
+pub struct CentsThreshold(pub StrictlyPositiveFinite);
 
 impl CentsThreshold {
-    pub const EXACT: Self = match PositiveFinite::new(0.0) {
+    // f32::from_bits(1) is smallest value (f32::MIN_POSITIVE doesn't include subnormal)
+    pub const EXACT: Self = match StrictlyPositiveFinite::new(f32::from_bits(1)) {
         Ok(zero) => Self(zero),
         Err(_) => panic!("unreachable!: 0.0 is in [0, inf)"),
     };
 
-    pub const UNCHECKED: Self = match PositiveFinite::new(tf32::MAX.get()) {
+    pub const UNCHECKED: Self = match StrictlyPositiveFinite::new(tf32::MAX.get()) {
         Ok(zero) => Self(zero),
         Err(_) => panic!("unreachable!: every strictly positive finite value is positive finite"),
     };
@@ -31,7 +32,7 @@ impl CentsThreshold {
 impl Default for CentsThreshold {
     fn default() -> Self {
         Self (
-            PositiveFinite::new(1e-5 * 100.0).expect("is in [0, inf)"),
+            StrictlyPositiveFinite::new(1e-5 * 100.0).expect("is in [0, inf)"),
         )
     }
 }
