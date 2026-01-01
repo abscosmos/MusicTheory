@@ -40,6 +40,7 @@ impl Default for CentsThreshold {
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct ValidRangesResult {
     pub computable: RangeInclusive<Note>,
+    pub strictly_monotonic: bool,
     pub valid_inverses: Option<RangeInclusive<Note>>,
     pub cents_within_threshold: Option<RangeInclusive<Note>>,
 }
@@ -71,9 +72,10 @@ pub fn valid_ranges(tuning: &impl Tuning, start: Note, check_range: Option<Range
         None => NoteGenerator::new(start).take_until_overflow(),
     };
 
-    #[derive(Default)]
+    #[derive(Default, Clone)]
     struct State {
-        pub last_computable: Option<Note>,
+        pub last_computable: Option<(Note, StrictlyPositiveFinite)>,
+        pub strictly_monotonic: bool,
 
         pub last_valid_inverse: Option<Note>,
         pub hit_invalid_inverse: bool,
@@ -82,7 +84,7 @@ pub fn valid_ranges(tuning: &impl Tuning, start: Note, check_range: Option<Range
         pub hit_invalid_cents: bool,
     }
 
-    let try_fold = |mut state: State, note: Note| -> ControlFlow<State, State> {
+    let try_fold = |mut state: State, note: Note, increasing: bool| -> ControlFlow<State, State> {
         // 1. check computable
         let Some(freq_hz) = tuning.note_to_freq_hz(note) else {
             return ControlFlow::Break(state);
@@ -92,11 +94,17 @@ pub fn valid_ranges(tuning: &impl Tuning, start: Note, check_range: Option<Range
             return ControlFlow::Break(state);
         };
 
-        state.last_computable = Some(note);
+        let prev_note_freq = state.last_computable.replace((note, freq_hz));
 
         // 2. valid inverse
         if !state.hit_invalid_inverse && note == comp_note {
             state.last_valid_inverse = Some(note);
+
+            if let Some((_, prev_freq)) = prev_note_freq &&
+                ( increasing && (prev_freq >= freq_hz) || !increasing && (prev_freq <= freq_hz) )
+            {
+                state.strictly_monotonic = false
+            }
         } else {
             state.hit_invalid_inverse = true;
         }
@@ -111,17 +119,29 @@ pub fn valid_ranges(tuning: &impl Tuning, start: Note, check_range: Option<Range
         ControlFlow::Continue(state)
     };
 
-    let above = match range_above.try_fold(State::default(), try_fold) {
+    let init_state = State {
+        strictly_monotonic: true,
+        .. State::default()
+    };
+
+    let above = match range_above.try_fold(init_state.clone(), |s, n| try_fold(s, n, true)) {
         ControlFlow::Continue(s) | ControlFlow::Break(s) => s
     };
 
-    let below = match range_below.try_fold(State::default(), try_fold) {
+    let below = match range_below.try_fold(init_state, |s, n| try_fold(s, n, false)) {
         ControlFlow::Continue(s) | ControlFlow::Break(s) => s
     };
 
     // fine to unwrap below with start, because start is already shown to be valid in all cases
     let res = ValidRangesResult {
-        computable: below.last_computable.unwrap_or(start)..=above.last_computable.ok_or(ValidRangesError::StartNotComputable)?,
+        computable: {
+            let below = below.last_computable.map(|(note, _)| note);
+            let above = above.last_computable.map(|(note, _)| note);
+
+            below.unwrap_or(start)..=above.ok_or(ValidRangesError::StartNotComputable)?
+        },
+        // TODO: do we need to check the boundary between start & (start - 1)?
+        strictly_monotonic: below.strictly_monotonic && above.strictly_monotonic,
         valid_inverses: above.last_valid_inverse.map(|above|
             below.last_valid_inverse.unwrap_or(start)..=above
         ),
