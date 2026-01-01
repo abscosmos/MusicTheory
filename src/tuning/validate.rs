@@ -31,7 +31,7 @@ impl CentsThreshold {
 impl Default for CentsThreshold {
     fn default() -> Self {
         Self (
-            PositiveFinite::new(1e-6).expect("is in [0, inf)")
+            PositiveFinite::new(1e-5 * 100.0).expect("is in [0, inf)"),
         )
     }
 }
