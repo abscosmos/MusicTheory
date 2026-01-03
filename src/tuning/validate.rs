@@ -38,14 +38,14 @@ impl Default for CentsThreshold {
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct ValidRangesResult {
+pub struct ValidRangesReport {
     pub computable: RangeInclusive<Note>,
     pub strictly_monotonic: bool,
     pub valid_inverses: Option<RangeInclusive<Note>>,
     pub cents_within_threshold: Option<RangeInclusive<Note>>,
 }
 
-pub fn valid_ranges(tuning: &impl Tuning, start: Note, check_range: Option<RangeInclusive<Note>>, cents_threshold: CentsThreshold) -> Result<ValidRangesResult, ValidRangesError> {
+pub fn valid_ranges(tuning: &impl Tuning, start: Note, check_range: Option<RangeInclusive<Note>>, cents_threshold: CentsThreshold) -> Result<ValidRangesReport, ValidRangesError> {
     // no need to check for empty, since the contains test will catch that
     if check_range.as_ref().is_some_and(|range| !range.contains(&start)){
         return Err(ValidRangesError::InvalidCheckRange);
@@ -133,7 +133,7 @@ pub fn valid_ranges(tuning: &impl Tuning, start: Note, check_range: Option<Range
     };
 
     // fine to unwrap below with start, because start is already shown to be valid in all cases
-    let res = ValidRangesResult {
+    let res = ValidRangesReport {
         computable: {
             let below = below.last_computable.map(|(note, _)| note);
             let above = above.last_computable.map(|(note, _)| note);
