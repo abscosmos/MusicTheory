@@ -43,8 +43,8 @@ pub struct StepSizeThreshold(RangeInclusive<PositiveFinite>);
 
 impl StepSizeThreshold {
     pub const UNCHECKED: Self = {
-        let min = Cents::new(tf32::ZERO.get()).expect("in (-inf, inf)");
-        let max = Cents::new(tf32::MAX.get()).expect("in (-inf, inf)");
+        let min = Cents::new(tf32::ZERO.get()).expect("in [0, inf)");
+        let max = Cents::new(tf32::MAX.get()).expect("in [0, inf)");
 
         Self::new(min..=max).unwrap()
     };
