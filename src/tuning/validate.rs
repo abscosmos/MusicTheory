@@ -1,8 +1,8 @@
 use std::ops::{ControlFlow, RangeInclusive};
-use typed_floats::tf32::{self, StrictlyPositiveFinite};
+use typed_floats::tf32::{self, PositiveFinite, StrictlyPositiveFinite};
 use crate::generator::NoteGenerator;
 use crate::note::Note;
-use crate::tuning::Tuning;
+use crate::tuning::{Cents, Tuning};
 
 #[derive(Clone, Debug, Eq, PartialEq, thiserror::Error)]
 pub enum ValidRangesError {
@@ -37,15 +37,53 @@ impl Default for CentsThreshold {
     }
 }
 
+/// Threshold for cents between individual notes.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct StepSizeThreshold(RangeInclusive<PositiveFinite>);
+
+impl StepSizeThreshold {
+    pub const UNCHECKED: Self = {
+        let min = Cents::new(tf32::ZERO.get()).expect("in (-inf, inf)");
+        let max = Cents::new(tf32::MAX.get()).expect("in (-inf, inf)");
+
+        Self::new(min..=max).unwrap()
+    };
+
+    // TODO: should this also ensure !threshold.is_empty()?
+    pub const fn new(threshold: RangeInclusive<Cents>) -> Option<Self> {
+        match (PositiveFinite::new(threshold.start().get()), PositiveFinite::new(threshold.end().get())) {
+            (Ok(start), Ok(end)) => Some(Self(start..=end)),
+            _ => None,
+        }
+    }
+}
+
+impl Default for StepSizeThreshold {
+    // (+/-20% from 12-TET's 100 cents)
+    fn default() -> Self {
+        let start = Cents::new(80.0).expect("in (-inf, inf)");
+        let end = Cents::new(120.0).expect("in (-inf, inf)");
+
+        Self::new(start..=end).expect("cents values are non nan and finite")
+    }
+}
+
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct ValidRangesReport {
     pub computable: RangeInclusive<Note>,
     pub strictly_monotonic: bool,
     pub valid_inverses: Option<RangeInclusive<Note>>,
     pub cents_within_threshold: Option<RangeInclusive<Note>>,
+    pub step_size_valid: Option<RangeInclusive<Note>>,
 }
 
-pub fn valid_ranges(tuning: &impl Tuning, start: Note, check_range: Option<RangeInclusive<Note>>, cents_threshold: CentsThreshold) -> Result<ValidRangesReport, ValidRangesError> {
+pub fn valid_ranges(
+    tuning: &impl Tuning,
+    start: Note,
+    check_range: Option<RangeInclusive<Note>>,
+    cents_threshold: CentsThreshold,
+    step_size_threshold: StepSizeThreshold,
+) -> Result<ValidRangesReport, ValidRangesError> {
     // no need to check for empty, since the contains test will catch that
     if check_range.as_ref().is_some_and(|range| !range.contains(&start)){
         return Err(ValidRangesError::InvalidCheckRange);
@@ -82,6 +120,9 @@ pub fn valid_ranges(tuning: &impl Tuning, start: Note, check_range: Option<Range
 
         pub last_valid_cents: Option<Note>,
         pub hit_invalid_cents: bool,
+
+        pub last_valid_step_size: Option<Note>,
+        pub hit_invalid_step_size: bool,
     }
 
     let try_fold = |mut state: State, note: Note, increasing: bool| -> ControlFlow<State, State> {
@@ -116,6 +157,21 @@ pub fn valid_ranges(tuning: &impl Tuning, start: Note, check_range: Option<Range
             state.hit_invalid_cents = true;
         }
 
+        // 4. step size in threshold
+        if !state.hit_invalid_inverse && !state.hit_invalid_step_size {
+            if let Some((_, prev_freq)) = prev_note_freq {
+                if let Some(step_cents) = Cents::between_frequencies(prev_freq, freq_hz)
+                    && step_size_threshold.0.contains(&step_cents.0.abs())
+                {
+                    state.last_valid_step_size = Some(note);
+                } else {
+                    state.hit_invalid_step_size = true;
+                }
+            } else {
+                state.last_valid_step_size = Some(note);
+            }
+        }
+
         ControlFlow::Continue(state)
     };
 
@@ -147,6 +203,9 @@ pub fn valid_ranges(tuning: &impl Tuning, start: Note, check_range: Option<Range
         ),
         cents_within_threshold: above.last_valid_cents.map(|above|
             below.last_valid_cents.unwrap_or(start)..=above
+        ),
+        step_size_valid: above.last_valid_step_size.map(|above|
+            below.last_valid_step_size.unwrap_or(start)..=above
         ),
     };
 
