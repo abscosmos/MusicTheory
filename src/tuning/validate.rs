@@ -73,16 +73,16 @@ pub struct ValidRangesReport {
     pub computable: RangeInclusive<Note>,
     pub strictly_monotonic: bool,
     pub valid_inverses: Option<RangeInclusive<Note>>,
-    pub cents_within_threshold: Option<RangeInclusive<Note>>,
     pub step_size_valid: Option<RangeInclusive<Note>>,
+    pub cents_within_threshold: Option<RangeInclusive<Note>>,
 }
 
 pub fn valid_ranges(
     tuning: &impl Tuning,
     start: Note,
     check_range: Option<RangeInclusive<Note>>,
-    cents_threshold: CentsThreshold,
     step_size_threshold: StepSizeThreshold,
+    cents_threshold: CentsThreshold,
 ) -> Result<ValidRangesReport, ValidRangesError> {
     // no need to check for empty, since the contains test will catch that
     if check_range.as_ref().is_some_and(|range| !range.contains(&start)){
@@ -118,11 +118,11 @@ pub fn valid_ranges(
         pub last_valid_inverse: Option<Note>,
         pub hit_invalid_inverse: bool,
 
-        pub last_valid_cents: Option<Note>,
-        pub hit_invalid_cents: bool,
-
         pub last_valid_step_size: Option<Note>,
         pub hit_invalid_step_size: bool,
+
+        pub last_valid_cents: Option<Note>,
+        pub hit_invalid_cents: bool,
     }
 
     let try_fold = |mut state: State, note: Note, increasing: bool| -> ControlFlow<State, State> {
@@ -150,14 +150,7 @@ pub fn valid_ranges(
             state.hit_invalid_inverse = true;
         }
 
-        // 3. cents in threshold
-        if !state.hit_invalid_cents && !state.hit_invalid_inverse && cents.0.abs() < cents_threshold.0 {
-            state.last_valid_cents = Some(note);
-        } else {
-            state.hit_invalid_cents = true;
-        }
-
-        // 4. step size in threshold
+        // 3. step size in threshold
         if !state.hit_invalid_inverse && !state.hit_invalid_step_size {
             if let Some((_, prev_freq)) = prev_note_freq {
                 if let Some(step_cents) = Cents::between_frequencies(prev_freq, freq_hz)
@@ -170,6 +163,13 @@ pub fn valid_ranges(
             } else {
                 state.last_valid_step_size = Some(note);
             }
+        }
+
+        // 4. cents in threshold
+        if !state.hit_invalid_cents && !state.hit_invalid_inverse && cents.0.abs() < cents_threshold.0 {
+            state.last_valid_cents = Some(note);
+        } else {
+            state.hit_invalid_cents = true;
         }
 
         ControlFlow::Continue(state)
@@ -201,13 +201,32 @@ pub fn valid_ranges(
         valid_inverses: above.last_valid_inverse.map(|above|
             below.last_valid_inverse.unwrap_or(start)..=above
         ),
-        cents_within_threshold: above.last_valid_cents.map(|above|
-            below.last_valid_cents.unwrap_or(start)..=above
-        ),
         step_size_valid: above.last_valid_step_size.map(|above|
             below.last_valid_step_size.unwrap_or(start)..=above
+        ),
+        cents_within_threshold: above.last_valid_cents.map(|above|
+            below.last_valid_cents.unwrap_or(start)..=above
         ),
     };
 
     Ok(res)
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::tuning::TwelveToneEqualTemperament;
+    use super::*;
+
+    #[test]
+    fn validate_twelve_tet() {
+        let validate = valid_ranges(
+            &TwelveToneEqualTemperament::A4_440,
+            Note::MIDDLE_C,
+            None,
+            StepSizeThreshold::UNCHECKED,
+            CentsThreshold::default(),
+        );
+
+        assert!(validate.is_ok());
+    }
 }
