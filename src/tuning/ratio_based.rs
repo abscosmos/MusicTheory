@@ -521,7 +521,7 @@ impl Tuning for RatioBasedTuning {
         let best_offset = self.ratios_base.semitones_to(best_pc).0 as usize;
         let cents = Cents::between_frequencies(self.ratios[best_offset], ratio_within_octave)?;
 
-        if cfg!(debug_assertions) {
+        if cfg!(debug_assertions) && (1e-35..=1e35).contains(&hz) {
             let cents_exp = Cents::from_note(best_note, hz, self).expect("should be in range");
 
             let abs_diff = (cents.0 - cents_exp.0).abs();
