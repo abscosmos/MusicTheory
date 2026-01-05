@@ -227,6 +227,8 @@ mod tests {
             &RatioBasedTuning::DEFAULT_JUST_INTONATION,
             &RatioBasedTuning::a4_440hz(OctaveRatios::TWELVE_TET, PitchClass::A),
             &RatioBasedTuning::a4_440hz(OctaveRatios::WERCKMEISTER_II, PitchClass::Fs),
+            &RatioBasedTuning::a4_440hz(OctaveRatios::QUARTER_COMMA_MEANTONE, PitchClass::B),
+            &RatioBasedTuning::a4_440hz(OctaveRatios::KIRNBERGER_III, PitchClass::E),
         ];
 
         let permissive = {
