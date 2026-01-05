@@ -4,10 +4,21 @@ use crate::generator::NoteGenerator;
 use crate::note::Note;
 use crate::tuning::{Cents, Tuning};
 
+/// Error returned by [`valid_ranges`], usually indicating invalid parameters.
 #[derive(Clone, Debug, Eq, PartialEq, thiserror::Error)]
 pub enum ValidRangesError {
+    /// The provided `tuning` could not compute the given `start` note.
+    ///
+    /// This might have happened in one of two ways:
+    /// 1. The `tuning` couldn't [compute the frequency](Tuning::note_to_freq_hz) for the given note
+    /// 2. The frequency was computed, but when given the same frequency,
+    ///    `tuning` couldn't [compute a note](Tuning::freq_to_note). If the note computed doesn't
+    ///    match `start`, indicating that it's not a valid inverse operation, it is **not** an error.
+    ///    It is only an error if `tuning` returns `None` for [Tuning::note_to_freq_hz] or `None`
+    ///    for [Tuning::freq_to_note], for the start note.
     #[error("Given start note wasn't computable")]
     StartNotComputable,
+    /// The provided `check_range` did not contain the start note.
     #[error("Provided range did not contain start")]
     InvalidCheckRange,
 }
