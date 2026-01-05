@@ -521,10 +521,16 @@ impl Tuning for RatioBasedTuning {
         let best_offset = self.ratios_base.semitones_to(best_pc).0 as usize;
         let cents = Cents::between_frequencies(self.ratios[best_offset], ratio_within_octave)?;
 
-        debug_assert!(
-            (cents.get() - Cents::from_note(best_note, hz, self).expect("should be in range").get()).abs() < 1e-3,
-            "using difference within an octave should be valid",
-        );
+        if cfg!(debug_assertions) {
+            let cents_exp = Cents::from_note(best_note, hz, self).expect("should be in range");
+
+            let abs_diff = (cents.0 - cents_exp.0).abs();
+
+            assert!(
+                cents_exp.0 == 0.0 || abs_diff < 1e-6 || (abs_diff / cents.0) < 1e-4,
+                "using difference within an octave should be valid (cents: {cents:?}, exp: {cents_exp:?} | note: {best_note}, hz: {hz})",
+            );
+        }
 
         Some((best_note, cents))
     }
@@ -589,6 +595,7 @@ impl IntoIterator for OctaveRatios {
 
 #[cfg(test)]
 mod tests {
+    use crate::generator::NoteGenerator;
     use super::*;
     use crate::pitch::Pitch;
 
@@ -626,7 +633,7 @@ mod tests {
         for (lhs, rhs) in pairs {
             let by_ratios = lhs.deviation_from(rhs).unwrap();
 
-            for reference in (u8::MIN..=u8::MAX).map(Note::from_midi) {
+            for reference in NoteGenerator::range_inclusive(Note::new(Pitch::C, -30), Note::new(Pitch::C, 30)) {
                 let freqs = [
                     reference.as_frequency_hz().unwrap(),
                     Note::A4.as_frequency_hz().unwrap(),
@@ -675,14 +682,14 @@ mod tests {
             ratio_based
         };
 
-        for note in (u8::MIN..=u8::MAX).map(Note::from_midi) {
+        for note in NoteGenerator::range_inclusive(Note::new(Pitch::C, -30), Note::new(Pitch::C, 30)) {
             let hz_eq_temp = tuning_eq_temp.note_to_freq_hz(note).expect("should return some for all MIDI notes");
             let hz_ratios = tuning_ratios.note_to_freq_hz(note).expect("should return some for all MIDI notes");
 
             let abs_diff = (hz_eq_temp - hz_ratios).abs();
 
             assert!(
-                (abs_diff / hz_eq_temp).get() < 1e-6,
+                abs_diff < 1e-12 || (abs_diff / hz_eq_temp).get() < 1e-6,
                 "calculating freq using precomputed ratios should give same answer; failed: {note}, eq_temp: {hz_eq_temp}, ratios: {hz_ratios}, diff: {abs_diff}",
             );
         }

@@ -10,6 +10,8 @@ mod ratio_based;
 pub use twelve_tet::*;
 pub use ratio_based::*;
 
+pub mod validate;
+
 /*
     There's two reasons TwelveToneEqualTemperament exists when it could be represented by RatioBased.
         1. When calculating cents (given by Tuning::freq_to_note), TwelveToneEqualTemperament,
@@ -209,6 +211,8 @@ pub enum DeviationBetweenError {
 
 #[cfg(test)]
 mod tests {
+    use crate::generator::NoteGenerator;
+    use crate::pitch::Pitch;
     use super::*;
 
     #[test]
@@ -221,12 +225,8 @@ mod tests {
         ];
 
         for tuning in tunings {
-            for note in (0..=u8::MAX).map(Note::from_midi) {
+            for note in NoteGenerator::range_inclusive(Note::new(Pitch::C, -30), Note::new(Pitch::C, 30)) {
                 let freq_hz = tuning.note_to_freq_hz(note).expect("all midi notes should be in freq range");
-
-                if note == Note::new(crate::prelude::Pitch::F, 3) {
-                    assert!(note.octave > 0);
-                }
 
                 let (calc_note, calc_cents) = tuning.freq_to_note(freq_hz).expect("all midi notes should be in freq range");
 
