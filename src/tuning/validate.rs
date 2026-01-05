@@ -261,7 +261,7 @@ pub struct ValidRangesReport {
 /// );
 /// ```
 pub fn valid_ranges(
-    tuning: &impl Tuning,
+    tuning: &(impl Tuning + ?Sized),
     start: Note,
     check_range: Option<RangeInclusive<Note>>,
     step_size_threshold: StepSizeThreshold,
