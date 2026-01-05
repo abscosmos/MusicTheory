@@ -23,10 +23,7 @@ impl CentsThreshold {
         Err(_) => panic!("unreachable!: 0.0 is in [0, inf)"),
     };
 
-    pub const UNCHECKED: Self = match StrictlyPositiveFinite::new(tf32::MAX.get()) {
-        Ok(zero) => Self(zero),
-        Err(_) => panic!("unreachable!: every strictly positive finite value is positive finite"),
-    };
+    pub const UNCHECKED: Self = Self(tf32::MAX);
 }
 
 impl Default for CentsThreshold {
