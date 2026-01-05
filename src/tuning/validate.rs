@@ -20,7 +20,7 @@
 //!     CentsThreshold::default(),
 //! ).expect("start should be computable");
 //!
-//! let valid_inverses_range = report.valid_inverses.expect("C4 is computable");
+//! let valid_inverses_range = report.valid_inverses.expect("C4 has valid inverse");
 //! let (min, max) = valid_inverses_range.into_inner();
 //!
 //! // For all notes in [C-100, C100], freq_to_note(note_to_freq_hz(note)) == note
@@ -251,7 +251,7 @@ pub struct ValidRangesReport {
 ///     CentsThreshold::default(),
 /// ).expect("start should be computable");
 ///
-/// let valid_inverses_range = report.valid_inverses.expect("C4 is computable");
+/// let valid_inverses_range = report.valid_inverses.expect("C4 has valid inverse");
 /// let (min, max) = valid_inverses_range.into_inner();
 ///
 /// // For all notes in [C-100, C100], freq_to_note(note_to_freq_hz(note)) == note
