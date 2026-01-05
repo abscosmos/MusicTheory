@@ -19,8 +19,8 @@ pub struct CentsThreshold(pub StrictlyPositiveFinite);
 impl CentsThreshold {
     // f32::from_bits(1) is smallest value (f32::MIN_POSITIVE doesn't include subnormal)
     pub const EXACT: Self = match StrictlyPositiveFinite::new(f32::from_bits(1)) {
-        Ok(zero) => Self(zero),
-        Err(_) => panic!("unreachable!: 0.0 is in [0, inf)"),
+        Ok(value) => Self(value),
+        Err(_) => panic!("unreachable!: smallest positive f32 is in (0, inf)"),
     };
 
     pub const UNCHECKED: Self = Self(tf32::MAX);
