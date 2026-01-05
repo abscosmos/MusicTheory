@@ -169,7 +169,7 @@ pub struct ValidRangesReport {
 /// of the tuning. If `check_range` is `None`, expands until min/max possible note.
 /// (This is around notes with octave [`i16::MIN`]/[`i16::MAX`])
 ///
-/// This function should be used to test implementations of [`Tuning`], to ensure they produce
+/// This should be used to test implementations of [`Tuning`] to ensure they produce
 /// sane results over a desired range. You may want to limit inputs to [`Tuning::freq_to_note`] or
 /// [`Tuning::note_to_freq_hz`] if validation shows your implementation behaviors irregularly for
 /// extreme inputs.
@@ -177,8 +177,8 @@ pub struct ValidRangesReport {
 /// This function does the following checks:
 /// 1. **Computable:** Checks that a note is "computable". This means that calling
 ///    [`Tuning::note_to_freq_hz`] on the note returns `Some(freq_hz)` **and** calling
-///    [`Tuning::freq_to_note`] with the frequency returned, `freq_hz`, is `Some((calc_note, calc_cents))`.
-///    *The note originally used and `calc_note` do not need to be equal!*
+///    [`Tuning::freq_to_note`] with that same frequency, is `Some((calc_note, calc_cents))`.
+///    *The note originally used and the computed note do not need to be equal!*
 /// 2. **Inverse:** Checks that the note returned, `calc_note`, is the same as the note used. Or,
 ///    in other words, [`Tuning::note_to_freq_hz`] and [`Tuning::freq_to_note`] are inverse operations
 ///    for a given note.
