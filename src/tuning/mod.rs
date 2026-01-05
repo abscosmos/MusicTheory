@@ -211,9 +211,14 @@ pub enum DeviationBetweenError {
 
 #[cfg(test)]
 mod tests {
-    use crate::generator::NoteGenerator;
+    use std::ops::RangeInclusive;
     use crate::pitch::Pitch;
+    use crate::tuning::validate::{CentsThreshold, StepSizeThreshold, ValidRangesReport};
     use super::*;
+
+    fn range_within<T: PartialOrd>(outer: RangeInclusive<T>, inner: RangeInclusive<T>) -> bool {
+        outer.start() <= inner.start() && outer.end() >= inner.end()
+    }
 
     #[test]
     fn note_freq_inverses() {
@@ -224,22 +229,60 @@ mod tests {
             &RatioBasedTuning::a4_440hz(OctaveRatios::WERCKMEISTER_II, PitchClass::Fs),
         ];
 
-        for tuning in tunings {
-            for note in NoteGenerator::range_inclusive(Note::new(Pitch::C, -30), Note::new(Pitch::C, 30)) {
-                let freq_hz = tuning.note_to_freq_hz(note).expect("all midi notes should be in freq range");
+        let permissive = {
+            let min = Cents::new(50.0).expect("in (-inf, inf)");
+            let max = Cents::new(150.0).expect("in (-inf, inf)");
 
-                let (calc_note, calc_cents) = tuning.freq_to_note(freq_hz).expect("all midi notes should be in freq range");
+            StepSizeThreshold::new(min..=max).expect("both bounds are positive")
+        };
 
-                assert_eq!(
-                    note, calc_note,
-                    "tuning methods should be inverses of each other",
-                );
+        for (i, tuning) in tunings.into_iter().enumerate() {
+            let report = validate::valid_ranges(
+                tuning,
+                Note::MIDDLE_C,
+                None,
+                permissive,
+                CentsThreshold::default(),
+            ).expect("C4 should be computable by all tunings!");
 
-                assert!(
-                    calc_cents.get().abs() < 1e-3,
-                    "should be exact conversion (got {calc_cents:?} for {note})",
-                );
-            }
+            let ValidRangesReport {
+                computable: _,
+                strictly_monotonic,
+                valid_inverses: Some(valid_inverses),
+                step_size_valid: Some(step_size_valid),
+                cents_within_threshold: Some(cents_within_threshold),
+            } = report else {
+                panic!("C4 should pass all checks");
+            };
+
+            assert!(
+                range_within(
+                    valid_inverses.clone(),
+                    Note::new(Pitch::C, -100)..=Note::new(Pitch::C, 100),
+                ),
+                "tuning methods should be inverses for all notes in [C-100, C100], failed: (#{i}): {valid_inverses:?}",
+            );
+
+            assert!(
+                range_within(
+                    step_size_valid.clone(),
+                    Note::new(Pitch::C, -100)..=Note::new(Pitch::C, 100),
+                ),
+                "tuning methods should have sane step sizes for all notes in [C-100, C100], failed: (#{i}): {step_size_valid:?}",
+            );
+
+            assert!(
+                range_within(
+                    cents_within_threshold.clone(),
+                    Note::new(Pitch::C, -75)..=Note::new(Pitch::C, 75),
+                ),
+                "cents should be within threshold for all notes in [C-75, C75], failed: (#{i}): {cents_within_threshold:?}",
+            );
+
+            assert!(
+                strictly_monotonic,
+                "tuning should be strictly monotonic"
+            );
         }
     }
 }
