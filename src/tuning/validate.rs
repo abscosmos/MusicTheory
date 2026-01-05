@@ -163,6 +163,69 @@ pub struct ValidRangesReport {
     pub cents_within_threshold: Option<RangeInclusive<Note>>,
 }
 
+/// Validates a tuning over a range of notes, returning a report of validity ranges.
+///
+/// Starting from `start`, expands outward in both directions checking various properties
+/// of the tuning. If `check_range` is `None`, expands until min/max possible note.
+/// (This is around notes with octave [`i16::MIN`]/[`i16::MAX`])
+///
+/// This function should be used to test implementations of [`Tuning`], to ensure they produce
+/// sane results over a desired range. You may want to limit inputs to [`Tuning::freq_to_note`] or
+/// [`Tuning::note_to_freq_hz`] if validation shows your implementation behaviors irregularly for
+/// extreme inputs.
+///
+/// This function does the following checks:
+/// 1. **Computable:** Checks that a note is "computable". This means that calling
+///    [`Tuning::note_to_freq_hz`] on the note returns `Some(freq_hz)` **and** calling
+///    [`Tuning::freq_to_note`] with the frequency returned, `freq_hz`, is `Some((calc_note, calc_cents))`.
+///    *The note originally used and `calc_note` do not need to be equal!*
+/// 2. **Inverse:** Checks that the note returned, `calc_note`, is the same as the note used. Or,
+///    in other words, [`Tuning::note_to_freq_hz`] and [`Tuning::freq_to_note`] are inverse operations
+///    for a given note.
+/// 3. **Cents within threshold:** If [`Tuning`] methods are inverses for a given note, checks that
+///    the cents returned is within the [threshold](CentsThreshold) specified by the `cents_threshold`
+///    parameter. For proper inverses, this should *technically* always be [zero](CentsThreshold::EXACT),
+///    but this threshold accounts for floating point error. This check can be disabled using
+///    [`CentsThreshold::UNCHECKED`].
+/// 4. **Step size within threshold:** Checks that the step size between two notes is not
+///    irregularly large or small. The [default](StepSizeThreshold::default) is +/-20% from
+///    12-TET's 100 cents. This check can be disabled using [`StepSizeThreshold::UNCHECKED`].
+/// 5. **Strictly monotonically increasing:** Over the computable range (see #1), as notes get
+///    higher, their frequency also gets higher.
+///
+/// Unless you have reason to, it's advised to pass `None` into `check_range`, as this will test
+/// *almost* all possible notes with your implementation (excluding notes where excessive
+/// accidentals would put them out of the range `[C-32768, B32767]`).
+///
+/// Ideally, your tuning function should also be safe to call (should not panic)
+/// for notes in `[C-32768, B32767]`. In case of error, it should return `None`. If your tuning
+/// implementation panics, this function **does not** [catch](std::panic::catch_unwind) it.
+///
+/// # Errors
+/// - Returns [`ValidRangesError::StartNotComputable`] if the tuning cannot compute the start note.
+/// - Returns [`ValidRangesError::InvalidCheckRange`] if `check_range` doesn't contain `start`.
+///
+/// # Examples
+/// ```
+/// # use music_theory::prelude::*;
+/// # use music_theory::tuning::{TwelveToneEqualTemperament, validate::*};
+/// let report = valid_ranges(
+///     &TwelveToneEqualTemperament::A4_440,
+///     Note::MIDDLE_C,
+///     None, // check all notes!
+///     StepSizeThreshold::default(),
+///     CentsThreshold::default(),
+/// ).unwrap();
+///
+/// let valid_inverses_range = report.valid_inverses.expect("C4 is computable");
+/// let (min, max) = valid_inverses_range.into_inner();
+///
+/// // For all notes in [C-100, C100], freq_to_note(note_to_freq_hz(note)) == note
+/// assert!(
+///     min <= Note::new(Pitch::C, -100) && max >= Note::new(Pitch::C, 100),
+///     "valid inverses range for 12TET was unexpected small"
+/// );
+/// ```
 pub fn valid_ranges(
     tuning: &impl Tuning,
     start: Note,
