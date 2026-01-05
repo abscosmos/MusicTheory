@@ -1,5 +1,5 @@
 use std::ops::{ControlFlow, RangeInclusive};
-use typed_floats::tf32::{self, PositiveFinite, StrictlyPositiveFinite};
+use typed_floats::tf32::{self, NonNaNFinite, PositiveFinite, StrictlyPositiveFinite};
 use crate::generator::NoteGenerator;
 use crate::note::Note;
 use crate::tuning::{Cents, Tuning};
@@ -51,6 +51,20 @@ impl StepSizeThreshold {
         match (PositiveFinite::new(threshold.start().get()), PositiveFinite::new(threshold.end().get())) {
             (Ok(start), Ok(end)) => Some(Self(start, end)),
             _ => None,
+        }
+    }
+
+    /// Returns the inner range as `RangeInclusive<Cents>`.
+    /// ```
+    /// # use music_theory::tuning::{Cents, validate::StepSizeThreshold};
+    /// let range = StepSizeThreshold::default().into_inner();
+    /// assert_eq!(range, Cents::new(80.0).unwrap()..=Cents::new(120.0).unwrap());
+    /// ```
+    pub const fn into_inner(self) -> RangeInclusive<Cents> {
+        // TODO: const 'From' implementation?
+        match (NonNaNFinite::new(self.0.get()), NonNaNFinite::new(self.1.get())) {
+            (Ok(start), Ok(end)) => Cents(start)..=Cents(end),
+            _ => panic!("unreachable!: PositiveFinite values are always NonNaNFinite"),
         }
     }
 
