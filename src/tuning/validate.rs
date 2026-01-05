@@ -62,7 +62,7 @@ impl Default for CentsThreshold {
     /// [`Cents`] returned must be less than `0.01c`
     /// ```
     /// # use music_theory::tuning::validate::CentsThreshold;
-    /// # assert_eq!(CentsThreshold::default().0, 0.01, "example does not match implementation!");
+    /// assert_eq!(CentsThreshold::default().0, 0.01);
     /// ```
     fn default() -> Self {
         Self (
