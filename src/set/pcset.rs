@@ -158,6 +158,12 @@ impl FromIterator<PitchClass> for PitchClassSet {
     }
 }
 
+impl Extend<PitchClass> for PitchClassSet {
+    fn extend<T: IntoIterator<Item=PitchClass>>(&mut self, iter: T) {
+        *self = iter.into_iter().fold(*self, PitchClassSet::with_set);
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
