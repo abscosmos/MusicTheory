@@ -12,21 +12,47 @@ pub enum ValidRangesError {
     InvalidCheckRange,
 }
 
-// this is in a newtype to define the EXACT and UNCHECKED constants
+/// Threshold for allowed deviation in [`Cents`]; used by [`valid_ranges`].
+///
+/// The validation process tests: `note -> freq -> (note, cents)` and checks that `cents` is
+/// close to zero, since it should be an exact inverse.
+/// This specifies the maximum allowed deviation from 0 cents.
+///
+/// # Examples
+///
+/// ```
+/// # use music_theory::tuning::validate::CentsThreshold;
+/// // Use the default threshold of 0.01 cents
+/// let threshold = CentsThreshold::default();
+/// # assert_eq!(threshold.0, 0.01, "example does not match implementation!");
+///
+/// // Cents returned must always be exactly zero
+/// let exact = CentsThreshold::EXACT;
+///
+/// // Allow any deviation (disables the check)
+/// let unchecked = CentsThreshold::UNCHECKED;
+/// ```
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub struct CentsThreshold(pub StrictlyPositiveFinite);
 
 impl CentsThreshold {
+    /// [`Cents`] returned must always be exactly `0.0`
     // f32::from_bits(1) is smallest value (f32::MIN_POSITIVE doesn't include subnormal)
     pub const EXACT: Self = match StrictlyPositiveFinite::new(f32::from_bits(1)) {
         Ok(value) => Self(value),
         Err(_) => panic!("unreachable!: smallest positive f32 is in (0, inf)"),
     };
 
+    /// Any [`Cent`](Cents) deviation is allowed; this disables checking
     pub const UNCHECKED: Self = Self(tf32::MAX);
 }
 
 impl Default for CentsThreshold {
+    /// [`Cents`] returned must be less than `0.01c`
+    /// ```
+    /// # use music_theory::tuning::validate::CentsThreshold;
+    /// # assert_eq!(CentsThreshold::default().0, 0.01, "example does not match implementation!");
+    /// ```
     fn default() -> Self {
         Self (
             StrictlyPositiveFinite::new(0.01).expect("is in (0, inf)"),
