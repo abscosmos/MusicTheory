@@ -49,9 +49,14 @@ impl StepSizeThreshold {
     // TODO: should this also ensure !threshold.is_empty()?
     pub const fn new(threshold: RangeInclusive<Cents>) -> Option<Self> {
         match (PositiveFinite::new(threshold.start().get()), PositiveFinite::new(threshold.end().get())) {
-            (Ok(start), Ok(end)) => Some(Self(start..=end)),
+            (Ok(start), Ok(end)) => Some(Self(start, end)),
             _ => None,
         }
+    }
+
+    /// Converts into [`RangeInclusive`], as it's not stored as one internally.
+    const fn get(self) -> RangeInclusive<PositiveFinite> {
+        self.0..=self.1
     }
 }
 
@@ -151,7 +156,7 @@ pub fn valid_ranges(
         if !state.hit_invalid_inverse && !state.hit_invalid_step_size {
             if let Some((_, prev_freq)) = prev_note_freq {
                 if let Some(step_cents) = Cents::between_frequencies(prev_freq, freq_hz)
-                    && step_size_threshold.0.contains(&step_cents.0.abs())
+                    && step_size_threshold.get().contains(&step_cents.0.abs())
                 {
                     state.last_valid_step_size = Some(note);
                 } else {
