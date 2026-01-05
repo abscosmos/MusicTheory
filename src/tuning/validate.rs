@@ -249,7 +249,7 @@ pub struct ValidRangesReport {
 ///     None, // check all notes!
 ///     StepSizeThreshold::default(),
 ///     CentsThreshold::default(),
-/// ).unwrap();
+/// ).expect("start should be computable");
 ///
 /// let valid_inverses_range = report.valid_inverses.expect("C4 is computable");
 /// let (min, max) = valid_inverses_range.into_inner();
