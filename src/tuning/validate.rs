@@ -60,11 +60,32 @@ impl Default for CentsThreshold {
     }
 }
 
-/// Threshold for cents between individual notes.
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct StepSizeThreshold(RangeInclusive<PositiveFinite>);
+/// Range for acceptable sizes (in [`Cents`]) between consecutive notes;
+/// used by [`valid_ranges`].
+///
+/// This is meant to catch errors that cause unnaturally large or small step sizes between notes.
+///
+/// # Examples
+///
+/// ```
+/// # use music_theory::tuning::{Cents, validate::StepSizeThreshold};
+/// // Default allows 80-120 cents (±20% from 12-TET's 100 cents)
+/// let threshold = StepSizeThreshold::default();
+/// # assert_eq!(
+/// #     threshold.into_inner(), Cents::new(80.0).unwrap()..=Cents::new(120.0).unwrap(),
+/// #     "example doesn't match implementation"
+/// # );
+///
+/// // Allow any step size (disables the check)
+/// let unchecked = StepSizeThreshold::UNCHECKED;
+/// ```
+// note: this doesn't store a RangeInclusive<Cents> in order to maintain a
+//       stronger invariant [0, inf) vs [-inf, inf], and to derive Copy
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub struct StepSizeThreshold(PositiveFinite, PositiveFinite);
 
 impl StepSizeThreshold {
+    /// Any step size is allowed; this disables checking.
     pub const UNCHECKED: Self = {
         let min = Cents::new(tf32::ZERO.get()).expect("in [0, inf)");
         let max = Cents::new(tf32::MAX.get()).expect("in [0, inf)");
@@ -72,6 +93,9 @@ impl StepSizeThreshold {
         Self::new(min..=max).unwrap()
     };
 
+    /// Creates a new threshold from a range of acceptable step sizes.
+    ///
+    /// Returns `None` if either bound is negative.
     pub const fn new(threshold: RangeInclusive<Cents>) -> Option<Self> {
         // TODO: should this also ensure !threshold.is_empty()?
         match (PositiveFinite::new(threshold.start().get()), PositiveFinite::new(threshold.end().get())) {
