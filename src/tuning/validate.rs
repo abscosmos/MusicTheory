@@ -46,8 +46,8 @@ impl StepSizeThreshold {
         Self::new(min..=max).unwrap()
     };
 
-    // TODO: should this also ensure !threshold.is_empty()?
     pub const fn new(threshold: RangeInclusive<Cents>) -> Option<Self> {
+        // TODO: should this also ensure !threshold.is_empty()?
         match (PositiveFinite::new(threshold.start().get()), PositiveFinite::new(threshold.end().get())) {
             (Ok(start), Ok(end)) => Some(Self(start, end)),
             _ => None,
