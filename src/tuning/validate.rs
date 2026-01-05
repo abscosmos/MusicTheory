@@ -1,3 +1,37 @@
+//! Tuning validation utilities.
+//!
+//! This module provides tools for validating [`Tuning`] implementations across ranges of notes.
+//! It checks properties like computability, monotonicity, inverse accuracy, and step sizes
+//! to help identify issues or limitations in tuning systems.
+//!
+//! The main function is [`valid_ranges`], which expands outward from a starting note
+//! and reports the ranges where various validity checks pass.
+//! For more information, see documentation for [`valid_ranges`].
+//!
+//! # Example
+//! ```
+//! # use music_theory::prelude::*;
+//! # use music_theory::tuning::{RatioBasedTuning, validate::*};
+//! let report = valid_ranges(
+//!     &RatioBasedTuning::DEFAULT_JUST_INTONATION,
+//!     Note::MIDDLE_C,
+//!     None, // check all notes!
+//!     StepSizeThreshold::default(),
+//!     CentsThreshold::default(),
+//! ).expect("start should be computable");
+//!
+//! let valid_inverses_range = report.valid_inverses.expect("C4 is computable");
+//! let (min, max) = valid_inverses_range.into_inner();
+//!
+//! // For all notes in [C-100, C100], freq_to_note(note_to_freq_hz(note)) == note
+//! assert!(
+//!     min <= Note::new(Pitch::C, -100) && max >= Note::new(Pitch::C, 100),
+//!     "valid inverses range for just intonation was unexpected small"
+//! );
+//!
+//! assert!(report.strictly_monotonic, "frequency should rise as notes get higher");
+//! ```
+
 use std::ops::{ControlFlow, RangeInclusive};
 use typed_floats::tf32::{self, NonNaNFinite, PositiveFinite, StrictlyPositiveFinite};
 use crate::generator::NoteGenerator;
