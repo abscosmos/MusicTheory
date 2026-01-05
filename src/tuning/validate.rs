@@ -145,12 +145,21 @@ impl Default for StepSizeThreshold {
     }
 }
 
+/// Report from [`valid_ranges`] describing tuning validity over a range of notes.
+///
+/// Each field represents a different validation check. If a field is `None`, the check failed
+/// at the starting note. For more information, see [`valid_ranges`].
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct ValidRangesReport {
+    /// Range of notes where the tuning can compute frequencies (both directions).
     pub computable: RangeInclusive<Note>,
+    /// Whether frequencies are strictly monotonically increasing over `computable`.
     pub strictly_monotonic: bool,
+    /// Range where `note -> freq -> note` returns the original note.
     pub valid_inverses: Option<RangeInclusive<Note>>,
+    /// Range where step sizes between consecutive notes are within [`StepSizeThreshold`].
     pub step_size_valid: Option<RangeInclusive<Note>>,
+    /// Range where cents deviation from the inverse is within [`CentsThreshold`].
     pub cents_within_threshold: Option<RangeInclusive<Note>>,
 }
 
