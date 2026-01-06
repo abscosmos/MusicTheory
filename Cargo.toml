@@ -5,6 +5,7 @@ edition = "2024"
 license = "GPL-3.0"
 authors = ["abscosmos <joshua@dinoslice.com>"]
 repository = "https://github.com/abscosmos/MusicTheory"
+publish = false
 
 [workspace]
 members = ["mt_macros"]
