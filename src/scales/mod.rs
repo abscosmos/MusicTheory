@@ -9,6 +9,7 @@ mod build_from;
 pub mod numeral;
 pub mod definition;
 pub mod rooted;
+pub mod analyze;
 
 pub use numeral::Numeral7;
 

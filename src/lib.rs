@@ -5,7 +5,6 @@ pub mod semitone;
 pub mod chord;
 pub mod pitch;
 pub mod scales;
-pub mod analyze;
 pub mod prelude;
 pub mod set;
 pub mod notation;
