@@ -278,7 +278,6 @@ impl Pitch {
         self.as_pitch_class().spell_with(spelling)
     }
     
-    // TODO: should this function simplify if called with G## & true?
     /// Returns the same pitch spelled with either [sharps](Spelling::Sharps) or [flats](Spelling::Flats).
     ///
     /// If the note is already spelled with the given spelling, *it is returned unchanged*,
