@@ -109,6 +109,10 @@ impl Note {
         self.respelled_as(self.pitch.simplified())
     }
 
+    pub fn enharmonic(self) -> Self {
+        self.respelled_as(self.pitch.enharmonic())
+    }
+
     pub fn as_midi(self) -> Option<u8> {
         let zero = Note { pitch: Pitch::C, octave: -1 };
 
