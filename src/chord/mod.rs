@@ -8,7 +8,7 @@ pub mod size;
 pub mod types;
 mod eq;
 
-#[derive(Debug, thiserror::Error)]
+#[derive(Copy, Clone, Debug, thiserror::Error, Eq, PartialEq)]
 #[error("Can't have a {attempted}th inversion on a chord with only {intervals} note(s).")]
 pub struct InvalidInversion {
     pub intervals: u8,

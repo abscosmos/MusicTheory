@@ -53,7 +53,7 @@ impl fmt::Display for Letter {
     }
 }
 
-#[derive(Debug, thiserror::Error, Serialize, Deserialize)]
+#[derive(Copy, Clone, Debug, thiserror::Error, Serialize, Deserialize, Eq, PartialEq)]
 #[error("Letter must be A, B, C, D, E, F, or G")]
 pub struct InvalidLetter;
 
