@@ -54,6 +54,11 @@ impl PitchClass {
         }
     }
 
+    #[inline(always)]
+    pub const fn from_chroma(chroma: u8) -> Option<Self> {
+        Self::from_repr(chroma)
+    }
+
     pub fn chroma(self) -> u8 {
         self as u8
     }
@@ -63,7 +68,7 @@ impl PitchClass {
         if self.accidental() == AccidentalSign::NATURAL || sharp {
             self.into()
         } else {
-            let base = Self::from_repr(self as u8 + 1)
+            let base = Self::from_chroma(self as u8 + 1)
                 .expect("must be <= 11")
                 .letter();
 
@@ -87,7 +92,7 @@ impl Add<Semitone> for PitchClass {
             .try_into()
             .expect("must be between [0,11] since did % 12");
 
-        PitchClass::from_repr(pitch)
+        Self::from_chroma(pitch)
             .expect("must be between [0,11] since did % 12")
     }
 }

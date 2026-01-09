@@ -156,7 +156,7 @@ impl Pitch {
             .try_into()
             .expect("i8::rem_euclid(12) must be [0, 12)");
 
-        PitchClass::from_repr(semitones_from_c)
+        PitchClass::from_chroma(semitones_from_c)
             .expect("i8::rem_euclid(12) must be [0, 12)")
     }
 

@@ -53,7 +53,7 @@ impl Note {
             .try_into()
             .expect("i32::rem_euclid(12) must be within [0,12)");
 
-        let pitch = PitchClass::from_repr(pitch)
+        let pitch = PitchClass::from_chroma(pitch)
             .expect("i32::rem_euclid(12) must be within [0,12)");
 
         Some( Self { pitch: Pitch::from(pitch), octave } )
@@ -119,7 +119,7 @@ impl Note {
     }
 
     pub fn from_midi(midi: u8) -> Note {
-        let pitch = PitchClass::from_repr(midi % 12)
+        let pitch = PitchClass::from_chroma(midi % 12)
             .expect("% 12 must be [0, 11]");
         let oct = midi / 12;
 
