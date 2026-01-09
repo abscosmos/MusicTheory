@@ -1,7 +1,6 @@
 use std::fmt;
 use std::ops::{BitAnd, BitXor, Not};
 use serde::{Deserialize, Serialize};
-use strum::IntoEnumIterator;
 use crate::pitch::PitchClass;
 use crate::set::IntervalClassVector;
 
