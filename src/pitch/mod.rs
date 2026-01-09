@@ -254,7 +254,7 @@ impl Pitch {
         let spelling = Spelling::of_accidental(self.accidental())
             .unwrap_or(Spelling::Flats);
 
-        self.spell_with(spelling)
+        self.as_pitch_class().spell_with(spelling)
     }
 
     /// Returns the pitch's enharmonic.
@@ -275,13 +275,16 @@ impl Pitch {
             .unwrap_or(Spelling::Flats)
             .flip();
 
-        self.spell_with(spelling)
+        self.as_pitch_class().spell_with(spelling)
     }
     
     // TODO: should this function simplify if called with G## & true?
     /// Returns the same pitch spelled with either [sharps](Spelling::Sharps) or [flats](Spelling::Flats).
     ///
-    /// If the note can be written without accidentals, it will be.
+    /// If the note is already spelled with the given spelling, *it is returned unchanged*,
+    /// even if it can be written in a simpler way. For example spelling `G##` with `sharps`
+    /// will return `G##`, not `A`. If you'd like it to return `A` instead, consider using
+    /// [`Self::simplified`].
     /// # Examples
     /// ```
     /// # use music_theory::prelude::*;
@@ -293,11 +296,19 @@ impl Pitch {
     ///
     /// // Does nothing if a pitch with sharps is called with sharps
     /// assert_eq!(Pitch::C_SHARP.spell_with(Spelling::Sharps), Pitch::C_SHARP);
-    /// // This will simplify a note if it can be written with fewer accidentals
-    /// assert_eq!(Pitch::G_DOUBLE_SHARP.spell_with(Spelling::Sharps), Pitch::A);
+    ///
+    /// // This will not simplify notes if they're already spelled as intended
+    /// assert_eq!(
+    ///     Pitch::G_DOUBLE_SHARP.spell_with(Spelling::Sharps),
+    ///     Pitch::G_DOUBLE_SHARP,
+    /// );
     /// ```
     pub fn spell_with(self, spelling: Spelling) -> Self {
-        self.as_pitch_class().spell_with(spelling)
+        if Spelling::of_accidental(self.accidental()) != Some(spelling) {
+            self.as_pitch_class().spell_with(spelling)
+        } else {
+            self
+        }
     }
 
     /// Transposes the pitch by the given interval. Has the same behavior as the [`+` operator](Add::add).
