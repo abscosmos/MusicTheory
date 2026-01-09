@@ -48,8 +48,8 @@ pub enum ValidRangesError {
     /// 2. The frequency was computed, but when given the same frequency,
     ///    `tuning` couldn't [compute a note](Tuning::freq_to_note). If the note computed doesn't
     ///    match `start`, indicating that it's not a valid inverse operation, it is **not** an error.
-    ///    It is only an error if `tuning` returns `None` for [Tuning::note_to_freq_hz] or `None`
-    ///    for [Tuning::freq_to_note], for the start note.
+    ///    It is only an error if `tuning` returns `None` for [`Tuning::note_to_freq_hz`] or `None`
+    ///    for [`Tuning::freq_to_note`], for the start note.
     #[error("Given start note wasn't computable")]
     StartNotComputable,
     /// The provided `check_range` did not contain the start note.
