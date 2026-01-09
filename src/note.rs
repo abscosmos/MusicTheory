@@ -193,11 +193,6 @@ impl From<Note> for Pitch {
     }
 }
 
-impl From<Note> for Letter {
-    fn from(note: Note) -> Self {
-        note.letter()
-    }
-}
 
 impl Add<Interval> for Note {
     type Output = Self;
