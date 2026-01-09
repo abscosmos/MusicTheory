@@ -1,7 +1,7 @@
 use std::{array, fmt};
 use std::ops::Deref;
 use crate::pitch::PitchClass;
-use crate::set::PitchClassSet;
+use crate::set::pcset::PitchClassSet;
 
 /// An interval class vector (ICV) representing the intervals present in a set of pitch classes.
 ///
