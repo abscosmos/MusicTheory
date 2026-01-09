@@ -327,7 +327,7 @@ pub fn valid_ranges(
             if let Some((_, prev_freq)) = prev_note_freq &&
                 ( increasing && (prev_freq >= freq_hz) || !increasing && (prev_freq <= freq_hz) )
             {
-                state.strictly_monotonic = false
+                state.strictly_monotonic = false;
             }
         } else {
             state.hit_invalid_inverse = true;
