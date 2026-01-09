@@ -220,8 +220,9 @@ impl Pitch {
         }
     }
 
-    // TODO: this function might not work properly!
-    /// Returns how many semitones away `self` is from C.
+    /// Returns the signed semitone offset of `self` from C.
+    ///
+    /// Can return negative values for pitches below C (e.g., C♭♭ returns -2).
     pub(crate) fn semitones_offset_from_c(self) -> Semitone {
         let fifths_plus_one = self.as_fifths_from_c() + 1;
 

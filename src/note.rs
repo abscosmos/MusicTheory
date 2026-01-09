@@ -21,7 +21,6 @@ impl Note {
         Self { pitch, octave }
     }
     
-    // TODO: this function may not be correct due to Pitch::semitones_offset_from_c
     pub fn semitones_to(self, other: Self) -> Semitone {
         let lhs = self.pitch.semitones_offset_from_c() + Semitone(self.octave * 12);
 
