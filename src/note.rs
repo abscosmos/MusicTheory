@@ -79,10 +79,10 @@ impl Note {
         }
     }
 
-    pub fn spell_with(self, spelling: Spelling) -> Self {
-        let base = self.pitch.spell_with(spelling);
-
-        let unchecked = Self { pitch: base, ..self };
+    /// Only for use with spelling methods.
+    #[inline(always)]
+    fn respelled_as(self, respelled: Pitch) -> Self {
+        let unchecked = Self { pitch: respelled, ..self };
 
         let octave_offset = {
             let semis = self.semitones_to(unchecked).0;
@@ -100,27 +100,13 @@ impl Note {
             .. unchecked
         }
     }
+
+    pub fn spell_with(self, spelling: Spelling) -> Self {
+        self.respelled_as(self.pitch.spell_with(spelling))
+    }
     
     pub fn simplified(self) -> Self {
-        let base = self.pitch.simplified();
-
-        let unchecked = Self { pitch: base, ..self };
-
-        let octave_offset = {
-            let semis = self.semitones_to(unchecked).0;
-
-            debug_assert_eq!(
-                semis % 12, 0,
-                "should always be multiple of octave",
-            );
-
-            semis.div_euclid(12)
-        };
-
-        Self {
-            octave: unchecked.octave - octave_offset,
-            .. unchecked
-        }
+        self.respelled_as(self.pitch.simplified())
     }
 
     pub fn as_midi(self) -> Option<u8> {
