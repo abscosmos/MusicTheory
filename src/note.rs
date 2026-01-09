@@ -215,21 +215,6 @@ impl Sub<Interval> for Note {
     }
 }
 
-// TODO: reevaluate if Note should Deref[Mut] into Pitch 
-impl Deref for Note {
-    type Target = Pitch;
-
-    fn deref(&self) -> &Self::Target {
-        &self.pitch
-    }
-}
-
-impl DerefMut for Note {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.pitch
-    }
-}
-
 #[cfg(test)]
 pub mod tests {
     use super::*;

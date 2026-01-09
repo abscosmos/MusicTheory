@@ -17,7 +17,7 @@ impl OctaveLetter {
     }
 
     pub fn from_note_lossy(note: Note) -> Self {
-        Self { letter: note.letter(), octave: note.octave }
+        Self { letter: note.pitch.letter(), octave: note.octave }
     }
 
     pub const fn offset_to(self, rhs: Self) -> i16 {
