@@ -11,9 +11,9 @@ use crate::set::pcset::PitchClassSet;
 ///
 /// Iterates in ascending order from C to B.
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct PitchClassSetIntoIter(PitchClassSet);
+pub struct IntoIter(PitchClassSet);
 
-impl Iterator for PitchClassSetIntoIter {
+impl Iterator for IntoIter {
     type Item = PitchClass;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -43,7 +43,7 @@ impl Iterator for PitchClassSetIntoIter {
     }
 }
 
-impl DoubleEndedIterator for PitchClassSetIntoIter {
+impl DoubleEndedIterator for IntoIter {
     fn next_back(&mut self) -> Option<Self::Item> {
         // TODO: it's possible to do this with trailing_zeros and leading_zeros
         let next = PitchClass::iter().rfind(|pc| self.0.is_set(*pc));
@@ -56,21 +56,21 @@ impl DoubleEndedIterator for PitchClassSetIntoIter {
     }
 }
 
-impl ExactSizeIterator for PitchClassSetIntoIter {
+impl ExactSizeIterator for IntoIter {
     #[inline]
     fn len(&self) -> usize {
         self.0.len() as _
     }
 }
 
-impl FusedIterator for PitchClassSetIntoIter {}
+impl FusedIterator for IntoIter {}
 
 impl IntoIterator for PitchClassSet {
     type Item = PitchClass;
-    type IntoIter = PitchClassSetIntoIter;
+    type IntoIter = IntoIter;
 
     fn into_iter(self) -> Self::IntoIter {
-        PitchClassSetIntoIter(self)
+        IntoIter(self)
     }
 }
 
