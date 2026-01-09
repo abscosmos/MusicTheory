@@ -220,4 +220,18 @@ pub mod tests {
             assert_eq!(Some(n), Note::from_midi(n).as_midi())
         }
     }
+
+    #[test]
+    fn bias() {
+        // TODO: test this more
+        assert_eq!(
+            Note::new(Pitch::C_FLAT, 4).bias(true), Note::new(Pitch::B, 3),
+            "should spell note without flats, and should have correct octave",
+        );
+
+        assert_eq!(
+            Note::new(Pitch::C_FLAT, 4).simplified(), Note::new(Pitch::B, 3),
+            "should spell note simpler, and should have correct octave",
+        );
+    }
 }
