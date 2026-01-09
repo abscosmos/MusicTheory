@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use strum_macros::{EnumIter, FromRepr};
 use crate::enharmonic::EnharmonicEq;
 use crate::interval::Interval;
-use crate::pitch::{Pitch, Letter, AccidentalSign, PitchFromStrError};
+use crate::pitch::{Pitch, Letter, AccidentalSign, PitchFromStrError, Spelling};
 use crate::semitone::Semitone;
 
 #[repr(u8)]
@@ -63,9 +63,8 @@ impl PitchClass {
         self as u8
     }
 
-    // TODO: better name?
-    pub fn bias(self, sharp: bool) -> Pitch {
-        if self.accidental() == AccidentalSign::NATURAL || sharp {
+    pub fn spell_with(self, spelling: Spelling) -> Pitch {
+        if self.accidental() == AccidentalSign::NATURAL || spelling.is_sharps() {
             self.into()
         } else {
             let base = Self::from_chroma(self as u8 + 1)

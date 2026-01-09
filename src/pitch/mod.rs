@@ -251,7 +251,10 @@ impl Pitch {
     /// assert_eq!(Pitch::G.simplified(), Pitch::G);
     /// ```
     pub fn simplified(self) -> Self {
-        self.bias(self.accidental().offset > 0)
+        let spelling = Spelling::of_accidental(self.accidental())
+            .unwrap_or(Spelling::Flats);
+
+        self.spell_with(spelling)
     }
 
     /// Returns the pitch's enharmonic.
@@ -265,27 +268,33 @@ impl Pitch {
     /// assert_eq!(Pitch::G.enharmonic(), Pitch::G);
     /// ```
     pub fn enharmonic(self) -> Self {
-        self.bias(self.accidental().offset < 0)
+        let spelling = Spelling::of_accidental(self.accidental())
+            .unwrap_or(Spelling::Flats)
+            .flip();
+
+        self.spell_with(spelling)
     }
     
     // TODO: should this function simplify if called with G## & true?
-    /// Returns the same pitch spelled with sharps, if `sharps` is `true`, or with flats, if `false`.
+    /// Returns the same pitch spelled with either [sharps](Spelling::Sharps) or [flats](Spelling::Flats).
+    ///
+    /// If the note can be written without accidentals, it will be.
     /// # Examples
     /// ```
     /// # use music_theory::prelude::*;
     /// // Spell a note with flats
-    /// assert_eq!(Pitch::A_SHARP.bias(false), Pitch::B_FLAT);
+    /// assert_eq!(Pitch::A_SHARP.spell_with(Spelling::Flats), Pitch::B_FLAT);
     /// // ... or with sharps
-    /// assert_eq!(Pitch::E_FLAT.bias(true), Pitch::D_SHARP);
+    /// assert_eq!(Pitch::E_FLAT.spell_with(Spelling::Sharps), Pitch::D_SHARP);
     ///
     ///
     /// // Does nothing if a pitch with sharps is called with true
-    /// assert_eq!(Pitch::C_SHARP.bias(true), Pitch::C_SHARP);
+    /// assert_eq!(Pitch::C_SHARP.spell_with(Spelling::Sharps), Pitch::C_SHARP);
     /// // This will simplify a note if it can be written with fewer accidentals
-    /// assert_eq!(Pitch::G_DOUBLE_SHARP.bias(true), Pitch::A);
+    /// assert_eq!(Pitch::G_DOUBLE_SHARP.spell_with(Spelling::Sharps), Pitch::A);
     /// ```
-    pub fn bias(self, sharp: bool) -> Self {
-        self.as_pitch_class().bias(sharp)
+    pub fn spell_with(self, spelling: Spelling) -> Self {
+        self.as_pitch_class().spell_with(spelling)
     }
 
     /// Transposes the pitch by the given interval. Has the same behavior as the [`+` operator](Add::add).

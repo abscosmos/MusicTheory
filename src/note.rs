@@ -4,7 +4,7 @@ use std::ops::{Add, Sub};
 use serde::{Deserialize, Serialize};
 use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
 use crate::interval::Interval;
-use crate::pitch::{Pitch, PitchClass};
+use crate::pitch::{Pitch, PitchClass, Spelling};
 use crate::semitone::Semitone;
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Serialize, Deserialize)]
@@ -79,8 +79,8 @@ impl Note {
         }
     }
 
-    pub fn bias(self, sharp: bool) -> Self {
-        let base = self.pitch.bias(sharp);
+    pub fn spell_with(self, spelling: Spelling) -> Self {
+        let base = self.pitch.spell_with(spelling);
 
         let unchecked = Self { pitch: base, ..self };
 
@@ -222,10 +222,10 @@ pub mod tests {
     }
 
     #[test]
-    fn bias() {
+    fn spelling() {
         // TODO: test this more
         assert_eq!(
-            Note::new(Pitch::C_FLAT, 4).bias(true), Note::new(Pitch::B, 3),
+            Note::new(Pitch::C_FLAT, 4).spell_with(Spelling::Sharps), Note::new(Pitch::B, 3),
             "should spell note without flats, and should have correct octave",
         );
 
