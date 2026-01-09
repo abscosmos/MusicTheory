@@ -495,11 +495,11 @@ impl Tuning for RatioBasedTuning {
         let ref_adj = (self.reference.as_pitch_class() < self.ratios_base) as i16;
         let ref_ratio_octave = self.reference.octave - ref_adj;
 
-        let base0_freq = self.freq_hz.get() * ref_to_base.recip().get() * 2.0_f32.powf(-ref_ratio_octave as _);
+        let base0_freq = self.freq_hz.get() * ref_to_base.recip().get() * f32::exp2(-ref_ratio_octave as _);
 
         let ratio_from_base0 = hz.get() / base0_freq;
         let ratio_octave = ratio_from_base0.log2().floor() as i16;
-        let ratio_within_octave = StrictlyPositiveFinite::new(ratio_from_base0 / 2.0_f32.powf(ratio_octave as _))
+        let ratio_within_octave = StrictlyPositiveFinite::new(ratio_from_base0 / f32::exp2(ratio_octave as _))
             .expect("ratio shouldn't be negative, nan, or infinity (unless octave is very very large)");
 
         let best_pc = (0..12)
@@ -553,7 +553,7 @@ impl Tuning for RatioBasedTuning {
         // reference_freq * (base / reference_pitch) * 2^(octave_diff) * pitch_ratio
         let hz = self.freq_hz.get()
             * ref_to_base.recip().get()
-            * 2.0_f32.powf(octave_diff as _)
+            * f32::exp2(octave_diff as _)
             * pitch_ratio.get();
 
         StrictlyPositiveFinite::new(hz).ok()

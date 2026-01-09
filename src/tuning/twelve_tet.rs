@@ -63,7 +63,7 @@ impl Tuning for TwelveToneEqualTemperament {
     fn note_to_freq_hz(&self, note: Note) -> Option<StrictlyPositiveFinite> {
         let semitones_from_reference = self.reference.semitones_to(note);
 
-        let hz = self.freq_hz.get() * 2.0_f32.powf(semitones_from_reference.0 as f32 / 12.0);
+        let hz = self.freq_hz.get() * f32::exp2(semitones_from_reference.0 as f32 / 12.0);
 
         StrictlyPositiveFinite::new(hz).ok()
     }

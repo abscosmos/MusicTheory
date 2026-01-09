@@ -90,7 +90,7 @@ impl Cents {
     /// # use music_theory::tuning::Cents;
     /// // 100 cents = one semitone in 12-TET
     /// let ratio = Cents::new(100.0).unwrap().to_ratio().unwrap();
-    /// assert!((ratio.get() - 2.0f32.powf(12.0f32.recip())).abs() < 0.0001); // 2^(1/12)
+    /// assert!((ratio.get() - f32::exp2(12.0f32.recip())).abs() < 0.0001); // 2^(1/12)
     ///
     /// // 600 cents = half octave
     /// let ratio = Cents::new(600.0).unwrap().to_ratio().unwrap();
@@ -109,7 +109,7 @@ impl Cents {
     /// assert!((ratio.get() - 0.5).abs() < 0.0001);
     /// ```
     pub fn to_ratio(self) -> Option<StrictlyPositiveFinite> {
-        let ratio = 2.0_f32.powf(self.0 / Self::OCTAVE.0);
+        let ratio = f32::exp2(self.0 / Self::OCTAVE.0);
         StrictlyPositiveFinite::new(ratio).ok()
     }
 
