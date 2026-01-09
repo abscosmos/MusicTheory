@@ -84,7 +84,16 @@ impl Note {
 
         let unchecked = Self { pitch: base, ..self };
 
-        let octave_offset = self.semitones_to(unchecked).0.div_euclid(12);
+        let octave_offset = {
+            let semis = self.semitones_to(unchecked).0;
+
+            debug_assert_eq!(
+                semis % 12, 0,
+                "should always be multiple of octave",
+            );
+
+            semis.div_euclid(12)
+        };
 
         Self {
             octave: unchecked.octave - octave_offset,
@@ -97,7 +106,16 @@ impl Note {
 
         let unchecked = Self { pitch: base, ..self };
 
-        let octave_offset = self.semitones_to(unchecked).0.div_euclid(12);
+        let octave_offset = {
+            let semis = self.semitones_to(unchecked).0;
+
+            debug_assert_eq!(
+                semis % 12, 0,
+                "should always be multiple of octave",
+            );
+
+            semis.div_euclid(12)
+        };
 
         Self {
             octave: unchecked.octave - octave_offset,
