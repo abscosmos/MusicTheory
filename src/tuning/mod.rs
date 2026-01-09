@@ -80,7 +80,7 @@ impl Cents {
 
     /// Convert cents to a frequency ratio.
     ///
-    /// This is the inverse of [Self::from_ratio]:
+    /// This is the inverse of [`Self::from_ratio`]:
     /// - `ratio = 2^(cents / 1200)`
     ///
     /// Returns `None` if the result is not a strictly positive finite number.
@@ -115,7 +115,7 @@ impl Cents {
 
     /// Convert a frequency ratio to cents.
     ///
-    /// This is the inverse of [Self::to_ratio]:
+    /// This is the inverse of [`Self::to_ratio`]:
     /// - `cents = 1200 × log2(ratio)`
     ///
     /// Returns `None` if the result is not a strictly positive finite number.
