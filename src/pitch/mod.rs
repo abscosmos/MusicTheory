@@ -113,7 +113,6 @@ mod tests;
 #[derive(Copy, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Pitch(i16);
 
-// TODO: change taking in &self -> self
 impl Pitch {
     /// Creates a new `Pitch` from a letter name and accidental sign.
     pub fn from_letter_and_accidental(letter: Letter, accidental_sign: AccidentalSign) -> Self {

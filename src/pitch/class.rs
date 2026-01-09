@@ -30,11 +30,11 @@ impl PitchClass {
         *self + interval.semitones()
     }
 
-    pub fn letter(&self) -> Letter {
+    pub fn letter(self) -> Letter {
         use PitchClass as PC;
         use Letter as L;
 
-        match *self {
+        match self {
             PC::C | PC::Cs => L::C,
             PC::D | PC::Ds => L::D,
             PC::E => L::E,
@@ -45,25 +45,25 @@ impl PitchClass {
         }
     }
 
-    pub fn accidental(&self) -> AccidentalSign {
+    pub fn accidental(self) -> AccidentalSign {
         use PitchClass as PC;
 
-        match *self {
+        match self {
             PC::Cs | PC::Ds | PC::Fs | PC::Gs | PC::As => AccidentalSign::SHARP,
             _ => AccidentalSign::NATURAL,
         }
     }
 
-    pub fn chroma(&self) -> u8 {
-        *self as u8
+    pub fn chroma(self) -> u8 {
+        self as u8
     }
 
     // TODO: better name?
-    pub fn bias(&self, sharp: bool) -> Pitch {
+    pub fn bias(self, sharp: bool) -> Pitch {
         if self.accidental() == AccidentalSign::NATURAL || sharp {
-            (*self).into()
+            self.into()
         } else {
-            let base = Self::from_repr(*self as u8 + 1)
+            let base = Self::from_repr(self as u8 + 1)
                 .expect("must be <= 11")
                 .letter();
 

@@ -18,8 +18,8 @@ pub enum Letter {
 }
 
 impl Letter {
-    pub const fn step(&self) -> u8 {
-        *self as _
+    pub const fn step(self) -> u8 {
+        self as _
     }
     
     pub const fn from_step(step: u8) -> Option<Self> {

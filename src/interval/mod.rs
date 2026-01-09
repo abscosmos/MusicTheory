@@ -148,7 +148,7 @@ impl Interval {
     /// // Perfect fourth is ambiguous
     /// assert_eq!(Interval::PERFECT_FOURTH.stability(), None);
     /// ```
-    pub fn stability(&self) -> Option<Stability> {
+    pub fn stability(self) -> Option<Stability> {
         use IntervalQuality as Q;
         use IntervalNumber as N;
 
@@ -165,7 +165,7 @@ impl Interval {
     }
 
     // TODO: does this work for descending intervals?
-    pub fn is_subzero(&self) -> bool {
+    pub fn is_subzero(self) -> bool {
         let semitones = self.semitones().0;
 
         semitones != 0 && semitones.signum() != self.number.get().signum()
@@ -173,9 +173,9 @@ impl Interval {
     
     // TODO: add tests for this function
     // TODO: ensure this works for descending intervals
-    pub fn expand_subzero(&self) -> Self {
+    pub fn expand_subzero(self) -> Self {
         if !self.is_subzero() {
-            return *self;
+            return self;
         }
 
         const OCTAVE_SEMITONES: i16 = 12;
@@ -195,15 +195,15 @@ impl Interval {
         expanded
     }
 
-    pub fn quality(&self) -> IntervalQuality {
+    pub fn quality(self) -> IntervalQuality {
         self.quality
     }
 
-    pub fn number(&self) -> IntervalNumber {
+    pub fn number(self) -> IntervalNumber {
         self.number
     }
 
-    pub fn semitones(&self) -> Semitone {
+    pub fn semitones(self) -> Semitone {
         let base_oct_semitones = self.number.base_semitones_with_octave_unsigned();
 
         use IntervalQuality as Q;
@@ -226,16 +226,16 @@ impl Interval {
         Semitone(unsigned * self.number.get().signum())
     }
 
-    pub fn shorthand(&self) -> String {
+    pub fn shorthand(self) -> String {
         format!("{}{}", self.quality.shorthand(), self.number.shorthand())
     }
 
-    pub fn inverted(&self) -> Self {
+    pub fn inverted(self) -> Self {
         Self::new(self.quality.inverted(), self.number.inverted())
             .expect("valid quality")
     }
 
-    pub fn inverted_strict_non_subzero(&self) -> Option<Self> {
+    pub fn inverted_strict_non_subzero(self) -> Option<Self> {
         match self.inverted() {
             ivl if !ivl.is_subzero() => Some(ivl),
             _ => None,
@@ -280,18 +280,18 @@ impl Interval {
             .expect("valid quality")
     }
     
-    pub fn is_ascending(&self) -> bool {
+    pub fn is_ascending(self) -> bool {
         self.number.is_ascending()
     }
-    
-    pub fn with_direction(&self, ascending: bool) -> Self {
+
+    pub fn with_direction(self, ascending: bool) -> Self {
         Self {
             number: self.number.with_direction(ascending),
-            .. *self
+            .. self
         }
     }
-    
-    pub fn as_simple(&self) -> Self {
+
+    pub fn as_simple(self) -> Self {
         Self {
             quality: self.quality,
             number: self.number.as_simple(),
@@ -299,11 +299,11 @@ impl Interval {
     }
     
     // TODO: better name? and tests
-    pub fn swap_direction_invert(&self) -> Self {
+    pub fn swap_direction_invert(self) -> Self {
         -self.inverted()
     }
 
-    pub fn abs(&self) -> Self {
+    pub fn abs(self) -> Self {
         self.with_direction(true)
     }
 
@@ -349,11 +349,11 @@ impl Interval {
         Self::new(quality, num).expect("valid quality")
     }
     
-    pub fn neg_preserve_perfect_unison(&self) -> Self {
+    pub fn neg_preserve_perfect_unison(self) -> Self {
         if self.abs() == Self::PERFECT_UNISON {
-            *self
+            self
         } else {
-            -*self
+            -self
         }
     }
 }
