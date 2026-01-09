@@ -151,10 +151,9 @@ impl BitXor for PitchClassSet {
 
 impl FromIterator<PitchClass> for PitchClassSet {
     fn from_iter<T: IntoIterator<Item = PitchClass>>(iter: T) -> Self {
-        iter.into_iter().fold(
-            PitchClassSet::default(),
-            PitchClassSet::with_set,
-        )
+        let mut new = Self::default();
+        new.extend(iter);
+        new
     }
 }
 
