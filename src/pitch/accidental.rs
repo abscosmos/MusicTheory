@@ -80,3 +80,34 @@ impl From<AccidentalSign> for Semitone {
         value.as_semitone_offset()
     }
 }
+
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, Deserialize, Serialize)]
+pub enum Spelling {
+    Sharps,
+    Flats,
+}
+
+impl Spelling {
+    pub const fn of_accidental(acc: AccidentalSign) -> Option<Self> {
+        match acc.offset {
+            ..0 => Some(Self::Flats),
+            0 => None,
+            1.. => Some(Self::Sharps)
+        }
+    }
+
+    pub const fn flip(self) -> Self {
+        match self {
+            Self::Sharps => Self::Flats,
+            Self::Flats => Self::Sharps,
+        }
+    }
+
+    pub const fn is_sharps(self) -> bool {
+        matches!(self, Self::Sharps)
+    }
+
+    pub const fn is_flats(self) -> bool {
+        matches!(self, Self::Flats)
+    }
+}
