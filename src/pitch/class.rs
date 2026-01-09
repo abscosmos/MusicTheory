@@ -72,32 +72,6 @@ impl PitchClass {
     }
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, thiserror::Error)]
-#[error("Given value wasn't in range [0,11]")]
-pub struct InvalidPitch;
-
-// impl TryFrom<u8> for PitchClass {
-//     type Error = InvalidPitch;
-//
-//     fn try_from(value: u8) -> Result<Self, Self::Error> {
-//         match value {
-//             0 => Ok(PitchClass::C),
-//             1 => Ok(PitchClass::Cs),
-//             2 => Ok(PitchClass::D),
-//             3 => Ok(PitchClass::Ds),
-//             4 => Ok(PitchClass::E),
-//             5 => Ok(PitchClass::F),
-//             6 => Ok(PitchClass::Fs),
-//             7 => Ok(PitchClass::G),
-//             8 => Ok(PitchClass::Gs),
-//             9 => Ok(PitchClass::A),
-//             10 => Ok(PitchClass::As),
-//             11 => Ok(PitchClass::B),
-//             _ => Err(InvalidPitch)
-//         }
-//     }
-// }
-
 impl EnharmonicEq for PitchClass {
     fn eq_enharmonic(&self, rhs: &Self) -> bool {
         self == rhs
