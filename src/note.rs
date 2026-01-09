@@ -1,10 +1,10 @@
 use std::cmp::Ordering;
 use std::fmt;
-use std::ops::{Add, Deref, DerefMut, Sub};
+use std::ops::{Add, Sub};
 use serde::{Deserialize, Serialize};
 use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
 use crate::interval::Interval;
-use crate::pitch::{Pitch, PitchClass, Letter};
+use crate::pitch::{Pitch, PitchClass};
 use crate::semitone::Semitone;
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Serialize, Deserialize)]
