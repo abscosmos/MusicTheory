@@ -82,6 +82,11 @@ impl Note {
     /// Only for use with spelling methods.
     #[inline(always)]
     fn respelled_as(self, respelled: Pitch) -> Self {
+        assert!(
+            self.pitch.eq_enharmonic(&respelled),
+            "should only be called with enharmonic notes!",
+        );
+
         let unchecked = Self { pitch: respelled, ..self };
 
         let octave_offset = {
