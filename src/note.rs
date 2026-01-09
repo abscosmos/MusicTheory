@@ -1,10 +1,10 @@
 use std::cmp::Ordering;
 use std::fmt;
-use std::ops::{Add, Deref, DerefMut, Sub};
+use std::ops::{Add, Sub};
 use serde::{Deserialize, Serialize};
 use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
 use crate::interval::Interval;
-use crate::pitch::{Pitch, PitchClass, Letter};
+use crate::pitch::{Pitch, PitchClass};
 use crate::semitone::Semitone;
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Serialize, Deserialize)]
@@ -193,11 +193,6 @@ impl From<Note> for Pitch {
     }
 }
 
-impl From<Note> for Letter {
-    fn from(note: Note) -> Self {
-        note.letter()
-    }
-}
 
 impl Add<Interval> for Note {
     type Output = Self;
@@ -212,21 +207,6 @@ impl Sub<Interval> for Note {
 
     fn sub(self, rhs: Interval) -> Self::Output {
         self + (-rhs)
-    }
-}
-
-// TODO: reevaluate if Note should Deref[Mut] into Pitch 
-impl Deref for Note {
-    type Target = Pitch;
-
-    fn deref(&self) -> &Self::Target {
-        &self.pitch
-    }
-}
-
-impl DerefMut for Note {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.pitch
     }
 }
 
