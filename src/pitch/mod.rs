@@ -264,8 +264,11 @@ impl Pitch {
     /// assert_eq!(Pitch::C_SHARP.enharmonic(), Pitch::D_FLAT);
     /// assert_eq!(Pitch::F_DOUBLE_SHARP.enharmonic(), Pitch::G);
     ///
-    /// // Notes with no accidentals will return themselves
+    /// // Pitches that can be written with no accidentals will be written
+    /// // with no accidentals. As such, notes with no accidentals will
+    /// // return themselves.
     /// assert_eq!(Pitch::G.enharmonic(), Pitch::G);
+    /// assert_eq!(Pitch::B_DOUBLE_FLAT.enharmonic(), Pitch::A);
     /// ```
     pub fn enharmonic(self) -> Self {
         let spelling = Spelling::of_accidental(self.accidental())
