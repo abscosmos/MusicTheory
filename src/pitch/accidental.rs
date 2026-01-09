@@ -14,7 +14,7 @@ impl AccidentalSign {
     pub const SHARP: Self = Self { offset: 1 };
     pub const DOUBLE_SHARP: Self = Self { offset: 2 };
 
-    pub fn as_semitone_offset(&self) -> Semitone {
+    pub fn as_semitone_offset(self) -> Semitone {
         Semitone(self.offset)
     }
 
