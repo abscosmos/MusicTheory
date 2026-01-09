@@ -291,7 +291,7 @@ impl Pitch {
     /// assert_eq!(Pitch::E_FLAT.spell_with(Spelling::Sharps), Pitch::D_SHARP);
     ///
     ///
-    /// // Does nothing if a pitch with sharps is called with true
+    /// // Does nothing if a pitch with sharps is called with sharps
     /// assert_eq!(Pitch::C_SHARP.spell_with(Spelling::Sharps), Pitch::C_SHARP);
     /// // This will simplify a note if it can be written with fewer accidentals
     /// assert_eq!(Pitch::G_DOUBLE_SHARP.spell_with(Spelling::Sharps), Pitch::A);
