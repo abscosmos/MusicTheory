@@ -110,6 +110,46 @@ impl Note {
     pub fn spell_with(self, spelling: Spelling) -> Self {
         self.respelled_as(self.pitch.spell_with(spelling))
     }
+
+    /// Respells this note according to the key signature.
+    ///
+    /// Corrects the spelling of notes diatonic to the key (notes that appear in the key's scale)
+    /// to match the key signature. Notes not diatonic to the key preserve original spelling.
+    ///
+    /// If you don't want non-diatonic notes to preserve spelling, see the documentation
+    /// example for this method.
+    ///
+    /// See [`Pitch::respell_in_key`] for more.
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// let cs_major = Key::major(Pitch::C_SHARP);
+    ///
+    /// // Diatonic notes are respelled to match the key
+    /// assert_eq!(
+    ///     Note::new(Pitch::C, 4).respell_in_key(cs_major),
+    ///     Note::new(Pitch::B_SHARP, 3),
+    /// );
+    ///
+    /// let d_major = Key::major(Pitch::D);
+    ///
+    /// // Notes that aren't diatonic preserve spelling
+    /// assert_eq!(
+    ///     Note::new(Pitch::B_FLAT, 4).respell_in_key(d_major),
+    ///     Note::new(Pitch::B_FLAT, 4),
+    /// );
+    ///
+    /// // ... but if you don't want this behavior, respell it
+    /// assert_eq!(
+    ///     Note::new(Pitch::B_FLAT, 4).respell_in_key(d_major)
+    ///         .respell_with(d_major.spelling().unwrap_or(Spelling::Sharps)),
+    ///     Note::new(Pitch::A_SHARP, 4),
+    /// );
+    /// ```
+    pub fn respell_in_key(self, key: Key) -> Self {
+        self.respelled_as(self.pitch.respell_in_key(key))
+    }
     
     pub fn simplified(self) -> Self {
         self.respelled_as(self.pitch.simplified())
