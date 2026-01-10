@@ -48,6 +48,9 @@ pub use letter::*;
 mod accidental;
 pub use accidental::*;
 
+mod spelling;
+pub use spelling::*;
+
 mod consts;
 
 #[cfg(test)]
