@@ -3,6 +3,7 @@ use std::fmt;
 use std::ops::{Add, Sub};
 use serde::{Deserialize, Serialize};
 use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
+use crate::harmony::Key;
 use crate::interval::Interval;
 use crate::pitch::{Pitch, PitchClass, Spelling};
 use crate::semitone::Semitone;
