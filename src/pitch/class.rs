@@ -1,7 +1,6 @@
 use std::fmt;
 use std::ops::{Add, Sub};
 use std::str::FromStr;
-use serde::{Deserialize, Serialize};
 use strum_macros::{EnumIter, FromRepr};
 use crate::enharmonic::EnharmonicEq;
 use crate::interval::Interval;
@@ -10,7 +9,8 @@ use crate::prelude::Key;
 use crate::semitone::Semitone;
 
 #[repr(u8)]
-#[derive(Copy, Clone, Eq, PartialEq, Debug, FromRepr, EnumIter, Ord, PartialOrd, Serialize, Deserialize)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug, FromRepr, EnumIter, Ord, PartialOrd)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum PitchClass {
     C = 0,  /* C /B# */
     Cs, /* C#/D♭ */

@@ -1,9 +1,9 @@
 use std::fmt;
 use std::num::NonZeroU16;
 use std::str::FromStr;
-use serde::{Deserialize, Serialize};
 
-#[derive(Copy, Clone, Eq, PartialEq, Debug, Serialize, Deserialize)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum IntervalQuality {
     Diminished(NonZeroU16),
     Minor,
@@ -37,6 +37,7 @@ impl IntervalQuality {
 }
 
 #[derive(Debug, thiserror::Error, Eq, PartialEq, Hash, Copy, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[error("The provided &str could not be converted into a IntervalQuality")]
 pub struct ParseIntervalQualityErr;
 

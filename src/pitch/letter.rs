@@ -1,12 +1,12 @@
 use std::fmt;
 use std::str::FromStr;
-use serde::{Deserialize, Serialize};
 use strum_macros::{EnumIter, FromRepr};
 use crate::harmony::Key;
 use crate::pitch::Pitch;
 
 #[repr(u8)]
-#[derive(Copy, Clone, Eq, PartialEq, Debug, EnumIter, FromRepr, Ord, PartialOrd, Serialize, Deserialize)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug, EnumIter, FromRepr, Ord, PartialOrd)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Letter {
     C = 0,
     D,
@@ -53,7 +53,8 @@ impl fmt::Display for Letter {
     }
 }
 
-#[derive(Copy, Clone, Debug, thiserror::Error, Serialize, Deserialize, Eq, PartialEq)]
+#[derive(Copy, Clone, Debug, thiserror::Error, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[error("Letter must be A, B, C, D, E, F, or G")]
 pub struct InvalidLetter;
 

@@ -1,4 +1,3 @@
-use serde::{Deserialize, Serialize};
 use crate::pitch::AccidentalSign;
 
 /// Spelling preference for pitches.
@@ -17,7 +16,8 @@ use crate::pitch::AccidentalSign;
 /// // ... and spelled with flats becomes Eb
 /// assert_eq!(PitchClass::Ds.spell_with(Spelling::Flats), Pitch::E_FLAT);
 /// ```
-#[derive(Copy, Clone, Debug, Default, Eq, PartialEq, Hash, Deserialize, Serialize)]
+#[derive(Copy, Clone, Debug, Default, Eq, PartialEq, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Spelling {
     /// Prefer sharp accidentals (#).
     #[default]

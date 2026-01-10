@@ -1,8 +1,8 @@
 use std::fmt;
-use serde::{Deserialize, Serialize};
 use crate::semitone::Semitone;
 
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Serialize, Deserialize)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct AccidentalSign {
     pub offset: i16,
 }

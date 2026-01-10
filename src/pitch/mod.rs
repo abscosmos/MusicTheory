@@ -32,7 +32,6 @@ use std::ops::{Add, Sub};
 use std::str::FromStr;
 use std::sync::LazyLock;
 use regex::Regex;
-use serde::{Deserialize, Serialize};
 use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
 use crate::interval::Interval;
 use crate::interval::IntervalQuality;
@@ -114,7 +113,8 @@ mod tests;
 /// let sharps = AccidentalSign { offset: 4681 };
 /// let _ = Pitch::from_letter_and_accidental(Letter::B, sharps);
 /// ```
-#[derive(Copy, Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Copy, Clone, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Pitch(i16);
 
 impl Pitch {
