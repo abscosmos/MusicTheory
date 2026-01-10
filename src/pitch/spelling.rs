@@ -17,9 +17,10 @@ use crate::pitch::AccidentalSign;
 /// // ... and spelled with flats becomes Eb
 /// assert_eq!(PitchClass::Ds.spell_with(Spelling::Flats), Pitch::E_FLAT);
 /// ```
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, Deserialize, Serialize)]
+#[derive(Copy, Clone, Debug, Default, Eq, PartialEq, Hash, Deserialize, Serialize)]
 pub enum Spelling {
     /// Prefer sharp accidentals (#).
+    #[default]
     Sharps,
     /// Prefer flat accidentals (b).
     Flats,

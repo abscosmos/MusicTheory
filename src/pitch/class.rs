@@ -126,7 +126,7 @@ impl PitchClass {
             return pitch;
         }
 
-        self.spell_with(key.spelling().unwrap_or(Spelling::Sharps))
+        self.spell_with(key.spelling().unwrap_or_default())
     }
 }
 

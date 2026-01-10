@@ -288,7 +288,7 @@ impl Pitch {
     /// ```
     pub fn simplified(self) -> Self {
         let spelling = Spelling::from_accidental(self.accidental())
-            .unwrap_or(Spelling::Flats);
+            .unwrap_or_default();
 
         self.as_pitch_class().spell_with(spelling)
     }
@@ -308,7 +308,7 @@ impl Pitch {
     /// ```
     pub fn enharmonic(self) -> Self {
         let spelling = Spelling::from_accidental(self.accidental())
-            .unwrap_or(Spelling::Flats)
+            .unwrap_or_default()
             .flip();
 
         self.as_pitch_class().spell_with(spelling)

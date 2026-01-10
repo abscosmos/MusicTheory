@@ -243,7 +243,7 @@ impl Note {
     /// // ... but if you don't want this behavior, respell it
     /// assert_eq!(
     ///     Note::new(Pitch::B_FLAT, 4).respell_in_key(d_major)
-    ///         .respell_with(d_major.spelling().unwrap_or(Spelling::Sharps)),
+    ///         .respell_with(d_major.spelling().unwrap_or_default()),
     ///     Note::new(Pitch::A_SHARP, 4),
     /// );
     /// ```
