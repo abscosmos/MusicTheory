@@ -368,16 +368,122 @@ pub mod tests {
     }
 
     #[test]
-    fn spelling() {
-        // TODO: test this more
-        assert_eq!(
-            Note::new(Pitch::C_FLAT, 4).respell_with(Spelling::Sharps), Note::new(Pitch::B, 3),
-            "should spell note without flats, and should have correct octave",
-        );
+    fn test_respell_with() {
+        let cases = [
+            (Note::new(Pitch::A_SHARP, 4), Spelling::Flats, Note::new(Pitch::B_FLAT, 4)),
+            (Note::new(Pitch::E_FLAT, 4), Spelling::Sharps, Note::new(Pitch::D_SHARP, 4)),
 
-        assert_eq!(
-            Note::new(Pitch::C_FLAT, 4).simplified(), Note::new(Pitch::B, 3),
-            "should spell note simpler, and should have correct octave",
-        );
+            // already correct
+            (Note::new(Pitch::C_SHARP, 4), Spelling::Sharps, Note::new(Pitch::C_SHARP, 4)),
+            (Note::new(Pitch::D_FLAT, 4), Spelling::Flats, Note::new(Pitch::D_FLAT, 4)),
+
+            // octave boundary
+            (Note::new(Pitch::C_FLAT, 4), Spelling::Sharps, Note::new(Pitch::B, 3)),
+            (Note::new(Pitch::B_SHARP, 3), Spelling::Flats, Note::new(Pitch::C, 4)),
+            (Note::new(Pitch::C_FLAT, 5), Spelling::Sharps, Note::new(Pitch::B, 4)),
+            (Note::new(Pitch::B_SHARP, 5), Spelling::Flats, Note::new(Pitch::C, 6)),
+
+            // naturals
+            (Note::new(Pitch::C, 4), Spelling::Sharps, Note::new(Pitch::C, 4)),
+            (Note::new(Pitch::G, 5), Spelling::Flats, Note::new(Pitch::G, 5)),
+        ];
+
+        for (input, spelling, expected) in cases {
+            assert_eq!(
+                input.respell_with(spelling),
+                expected,
+                "{input} respelled with {spelling:?} should be {expected}"
+            );
+        }
+    }
+
+    #[test]
+    fn test_simplified() {
+        let cases = [
+            // single accidentals
+            (Note::new(Pitch::C_SHARP, 4), Note::new(Pitch::C_SHARP, 4)),
+            (Note::new(Pitch::D_FLAT, 5), Note::new(Pitch::D_FLAT, 5)),
+
+            // double accidentals
+            (Note::new(Pitch::C_DOUBLE_SHARP, 4), Note::new(Pitch::D, 4)),
+            (Note::new(Pitch::D_DOUBLE_FLAT, 4), Note::new(Pitch::C, 4)),
+
+            // octave boundary
+            (Note::new(Pitch::C_FLAT, 4), Note::new(Pitch::B, 3)),
+            (Note::new(Pitch::B_SHARP, 3), Note::new(Pitch::C, 4)),
+            (Note::new(Pitch::F_FLAT, 6), Note::new(Pitch::E, 6)),
+            (Note::new(Pitch::E_SHARP, 2), Note::new(Pitch::F, 2)),
+
+            // naturals
+            (Note::new(Pitch::C, 4), Note::new(Pitch::C, 4)),
+            (Note::new(Pitch::G, 5), Note::new(Pitch::G, 5)),
+        ];
+
+        for (input, expected) in cases {
+            assert_eq!(
+                input.simplified(),
+                expected,
+                "{input} simplified should be {expected}"
+            );
+        }
+    }
+
+    #[test]
+    fn test_enharmonic() {
+        let cases = [
+            (Note::new(Pitch::C_SHARP, 4), Note::new(Pitch::D_FLAT, 4)),
+            (Note::new(Pitch::D_FLAT, 4), Note::new(Pitch::C_SHARP, 4)),
+            (Note::new(Pitch::F_SHARP, 5), Note::new(Pitch::G_FLAT, 5)),
+
+            // double accidentals
+            (Note::new(Pitch::A_DOUBLE_FLAT, 4), Note::new(Pitch::G, 4)),
+            (Note::new(Pitch::B_DOUBLE_SHARP, 5), Note::new(Pitch::D_FLAT, 6)),
+
+            // octave boundary
+            (Note::new(Pitch::C_FLAT, 4), Note::new(Pitch::B, 3)),
+            (Note::new(Pitch::B_SHARP, 3), Note::new(Pitch::C, 4)),
+
+            // Naturals stay natural
+            (Note::new(Pitch::C, 4), Note::new(Pitch::C, 4)),
+            (Note::new(Pitch::G, 5), Note::new(Pitch::G, 5)),
+        ];
+
+        for (input, expected) in cases {
+            assert_eq!(
+                input.enharmonic(),
+                expected,
+                "{input} enharmonic should be {expected}"
+            );
+        }
+    }
+
+    #[test]
+    fn test_respell_in_key() {
+        let cases = [
+            // diatonic notes
+            (Note::new(Pitch::C, 4), Key::major(Pitch::C_SHARP), Note::new(Pitch::B_SHARP, 3)),
+            (Note::new(Pitch::F, 4), Key::major(Pitch::C_SHARP), Note::new(Pitch::E_SHARP, 4)),
+
+            (Note::new(Pitch::E, 4), Key::major(Pitch::C_FLAT), Note::new(Pitch::F_FLAT, 4)),
+            (Note::new(Pitch::B, 3), Key::major(Pitch::C_FLAT), Note::new(Pitch::C_FLAT, 4)),
+
+            (Note::new(Pitch::A_SHARP, 4), Key::major(Pitch::F), Note::new(Pitch::B_FLAT, 4)),
+
+            // chromatic notes
+            (Note::new(Pitch::C_SHARP, 4), Key::major(Pitch::F), Note::new(Pitch::C_SHARP, 4)),
+            (Note::new(Pitch::E_FLAT, 5), Key::major(Pitch::D), Note::new(Pitch::E_FLAT, 5)),
+
+            // correctly spelled
+            (Note::new(Pitch::C_SHARP, 4), Key::major(Pitch::C_SHARP), Note::new(Pitch::C_SHARP, 4)),
+            (Note::new(Pitch::D, 4), Key::major(Pitch::C), Note::new(Pitch::D, 4)),
+        ];
+
+        for (input, key, expected) in cases {
+            assert_eq!(
+                input.respell_in_key(key),
+                expected,
+                "{input} respelled in {key:?} should be {expected}"
+            );
+        }
     }
 }
