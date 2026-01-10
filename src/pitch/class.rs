@@ -252,5 +252,22 @@ mod tests {
         test(Key::minor(Pitch::C_SHARP), PitchClass::Cs, Pitch::C_SHARP);
         test(Key::minor(Pitch::C_SHARP), PitchClass::Gs, Pitch::G_SHARP);
         test(Key::minor(Pitch::C_SHARP), PitchClass::Ds, Pitch::D_SHARP);
+
+        // G## major: G##, A##, B##, C##, D##, E##, F###
+        let gs_sharp_major = Key::major(Pitch::G_DOUBLE_SHARP);
+        test(gs_sharp_major, PitchClass::A, Pitch::G_DOUBLE_SHARP);
+        test(gs_sharp_major, PitchClass::B, Pitch::A_DOUBLE_SHARP);
+        test(gs_sharp_major, PitchClass::Cs, Pitch::B_DOUBLE_SHARP);
+        test(gs_sharp_major, PitchClass::D, Pitch::C_DOUBLE_SHARP);
+        test(gs_sharp_major, PitchClass::E, Pitch::D_DOUBLE_SHARP);
+        test(gs_sharp_major, PitchClass::Fs, Pitch::E_DOUBLE_SHARP);
+        test(
+            gs_sharp_major,
+            PitchClass::Gs,
+            Pitch::from_letter_and_accidental(
+                Letter::F,
+                AccidentalSign { offset: 3 }
+            )
+        );
     }
 }
