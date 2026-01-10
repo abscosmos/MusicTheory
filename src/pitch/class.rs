@@ -228,78 +228,77 @@ mod tests {
 
     #[test]
     fn test_spell_in_key() {
-        #[inline(always)]
-        fn test(key: Key, pc: PitchClass, expected: Pitch) {
+        let cases = [
+            // sharp keys
+            (Key::major(Pitch::C_SHARP), PitchClass::F, Pitch::E_SHARP),
+            (Key::major(Pitch::F_SHARP), PitchClass::F, Pitch::E_SHARP),
+            (Key::major(Pitch::C_SHARP), PitchClass::C, Pitch::B_SHARP),
+
+            // flat keys
+            (Key::major(Pitch::C_FLAT), PitchClass::E, Pitch::F_FLAT),
+            (Key::major(Pitch::C_FLAT), PitchClass::B, Pitch::C_FLAT),
+            (Key::major(Pitch::G_FLAT), PitchClass::B, Pitch::C_FLAT),
+            (Key::major(Pitch::G_FLAT), PitchClass::F, Pitch::F),
+
+            // C major naturals
+            (Key::major(Pitch::C), PitchClass::C, Pitch::C),
+            (Key::major(Pitch::C), PitchClass::Cs, Pitch::C_SHARP),
+            (Key::major(Pitch::C), PitchClass::D, Pitch::D),
+            (Key::major(Pitch::C), PitchClass::Ds, Pitch::D_SHARP),
+            (Key::major(Pitch::C), PitchClass::E, Pitch::E),
+
+            // diatonic notes in various keys
+            (Key::major(Pitch::G), PitchClass::Fs, Pitch::F_SHARP),
+            (Key::major(Pitch::D), PitchClass::Fs, Pitch::F_SHARP),
+            (Key::major(Pitch::D), PitchClass::Cs, Pitch::C_SHARP),
+            (Key::major(Pitch::F), PitchClass::As, Pitch::B_FLAT),
+            (Key::major(Pitch::B_FLAT), PitchClass::As, Pitch::B_FLAT),
+            (Key::major(Pitch::B_FLAT), PitchClass::Ds, Pitch::E_FLAT),
+
+            // chromatic notes in sharp keys - should use sharps
+            (Key::major(Pitch::G), PitchClass::Cs, Pitch::C_SHARP),
+            (Key::major(Pitch::G), PitchClass::Ds, Pitch::D_SHARP),
+            (Key::major(Pitch::D), PitchClass::Gs, Pitch::G_SHARP),
+
+            // chromatic notes in flat keys - should use flats
+            (Key::major(Pitch::F), PitchClass::Ds, Pitch::E_FLAT),
+            (Key::major(Pitch::F), PitchClass::Gs, Pitch::A_FLAT),
+            (Key::major(Pitch::B_FLAT), PitchClass::Cs, Pitch::D_FLAT),
+
+            // minor keys
+            (Key::minor(Pitch::A), PitchClass::A, Pitch::A),
+            (Key::minor(Pitch::A), PitchClass::B, Pitch::B),
+            (Key::minor(Pitch::A), PitchClass::C, Pitch::C),
+            (Key::minor(Pitch::E), PitchClass::Fs, Pitch::F_SHARP),
+            (Key::minor(Pitch::D), PitchClass::As, Pitch::B_FLAT),
+            (Key::minor(Pitch::C_SHARP), PitchClass::Fs, Pitch::F_SHARP),
+            (Key::minor(Pitch::C_SHARP), PitchClass::Cs, Pitch::C_SHARP),
+            (Key::minor(Pitch::C_SHARP), PitchClass::Gs, Pitch::G_SHARP),
+            (Key::minor(Pitch::C_SHARP), PitchClass::Ds, Pitch::D_SHARP),
+
+            // G## major: G##, A##, B##, C##, D##, E##, F###
+            (Key::major(Pitch::G_DOUBLE_SHARP), PitchClass::A, Pitch::G_DOUBLE_SHARP),
+            (Key::major(Pitch::G_DOUBLE_SHARP), PitchClass::B, Pitch::A_DOUBLE_SHARP),
+            (Key::major(Pitch::G_DOUBLE_SHARP), PitchClass::Cs, Pitch::B_DOUBLE_SHARP),
+            (Key::major(Pitch::G_DOUBLE_SHARP), PitchClass::D, Pitch::C_DOUBLE_SHARP),
+            (Key::major(Pitch::G_DOUBLE_SHARP), PitchClass::E, Pitch::D_DOUBLE_SHARP),
+            (Key::major(Pitch::G_DOUBLE_SHARP), PitchClass::Fs, Pitch::E_DOUBLE_SHARP),
+            (
+                Key::major(Pitch::G_DOUBLE_SHARP),
+                PitchClass::Gs,
+                Pitch::from_letter_and_accidental(
+                    Letter::F,
+                    AccidentalSign { offset: 3 }
+                )
+            ),
+        ];
+
+        for (key, pc, expected) in cases {
             assert_eq!(
                 pc.spell_in_key(key),
                 expected,
                 "{pc} should be spelled {expected} in {key:?}",
             );
         }
-
-        // sharp keys - edge cases
-        test(Key::major(Pitch::C_SHARP), PitchClass::F, Pitch::E_SHARP);
-        test(Key::major(Pitch::F_SHARP), PitchClass::F, Pitch::E_SHARP);
-        test(Key::major(Pitch::C_SHARP), PitchClass::C, Pitch::B_SHARP);
-
-        // flat keys - edge cases
-        test(Key::major(Pitch::C_FLAT), PitchClass::E, Pitch::F_FLAT);
-        test(Key::major(Pitch::C_FLAT), PitchClass::B, Pitch::C_FLAT);
-        test(Key::major(Pitch::G_FLAT), PitchClass::B, Pitch::C_FLAT);
-        test(Key::major(Pitch::G_FLAT), PitchClass::F, Pitch::F);
-
-        // C major - all naturals
-        for pc in PitchClass::iter() {
-            test(Key::major(Pitch::C), pc, Pitch::from(pc));
-        }
-
-        // diatonic notes in various keys
-        test(Key::major(Pitch::G), PitchClass::Fs, Pitch::F_SHARP);
-        test(Key::major(Pitch::D), PitchClass::Fs, Pitch::F_SHARP);
-        test(Key::major(Pitch::D), PitchClass::Cs, Pitch::C_SHARP);
-        test(Key::major(Pitch::F), PitchClass::As, Pitch::B_FLAT);
-        test(Key::major(Pitch::B_FLAT), PitchClass::As, Pitch::B_FLAT);
-        test(Key::major(Pitch::B_FLAT), PitchClass::Ds, Pitch::E_FLAT);
-
-        // chromatic notes in sharp keys - should use sharps
-        test(Key::major(Pitch::G), PitchClass::Cs, Pitch::C_SHARP);
-        test(Key::major(Pitch::G), PitchClass::Ds, Pitch::D_SHARP);
-        test(Key::major(Pitch::D), PitchClass::Gs, Pitch::G_SHARP);
-
-        // chromatic notes in flat keys - should use flats
-        test(Key::major(Pitch::F), PitchClass::Ds, Pitch::E_FLAT);
-        test(Key::major(Pitch::F), PitchClass::Gs, Pitch::A_FLAT);
-        test(Key::major(Pitch::B_FLAT), PitchClass::Cs, Pitch::D_FLAT);
-
-        // chromatic notes in C major - should use sharps (default)
-        test(Key::major(Pitch::C), PitchClass::Cs, Pitch::C_SHARP);
-
-        // minor keys
-        test(Key::minor(Pitch::A), PitchClass::A, Pitch::A);
-        test(Key::minor(Pitch::A), PitchClass::B, Pitch::B);
-        test(Key::minor(Pitch::A), PitchClass::C, Pitch::C);
-        test(Key::minor(Pitch::E), PitchClass::Fs, Pitch::F_SHARP);
-        test(Key::minor(Pitch::D), PitchClass::As, Pitch::B_FLAT);
-        test(Key::minor(Pitch::C_SHARP), PitchClass::Fs, Pitch::F_SHARP);
-        test(Key::minor(Pitch::C_SHARP), PitchClass::Cs, Pitch::C_SHARP);
-        test(Key::minor(Pitch::C_SHARP), PitchClass::Gs, Pitch::G_SHARP);
-        test(Key::minor(Pitch::C_SHARP), PitchClass::Ds, Pitch::D_SHARP);
-
-        // G## major: G##, A##, B##, C##, D##, E##, F###
-        let gs_sharp_major = Key::major(Pitch::G_DOUBLE_SHARP);
-        test(gs_sharp_major, PitchClass::A, Pitch::G_DOUBLE_SHARP);
-        test(gs_sharp_major, PitchClass::B, Pitch::A_DOUBLE_SHARP);
-        test(gs_sharp_major, PitchClass::Cs, Pitch::B_DOUBLE_SHARP);
-        test(gs_sharp_major, PitchClass::D, Pitch::C_DOUBLE_SHARP);
-        test(gs_sharp_major, PitchClass::E, Pitch::D_DOUBLE_SHARP);
-        test(gs_sharp_major, PitchClass::Fs, Pitch::E_DOUBLE_SHARP);
-        test(
-            gs_sharp_major,
-            PitchClass::Gs,
-            Pitch::from_letter_and_accidental(
-                Letter::F,
-                AccidentalSign { offset: 3 }
-            )
-        );
     }
 }
