@@ -199,6 +199,34 @@ mod tests {
     use strum::IntoEnumIterator;
 
     #[test]
+    fn test_spell_with() {
+        for pc in PitchClass::iter() {
+            let spell_sharps = pc.spell_with(Spelling::Sharps);
+            let spell_flats = pc.spell_with(Spelling::Flats);
+
+            assert_eq!(
+                spell_sharps.as_pitch_class(), pc,
+                "spell with should return an enharmonic"
+            );
+
+            assert!(
+                matches!(spell_sharps.accidental(), AccidentalSign::NATURAL | AccidentalSign::SHARP),
+                "spelling with sharps should natural or sharp, got {}", spell_sharps.accidental()
+            );
+
+            assert_eq!(
+                spell_flats.as_pitch_class(), pc,
+                "spell with should return an enharmonic"
+            );
+
+            assert!(
+                matches!(spell_flats.accidental(), AccidentalSign::NATURAL | AccidentalSign::FLAT),
+                "spelling with sharps should natural or sharp, got {}", spell_flats.accidental()
+            );
+        }
+    }
+
+    #[test]
     fn test_spell_in_key() {
         #[inline(always)]
         fn test(key: Key, pc: PitchClass, expected: Pitch) {
