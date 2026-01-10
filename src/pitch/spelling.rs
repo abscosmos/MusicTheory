@@ -71,28 +71,4 @@ impl Spelling {
             Self::Flats => Self::Sharps,
         }
     }
-
-    /// Returns `true` if the spelling preference is [`Spelling::Sharps`].
-    ///
-    /// # Examples
-    /// ```
-    /// # use music_theory::prelude::*;
-    /// assert!(Spelling::Sharps.is_sharps());
-    /// assert!(!Spelling::Flats.is_sharps());
-    /// ```
-    pub const fn is_sharps(self) -> bool {
-        matches!(self, Self::Sharps)
-    }
-
-    /// Returns `true` if the spelling preference is [`Spelling::Flats`].
-    ///
-    /// # Examples
-    /// ```
-    /// # use music_theory::prelude::*;
-    /// assert!(Spelling::Flats.is_flats());
-    /// assert!(!Spelling::Sharps.is_flats());
-    /// ```
-    pub const fn is_flats(self) -> bool {
-        matches!(self, Self::Flats)
-    }
 }

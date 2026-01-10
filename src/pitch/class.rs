@@ -81,7 +81,7 @@ impl PitchClass {
     /// assert_eq!(PitchClass::C.spell_with(Spelling::Flats), Pitch::C);
     /// ```
     pub fn spell_with(self, spelling: Spelling) -> Pitch {
-        if self.accidental() == AccidentalSign::NATURAL || spelling.is_sharps() {
+        if self.accidental() == AccidentalSign::NATURAL || spelling == Spelling::Sharps {
             self.into()
         } else {
             let base = Self::from_chroma(self as u8 + 1)
