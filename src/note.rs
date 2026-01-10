@@ -1,14 +1,14 @@
 use std::cmp::Ordering;
 use std::fmt;
 use std::ops::{Add, Sub};
-use serde::{Deserialize, Serialize};
 use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
 use crate::harmony::Key;
 use crate::interval::Interval;
 use crate::pitch::{Pitch, PitchClass, Spelling};
 use crate::semitone::Semitone;
 
-#[derive(Copy, Clone, Eq, PartialEq, Debug, Serialize, Deserialize)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Note {
     pub pitch: Pitch,
     pub octave: i16,

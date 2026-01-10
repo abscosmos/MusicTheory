@@ -1,5 +1,4 @@
 use std::array;
-use serde::{Deserialize, Serialize};
 use crate::interval::Interval;
 use crate::pitch::{Pitch, Letter, AccidentalSign, Spelling};
 use crate::harmony::mode::DiatonicMode;
@@ -8,7 +7,8 @@ use crate::scales::rooted::RootedSizedScale;
 use crate::scales::{Numeral7, ScaleMode as _};
 use crate::scales::sized_scale::SizedScale as _;
 
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Key {
     pub tonic: Pitch,
     pub mode: DiatonicMode,
