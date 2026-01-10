@@ -6,6 +6,7 @@ use strum_macros::{EnumIter, FromRepr};
 use crate::enharmonic::EnharmonicEq;
 use crate::interval::Interval;
 use crate::pitch::{Pitch, Letter, AccidentalSign, PitchFromStrError, Spelling};
+use crate::prelude::Key;
 use crate::semitone::Semitone;
 
 #[repr(u8)]
