@@ -74,6 +74,23 @@ impl PitchClass {
             Pitch::from_letter_and_accidental(base, AccidentalSign::FLAT)
         }
     }
+
+    pub fn spell_in_key(self, key: Key) -> Pitch {
+        if let Some(pitch) = key.scale()
+            .build_default()
+            .into_iter()
+            .find(|p| p.as_pitch_class() == self)
+        {
+            return pitch;
+        }
+
+        let spelling = match key.sharps() {
+            ..0 => Spelling::Flats,
+            0.. => Spelling::Sharps,
+        };
+
+        self.spell_with(spelling)
+    }
 }
 
 impl EnharmonicEq for PitchClass {
