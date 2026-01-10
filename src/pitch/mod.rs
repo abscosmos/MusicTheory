@@ -268,7 +268,7 @@ impl Pitch {
     /// );
     /// ```
     pub fn respell_with(self, spelling: Spelling) -> Self {
-        if Spelling::of_accidental(self.accidental()) != Some(spelling) {
+        if Spelling::from_accidental(self.accidental()) != Some(spelling) {
             self.as_pitch_class().spell_with(spelling)
         } else {
             self
@@ -287,7 +287,7 @@ impl Pitch {
     /// assert_eq!(Pitch::G.simplified(), Pitch::G);
     /// ```
     pub fn simplified(self) -> Self {
-        let spelling = Spelling::of_accidental(self.accidental())
+        let spelling = Spelling::from_accidental(self.accidental())
             .unwrap_or(Spelling::Flats);
 
         self.as_pitch_class().spell_with(spelling)
@@ -307,7 +307,7 @@ impl Pitch {
     /// assert_eq!(Pitch::B_DOUBLE_FLAT.enharmonic(), Pitch::A);
     /// ```
     pub fn enharmonic(self) -> Self {
-        let spelling = Spelling::of_accidental(self.accidental())
+        let spelling = Spelling::from_accidental(self.accidental())
             .unwrap_or(Spelling::Flats)
             .flip();
 

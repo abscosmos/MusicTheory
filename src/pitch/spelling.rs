@@ -35,18 +35,18 @@ impl Spelling {
     /// ```
     /// # use music_theory::prelude::*;
     /// assert_eq!(
-    ///     Spelling::of_accidental(AccidentalSign::SHARP),
+    ///     Spelling::from_accidental(AccidentalSign::SHARP),
     ///     Some(Spelling::Sharps)
     /// );
     ///
     /// assert_eq!(
-    ///     Spelling::of_accidental(AccidentalSign::DOUBLE_FLAT),
+    ///     Spelling::from_accidental(AccidentalSign::DOUBLE_FLAT),
     ///     Some(Spelling::Flats)
     /// );
     ///
-    /// assert_eq!(Spelling::of_accidental(AccidentalSign::NATURAL), None);
+    /// assert_eq!(Spelling::from_accidental(AccidentalSign::NATURAL), None);
     /// ```
-    pub const fn of_accidental(acc: AccidentalSign) -> Option<Self> {
+    pub const fn from_accidental(acc: AccidentalSign) -> Option<Self> {
         match acc.offset {
             ..0 => Some(Self::Flats),
             0 => None,
