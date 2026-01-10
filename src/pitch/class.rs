@@ -211,7 +211,7 @@ mod tests {
 
             assert!(
                 matches!(spell_sharps.accidental(), AccidentalSign::NATURAL | AccidentalSign::SHARP),
-                "spelling with sharps should natural or sharp, got {}", spell_sharps.accidental()
+                "spelling with sharps should be natural or sharp, got {}", spell_sharps.accidental()
             );
 
             assert_eq!(
