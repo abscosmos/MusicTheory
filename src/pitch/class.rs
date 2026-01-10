@@ -110,12 +110,7 @@ impl PitchClass {
             return pitch;
         }
 
-        let spelling = match key.sharps() {
-            ..0 => Spelling::Flats,
-            0.. => Spelling::Sharps,
-        };
-
-        self.spell_with(spelling)
+        self.spell_with(key.spelling().unwrap_or(Spelling::Sharps))
     }
 }
 

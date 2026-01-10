@@ -1,7 +1,7 @@
 use std::array;
 use serde::{Deserialize, Serialize};
 use crate::interval::Interval;
-use crate::pitch::{Pitch, Letter, AccidentalSign};
+use crate::pitch::{Pitch, Letter, AccidentalSign, Spelling};
 use crate::harmony::mode::DiatonicMode;
 use crate::scales::definition::heptatonic::{DiatonicMode as DiatonicModeExperimental, DiatonicScale};
 use crate::scales::rooted::RootedSizedScale;
@@ -49,6 +49,14 @@ impl Key {
             .fifths_from_c();
         
         self.tonic.as_fifths_from_c() - offset
+    }
+
+    pub fn spelling(self) -> Option<Spelling> {
+        match self.sharps() {
+            ..0 => Some(Spelling::Flats),
+            0 => None,
+            1.. => Some(Spelling::Sharps),
+        }
     }
     
     pub fn try_from_sharps_tonic(sharps: i16, tonic: Pitch) -> Option<Self> {
