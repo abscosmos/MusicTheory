@@ -245,14 +245,14 @@ impl Pitch {
 
     /// Returns the same pitch spelled with either [sharps](Spelling::Sharps) or [flats](Spelling::Flats).
     ///
-    /// If the note is already spelled with the given spelling, *it is returned unchanged*,
+    /// If the pitch is already spelled with the given spelling, *it is returned unchanged*,
     /// even if it can be written in a simpler way. For example spelling `G##` with `sharps`
     /// will return `G##`, not `A`. If you'd like it to return `A` instead, consider using
     /// [`Self::simplified`].
     /// # Examples
     /// ```
     /// # use music_theory::prelude::*;
-    /// // Spell a note with flats
+    /// // Spell a pitch with flats
     /// assert_eq!(Pitch::A_SHARP.respell_with(Spelling::Flats), Pitch::B_FLAT);
     /// // ... or with sharps
     /// assert_eq!(Pitch::E_FLAT.respell_with(Spelling::Sharps), Pitch::D_SHARP);
@@ -261,7 +261,7 @@ impl Pitch {
     /// // Does nothing if a pitch with sharps is called with sharps
     /// assert_eq!(Pitch::C_SHARP.respell_with(Spelling::Sharps), Pitch::C_SHARP);
     ///
-    /// // This will not simplify notes if they're already spelled as intended
+    /// // This will not simplify pitches if they're already spelled as intended
     /// assert_eq!(
     ///     Pitch::G_DOUBLE_SHARP.respell_with(Spelling::Sharps),
     ///     Pitch::G_DOUBLE_SHARP,
@@ -282,7 +282,7 @@ impl Pitch {
     /// assert_eq!(Pitch::E_SHARP.simplified(), Pitch::F);
     /// assert_eq!(Pitch::F_DOUBLE_SHARP.simplified(), Pitch::G);
     ///
-    /// // Already simplified notes are not further simplified
+    /// // Already simplified pitches are not further simplified
     /// assert_eq!(Pitch::G_FLAT.simplified(), Pitch::G_FLAT);
     /// assert_eq!(Pitch::G.simplified(), Pitch::G);
     /// ```
@@ -301,7 +301,7 @@ impl Pitch {
     /// assert_eq!(Pitch::F_DOUBLE_SHARP.enharmonic(), Pitch::G);
     ///
     /// // Pitches that can be written with no accidentals will be written
-    /// // with no accidentals. As such, notes with no accidentals will
+    /// // with no accidentals. As such, pitches with no accidentals will
     /// // return themselves.
     /// assert_eq!(Pitch::G.enharmonic(), Pitch::G);
     /// assert_eq!(Pitch::B_DOUBLE_FLAT.enharmonic(), Pitch::A);
