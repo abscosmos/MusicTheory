@@ -281,6 +281,7 @@ impl Pitch {
     /// # use music_theory::prelude::*;
     /// assert_eq!(Pitch::E_SHARP.simplified(), Pitch::F);
     /// assert_eq!(Pitch::F_DOUBLE_SHARP.simplified(), Pitch::G);
+    /// assert_eq!(Pitch::C_DOUBLE_FLAT.simplified(), Pitch::B_FLAT);
     ///
     /// // Already simplified pitches are not further simplified
     /// assert_eq!(Pitch::G_FLAT.simplified(), Pitch::G_FLAT);
@@ -294,11 +295,17 @@ impl Pitch {
     }
 
     /// Returns the pitch's enharmonic.
+    ///
+    /// If a pitch can't be written with a natural, the returned pitch will always have the
+    /// opposite spelling as before. Notably, this means the enharmonic of `Ex` is `Gb`, *not* `F#`.
+    /// For the opposite behavior, see [`Self::simplified`].
+    ///
     /// # Examples
     /// ```
     /// # use music_theory::prelude::*;
     /// assert_eq!(Pitch::C_SHARP.enharmonic(), Pitch::D_FLAT);
-    /// assert_eq!(Pitch::F_DOUBLE_SHARP.enharmonic(), Pitch::G);
+    /// assert_eq!(Pitch::B_DOUBLE_FLAT.enharmonic(), Pitch::A);
+    /// assert_eq!(Pitch::E_DOUBLE_SHARP.enharmonic(), Pitch::G_FLAT);
     ///
     /// // Pitches that can be written with no accidentals will be written
     /// // with no accidentals. As such, pitches with no accidentals will
