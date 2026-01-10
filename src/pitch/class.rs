@@ -97,10 +97,11 @@ impl PitchClass {
     /// This method checks if the pitch class appears in the key's scale and returns
     /// the proper spelling used in that scale. For chromatic notes not in the scale,
     /// it falls back to the key's spelling preference (sharps or flats).
-    /// For pitch classes within the key, returns the proper spelling.
-    /// For pitch classes not in the key, spells according to the key's preference: keys with
-    /// sharps (g# minor) spells with sharps, keys with flats (Ab major) spells with flats.
     ///
+    /// For pitch classes within the key, returns the spelling used in that key's scale.
+    /// For pitch classes not in the key, spells according to the key's preference: keys with
+    /// sharps (g# minor) spells with sharps, keys with flats (Ab major) spell chromatics with flats.
+    /// Keys with no alterations (C major, A minor) default to sharps for chromatic notes.
     /// # Examples
     /// ```
     /// # use music_theory::prelude::*;
@@ -116,6 +117,9 @@ impl PitchClass {
     /// let gb_major = Key::major(Pitch::G_FLAT);
     /// assert_eq!(PitchClass::Ds.spell_in_key(gb_major), Pitch::E_FLAT);
     /// assert_eq!(PitchClass::Ds.spell_in_key(cs_major), Pitch::D_SHARP);
+    ///
+    /// // C major has no alterations; chromatics default to sharps
+    /// assert_eq!(PitchClass::Cs.spell_in_key(Key::major(Pitch::C)), Pitch::C_SHARP);
     /// ```
     pub fn spell_in_key(self, key: Key) -> Pitch {
         if let Some(pitch) = key.scale()
