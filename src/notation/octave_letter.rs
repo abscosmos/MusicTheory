@@ -4,6 +4,7 @@ use crate::pitch::Letter;
 use crate::note::Note;
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct OctaveLetter {
     pub letter: Letter,
     pub octave: i16,

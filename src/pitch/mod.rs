@@ -533,6 +533,7 @@ impl From<Pitch> for Letter {
 /// assert_eq!("D half-flat".parse::<Pitch>(), Err(PitchFromStrError));
 /// ```
 #[derive(Debug, thiserror::Error, Eq, PartialEq, Copy, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[error("The str could not be converted to a pitch")]
 pub struct PitchFromStrError;
 
