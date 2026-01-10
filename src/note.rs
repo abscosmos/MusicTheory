@@ -111,6 +111,14 @@ impl Note {
         self.respelled_as(self.pitch.respell_with(spelling))
     }
 
+    pub fn simplified(self) -> Self {
+        self.respelled_as(self.pitch.simplified())
+    }
+
+    pub fn enharmonic(self) -> Self {
+        self.respelled_as(self.pitch.enharmonic())
+    }
+
     /// Respells this note according to the key signature.
     ///
     /// Corrects the spelling of notes diatonic to the key (notes that appear in the key's scale)
@@ -149,14 +157,6 @@ impl Note {
     /// ```
     pub fn respell_in_key(self, key: Key) -> Self {
         self.respelled_as(self.pitch.respell_in_key(key))
-    }
-    
-    pub fn simplified(self) -> Self {
-        self.respelled_as(self.pitch.simplified())
-    }
-
-    pub fn enharmonic(self) -> Self {
-        self.respelled_as(self.pitch.enharmonic())
     }
 
     pub fn as_midi(self) -> Option<u8> {

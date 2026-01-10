@@ -240,6 +240,38 @@ impl Pitch {
         Semitone(n as _)
     }
 
+    /// Returns the same pitch spelled with either [sharps](Spelling::Sharps) or [flats](Spelling::Flats).
+    ///
+    /// If the note is already spelled with the given spelling, *it is returned unchanged*,
+    /// even if it can be written in a simpler way. For example spelling `G##` with `sharps`
+    /// will return `G##`, not `A`. If you'd like it to return `A` instead, consider using
+    /// [`Self::simplified`].
+    /// # Examples
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// // Spell a note with flats
+    /// assert_eq!(Pitch::A_SHARP.respell_with(Spelling::Flats), Pitch::B_FLAT);
+    /// // ... or with sharps
+    /// assert_eq!(Pitch::E_FLAT.respell_with(Spelling::Sharps), Pitch::D_SHARP);
+    ///
+    ///
+    /// // Does nothing if a pitch with sharps is called with sharps
+    /// assert_eq!(Pitch::C_SHARP.respell_with(Spelling::Sharps), Pitch::C_SHARP);
+    ///
+    /// // This will not simplify notes if they're already spelled as intended
+    /// assert_eq!(
+    ///     Pitch::G_DOUBLE_SHARP.respell_with(Spelling::Sharps),
+    ///     Pitch::G_DOUBLE_SHARP,
+    /// );
+    /// ```
+    pub fn respell_with(self, spelling: Spelling) -> Self {
+        if Spelling::of_accidental(self.accidental()) != Some(spelling) {
+            self.as_pitch_class().spell_with(spelling)
+        } else {
+            self
+        }
+    }
+
     /// Returns the same pitch with fewer accidentals.
     /// # Examples
     /// ```
@@ -277,38 +309,6 @@ impl Pitch {
             .flip();
 
         self.as_pitch_class().spell_with(spelling)
-    }
-    
-    /// Returns the same pitch spelled with either [sharps](Spelling::Sharps) or [flats](Spelling::Flats).
-    ///
-    /// If the note is already spelled with the given spelling, *it is returned unchanged*,
-    /// even if it can be written in a simpler way. For example spelling `G##` with `sharps`
-    /// will return `G##`, not `A`. If you'd like it to return `A` instead, consider using
-    /// [`Self::simplified`].
-    /// # Examples
-    /// ```
-    /// # use music_theory::prelude::*;
-    /// // Spell a note with flats
-    /// assert_eq!(Pitch::A_SHARP.respell_with(Spelling::Flats), Pitch::B_FLAT);
-    /// // ... or with sharps
-    /// assert_eq!(Pitch::E_FLAT.respell_with(Spelling::Sharps), Pitch::D_SHARP);
-    ///
-    ///
-    /// // Does nothing if a pitch with sharps is called with sharps
-    /// assert_eq!(Pitch::C_SHARP.respell_with(Spelling::Sharps), Pitch::C_SHARP);
-    ///
-    /// // This will not simplify notes if they're already spelled as intended
-    /// assert_eq!(
-    ///     Pitch::G_DOUBLE_SHARP.respell_with(Spelling::Sharps),
-    ///     Pitch::G_DOUBLE_SHARP,
-    /// );
-    /// ```
-    pub fn respell_with(self, spelling: Spelling) -> Self {
-        if Spelling::of_accidental(self.accidental()) != Some(spelling) {
-            self.as_pitch_class().spell_with(spelling)
-        } else {
-            self
-        }
     }
 
     /// Respells this pitch according to the key signature.
