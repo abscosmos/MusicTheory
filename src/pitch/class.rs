@@ -64,6 +64,22 @@ impl PitchClass {
         self as u8
     }
 
+    /// Returns the pitch class spelled with either [sharps](Spelling::Sharps) or [flats](Spelling::Flats).
+    ///
+    /// Pitch classes have no spelling, and can either be spelled with sharps or flats.
+    /// Naturals are always spelled as naturals.
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// // Spell a pitch class with flats
+    /// assert_eq!(PitchClass::Cs.spell_with(Spelling::Flats), Pitch::D_FLAT);
+    /// // ... or with sharps
+    /// assert_eq!(PitchClass::Cs.spell_with(Spelling::Sharps), Pitch::C_SHARP);
+    ///
+    /// // Natural pitch classes are always spelled as naturals
+    /// assert_eq!(PitchClass::C.spell_with(Spelling::Flats), Pitch::C);
+    /// ```
     pub fn spell_with(self, spelling: Spelling) -> Pitch {
         if self.accidental() == AccidentalSign::NATURAL || spelling.is_sharps() {
             self.into()

@@ -107,14 +107,106 @@ impl Note {
         }
     }
 
+    /// Returns the same note spelled with either [sharps](Spelling::Sharps) or [flats](Spelling::Flats).
+    ///
+    /// If the note is already spelled with the given spelling, *it is returned unchanged*,
+    /// even if it can be written in a simpler way. For example spelling `G##4` with `sharps`
+    /// will return `G##4`, not `A4`. If you'd like it to return `A4` instead, consider using
+    /// [`Self::simplified`].
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// // Spell a note with flats
+    /// assert_eq!(
+    ///     Note::new(Pitch::A_SHARP, 4).respell_with(Spelling::Flats),
+    ///     Note::new(Pitch::B_FLAT, 4),
+    /// );
+    ///
+    /// // ... or with sharps
+    /// assert_eq!(
+    ///     Note::new(Pitch::E_FLAT, 4).respell_with(Spelling::Sharps),
+    ///     Note::new(Pitch::D_SHARP, 4),
+    /// );
+    ///
+    /// // Does nothing if a note with sharps is called with sharps
+    /// assert_eq!(
+    ///     Note::new(Pitch::C_SHARP, 4).respell_with(Spelling::Sharps),
+    ///     Note::new(Pitch::C_SHARP, 4),
+    /// );
+    ///
+    /// // Octave is adjusted when respelling crosses octave boundaries
+    /// assert_eq!(
+    ///     Note::new(Pitch::C_FLAT, 4).respell_with(Spelling::Sharps),
+    ///     Note::new(Pitch::B, 3),
+    /// );
+    /// assert_eq!(
+    ///     Note::new(Pitch::B_SHARP, 3).respell_with(Spelling::Flats),
+    ///     Note::new(Pitch::C, 4),
+    /// );
+    ///
+    /// // This will not simplify notes if they're already spelled as intended
+    /// assert_eq!(
+    ///     Note::new(Pitch::G_DOUBLE_SHARP, 4).respell_with(Spelling::Sharps),
+    ///     Note::new(Pitch::G_DOUBLE_SHARP, 4),
+    /// );
+    /// ```
     pub fn respell_with(self, spelling: Spelling) -> Self {
         self.respelled_as(self.pitch.respell_with(spelling))
     }
 
+    /// Returns the same note with fewer accidentals.
+    /// # Examples
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// assert_eq!(
+    ///     Note::new(Pitch::C_FLAT, 4).simplified(),
+    ///     Note::new(Pitch::B, 3),
+    /// );
+    /// assert_eq!(
+    ///     Note::new(Pitch::F_DOUBLE_SHARP, 4).simplified(),
+    ///     Note::new(Pitch::G, 4),
+    /// );
+    ///
+    /// // Already simplified notes are not further simplified
+    /// assert_eq!(
+    ///     Note::new(Pitch::G_FLAT, 4).simplified(),
+    ///     Note::new(Pitch::G_FLAT, 4),
+    /// );
+    /// assert_eq!(
+    ///     Note::new(Pitch::G, 4).simplified(),
+    ///     Note::new(Pitch::G, 4),
+    /// );
+    /// ```
     pub fn simplified(self) -> Self {
         self.respelled_as(self.pitch.simplified())
     }
 
+    /// Returns the note's enharmonic.
+    /// # Examples
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// assert_eq!(
+    ///     Note::new(Pitch::C_SHARP, 4).enharmonic(),
+    ///     Note::new(Pitch::D_FLAT, 4),
+    /// );
+    /// assert_eq!(
+    ///     Note::new(Pitch::C_FLAT, 4).enharmonic(),
+    ///     Note::new(Pitch::B, 3),
+    /// );
+    ///
+    /// // Notes that can be written with no accidentals will be written
+    /// // with no accidentals. As such, notes with no accidentals will
+    /// // return themselves.
+    /// assert_eq!(
+    ///     Note::new(Pitch::G, 4).enharmonic(),
+    ///     Note::new(Pitch::G, 4),
+    /// );
+    /// assert_eq!(
+    ///     Note::new(Pitch::B_DOUBLE_FLAT, 4).enharmonic(),
+    ///     Note::new(Pitch::A, 4),
+    /// );
+    /// ```
     pub fn enharmonic(self) -> Self {
         self.respelled_as(self.pitch.enharmonic())
     }
