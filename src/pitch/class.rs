@@ -100,7 +100,7 @@ impl PitchClass {
     ///
     /// For pitch classes within the key, returns the spelling used in that key's scale.
     /// For pitch classes not in the key, spells according to the key's preference: keys with
-    /// sharps (g# minor) spells with sharps, keys with flats (Ab major) spell chromatics with flats.
+    /// sharps (g# minor) spell with sharps, keys with flats (Ab major) spell chromatics with flats.
     /// Keys with no alterations (C major, A minor) default to sharps for chromatic notes.
     /// # Examples
     /// ```

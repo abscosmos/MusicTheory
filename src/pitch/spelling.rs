@@ -3,7 +3,7 @@ use crate::pitch::AccidentalSign;
 
 /// Spelling preference for pitches.
 ///
-/// `Spelling` represents whether to prefer sharps or flats spelling a
+/// `Spelling` represents whether to prefer sharps or flats when spelling a
 /// [`PitchClass`](crate::pitch::PitchClass) as a [`Pitch`](crate::pitch::Pitch).
 ///
 /// For usage, see [`PitchClass::spell_with`](crate::pitch::PitchClass::spell_with)
