@@ -3,8 +3,9 @@ use std::fmt;
 use std::ops::{Add, Sub};
 use serde::{Deserialize, Serialize};
 use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
+use crate::harmony::Key;
 use crate::interval::Interval;
-use crate::pitch::{Pitch, PitchClass};
+use crate::pitch::{Pitch, PitchClass, Spelling};
 use crate::semitone::Semitone;
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Serialize, Deserialize)]
@@ -79,30 +80,175 @@ impl Note {
         }
     }
 
-    pub fn bias(self, sharp: bool) -> Self {
-        let base = self.pitch.bias(sharp);
+    /// Only for use with spelling methods.
+    #[inline(always)]
+    fn respelled_as(self, respelled: Pitch) -> Self {
+        assert!(
+            self.pitch.eq_enharmonic(&respelled),
+            "should only be called with enharmonic notes!",
+        );
 
-        let unchecked = Self { pitch: base, ..self };
+        let unchecked = Self { pitch: respelled, ..self };
 
-        let octave_offset = self.semitones_to(unchecked).0.div_euclid(12);
+        let octave_offset = {
+            let semis = self.semitones_to(unchecked).0;
+
+            debug_assert_eq!(
+                semis % 12, 0,
+                "should always be multiple of octave",
+            );
+
+            semis.div_euclid(12)
+        };
 
         Self {
             octave: unchecked.octave - octave_offset,
             .. unchecked
         }
     }
-    
+
+    /// Returns the same note spelled with either [sharps](Spelling::Sharps) or [flats](Spelling::Flats).
+    ///
+    /// If the note is already spelled with the given spelling, *it is returned unchanged*,
+    /// even if it can be written in a simpler way. For example spelling `G##4` with `sharps`
+    /// will return `G##4`, not `A4`. If you'd like it to return `A4` instead, consider using
+    /// [`Self::simplified`].
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// // Spell a note with flats
+    /// assert_eq!(
+    ///     Note::new(Pitch::A_SHARP, 4).respell_with(Spelling::Flats),
+    ///     Note::new(Pitch::B_FLAT, 4),
+    /// );
+    ///
+    /// // ... or with sharps
+    /// assert_eq!(
+    ///     Note::new(Pitch::E_FLAT, 4).respell_with(Spelling::Sharps),
+    ///     Note::new(Pitch::D_SHARP, 4),
+    /// );
+    ///
+    /// // Does nothing if a note with sharps is called with sharps
+    /// assert_eq!(
+    ///     Note::new(Pitch::C_SHARP, 4).respell_with(Spelling::Sharps),
+    ///     Note::new(Pitch::C_SHARP, 4),
+    /// );
+    ///
+    /// // Octave is adjusted when respelling crosses octave boundaries
+    /// assert_eq!(
+    ///     Note::new(Pitch::C_FLAT, 4).respell_with(Spelling::Sharps),
+    ///     Note::new(Pitch::B, 3),
+    /// );
+    /// assert_eq!(
+    ///     Note::new(Pitch::B_SHARP, 3).respell_with(Spelling::Flats),
+    ///     Note::new(Pitch::C, 4),
+    /// );
+    ///
+    /// // This will not simplify notes if they're already spelled as intended
+    /// assert_eq!(
+    ///     Note::new(Pitch::G_DOUBLE_SHARP, 4).respell_with(Spelling::Sharps),
+    ///     Note::new(Pitch::G_DOUBLE_SHARP, 4),
+    /// );
+    /// ```
+    pub fn respell_with(self, spelling: Spelling) -> Self {
+        self.respelled_as(self.pitch.respell_with(spelling))
+    }
+
+    /// Returns the same note with fewer accidentals.
+    /// # Examples
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// assert_eq!(
+    ///     Note::new(Pitch::C_FLAT, 4).simplified(),
+    ///     Note::new(Pitch::B, 3),
+    /// );
+    /// assert_eq!(
+    ///     Note::new(Pitch::F_DOUBLE_SHARP, 4).simplified(),
+    ///     Note::new(Pitch::G, 4),
+    /// );
+    ///
+    /// // Already simplified notes are not further simplified
+    /// assert_eq!(
+    ///     Note::new(Pitch::G_FLAT, 4).simplified(),
+    ///     Note::new(Pitch::G_FLAT, 4),
+    /// );
+    /// assert_eq!(
+    ///     Note::new(Pitch::G, 4).simplified(),
+    ///     Note::new(Pitch::G, 4),
+    /// );
+    /// ```
     pub fn simplified(self) -> Self {
-        let base = self.pitch.simplified();
+        self.respelled_as(self.pitch.simplified())
+    }
 
-        let unchecked = Self { pitch: base, ..self };
+    /// Returns the note's enharmonic.
+    /// # Examples
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// assert_eq!(
+    ///     Note::new(Pitch::C_SHARP, 4).enharmonic(),
+    ///     Note::new(Pitch::D_FLAT, 4),
+    /// );
+    /// assert_eq!(
+    ///     Note::new(Pitch::C_FLAT, 4).enharmonic(),
+    ///     Note::new(Pitch::B, 3),
+    /// );
+    ///
+    /// // Notes that can be written with no accidentals will be written
+    /// // with no accidentals. As such, notes with no accidentals will
+    /// // return themselves.
+    /// assert_eq!(
+    ///     Note::new(Pitch::G, 4).enharmonic(),
+    ///     Note::new(Pitch::G, 4),
+    /// );
+    /// assert_eq!(
+    ///     Note::new(Pitch::B_DOUBLE_FLAT, 4).enharmonic(),
+    ///     Note::new(Pitch::A, 4),
+    /// );
+    /// ```
+    pub fn enharmonic(self) -> Self {
+        self.respelled_as(self.pitch.enharmonic())
+    }
 
-        let octave_offset = self.semitones_to(unchecked).0.div_euclid(12);
-
-        Self {
-            octave: unchecked.octave - octave_offset,
-            .. unchecked
-        }
+    /// Respells this note according to the key signature.
+    ///
+    /// Corrects the spelling of notes diatonic to the key (notes that appear in the key's scale)
+    /// to match the key signature. Notes not diatonic to the key preserve original spelling.
+    ///
+    /// If you don't want non-diatonic notes to preserve spelling, see the documentation
+    /// example for this method.
+    ///
+    /// See [`Pitch::respell_in_key`] for more.
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// let cs_major = Key::major(Pitch::C_SHARP);
+    ///
+    /// // Diatonic notes are respelled to match the key
+    /// assert_eq!(
+    ///     Note::new(Pitch::C, 4).respell_in_key(cs_major),
+    ///     Note::new(Pitch::B_SHARP, 3),
+    /// );
+    ///
+    /// let d_major = Key::major(Pitch::D);
+    ///
+    /// // Notes that aren't diatonic preserve spelling
+    /// assert_eq!(
+    ///     Note::new(Pitch::B_FLAT, 4).respell_in_key(d_major),
+    ///     Note::new(Pitch::B_FLAT, 4),
+    /// );
+    ///
+    /// // ... but if you don't want this behavior, respell it
+    /// assert_eq!(
+    ///     Note::new(Pitch::B_FLAT, 4).respell_in_key(d_major)
+    ///         .respell_with(d_major.spelling().unwrap_or_default()),
+    ///     Note::new(Pitch::A_SHARP, 4),
+    /// );
+    /// ```
+    pub fn respell_in_key(self, key: Key) -> Self {
+        self.respelled_as(self.pitch.respell_in_key(key))
     }
 
     pub fn as_midi(self) -> Option<u8> {
@@ -222,16 +368,122 @@ pub mod tests {
     }
 
     #[test]
-    fn bias() {
-        // TODO: test this more
-        assert_eq!(
-            Note::new(Pitch::C_FLAT, 4).bias(true), Note::new(Pitch::B, 3),
-            "should spell note without flats, and should have correct octave",
-        );
+    fn test_respell_with() {
+        let cases = [
+            (Note::new(Pitch::A_SHARP, 4), Spelling::Flats, Note::new(Pitch::B_FLAT, 4)),
+            (Note::new(Pitch::E_FLAT, 4), Spelling::Sharps, Note::new(Pitch::D_SHARP, 4)),
 
-        assert_eq!(
-            Note::new(Pitch::C_FLAT, 4).simplified(), Note::new(Pitch::B, 3),
-            "should spell note simpler, and should have correct octave",
-        );
+            // already correct
+            (Note::new(Pitch::C_SHARP, 4), Spelling::Sharps, Note::new(Pitch::C_SHARP, 4)),
+            (Note::new(Pitch::D_FLAT, 4), Spelling::Flats, Note::new(Pitch::D_FLAT, 4)),
+
+            // octave boundary
+            (Note::new(Pitch::C_FLAT, 4), Spelling::Sharps, Note::new(Pitch::B, 3)),
+            (Note::new(Pitch::B_SHARP, 3), Spelling::Flats, Note::new(Pitch::C, 4)),
+            (Note::new(Pitch::C_FLAT, 5), Spelling::Sharps, Note::new(Pitch::B, 4)),
+            (Note::new(Pitch::B_SHARP, 5), Spelling::Flats, Note::new(Pitch::C, 6)),
+
+            // naturals
+            (Note::new(Pitch::C, 4), Spelling::Sharps, Note::new(Pitch::C, 4)),
+            (Note::new(Pitch::G, 5), Spelling::Flats, Note::new(Pitch::G, 5)),
+        ];
+
+        for (input, spelling, expected) in cases {
+            assert_eq!(
+                input.respell_with(spelling),
+                expected,
+                "{input} respelled with {spelling:?} should be {expected}"
+            );
+        }
+    }
+
+    #[test]
+    fn test_simplified() {
+        let cases = [
+            // single accidentals
+            (Note::new(Pitch::C_SHARP, 4), Note::new(Pitch::C_SHARP, 4)),
+            (Note::new(Pitch::D_FLAT, 5), Note::new(Pitch::D_FLAT, 5)),
+
+            // double accidentals
+            (Note::new(Pitch::C_DOUBLE_SHARP, 4), Note::new(Pitch::D, 4)),
+            (Note::new(Pitch::D_DOUBLE_FLAT, 4), Note::new(Pitch::C, 4)),
+
+            // octave boundary
+            (Note::new(Pitch::C_FLAT, 4), Note::new(Pitch::B, 3)),
+            (Note::new(Pitch::B_SHARP, 3), Note::new(Pitch::C, 4)),
+            (Note::new(Pitch::F_FLAT, 6), Note::new(Pitch::E, 6)),
+            (Note::new(Pitch::E_SHARP, 2), Note::new(Pitch::F, 2)),
+
+            // naturals
+            (Note::new(Pitch::C, 4), Note::new(Pitch::C, 4)),
+            (Note::new(Pitch::G, 5), Note::new(Pitch::G, 5)),
+        ];
+
+        for (input, expected) in cases {
+            assert_eq!(
+                input.simplified(),
+                expected,
+                "{input} simplified should be {expected}"
+            );
+        }
+    }
+
+    #[test]
+    fn test_enharmonic() {
+        let cases = [
+            (Note::new(Pitch::C_SHARP, 4), Note::new(Pitch::D_FLAT, 4)),
+            (Note::new(Pitch::D_FLAT, 4), Note::new(Pitch::C_SHARP, 4)),
+            (Note::new(Pitch::F_SHARP, 5), Note::new(Pitch::G_FLAT, 5)),
+
+            // double accidentals
+            (Note::new(Pitch::A_DOUBLE_FLAT, 4), Note::new(Pitch::G, 4)),
+            (Note::new(Pitch::B_DOUBLE_SHARP, 5), Note::new(Pitch::D_FLAT, 6)),
+
+            // octave boundary
+            (Note::new(Pitch::C_FLAT, 4), Note::new(Pitch::B, 3)),
+            (Note::new(Pitch::B_SHARP, 3), Note::new(Pitch::C, 4)),
+
+            // Naturals stay natural
+            (Note::new(Pitch::C, 4), Note::new(Pitch::C, 4)),
+            (Note::new(Pitch::G, 5), Note::new(Pitch::G, 5)),
+        ];
+
+        for (input, expected) in cases {
+            assert_eq!(
+                input.enharmonic(),
+                expected,
+                "{input} enharmonic should be {expected}"
+            );
+        }
+    }
+
+    #[test]
+    fn test_respell_in_key() {
+        let cases = [
+            // diatonic notes
+            (Note::new(Pitch::C, 4), Key::major(Pitch::C_SHARP), Note::new(Pitch::B_SHARP, 3)),
+            (Note::new(Pitch::F, 4), Key::major(Pitch::C_SHARP), Note::new(Pitch::E_SHARP, 4)),
+
+            (Note::new(Pitch::E, 4), Key::major(Pitch::C_FLAT), Note::new(Pitch::F_FLAT, 4)),
+            (Note::new(Pitch::B, 3), Key::major(Pitch::C_FLAT), Note::new(Pitch::C_FLAT, 4)),
+
+            (Note::new(Pitch::A_SHARP, 4), Key::major(Pitch::F), Note::new(Pitch::B_FLAT, 4)),
+
+            // chromatic notes
+            (Note::new(Pitch::C_SHARP, 4), Key::major(Pitch::F), Note::new(Pitch::C_SHARP, 4)),
+            (Note::new(Pitch::E_FLAT, 5), Key::major(Pitch::D), Note::new(Pitch::E_FLAT, 5)),
+
+            // correctly spelled
+            (Note::new(Pitch::C_SHARP, 4), Key::major(Pitch::C_SHARP), Note::new(Pitch::C_SHARP, 4)),
+            (Note::new(Pitch::D, 4), Key::major(Pitch::C), Note::new(Pitch::D, 4)),
+        ];
+
+        for (input, key, expected) in cases {
+            assert_eq!(
+                input.respell_in_key(key),
+                expected,
+                "{input} respelled in {key:?} should be {expected}"
+            );
+        }
     }
 }

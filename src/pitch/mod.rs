@@ -37,6 +37,7 @@ use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
 use crate::interval::Interval;
 use crate::interval::IntervalQuality;
 use crate::semitone::Semitone;
+use crate::harmony::Key;
 
 mod class;
 pub use class::*;
@@ -46,6 +47,9 @@ pub use letter::*;
 
 mod accidental;
 pub use accidental::*;
+
+mod spelling;
+pub use spelling::*;
 
 mod consts;
 
@@ -239,53 +243,120 @@ impl Pitch {
         Semitone(n as _)
     }
 
+    /// Returns the same pitch spelled with either [sharps](Spelling::Sharps) or [flats](Spelling::Flats).
+    ///
+    /// If the pitch is already spelled with the given spelling, *it is returned unchanged*,
+    /// even if it can be written in a simpler way. For example spelling `G##` with `sharps`
+    /// will return `G##`, not `A`. If you'd like it to return `A` instead, consider using
+    /// [`Self::simplified`].
+    /// # Examples
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// // Spell a pitch with flats
+    /// assert_eq!(Pitch::A_SHARP.respell_with(Spelling::Flats), Pitch::B_FLAT);
+    /// // ... or with sharps
+    /// assert_eq!(Pitch::E_FLAT.respell_with(Spelling::Sharps), Pitch::D_SHARP);
+    ///
+    ///
+    /// // Does nothing if a pitch with sharps is called with sharps
+    /// assert_eq!(Pitch::C_SHARP.respell_with(Spelling::Sharps), Pitch::C_SHARP);
+    ///
+    /// // This will not simplify pitches if they're already spelled as intended
+    /// assert_eq!(
+    ///     Pitch::G_DOUBLE_SHARP.respell_with(Spelling::Sharps),
+    ///     Pitch::G_DOUBLE_SHARP,
+    /// );
+    /// ```
+    pub fn respell_with(self, spelling: Spelling) -> Self {
+        if Spelling::from_accidental(self.accidental()) != Some(spelling) {
+            self.as_pitch_class().spell_with(spelling)
+        } else {
+            self
+        }
+    }
+
     /// Returns the same pitch with fewer accidentals.
     /// # Examples
     /// ```
     /// # use music_theory::prelude::*;
     /// assert_eq!(Pitch::E_SHARP.simplified(), Pitch::F);
     /// assert_eq!(Pitch::F_DOUBLE_SHARP.simplified(), Pitch::G);
+    /// assert_eq!(Pitch::C_DOUBLE_FLAT.simplified(), Pitch::B_FLAT);
     ///
-    /// // Already simplified notes are not further simplified
+    /// // Already simplified pitches are not further simplified
     /// assert_eq!(Pitch::G_FLAT.simplified(), Pitch::G_FLAT);
     /// assert_eq!(Pitch::G.simplified(), Pitch::G);
     /// ```
     pub fn simplified(self) -> Self {
-        self.bias(self.accidental().offset > 0)
+        let spelling = Spelling::from_accidental(self.accidental())
+            .unwrap_or_default();
+
+        self.as_pitch_class().spell_with(spelling)
     }
 
     /// Returns the pitch's enharmonic.
+    ///
+    /// If a pitch can't be written with a natural, the returned pitch will always have the
+    /// opposite spelling as before. Notably, this means the enharmonic of `Ex` is `Gb`, *not* `F#`.
+    /// For the opposite behavior, see [`Self::simplified`].
+    ///
     /// # Examples
     /// ```
     /// # use music_theory::prelude::*;
     /// assert_eq!(Pitch::C_SHARP.enharmonic(), Pitch::D_FLAT);
-    /// assert_eq!(Pitch::F_DOUBLE_SHARP.enharmonic(), Pitch::G);
+    /// assert_eq!(Pitch::B_DOUBLE_FLAT.enharmonic(), Pitch::A);
+    /// assert_eq!(Pitch::E_DOUBLE_SHARP.enharmonic(), Pitch::G_FLAT);
     ///
-    /// // Notes with no accidentals will return themselves
+    /// // Pitches that can be written with no accidentals will be written
+    /// // with no accidentals. As such, pitches with no accidentals will
+    /// // return themselves.
     /// assert_eq!(Pitch::G.enharmonic(), Pitch::G);
+    /// assert_eq!(Pitch::B_DOUBLE_FLAT.enharmonic(), Pitch::A);
     /// ```
     pub fn enharmonic(self) -> Self {
-        self.bias(self.accidental().offset < 0)
+        let spelling = Spelling::from_accidental(self.accidental())
+            .unwrap_or_default()
+            .flip();
+
+        self.as_pitch_class().spell_with(spelling)
     }
-    
-    // TODO: should this function simplify if called with G## & true?
-    /// Returns the same pitch spelled with sharps, if `sharps` is `true`, or with flats, if `false`.
+
+    /// Respells this pitch according to the key signature.
+    ///
+    /// Corrects the spelling of notes diatonic to the key (notes that appear in the key's scale)
+    /// to match the key signature. Notes not diatonic to the key preserve original spelling.
+    ///
+    /// For example, respelling `Bb` in G major will remain `Bb`, even though G major is a key with sharps.
+    /// This is because `Bb` doesn't appear in the G major scale (disregarding spelling). If you intend
+    /// for it to return `A#`, use `self.as_pitch_class().spell_in_key(key)`.
+    ///
     /// # Examples
     /// ```
     /// # use music_theory::prelude::*;
-    /// // Spell a note with flats
-    /// assert_eq!(Pitch::A_SHARP.bias(false), Pitch::B_FLAT);
-    /// // ... or with sharps
-    /// assert_eq!(Pitch::E_FLAT.bias(true), Pitch::D_SHARP);
+    /// let g_major = Key::major(Pitch::G);
     ///
+    /// // Diatonic notes are respelled to match the key
+    /// assert_eq!(Pitch::G_FLAT.respell_in_key(g_major), Pitch::F_SHARP);
     ///
-    /// // Does nothing if a pitch with sharps is called with true
-    /// assert_eq!(Pitch::C_SHARP.bias(true), Pitch::C_SHARP);
-    /// // This will simplify a note if it can be written with fewer accidentals
-    /// assert_eq!(Pitch::G_DOUBLE_SHARP.bias(true), Pitch::A);
+    /// // Notes that aren't diatonic preserve spelling,
+    /// assert_eq!(Pitch::B_FLAT.respell_in_key(g_major), Pitch::B_FLAT);
+    /// assert_eq!(Pitch::A_SHARP.respell_in_key(g_major), Pitch::A_SHARP);
+    /// // ... but if you don't want this behavior, call 'as_pitch_class()' first
+    /// assert_eq!(
+    ///     Pitch::B_FLAT.as_pitch_class().spell_in_key(g_major),
+    ///     Pitch::A_SHARP,
+    /// );
     /// ```
-    pub fn bias(self, sharp: bool) -> Self {
-        self.as_pitch_class().bias(sharp)
+    pub fn respell_in_key(self, key: Key) -> Self {
+        if let Some(pitch) = key.scale()
+            .build_default()
+            .into_iter()
+            .find(|p| self.eq_enharmonic(p))
+        {
+            return pitch;
+        }
+
+        self
     }
 
     /// Transposes the pitch by the given interval. Has the same behavior as the [`+` operator](Add::add).
