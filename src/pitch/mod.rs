@@ -37,6 +37,7 @@ use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
 use crate::interval::Interval;
 use crate::interval::IntervalQuality;
 use crate::semitone::Semitone;
+use crate::harmony::Key;
 
 mod class;
 pub use class::*;
@@ -308,6 +309,44 @@ impl Pitch {
         } else {
             self
         }
+    }
+
+    /// Respells this pitch according to the key signature.
+    ///
+    /// Corrects the spelling of notes diatonic to the key (notes that appear in the key's scale)
+    /// to match the key signature. Notes not diatonic to the key preserve original spelling.
+    ///
+    /// For example, respelling `Bb` in G major will remain `Bb`, even though G major is a key with sharps.
+    /// This is because `Bb` doesn't appear in the G major scale (disregarding spelling). If you intend
+    /// for it to return `A#`, use `self.as_pitch_class().spell_in_key(key)`.
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// let g_major = Key::major(Pitch::G);
+    ///
+    /// // Diatonic notes are respelled to match the key
+    /// assert_eq!(Pitch::G_FLAT.respell_in_key(g_major), Pitch::F_SHARP);
+    ///
+    /// // Notes that aren't diatonic preserve spelling,
+    /// assert_eq!(Pitch::B_FLAT.respell_in_key(g_major), Pitch::B_FLAT);
+    /// assert_eq!(Pitch::A_SHARP.respell_in_key(g_major), Pitch::A_SHARP);
+    /// // ... but if you don't want this behavior, call 'as_pitch_class()' first
+    /// assert_eq!(
+    ///     Pitch::B_FLAT.as_pitch_class().spell_in_key(g_major),
+    ///     Pitch::A_SHARP,
+    /// );
+    /// ```
+    pub fn respell_in_key(self, key: Key) -> Self {
+        if let Some(pitch) = key.scale()
+            .build_default()
+            .into_iter()
+            .find(|p| self.eq_enharmonic(p))
+        {
+            return pitch;
+        }
+
+        self
     }
 
     /// Transposes the pitch by the given interval. Has the same behavior as the [`+` operator](Add::add).
