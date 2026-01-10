@@ -51,6 +51,26 @@ impl Key {
         self.tonic.as_fifths_from_c() - offset
     }
 
+    /// Returns the spelling preference (sharps or flats) for this key.
+    ///
+    /// In other words, does this key use sharps or flats? Since keys like C major use neither
+    /// sharps nor flats, this method can return `None`.
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// // Sharp keys prefer sharp spelling
+    /// assert_eq!(Key::major(Pitch::G).spelling(), Some(Spelling::Sharps));
+    /// assert_eq!(Key::minor(Pitch::E).spelling(), Some(Spelling::Sharps));
+    ///
+    /// // Flat keys prefer flat spelling
+    /// assert_eq!(Key::major(Pitch::F).spelling(), Some(Spelling::Flats));
+    /// assert_eq!(Key::minor(Pitch::D).spelling(), Some(Spelling::Flats));
+    ///
+    /// // C major and A minor have no preference
+    /// assert_eq!(Key::major(Pitch::C).spelling(), None);
+    /// assert_eq!(Key::minor(Pitch::A).spelling(), None);
+    /// ```
     pub fn spelling(self) -> Option<Spelling> {
         match self.sharps() {
             ..0 => Some(Spelling::Flats),
