@@ -107,8 +107,8 @@ impl Note {
         }
     }
 
-    pub fn spell_with(self, spelling: Spelling) -> Self {
-        self.respelled_as(self.pitch.spell_with(spelling))
+    pub fn respell_with(self, spelling: Spelling) -> Self {
+        self.respelled_as(self.pitch.respell_with(spelling))
     }
 
     /// Respells this note according to the key signature.
@@ -279,7 +279,7 @@ pub mod tests {
     fn spelling() {
         // TODO: test this more
         assert_eq!(
-            Note::new(Pitch::C_FLAT, 4).spell_with(Spelling::Sharps), Note::new(Pitch::B, 3),
+            Note::new(Pitch::C_FLAT, 4).respell_with(Spelling::Sharps), Note::new(Pitch::B, 3),
             "should spell note without flats, and should have correct octave",
         );
 

@@ -289,21 +289,21 @@ impl Pitch {
     /// ```
     /// # use music_theory::prelude::*;
     /// // Spell a note with flats
-    /// assert_eq!(Pitch::A_SHARP.spell_with(Spelling::Flats), Pitch::B_FLAT);
+    /// assert_eq!(Pitch::A_SHARP.respell_with(Spelling::Flats), Pitch::B_FLAT);
     /// // ... or with sharps
-    /// assert_eq!(Pitch::E_FLAT.spell_with(Spelling::Sharps), Pitch::D_SHARP);
+    /// assert_eq!(Pitch::E_FLAT.respell_with(Spelling::Sharps), Pitch::D_SHARP);
     ///
     ///
     /// // Does nothing if a pitch with sharps is called with sharps
-    /// assert_eq!(Pitch::C_SHARP.spell_with(Spelling::Sharps), Pitch::C_SHARP);
+    /// assert_eq!(Pitch::C_SHARP.respell_with(Spelling::Sharps), Pitch::C_SHARP);
     ///
     /// // This will not simplify notes if they're already spelled as intended
     /// assert_eq!(
-    ///     Pitch::G_DOUBLE_SHARP.spell_with(Spelling::Sharps),
+    ///     Pitch::G_DOUBLE_SHARP.respell_with(Spelling::Sharps),
     ///     Pitch::G_DOUBLE_SHARP,
     /// );
     /// ```
-    pub fn spell_with(self, spelling: Spelling) -> Self {
+    pub fn respell_with(self, spelling: Spelling) -> Self {
         if Spelling::of_accidental(self.accidental()) != Some(spelling) {
             self.as_pitch_class().spell_with(spelling)
         } else {
