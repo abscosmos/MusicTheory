@@ -160,4 +160,15 @@ mod tests {
             note_gen.clone().nth(0),
         )
     }
+
+    #[test]
+    #[should_panic]
+    fn internal_repr_max() {
+        let mut note_gen = NoteGenerator {
+            current: i32::MAX,
+            reverse: false,
+        };
+
+        let _ = note_gen.next();
+    }
 }
