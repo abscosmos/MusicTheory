@@ -70,6 +70,10 @@ impl NoteGenerator {
         }
     }
 
+    pub fn peek(&self) -> Note {
+        Self::repr_to_note(self.current)
+    }
+
     // this is copy Note::from_midi with types changed
     #[inline]
     fn repr_to_note(repr: i32) -> Note {
