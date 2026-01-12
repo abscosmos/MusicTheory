@@ -2,13 +2,22 @@ pub mod note;
 pub mod enharmonic;
 pub mod interval;
 pub mod semitone;
-pub mod chord;
 pub mod pitch;
 pub mod scales;
 pub mod prelude;
 pub mod set;
 pub mod notation;
 pub mod harmony;
+
+
+// experimental features:
+
+#[cfg(feature = "experimental-chords")]
+pub mod chord;
+// no need to even compile since it's not used anywhere else
+// #[cfg(not(feature = "experimental-chords"))]
+// mod chord;
+
 /*
 TODO:
     - add prelude

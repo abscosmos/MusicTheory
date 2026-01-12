@@ -25,6 +25,7 @@ default = []
 # compatability features
 serde = ["dep:serde"]
 # experimental feautures
+experimental-chords = []
 
 [dev-dependencies]
 criterion = "0.7.0"
