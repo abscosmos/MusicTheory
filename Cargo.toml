@@ -22,9 +22,9 @@ serde = { version = "1.0", features = ["derive"], optional = true }
 
 [features]
 default = []
-# compatability features
+# compatibility features
 serde = ["dep:serde"]
-# experimental feautures
+# experimental features
 experimental-chords = []
 experimental-scales = []
 experimental-notation = []
