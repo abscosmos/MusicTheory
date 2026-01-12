@@ -32,10 +32,12 @@ impl NoteGenerator {
         let start_repr = Self::note_to_repr(start);
         let end_repr = Self::note_to_repr(end);
 
+        let count = (end_repr - start_repr).unsigned_abs() as _;
+
         if start_repr <= end_repr {
-            Self::new(start).take((end_repr - start_repr) as _)
+            Self::new(start).take(count)
         } else {
-            Self::reversed(start).take((start_repr - end_repr) as _)
+            Self::reversed(start).take(count)
         }
     }
 
@@ -43,10 +45,12 @@ impl NoteGenerator {
         let start_repr = Self::note_to_repr(start);
         let end_repr = Self::note_to_repr(end);
 
+        let count = (end_repr - start_repr).unsigned_abs() + 1;
+
         if start_repr <= end_repr {
-            Self::new(start).take((end_repr - start_repr) as usize + 1)
+            Self::new(start).take(count as _)
         } else {
-            Self::reversed(start).take((start_repr - end_repr) as usize + 1)
+            Self::reversed(start).take(count as _)
         }
     }
 
