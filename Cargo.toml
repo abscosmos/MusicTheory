@@ -27,6 +27,7 @@ serde = ["dep:serde"]
 # experimental feautures
 experimental-chords = []
 experimental-scales = []
+experimental-notation = []
 
 [dev-dependencies]
 criterion = "0.7.0"

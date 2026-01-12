@@ -5,7 +5,6 @@ pub mod semitone;
 pub mod pitch;
 pub mod prelude;
 pub mod set;
-pub mod notation;
 pub mod harmony;
 
 
@@ -19,6 +18,10 @@ pub mod chord;
 pub mod scales;
 #[cfg(not(feature = "experimental-scales"))]
 mod scales;
+
+#[cfg(feature = "experimental-notation")]
+pub mod notation;
+// no need to compile it otherwise, since it's not used anywhere
 
 /*
 TODO:
