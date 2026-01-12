@@ -74,7 +74,8 @@ impl NoteGenerator {
         Self::repr_to_note(self.current)
     }
 
-    // this is copy Note::from_midi with types changed
+    // this is very similar to Note::from_midi with types changed,
+    // and using a different note for 0
     #[inline]
     fn repr_to_note(repr: i32) -> Note {
         let pitch = PitchClass::from_repr(repr.rem_euclid(12) as _)
