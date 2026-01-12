@@ -1,4 +1,3 @@
-use std::array;
 use crate::interval::Interval;
 use crate::pitch::{Pitch, Letter, AccidentalSign, Spelling};
 use crate::harmony::mode::DiatonicMode;
@@ -199,6 +198,8 @@ impl Key {
 
     #[cfg(feature = "experimental-scales")]
     pub fn chord_scales(&self) -> [RootedSizedScale<Pitch, 7, DiatonicScale>; 7] {
+        use std::array;
+
         let scale = self.scale_experimental().build_default();
         
         array::from_fn(|i| {
