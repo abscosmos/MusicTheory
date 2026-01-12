@@ -397,7 +397,7 @@ impl Iterator for NoteGenerator {
     }
 
     fn nth(&mut self, n: usize) -> Option<Self::Item> {
-        let offset = usize::clamp(i32::MIN as _, i32::MAX as _, n) as _;
+        let offset = n.clamp(i32::MIN as _, i32::MAX as _) as _;
 
         // this is fine, because the min/max is errors to generate notes from anyway
         self.current = if self.reverse {
