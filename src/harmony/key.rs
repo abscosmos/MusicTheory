@@ -1,4 +1,3 @@
-use std::array;
 use crate::interval::Interval;
 use crate::pitch::{Pitch, Letter, AccidentalSign, Spelling};
 use crate::harmony::mode::DiatonicMode;
@@ -149,7 +148,7 @@ impl Key {
     }
     
     pub fn alterations(&self) -> Vec<Pitch> {
-        let mut accidentals = self.scale()
+        let mut accidentals = self.scale_experimental()
             .build_default()
             .into_iter()
             .filter(|a| a.accidental() != AccidentalSign::NATURAL)
@@ -169,7 +168,7 @@ impl Key {
         let degree = Numeral7::from_num(self.tonic.letter().offset_between(letter) + 1)
             .expect("offset should be in range");
 
-        let pitch = self.scale().get(degree);
+        let pitch = self.scale_experimental().get(degree);
 
         assert_eq!(
             pitch.letter(), letter,
@@ -180,19 +179,28 @@ impl Key {
     }
     
     pub fn relative_pitch(self, degree: Numeral7) -> Pitch {
-        self.scale().get(degree)
+        self.scale_experimental().get(degree)
     }
-
-    pub fn scale(&self) -> RootedSizedScale<Pitch, 7, DiatonicScale> {
+    
+    // this is pub(crate) since it's reliant on 'experimental-scales', so it shouldn't be public
+    // if the feature is enabled, the 'scale' method should be used instead 
+    pub(crate) fn scale_experimental(&self) -> RootedSizedScale<Pitch, 7, DiatonicScale> {
         RootedSizedScale {
             root: self.tonic,
             scale: DiatonicScale::new(self.mode.as_experimental()),
         }
     }
 
-    // TODO: this should be gated under experimental/scales feature too, once feature gates are added
+    #[cfg(feature = "experimental-scales")]
+    pub fn scale(&self) -> RootedSizedScale<Pitch, 7, DiatonicScale> {
+        self.scale_experimental()
+    }
+
+    #[cfg(feature = "experimental-scales")]
     pub fn chord_scales(&self) -> [RootedSizedScale<Pitch, 7, DiatonicScale>; 7] {
-        let scale = self.scale().build_default();
+        use std::array;
+
+        let scale = self.scale_experimental().build_default();
         
         array::from_fn(|i| {
             let mode = DiatonicModeExperimental::from_num((self.mode.as_experimental().as_num() - 1 + i as u8) % 7 + 1)

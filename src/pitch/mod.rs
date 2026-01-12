@@ -348,7 +348,7 @@ impl Pitch {
     /// );
     /// ```
     pub fn respell_in_key(self, key: Key) -> Self {
-        if let Some(pitch) = key.scale()
+        if let Some(pitch) = key.scale_experimental()
             .build_default()
             .into_iter()
             .find(|p| self.eq_enharmonic(p))
