@@ -410,8 +410,6 @@ impl Iterator for NoteGenerator {
     }
 }
 
-impl FusedIterator for NoteGenerator {}
-
 #[cfg(test)]
 mod tests {
     use super::*;
