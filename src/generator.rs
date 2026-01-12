@@ -133,13 +133,13 @@ impl Iterator for NoteGenerator {
     }
 
     fn nth(&mut self, n: usize) -> Option<Self::Item> {
-        let offset: i32 = n.try_into().expect("nth offset exceeds i32 bounds");
+        let offset = usize::clamp(i32::MIN as _, i32::MAX as _, n) as _;
 
-        if self.reverse {
-            self.current -= offset;
+        self.current = if self.reverse {
+            self.current.saturating_sub(offset)
         } else {
-            self.current += offset;
-        }
+            self.current.saturating_add(offset)
+        };
 
         self.next()
     }
