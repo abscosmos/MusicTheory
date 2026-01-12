@@ -146,3 +146,18 @@ impl Iterator for NoteGenerator {
 }
 
 impl FusedIterator for NoteGenerator {}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn nth() {
+        let note_gen = NoteGenerator::new(Note::MIDDLE_C);
+
+        assert_eq!(
+            note_gen.clone().next(),
+            note_gen.clone().nth(0),
+        )
+    }
+}
