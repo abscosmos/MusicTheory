@@ -13,9 +13,7 @@ pub mod harmony;
 
 #[cfg(feature = "experimental-chords")]
 pub mod chord;
-// no need to even compile since it's not used anywhere else
-// #[cfg(not(feature = "experimental-chords"))]
-// mod chord;
+// no need to compile it otherwise, since it's not used anywhere
 
 #[cfg(feature = "experimental-scales")]
 pub mod scales;
