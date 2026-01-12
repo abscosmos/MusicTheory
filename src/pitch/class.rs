@@ -122,7 +122,7 @@ impl PitchClass {
     /// assert_eq!(PitchClass::Cs.spell_in_key(Key::major(Pitch::C)), Pitch::C_SHARP);
     /// ```
     pub fn spell_in_key(self, key: Key) -> Pitch {
-        if let Some(pitch) = key.scale()
+        if let Some(pitch) = key.scale_experimental()
             .build_default()
             .into_iter()
             .find(|p| p.as_pitch_class() == self)

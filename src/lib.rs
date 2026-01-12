@@ -3,7 +3,6 @@ pub mod enharmonic;
 pub mod interval;
 pub mod semitone;
 pub mod pitch;
-pub mod scales;
 pub mod prelude;
 pub mod set;
 pub mod notation;
@@ -17,6 +16,11 @@ pub mod chord;
 // no need to even compile since it's not used anywhere else
 // #[cfg(not(feature = "experimental-chords"))]
 // mod chord;
+
+#[cfg(feature = "experimental-scales")]
+pub mod scales;
+#[cfg(not(feature = "experimental-scales"))]
+mod scales;
 
 /*
 TODO:
