@@ -415,6 +415,7 @@ mod tests {
     use super::*;
 
     #[test]
+    #[expect(clippy::iter_nth_zero, reason = "explicitly testing behavior is the same")]
     fn nth() {
         let note_gen = NoteGenerator::new(Note::MIDDLE_C);
 
