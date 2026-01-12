@@ -8,18 +8,17 @@
 //! # use music_theory::prelude::*;
 //! # use music_theory::generator::NoteGenerator;
 //! // Create a generator starting from middle C that's ascending
-//! let mut generator = NoteGenerator::new(Note::MIDDLE_C);
+//! let mut ascending = NoteGenerator::new(Note::MIDDLE_C);
 //!
-//! assert_eq!(generator.next(), Some(Note::new(Pitch::C, 4)));
-//! assert_eq!(generator.next(), Some(Note::new(Pitch::C_SHARP, 4)));
-//! assert_eq!(generator.next(), Some(Note::new(Pitch::D, 4)));
+//! assert_eq!(ascending.next(), Some(Note::new(Pitch::C, 4)));
+//! assert_eq!(ascending.next(), Some(Note::new(Pitch::C_SHARP, 4)));
+//! assert_eq!(ascending.next(), Some(Note::new(Pitch::D, 4)));
 //!
 //! // ... or one that's descending
-//! let descending = NoteGenerator::reversed(Note::MIDDLE_C);
-//! let notes = descending.take(3).collect::<Vec<_>>();
-//! assert_eq!(generator.next(), Some(Note::new(Pitch::C, 4)));
-//! assert_eq!(generator.next(), Some(Note::new(Pitch::B, 3)));
-//! assert_eq!(generator.next(), Some(Note::new(Pitch::A_SHARP, 3)));
+//! let mut descending = NoteGenerator::reversed(Note::MIDDLE_C);
+//! assert_eq!(descending.next(), Some(Note::new(Pitch::C, 4)));
+//! assert_eq!(descending.next(), Some(Note::new(Pitch::B, 3)));
+//! assert_eq!(descending.next(), Some(Note::new(Pitch::A_SHARP, 3)));
 //!
 //! // Generate a specific range of notes
 //! let c_major_scale_range = NoteGenerator::range_inclusive(
