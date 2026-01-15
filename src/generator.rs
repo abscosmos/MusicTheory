@@ -30,7 +30,7 @@
 //! assert_eq!(c_major_scale_range.count(), 13);
 //! ```
 
-use std::iter::{FusedIterator, Take};
+use std::iter::Take;
 use crate::note::Note;
 use crate::pitch::{Pitch, PitchClass};
 
