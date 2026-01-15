@@ -73,8 +73,8 @@ use crate::pitch::{Pitch, PitchClass};
 /// );
 ///
 /// # assert_eq!(octave.clone().count(), 13);
-/// assert_eq!(octave.nth(4), Note::new(Pitch::E, 4));
-/// assert_eq!(octave.last(), Note::new(Pitch::C, 5));
+/// assert_eq!(octave.nth(4), Some(Note::new(Pitch::E, 4)));
+/// assert_eq!(octave.last(), Some(Note::new(Pitch::C, 5)));
 /// ```
 ///
 /// # Overflow Behavior
