@@ -10,7 +10,12 @@ pub mod prelude;
 pub mod set;
 pub mod notation;
 pub mod harmony;
+
+#[cfg(feature = "experimental-note-gen")]
 pub mod generator;
+#[cfg(not(feature = "experimental-note-gen"))]
+mod generator;
+
 /*
 TODO:
     - add prelude
