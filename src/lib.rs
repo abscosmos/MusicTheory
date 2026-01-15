@@ -23,6 +23,11 @@ mod scales;
 pub mod notation;
 // no need to compile it otherwise, since it's not used anywhere
 
+#[cfg(feature = "experimental-note-gen")]
+pub mod generator;
+#[cfg(not(feature = "experimental-note-gen"))]
+mod generator;
+
 /*
 TODO:
     - add prelude
