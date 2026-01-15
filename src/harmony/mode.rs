@@ -4,7 +4,8 @@ use crate::scales::definition::heptatonic::DiatonicMode as DiatonicModeExperimen
 /// Intended to be used until a stable version on scales is released.
 ///
 /// [exp]: crate::scales::definition::heptatonic::DiatonicMode
-#[derive(Copy, Clone, Eq, PartialEq, Default, Debug, Ord, PartialOrd, strum_macros::FromRepr, serde::Serialize, serde::Deserialize)]
+#[derive(Copy, Clone, Eq, PartialEq, Default, Debug, Ord, PartialOrd, strum_macros::FromRepr)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum DiatonicMode {
     #[default]
     Ionian = 1,

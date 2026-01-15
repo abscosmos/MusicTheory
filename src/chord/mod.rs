@@ -8,7 +8,8 @@ pub mod size;
 pub mod types;
 mod eq;
 
-#[derive(Debug, thiserror::Error)]
+#[derive(Copy, Clone, Debug, thiserror::Error, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[error("Can't have a {attempted}th inversion on a chord with only {intervals} note(s).")]
 pub struct InvalidInversion {
     pub intervals: u8,
@@ -16,6 +17,7 @@ pub struct InvalidInversion {
 }
 
 #[derive(Clone, Debug, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Chord {
     pub root: Pitch,
     intervals: Vec<Interval>,

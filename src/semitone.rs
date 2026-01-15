@@ -1,7 +1,7 @@
 use std::ops::{Add, Neg, Sub};
-use serde::{Deserialize, Serialize};
 
-#[derive(Copy, Clone, Eq, PartialEq, Debug, Default, Serialize, Deserialize)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Semitone(pub i16);
 
 impl Add for Semitone {

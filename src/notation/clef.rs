@@ -5,6 +5,7 @@ use crate::pitch::Letter;
 use crate::notation::{OctaveLetter, StemDirection, GetStemDirectionParams};
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct PitchClef {
     // assuming there are only G, C, and F clefs
     // TODO: better field name?
@@ -159,6 +160,7 @@ impl fmt::Display for PitchClef {
 /// The first line of the staff is Line(1), and the space above it is Space(1)
 /// Line (0) would correspond to the first ledger line underneath the staff
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum StaffPosition {
     Line(i8),
     Space(i8),
@@ -170,10 +172,12 @@ impl StaffPosition {
 }
 
 #[derive(Copy, Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct PercussionClef;
 
 // should this be represented as a clef?
 #[derive(Copy, Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct TablatureClef;
 
 #[cfg(test)]

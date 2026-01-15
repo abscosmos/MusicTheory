@@ -1,14 +1,13 @@
-use std::array;
-use serde::{Deserialize, Serialize};
 use crate::interval::Interval;
-use crate::pitch::{Pitch, Letter, AccidentalSign};
+use crate::pitch::{Pitch, Letter, AccidentalSign, Spelling};
 use crate::harmony::mode::DiatonicMode;
 use crate::scales::definition::heptatonic::{DiatonicMode as DiatonicModeExperimental, DiatonicScale};
 use crate::scales::rooted::RootedSizedScale;
 use crate::scales::{Numeral7, ScaleMode as _};
 use crate::scales::sized_scale::SizedScale as _;
 
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Key {
     pub tonic: Pitch,
     pub mode: DiatonicMode,
@@ -49,6 +48,34 @@ impl Key {
             .fifths_from_c();
         
         self.tonic.as_fifths_from_c() - offset
+    }
+
+    /// Returns the spelling preference (sharps or flats) for this key.
+    ///
+    /// In other words, does this key use sharps or flats? Since keys like C major use neither
+    /// sharps nor flats, this method can return `None`.
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// // Sharp keys prefer sharp spelling
+    /// assert_eq!(Key::major(Pitch::G).spelling(), Some(Spelling::Sharps));
+    /// assert_eq!(Key::minor(Pitch::E).spelling(), Some(Spelling::Sharps));
+    ///
+    /// // Flat keys prefer flat spelling
+    /// assert_eq!(Key::major(Pitch::F).spelling(), Some(Spelling::Flats));
+    /// assert_eq!(Key::minor(Pitch::D).spelling(), Some(Spelling::Flats));
+    ///
+    /// // C major and A minor have no preference
+    /// assert_eq!(Key::major(Pitch::C).spelling(), None);
+    /// assert_eq!(Key::minor(Pitch::A).spelling(), None);
+    /// ```
+    pub fn spelling(self) -> Option<Spelling> {
+        match self.sharps() {
+            ..0 => Some(Spelling::Flats),
+            0 => None,
+            1.. => Some(Spelling::Sharps),
+        }
     }
     
     pub fn try_from_sharps_tonic(sharps: i16, tonic: Pitch) -> Option<Self> {
@@ -121,7 +148,7 @@ impl Key {
     }
     
     pub fn alterations(&self) -> Vec<Pitch> {
-        let mut accidentals = self.scale()
+        let mut accidentals = self.scale_experimental()
             .build_default()
             .into_iter()
             .filter(|a| a.accidental() != AccidentalSign::NATURAL)
@@ -141,7 +168,7 @@ impl Key {
         let degree = Numeral7::from_num(self.tonic.letter().offset_between(letter) + 1)
             .expect("offset should be in range");
 
-        let pitch = self.scale().get(degree);
+        let pitch = self.scale_experimental().get(degree);
 
         assert_eq!(
             pitch.letter(), letter,
@@ -152,19 +179,28 @@ impl Key {
     }
     
     pub fn relative_pitch(self, degree: Numeral7) -> Pitch {
-        self.scale().get(degree)
+        self.scale_experimental().get(degree)
     }
-
-    pub fn scale(&self) -> RootedSizedScale<Pitch, 7, DiatonicScale> {
+    
+    // this is pub(crate) since it's reliant on 'experimental-scales', so it shouldn't be public
+    // if the feature is enabled, the 'scale' method should be used instead 
+    pub(crate) fn scale_experimental(&self) -> RootedSizedScale<Pitch, 7, DiatonicScale> {
         RootedSizedScale {
             root: self.tonic,
             scale: DiatonicScale::new(self.mode.as_experimental()),
         }
     }
 
-    // TODO: this should be gated under experimental/scales feature too, once feature gates are added
+    #[cfg(feature = "experimental-scales")]
+    pub fn scale(&self) -> RootedSizedScale<Pitch, 7, DiatonicScale> {
+        self.scale_experimental()
+    }
+
+    #[cfg(feature = "experimental-scales")]
     pub fn chord_scales(&self) -> [RootedSizedScale<Pitch, 7, DiatonicScale>; 7] {
-        let scale = self.scale().build_default();
+        use std::array;
+
+        let scale = self.scale_experimental().build_default();
         
         array::from_fn(|i| {
             let mode = DiatonicModeExperimental::from_num((self.mode.as_experimental().as_num() - 1 + i as u8) % 7 + 1)

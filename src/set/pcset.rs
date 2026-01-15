@@ -1,10 +1,10 @@
 use std::fmt;
 use std::ops::{BitAnd, BitXor, Not};
-use serde::{Deserialize, Serialize};
 use strum::IntoEnumIterator;
 use crate::pitch::PitchClass;
 
-#[derive(Copy, Clone, Eq, PartialEq, Default, Serialize, Deserialize)]
+#[derive(Copy, Clone, Eq, PartialEq, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct PitchClassSet(u16);
 
 impl PitchClassSet {

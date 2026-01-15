@@ -7,6 +7,7 @@ use crate::scales::typed_scale::TypedScale;
 // var ty, var mode
 // TODO: Box<dyn Metadata>?
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct DynamicScale {
     ivls: Box<[Interval]>,
 }

@@ -1,9 +1,9 @@
 use std::fmt;
 use std::num::NonZeroU16;
 use std::str::FromStr;
-use serde::{Deserialize, Serialize};
 
-#[derive(Copy, Clone, Eq, PartialEq, Debug, Serialize, Deserialize)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum IntervalQuality {
     Diminished(NonZeroU16),
     Minor,
@@ -13,7 +13,7 @@ pub enum IntervalQuality {
 }
 
 impl IntervalQuality {
-    pub fn shorthand(&self) -> String {
+    pub fn shorthand(self) -> String {
         match self {
             IntervalQuality::Perfect => "P".to_owned(),
             IntervalQuality::Major => "M".to_owned(),
@@ -23,10 +23,10 @@ impl IntervalQuality {
         }
     }
 
-    pub fn inverted(&self) -> Self {
+    pub fn inverted(self) -> Self {
         use IntervalQuality as Q;
 
-        match *self {
+        match self {
             Q::Perfect => Q::Perfect,
             Q::Major => Q::Minor,
             Q::Minor => Q::Major,
@@ -37,12 +37,13 @@ impl IntervalQuality {
 }
 
 #[derive(Debug, thiserror::Error, Eq, PartialEq, Hash, Copy, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[error("The provided &str could not be converted into a IntervalQuality")]
 pub struct ParseIntervalQualityErr;
 
 impl fmt::Display for IntervalQuality {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.shorthand())
+        write!(f, "{}", (*self).shorthand())
     }
 }
 
