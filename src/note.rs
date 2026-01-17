@@ -278,7 +278,6 @@ impl Note {
     ///     Note::new(Pitch::D_SHARP, 4),
     /// );
     ///
-    ///
     /// // Does nothing if a note with sharps is called with sharps
     /// assert_eq!(
     ///     Note::new(Pitch::C_SHARP, 4).respell_with(Spelling::Sharps),
