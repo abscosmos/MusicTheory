@@ -89,6 +89,19 @@ impl Semitone {
     pub fn octaves(self) -> i16 {
         self.0.div_euclid(12)
     }
+
+    /// Returns the absolute value of semitone distance.
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// assert_eq!(Semitone(5).abs(), Semitone(5));
+    /// assert_eq!(Semitone(-5).abs(), Semitone(5));
+    /// assert_eq!(Semitone(0).abs(), Semitone(0));
+    /// ```
+    pub fn abs(self) -> Self {
+        Self(self.0.abs())
+    }
 }
 
 impl Add for Semitone {
