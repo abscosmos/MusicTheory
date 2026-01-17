@@ -14,11 +14,11 @@ impl AccidentalSign {
     pub const SHARP: Self = Self { offset: 1 };
     pub const DOUBLE_SHARP: Self = Self { offset: 2 };
 
-    pub fn as_semitone_offset(self) -> Semitones {
+    pub fn offset_semitones(self) -> Semitones {
         Semitones(self.offset)
     }
 
-    pub fn from_semitone_offset(offset: Semitones) -> Self {
+    pub fn from_offset_semitones(offset: Semitones) -> Self {
         Self { offset: offset.0 }
     }
 }
@@ -71,12 +71,12 @@ impl fmt::Display for AccidentalSign {
 
 impl From<Semitones> for AccidentalSign {
     fn from(value: Semitones) -> Self {
-        Self::from_semitone_offset(value)
+        Self::from_offset_semitones(value)
     }
 }
 
 impl From<AccidentalSign> for Semitones {
     fn from(value: AccidentalSign) -> Self {
-        value.as_semitone_offset()
+        value.offset_semitones()
     }
 }
