@@ -71,6 +71,24 @@ impl Semitone {
     pub fn is_negative(self) -> bool {
         self.0 < 0
     }
+
+    /// Returns the number of full octaves this semitone value spans.
+    ///
+    /// For negative semitone amounts, returns negative amount of octaves.
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// assert_eq!(Semitone(0).octaves(), 0);
+    /// assert_eq!(Semitone(11).octaves(), 0);
+    /// assert_eq!(Semitone(12).octaves(), 1);
+    /// assert_eq!(Semitone(25).octaves(), 2);
+    /// assert_eq!(Semitone(-1).octaves(), -1);
+    /// assert_eq!(Semitone(-13).octaves(), -2);
+    /// ```
+    pub fn octaves(self) -> i16 {
+        self.0.div_euclid(12)
+    }
 }
 
 impl Add for Semitone {
