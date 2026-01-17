@@ -7,7 +7,7 @@ use std::str::FromStr;
 use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
 use crate::note::Note;
 use crate::pitch::Pitch;
-use crate::semitone::Semitone;
+use crate::semitone::Semitones;
 
 mod quality;
 pub use quality::*;
@@ -203,7 +203,7 @@ impl Interval {
         self.number
     }
 
-    pub fn semitones(self) -> Semitone {
+    pub fn semitones(self) -> Semitones {
         let base_oct_semitones = self.number.base_semitones_with_octave_unsigned();
 
         use IntervalQuality as Q;
@@ -223,7 +223,7 @@ impl Interval {
 
         let unsigned = base_oct_semitones + quality_adjust;
 
-        Semitone(unsigned * self.number.get().signum())
+        Semitones(unsigned * self.number.get().signum())
     }
 
     pub fn shorthand(self) -> String {
@@ -242,7 +242,7 @@ impl Interval {
         }
     }
 
-    pub fn from_semitones_preferred(semitones: Semitone) -> Self {
+    pub fn from_semitones_preferred(semitones: Semitones) -> Self {
         let semi = semitones.0;
 
         if semi == 0 {

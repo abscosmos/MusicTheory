@@ -256,7 +256,7 @@ fn semitones_general() {
 fn from_semitones() {
     assert_eq!(
         (0..=12)
-            .map(|s| Interval::from_semitones_preferred(Semitone(s)))
+            .map(|s| Interval::from_semitones_preferred(Semitones(s)))
             .collect::<Vec<_>>(),
         [
             I::PERFECT_UNISON, I::MINOR_SECOND, I::MAJOR_SECOND,
@@ -267,22 +267,22 @@ fn from_semitones() {
         ]
     );
 
-    assert_eq!(Interval::from_semitones_preferred(Semitone(76)), ivl(IQ::Major, 45));
-    assert_eq!(Interval::from_semitones_preferred(Semitone(21)), ivl(IQ::Major, 13));
-    assert_eq!(Interval::from_semitones_preferred(Semitone(-31)), ivl(IQ::Perfect, -19));
-    assert_eq!(Interval::from_semitones_preferred(Semitone(58)), ivl(IQ::Minor, 35));
-    assert_eq!(Interval::from_semitones_preferred(Semitone(14)), ivl(IQ::Major, 9));
-    assert_eq!(Interval::from_semitones_preferred(Semitone(-27)), ivl(IQ::Minor, -17));
-    assert_eq!(Interval::from_semitones_preferred(Semitone(-17)), ivl(IQ::Perfect, -11));
-    assert_eq!(Interval::from_semitones_preferred(Semitone(16)), ivl(IQ::Major, 10));
-    assert_eq!(Interval::from_semitones_preferred(Semitone(-66)), ivl(IQ::DIMINISHED, -40));
-    assert_eq!(Interval::from_semitones_preferred(Semitone(72)), ivl(IQ::Perfect, 43));
+    assert_eq!(Interval::from_semitones_preferred(Semitones(76)), ivl(IQ::Major, 45));
+    assert_eq!(Interval::from_semitones_preferred(Semitones(21)), ivl(IQ::Major, 13));
+    assert_eq!(Interval::from_semitones_preferred(Semitones(-31)), ivl(IQ::Perfect, -19));
+    assert_eq!(Interval::from_semitones_preferred(Semitones(58)), ivl(IQ::Minor, 35));
+    assert_eq!(Interval::from_semitones_preferred(Semitones(14)), ivl(IQ::Major, 9));
+    assert_eq!(Interval::from_semitones_preferred(Semitones(-27)), ivl(IQ::Minor, -17));
+    assert_eq!(Interval::from_semitones_preferred(Semitones(-17)), ivl(IQ::Perfect, -11));
+    assert_eq!(Interval::from_semitones_preferred(Semitones(16)), ivl(IQ::Major, 10));
+    assert_eq!(Interval::from_semitones_preferred(Semitones(-66)), ivl(IQ::DIMINISHED, -40));
+    assert_eq!(Interval::from_semitones_preferred(Semitones(72)), ivl(IQ::Perfect, 43));
 }
 
 #[test]
 fn to_from_semitones_inverse() {
     for semis in -75..75 {
-        assert_eq!(semi(I::from_semitones_preferred(Semitone(semis))), semis);
+        assert_eq!(semi(I::from_semitones_preferred(Semitones(semis))), semis);
     }
 }
 
