@@ -26,6 +26,32 @@ impl Semitone {
 
     /// Distance of an octave, 12 semitones.
     pub const OCTAVE: Self = Self(12);
+
+    /// Returns `true` if the semitone value is positive (ascending interval).
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// assert!(Semitone(5).is_positive());
+    /// assert!(!Semitone(0).is_positive());
+    /// assert!(!Semitone(-3).is_positive());
+    /// ```
+    pub fn is_positive(self) -> bool {
+        self.0 > 0
+    }
+
+    /// Returns `true` if the semitone value is negative (descending interval).
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// assert!(Semitone(-3).is_negative());
+    /// assert!(!Semitone(0).is_negative());
+    /// assert!(!Semitone(5).is_negative());
+    /// ```
+    pub fn is_negative(self) -> bool {
+        self.0 < 0
+    }
 }
 
 impl Add for Semitone {
