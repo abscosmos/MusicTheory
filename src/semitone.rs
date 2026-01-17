@@ -29,8 +29,8 @@ impl Semitones {
 
     /// Normalizes the semitone value to fit within a single octave, in `[0, 11]`.
     ///
-    /// This uses Euclidean modulo, so negative values wrap. This can be though about adding or
-    /// subtracting multiples of [an octave](Self::OCTAVE) until in the range `[0,11]`.
+    /// This uses Euclidean modulo, so negative values wrap. This can be though of as adding
+    /// or subtracting multiples of [an octave](Self::OCTAVE) until in the range `[0,11]`.
     ///
     /// # Examples
     /// ```
