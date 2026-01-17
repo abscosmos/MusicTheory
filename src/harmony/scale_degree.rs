@@ -53,3 +53,39 @@ impl ScaleDegree {
         Self::from_num(inner as _).expect("implementation should be exact copy")
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::ScaleDegree as Deg;
+
+    #[test]
+    fn basic_properties() {
+        assert_eq!(Deg::IV, Deg::IV, "scale degree eq failed");
+        assert!(Deg::II < Deg::V, "scale degree lt failed");
+        assert!(Deg::VI > Deg::I, "scale degree gt failed");
+
+        assert_eq!(Deg::from_num(5), Some(Deg::V), "scale degree from_num in range failed");
+        assert_eq!(Deg::from_num(0), None, "scale degree from_num invalid failed");
+        assert_eq!(Deg::from_num(8), None, "scale degree from_num invalid failed");
+
+        assert_eq!(Deg::default(), Deg::I, "scale degree default failed");
+
+        for d in 1..=7 {
+            let from_num = Deg::from_num(d).expect("valid degree");
+
+            assert_eq!(from_num.as_num(), d, "scale degree round trip to u8 failed");
+        }
+    }
+
+    #[test]
+    fn experimental_round_trip() {
+        for d in 1..=7 {
+            let deg = Deg::from_num(d).expect("valid degree");
+
+            assert_eq!(
+                Deg::from_experimental(deg.as_experimental()), deg,
+                "scale degree round trip to experimental failed"
+            )
+        }
+    }
+}
