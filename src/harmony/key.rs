@@ -138,10 +138,10 @@ impl Key {
     /// ```
     pub fn relative(self, mode: DiatonicMode) -> Self {
         // what key has all white keys in this mode?
-        let lhs_ref = Letter::from_step(self.mode as u8 - 1).expect("mode enum should be same size as letter enum");
-        let rhs_ref = Letter::from_step(mode as u8 - 1).expect("mode enum should be same size as letter enum");
+        let source_ref = Letter::from_step(self.mode as u8 - 1).expect("mode enum should be same size as letter enum");
+        let target_ref = Letter::from_step(mode as u8 - 1).expect("mode enum should be same size as letter enum");
 
-        let diff_fifths = Pitch::from(rhs_ref).as_fifths_from_c() - Pitch::from(lhs_ref).as_fifths_from_c();
+        let diff_fifths = Pitch::from(target_ref).as_fifths_from_c() - Pitch::from(source_ref).as_fifths_from_c();
         
         let new_tonic = self.tonic.transpose_fifths(diff_fifths);
         
