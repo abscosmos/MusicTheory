@@ -47,7 +47,7 @@ use crate::semitone::Semitones;
 /// assert_eq!(Note::from_midi(69), Note::A4);
 ///
 /// // Converting to and from frequency in 12-TET
-/// assert_eq!(Note::from_frequency_hz(261.625), Some(Note::MIDDLE_C));
+/// assert_eq!(Note::from_frequency_hz(261.6256), Some(Note::MIDDLE_C));
 /// assert_eq!(Note::A4.as_frequency_hz(), 440.0);
 /// ```
 ///
@@ -141,8 +141,8 @@ impl Note {
     /// // A4 is 440 Hz
     /// assert_eq!(Note::from_frequency_hz(440.0), Some(Note::A4));
     ///
-    /// // Middle C is approximately 261.6255 Hz
-    /// assert_eq!(Note::from_frequency_hz(261.6255), Some(Note::MIDDLE_C));
+    /// // Middle C is approximately 261.6256 Hz
+    /// assert_eq!(Note::from_frequency_hz(261.6256), Some(Note::MIDDLE_C));
     ///
     /// // Invalid frequencies return None
     /// assert_eq!(Note::from_frequency_hz(-100.0), None);
@@ -183,9 +183,9 @@ impl Note {
     /// # use music_theory::prelude::*;
     /// assert_eq!(Note::A4.as_frequency_hz(), 440.0);
     ///
-    /// // Middle C is approximately 261.6255 Hz
+    /// // Middle C is approximately 261.6256 Hz
     /// let c4_freq = Note::MIDDLE_C.as_frequency_hz();
-    /// assert!((c4_freq - 261.6255).abs() < 1e-4);
+    /// assert!((c4_freq - 261.6256).abs() < 1e-4);
     ///
     /// let d2_freq = Note::new(Pitch::D, 2).as_frequency_hz();
     /// assert!((d2_freq - 73.4162).abs() < 1e-4);
