@@ -156,6 +156,14 @@ impl Div<i16> for Semitone {
     }
 }
 
+impl Mul<Semitone> for i16 {
+    type Output = Semitone;
+
+    fn mul(self, rhs: Semitone) -> Self::Output {
+        Semitone(self * rhs.0)
+    }
+}
+
 impl fmt::Display for Semitone {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         self.0.fmt(f)
