@@ -1,3 +1,4 @@
+use std::fmt;
 use std::ops::{Add, AddAssign, Div, Mul, Neg, Sub, SubAssign};
 
 /// A signed distance in semitones.
@@ -68,5 +69,11 @@ impl Div<i16> for Semitone {
 
     fn div(self, rhs: i16) -> Self::Output {
         Self(self.0 / rhs)
+    }
+}
+
+impl fmt::Display for Semitone {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        self.0.fmt(f)
     }
 }
