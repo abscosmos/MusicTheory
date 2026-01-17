@@ -92,18 +92,16 @@ impl Key {
         Self { mode, .. self }
     }
 
-    pub fn relative(self) -> Option<Self> {
-        use DiatonicMode as M;
+    pub fn relative(self, mode: DiatonicMode) -> Self {
+        // what key has all white keys in this mode?
+        let lhs_ref = Letter::from_step(self.mode as u8 - 1).expect("mode enum should be same size as letter enum");
+        let rhs_ref = Letter::from_step(mode as u8 - 1).expect("mode enum should be same size as letter enum");
+
+        let diff_fifths = Pitch::from(rhs_ref).as_fifths_from_c() - Pitch::from(lhs_ref).as_fifths_from_c();
         
-        let (dest, offset_fifths) = match self.mode {
-            M::MAJOR => (M::NATURAL_MINOR, 3),
-            M::NATURAL_MINOR => (M::MAJOR, -3),
-            _ => return None,
-        };
+        let new_tonic = self.tonic.transpose_fifths(diff_fifths);
         
-        let new_tonic = self.tonic.transpose_fifths(offset_fifths); 
-        
-        Some(self.with_tonic(new_tonic).parallel(dest))
+        self.with_tonic(new_tonic).parallel(mode)
     }
     
     pub fn from_pitch_degree(degree: Numeral7, pitch: Pitch, mode: DiatonicMode) -> Self {
@@ -163,7 +161,7 @@ impl Key {
         
         pitch.accidental()
     }
-    
+
     pub fn relative_pitch(self, degree: Numeral7) -> Pitch {
         self.scale_experimental().get(degree)
     }
@@ -196,5 +194,37 @@ impl Key {
             
             RootedSizedScale { root, scale: DiatonicScale::new(mode) }
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::harmony::{DiatonicMode, Key};
+
+    #[test]
+    fn relative() {
+        let modes = (1..8).map(|n|DiatonicMode::from_repr(n).expect("in range"));
+
+        for sharps in -10..=10 {
+            for mode in modes.clone() {
+                let key = Key::from_sharps(sharps, mode);
+
+                for mode in modes.clone() {
+                    let relative = key.relative(mode);
+
+                    assert_eq!(
+                        relative.mode, mode,
+                        "mode should match requested relative",
+                    );
+
+                    assert_eq!(
+                        relative.sharps(), key.sharps(),
+                        "relative mode should have same amount of sharps/flats",
+                    );
+                }
+            }
+        }
+
+
     }
 }
