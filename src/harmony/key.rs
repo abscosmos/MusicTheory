@@ -88,10 +88,54 @@ impl Key {
         Some(Self::new(tonic, DiatonicMode::from_experimental(mode)))
     }
 
+    /// Returns the parallel key in the specified mode.
+    ///
+    /// Parallel keys share the same tonic but have different modes.
+    /// For example, E major and E minor are parallel keys.
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// use DiatonicMode as Mode;
+    ///
+    /// // Get the parallel minor
+    /// assert_eq!(
+    ///     Key::major(Pitch::E).parallel(Mode::NATURAL_MINOR),
+    ///     Key::minor(Pitch::E),
+    /// );
+    /// // Works with all diatonic modes
+    /// assert_eq!(
+    ///     Key::new(Pitch::D, Mode::Mixolydian).parallel(Mode::Lydian),
+    ///     Key::new(Pitch::D, Mode::Lydian),
+    /// );
+    /// ```
     pub fn parallel(self, mode: DiatonicMode) -> Self {
         Self { mode, .. self }
     }
 
+    /// Returns the relative key in the specified mode.
+    ///
+    /// Relative keys share the same key signature (same number of sharps or flats) but have
+    /// different tonics. For example, C major and A minor are relative keys.
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// use DiatonicMode as Mode;
+    ///
+    /// // Get the relative minor
+    /// // (same key signature / number of sharps, different tonic)
+    /// assert_eq!(
+    ///     Key::major(Pitch::C).relative(Mode::NATURAL_MINOR),
+    ///     Key::minor(Pitch::A),
+    /// );
+    ///
+    /// // Works with all diatonic modes
+    /// let d_major = Key::major(Pitch::D);
+    /// let g_lydian = Key::new(Pitch::G, Mode::Lydian);
+    /// assert_eq!(d_major.relative(Mode::Lydian), g_lydian);
+    /// assert_eq!(d_major.sharps(), g_lydian.sharps());
+    /// ```
     pub fn relative(self, mode: DiatonicMode) -> Self {
         // what key has all white keys in this mode?
         let lhs_ref = Letter::from_step(self.mode as u8 - 1).expect("mode enum should be same size as letter enum");
