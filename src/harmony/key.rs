@@ -1,9 +1,10 @@
 use crate::interval::Interval;
 use crate::pitch::{Pitch, Letter, AccidentalSign, Spelling};
 use crate::harmony::mode::DiatonicMode;
+use crate::harmony::ScaleDegree;
 use crate::scales::definition::heptatonic::{DiatonicMode as DiatonicModeExperimental, DiatonicScale};
 use crate::scales::rooted::RootedSizedScale;
-use crate::scales::{Numeral7, ScaleMode as _};
+use crate::scales::ScaleMode as _;
 use crate::scales::sized_scale::SizedScale as _;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
@@ -148,7 +149,7 @@ impl Key {
         self.with_tonic(new_tonic).parallel(mode)
     }
     
-    pub fn from_pitch_degree(degree: Numeral7, pitch: Pitch, mode: DiatonicMode) -> Self {
+    pub fn from_pitch_degree(degree: ScaleDegree, pitch: Pitch, mode: DiatonicMode) -> Self {
         let offset = degree as u8 - 1;
         
         let letter_step = (pitch.letter().step() + 7 - offset) % 7;
@@ -156,7 +157,12 @@ impl Key {
         let letter = Letter::from_step(letter_step)
             .expect("must be in range of [0,6]");
 
-        let expect = RootedSizedScale { root: Pitch::from(letter), scale: DiatonicScale::new(mode.as_experimental()) }.get(degree);
+        let scale = RootedSizedScale {
+            root: Pitch::from(letter),
+            scale: DiatonicScale::new(mode.as_experimental())
+        };
+
+        let expect = scale.get(degree.as_experimental());
         
         assert_eq!(
             pitch.letter(), expect.letter(),
@@ -193,10 +199,10 @@ impl Key {
     }
     
     pub fn accidental_of(&self, letter: Letter) -> AccidentalSign {
-        let degree = Numeral7::from_num(self.tonic.letter().offset_between(letter) + 1)
+        let degree = ScaleDegree::from_num(self.tonic.letter().offset_between(letter) + 1)
             .expect("offset should be in range");
 
-        let pitch = self.scale_experimental().get(degree);
+        let pitch = self.scale_experimental().get(degree.as_experimental());
 
         assert_eq!(
             pitch.letter(), letter,
@@ -206,8 +212,8 @@ impl Key {
         pitch.accidental()
     }
 
-    pub fn relative_pitch(self, degree: Numeral7) -> Pitch {
-        self.scale_experimental().get(degree)
+    pub fn relative_pitch(self, degree: ScaleDegree) -> Pitch {
+        self.scale_experimental().get(degree.as_experimental())
     }
     
     // this is pub(crate) since it's reliant on 'experimental-scales', so it shouldn't be public
