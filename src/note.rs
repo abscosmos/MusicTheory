@@ -389,7 +389,7 @@ impl Note {
     ///
     /// let d_major = Key::major(Pitch::D);
     ///
-    /// // Notes that aren't diatonic preserve spelling,
+    /// // Notes that aren't diatonic preserve spelling
     /// assert_eq!(
     ///     Note::new(Pitch::B_FLAT, 4).respell_in_key(d_major),
     ///     Note::new(Pitch::B_FLAT, 4),
