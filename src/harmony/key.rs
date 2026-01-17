@@ -246,7 +246,7 @@ mod tests {
     use crate::harmony::{DiatonicMode, Key};
 
     #[test]
-    fn relative() {
+    fn relative_parallel() {
         let modes = (1..8).map(|n|DiatonicMode::from_repr(n).expect("in range"));
 
         for sharps in -10..=10 {
@@ -265,10 +265,20 @@ mod tests {
                         relative.sharps(), key.sharps(),
                         "relative mode should have same amount of sharps/flats",
                     );
+
+                    let parallel = key.parallel(mode);
+
+                    assert_eq!(
+                        parallel.mode, mode,
+                        "mode should match requested parallel",
+                    );
+
+                    assert_eq!(
+                        parallel.tonic, key.tonic,
+                        "parallel key should have same tonic",
+                    );
                 }
             }
         }
-
-
     }
 }
