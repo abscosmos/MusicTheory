@@ -30,10 +30,6 @@ impl Key {
         Self { tonic, .. self }
     }
 
-    pub fn with_mode(self, mode: DiatonicMode) -> Self {
-        Self { mode, .. self }
-    }
-    
     pub fn from_sharps(sharps: i16, mode: DiatonicMode) -> Self {
         let offset = Letter::from_step(mode as u8 - 1)
             .expect("mode is in [1, 7], so subtracting 1 should be in range")
@@ -92,32 +88,64 @@ impl Key {
         Some(Self::new(tonic, DiatonicMode::from_experimental(mode)))
     }
 
-    pub fn parallel(self) -> Option<Self> {
-        use DiatonicMode as M;
-
-        match self.mode {
-            M::MAJOR => Some(self.with_mode(M::NATURAL_MINOR)),
-            M::NATURAL_MINOR => Some(self.with_mode(M::MAJOR)),
-            _ => None,
-        }
+    /// Returns the parallel key in the specified mode.
+    ///
+    /// Parallel keys share the same tonic but have different modes.
+    /// For example, E major and E minor are parallel keys.
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// use DiatonicMode as Mode;
+    ///
+    /// // Get the parallel minor
+    /// assert_eq!(
+    ///     Key::major(Pitch::E).parallel(Mode::NATURAL_MINOR),
+    ///     Key::minor(Pitch::E),
+    /// );
+    /// // Works with all diatonic modes
+    /// assert_eq!(
+    ///     Key::new(Pitch::D, Mode::Mixolydian).parallel(Mode::Lydian),
+    ///     Key::new(Pitch::D, Mode::Lydian),
+    /// );
+    /// ```
+    pub fn parallel(self, mode: DiatonicMode) -> Self {
+        Self { mode, .. self }
     }
 
-    pub fn relative(self) -> Option<Self> {
-        use DiatonicMode as M;
+    /// Returns the relative key in the specified mode.
+    ///
+    /// Relative keys share the same key signature (same number of sharps or flats) but have
+    /// different tonics. For example, C major and A minor are relative keys.
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// use DiatonicMode as Mode;
+    ///
+    /// // Get the relative minor
+    /// // (same key signature / number of sharps, different tonic)
+    /// assert_eq!(
+    ///     Key::major(Pitch::C).relative(Mode::NATURAL_MINOR),
+    ///     Key::minor(Pitch::A),
+    /// );
+    ///
+    /// // Works with all diatonic modes
+    /// let d_major = Key::major(Pitch::D);
+    /// let g_lydian = Key::new(Pitch::G, Mode::Lydian);
+    /// assert_eq!(d_major.relative(Mode::Lydian), g_lydian);
+    /// assert_eq!(d_major.sharps(), g_lydian.sharps());
+    /// ```
+    pub fn relative(self, mode: DiatonicMode) -> Self {
+        // what key has all white keys in this mode?
+        let source_ref = Letter::from_step(self.mode as u8 - 1).expect("mode enum should be same size as letter enum");
+        let target_ref = Letter::from_step(mode as u8 - 1).expect("mode enum should be same size as letter enum");
+
+        let diff_fifths = Pitch::from(target_ref).as_fifths_from_c() - Pitch::from(source_ref).as_fifths_from_c();
         
-        let offset_fifths = match self.mode {
-            M::MAJOR => 3,
-            M::NATURAL_MINOR => -3,
-            _ => return None,
-        };
+        let new_tonic = self.tonic.transpose_fifths(diff_fifths);
         
-        let new_tonic = self.tonic.transpose_fifths(offset_fifths); 
-        
-        Some(
-            self.with_tonic(new_tonic)
-                .parallel()
-                .expect("should be major/minor since we just checked")
-        )
+        self.with_tonic(new_tonic).parallel(mode)
     }
     
     pub fn from_pitch_degree(degree: Numeral7, pitch: Pitch, mode: DiatonicMode) -> Self {
@@ -177,7 +205,7 @@ impl Key {
         
         pitch.accidental()
     }
-    
+
     pub fn relative_pitch(self, degree: Numeral7) -> Pitch {
         self.scale_experimental().get(degree)
     }
@@ -210,5 +238,47 @@ impl Key {
             
             RootedSizedScale { root, scale: DiatonicScale::new(mode) }
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::harmony::{DiatonicMode, Key};
+
+    #[test]
+    fn relative_parallel() {
+        let modes = (1..8).map(|n|DiatonicMode::from_repr(n).expect("in range"));
+
+        for sharps in -10..=10 {
+            for mode in modes.clone() {
+                let key = Key::from_sharps(sharps, mode);
+
+                for mode in modes.clone() {
+                    let relative = key.relative(mode);
+
+                    assert_eq!(
+                        relative.mode, mode,
+                        "mode should match requested relative",
+                    );
+
+                    assert_eq!(
+                        relative.sharps(), key.sharps(),
+                        "relative mode should have same amount of sharps/flats",
+                    );
+
+                    let parallel = key.parallel(mode);
+
+                    assert_eq!(
+                        parallel.mode, mode,
+                        "mode should match requested parallel",
+                    );
+
+                    assert_eq!(
+                        parallel.tonic, key.tonic,
+                        "parallel key should have same tonic",
+                    );
+                }
+            }
+        }
     }
 }
