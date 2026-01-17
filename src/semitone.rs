@@ -20,6 +20,14 @@ use std::ops::{Add, AddAssign, Div, Mul, Neg, Sub, SubAssign};
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Semitone(pub i16);
 
+impl Semitone {
+    /// Distance of a unison, 0 semitones.
+    pub const UNISON: Self = Self(0);
+
+    /// Distance of an octave, 12 semitones.
+    pub const OCTAVE: Self = Self(12);
+}
+
 impl Add for Semitone {
     type Output = Semitone;
 
