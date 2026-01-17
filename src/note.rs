@@ -193,7 +193,7 @@ impl Note {
     pub fn as_frequency_hz(self) -> f32 {
         let semitones_from_a4 = Self::A4.semitones_to(self);
 
-        440.0 * 2.0_f32.powf(semitones_from_a4.0 as f32 / 12.0)
+        440.0 * f32::exp2(semitones_from_a4.0 as f32 / 12.0)
     }
 
     /// Transposes the note by the given interval. Has the same behavior as the [`+` operator](Add::add).
