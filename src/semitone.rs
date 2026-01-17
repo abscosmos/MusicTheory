@@ -74,8 +74,6 @@ impl Semitones {
 
     /// Returns the number of full octaves this semitone value spans.
     ///
-    /// For negative semitone amounts, returns negative amount of octaves.
-    ///
     /// # Examples
     /// ```
     /// # use music_theory::prelude::*;
@@ -83,11 +81,12 @@ impl Semitones {
     /// assert_eq!(Semitones(11).octaves(), 0);
     /// assert_eq!(Semitones(12).octaves(), 1);
     /// assert_eq!(Semitones(25).octaves(), 2);
-    /// assert_eq!(Semitones(-1).octaves(), -1);
-    /// assert_eq!(Semitones(-13).octaves(), -2);
+    /// assert_eq!(Semitones(-1).octaves(), 0);
+    /// assert_eq!(Semitones(-12).octaves(), -1);
+    /// assert_eq!(Semitones(-13).octaves(), -1);
     /// ```
     pub fn octaves(self) -> i16 {
-        self.0.div_euclid(12)
+        self.0 / 12
     }
 
     /// Returns the absolute value of semitone distance.
@@ -225,7 +224,8 @@ mod tests {
         assert_eq!(Semitones(0).octaves(), 0);
         assert_eq!(Semitones(11).octaves(), 0);
         assert_eq!(Semitones(12).octaves(), 1);
-        assert_eq!(Semitones(-1).octaves(), -1);
+        assert_eq!(Semitones(-1).octaves(), 0);
+        assert_eq!(Semitones(-12).octaves(), -1);
     }
 
     #[test]
