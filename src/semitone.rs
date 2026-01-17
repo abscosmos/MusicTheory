@@ -181,3 +181,93 @@ impl fmt::Display for Semitone {
         self.0.fmt(f)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn constants() {
+        assert_eq!(Semitone::UNISON, Semitone(0));
+        assert_eq!(Semitone::OCTAVE, Semitone(12));
+    }
+
+    #[test]
+    fn arithmetic() {
+        assert_eq!(Semitone(5) + Semitone(3), Semitone(8));
+        assert_eq!(Semitone(5) - Semitone(3), Semitone(2));
+        assert_eq!(-Semitone(5), Semitone(-5));
+        assert_eq!(Semitone(5) * 3, Semitone(15));
+        assert_eq!(3 * Semitone(5), Semitone(15));
+        assert_eq!(Semitone(15) / 3, Semitone(5));
+
+        let mut s = Semitone(10);
+        s += Semitone(5);
+        assert_eq!(s, Semitone(15));
+        s -= Semitone(3);
+        assert_eq!(s, Semitone(12));
+        s *= 2;
+        assert_eq!(s, Semitone(24));
+        s /= 4;
+        assert_eq!(s, Semitone(6));
+    }
+
+    #[test]
+    fn normalize() {
+        assert_eq!(Semitone(0).normalize(), Semitone(0));
+        assert_eq!(Semitone(12).normalize(), Semitone(0));
+        assert_eq!(Semitone(14).normalize(), Semitone(2));
+        assert_eq!(Semitone(-1).normalize(), Semitone(11));
+    }
+
+    #[test]
+    fn octaves() {
+        assert_eq!(Semitone(0).octaves(), 0);
+        assert_eq!(Semitone(11).octaves(), 0);
+        assert_eq!(Semitone(12).octaves(), 1);
+        assert_eq!(Semitone(-1).octaves(), -1);
+    }
+
+    #[test]
+    fn abs() {
+        assert_eq!(Semitone(5).abs(), Semitone(5));
+        assert_eq!(Semitone(-5).abs(), Semitone(5));
+    }
+
+    #[test]
+    fn signs() {
+        assert!(Semitone(1).is_positive());
+        assert!(!Semitone(0).is_positive());
+        assert!(Semitone(-1).is_negative());
+        assert!(!Semitone(0).is_negative());
+    }
+
+    #[test]
+    fn ordering() {
+        assert!(Semitone(5) > Semitone(3));
+        assert!(Semitone(-1) < Semitone(0));
+    }
+
+    #[test]
+    fn display() {
+        assert_eq!(format!("{}", Semitone(7)), "7");
+        assert_eq!(format!("{}", Semitone(-3)), "-3");
+    }
+
+    #[test]
+    fn normalize_within_octave() {
+        for semis in (-100..=100).map(Semitone) {
+            let norm = semis.normalize();
+
+            assert!(
+                Semitone::UNISON <= norm && norm < Semitone::OCTAVE,
+                "normalizing should be within an octave, failed: {semis:?}, norm: {norm}",
+            );
+
+            assert_eq!(
+                norm.octaves(), 0,
+                "normalizing should always be smaller than a full octave",
+            );
+        }
+    }
+}
