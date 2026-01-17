@@ -35,8 +35,8 @@ use crate::semitone::Semitones;
 /// Notes can be transposed by intervals:
 /// ```
 /// # use music_theory::prelude::*;
-/// let e4 = Note::A4 + Interval::MAJOR_SIXTH;
-/// assert_eq!(e4, Note::new(Pitch::F_SHARP, 5));
+/// let fs5 = Note::A4 + Interval::MAJOR_SIXTH;
+/// assert_eq!(fs5, Note::new(Pitch::F_SHARP, 5));
 /// ```
 ///
 /// And can be converted to other representations:
