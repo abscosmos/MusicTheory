@@ -14,7 +14,7 @@ use std::ops::{Add, AddAssign, Div, Mul, Neg, Sub, SubAssign};
 ///
 /// assert_eq!(fifth + fifth, Semitone(14));
 /// assert_eq!(octave - fifth, Semitone(5));
-/// assert_eq!(Semitone(14).mod_octave(), Semitone(2));
+/// assert_eq!(Semitone(14).normalize(), Semitone(2));
 /// ```
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Default, Hash)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -26,6 +26,25 @@ impl Semitone {
 
     /// Distance of an octave, 12 semitones.
     pub const OCTAVE: Self = Self(12);
+
+    /// Normalizes the semitone value to fit within a single octave, in `[0, 11]`.
+    ///
+    /// This uses Euclidean modulo, so negative values wrap. This can be though about adding or
+    /// subtracting multiples of [an octave](Self::OCTAVE) until in the range `[0,11]`.
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// assert_eq!(Semitone(14).normalize(), Semitone(2));
+    /// assert_eq!(Semitone(12).normalize(), Semitone(0));
+    ///
+    /// // Negative values wrap; in this case, -1 is 11 semitones minus an octave
+    /// assert_eq!(Semitone(-1).normalize(), Semitone(11));
+    /// assert_eq!(Semitone(-13).normalize(), Semitone(11));
+    /// ```
+    pub fn normalize(self) -> Self {
+        Self(self.0.rem_euclid(12))
+    }
 
     /// Returns `true` if the semitone value is positive (ascending interval).
     ///
