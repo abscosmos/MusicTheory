@@ -1,5 +1,5 @@
 use std::fmt;
-use std::ops::{Add, AddAssign, Div, Mul, Neg, Sub, SubAssign};
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
 /// A signed distance in semitones.
 ///
@@ -161,6 +161,18 @@ impl Mul<Semitone> for i16 {
 
     fn mul(self, rhs: Semitone) -> Self::Output {
         Semitone(self * rhs.0)
+    }
+}
+
+impl MulAssign<i16> for Semitone {
+    fn mul_assign(&mut self, rhs: i16) {
+        self.0 *= rhs;
+    }
+}
+
+impl DivAssign<i16> for Semitone {
+    fn div_assign(&mut self, rhs: i16) {
+        self.0 /= rhs;
     }
 }
 
