@@ -37,6 +37,17 @@ pub enum Stability {
 }
 
 impl Stability {
+    /// Returns `true` if the interval is either a [perfect](Self::PerfectConsonance) or
+    /// [imperfect](Self::ImperfectConsonance) consonance.
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// // Consonances are consonant
+    /// assert!(Stability::ImperfectConsonance.is_consonant());
+    /// // ... while dissonances are not
+    /// assert!(!Stability::Dissonance.is_consonant());
+    /// ```
     pub fn is_consonant(self) -> bool {
         matches!(self, Self::PerfectConsonance | Self::ImperfectConsonance)
     }
