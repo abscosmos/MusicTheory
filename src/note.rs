@@ -5,7 +5,7 @@ use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
 use crate::harmony::Key;
 use crate::interval::Interval;
 use crate::pitch::{Pitch, PitchClass, Spelling};
-use crate::semitone::Semitone;
+use crate::semitone::Semitones;
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -22,10 +22,10 @@ impl Note {
         Self { pitch, octave }
     }
     
-    pub fn semitones_to(self, other: Self) -> Semitone {
-        let lhs = self.pitch.semitones_offset_from_c() + Semitone(self.octave * 12);
+    pub fn semitones_to(self, other: Self) -> Semitones {
+        let lhs = self.pitch.semitones_offset_from_c() + Semitones(self.octave * 12);
 
-        let rhs = other.pitch.semitones_offset_from_c() + Semitone(other.octave * 12);
+        let rhs = other.pitch.semitones_offset_from_c() + Semitones(other.octave * 12);
 
         rhs - lhs
     }
@@ -281,7 +281,7 @@ impl Note {
             octave: self.octave,
         };
 
-        let interval_semi = Semitone(7 * fifths);
+        let interval_semi = Semitones(7 * fifths);
 
         let edit = self.semitones_to(unchecked) - interval_semi;
 

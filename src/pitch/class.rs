@@ -6,7 +6,7 @@ use crate::enharmonic::EnharmonicEq;
 use crate::interval::Interval;
 use crate::pitch::{Pitch, Letter, AccidentalSign, PitchFromStrError, Spelling};
 use crate::prelude::Key;
-use crate::semitone::Semitone;
+use crate::semitone::Semitones;
 
 #[repr(u8)]
 #[derive(Copy, Clone, Eq, PartialEq, Debug, FromRepr, EnumIter, Ord, PartialOrd)]
@@ -140,10 +140,10 @@ impl EnharmonicEq for PitchClass {
     }
 }
 
-impl Add<Semitone> for PitchClass {
+impl Add<Semitones> for PitchClass {
     type Output = PitchClass;
 
-    fn add(self, rhs: Semitone) -> Self::Output {
+    fn add(self, rhs: Semitones) -> Self::Output {
         let pitch = (self as u8 as i16 + rhs.0)
             .rem_euclid(12)
             .try_into()
@@ -154,10 +154,10 @@ impl Add<Semitone> for PitchClass {
     }
 }
 
-impl Sub<Semitone> for PitchClass {
+impl Sub<Semitones> for PitchClass {
     type Output = PitchClass;
 
-    fn sub(self, rhs: Semitone) -> Self::Output {
+    fn sub(self, rhs: Semitones) -> Self::Output {
         self + (-rhs)
     }
 }

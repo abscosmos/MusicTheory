@@ -9,18 +9,18 @@ use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssi
 /// # Examples
 /// ```
 /// # use music_theory::prelude::*;
-/// let fifth = Semitone(7);
-/// let octave = Semitone::OCTAVE;
+/// let fifth = Semitones(7);
+/// let octave = Semitones::OCTAVE;
 ///
-/// assert_eq!(fifth + fifth, Semitone(14));
-/// assert_eq!(octave - fifth, Semitone(5));
-/// assert_eq!(Semitone(14).normalize(), Semitone(2));
+/// assert_eq!(fifth + fifth, Semitones(14));
+/// assert_eq!(octave - fifth, Semitones(5));
+/// assert_eq!(Semitones(14).normalize(), Semitones(2));
 /// ```
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Default, Hash)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct Semitone(pub i16);
+pub struct Semitones(pub i16);
 
-impl Semitone {
+impl Semitones {
     /// Distance of a unison, 0 semitones.
     pub const UNISON: Self = Self(0);
 
@@ -35,12 +35,12 @@ impl Semitone {
     /// # Examples
     /// ```
     /// # use music_theory::prelude::*;
-    /// assert_eq!(Semitone(14).normalize(), Semitone(2));
-    /// assert_eq!(Semitone(12).normalize(), Semitone(0));
+    /// assert_eq!(Semitones(14).normalize(), Semitones(2));
+    /// assert_eq!(Semitones(12).normalize(), Semitones(0));
     ///
     /// // Negative values wrap; in this case, -1 is 11 semitones minus an octave
-    /// assert_eq!(Semitone(-1).normalize(), Semitone(11));
-    /// assert_eq!(Semitone(-13).normalize(), Semitone(11));
+    /// assert_eq!(Semitones(-1).normalize(), Semitones(11));
+    /// assert_eq!(Semitones(-13).normalize(), Semitones(11));
     /// ```
     pub fn normalize(self) -> Self {
         Self(self.0.rem_euclid(12))
@@ -51,9 +51,9 @@ impl Semitone {
     /// # Examples
     /// ```
     /// # use music_theory::prelude::*;
-    /// assert!(Semitone(5).is_positive());
-    /// assert!(!Semitone(0).is_positive());
-    /// assert!(!Semitone(-3).is_positive());
+    /// assert!(Semitones(5).is_positive());
+    /// assert!(!Semitones(0).is_positive());
+    /// assert!(!Semitones(-3).is_positive());
     /// ```
     pub fn is_positive(self) -> bool {
         self.0 > 0
@@ -64,9 +64,9 @@ impl Semitone {
     /// # Examples
     /// ```
     /// # use music_theory::prelude::*;
-    /// assert!(Semitone(-3).is_negative());
-    /// assert!(!Semitone(0).is_negative());
-    /// assert!(!Semitone(5).is_negative());
+    /// assert!(Semitones(-3).is_negative());
+    /// assert!(!Semitones(0).is_negative());
+    /// assert!(!Semitones(5).is_negative());
     /// ```
     pub fn is_negative(self) -> bool {
         self.0 < 0
@@ -79,12 +79,12 @@ impl Semitone {
     /// # Examples
     /// ```
     /// # use music_theory::prelude::*;
-    /// assert_eq!(Semitone(0).octaves(), 0);
-    /// assert_eq!(Semitone(11).octaves(), 0);
-    /// assert_eq!(Semitone(12).octaves(), 1);
-    /// assert_eq!(Semitone(25).octaves(), 2);
-    /// assert_eq!(Semitone(-1).octaves(), -1);
-    /// assert_eq!(Semitone(-13).octaves(), -2);
+    /// assert_eq!(Semitones(0).octaves(), 0);
+    /// assert_eq!(Semitones(11).octaves(), 0);
+    /// assert_eq!(Semitones(12).octaves(), 1);
+    /// assert_eq!(Semitones(25).octaves(), 2);
+    /// assert_eq!(Semitones(-1).octaves(), -1);
+    /// assert_eq!(Semitones(-13).octaves(), -2);
     /// ```
     pub fn octaves(self) -> i16 {
         self.0.div_euclid(12)
@@ -95,88 +95,88 @@ impl Semitone {
     /// # Examples
     /// ```
     /// # use music_theory::prelude::*;
-    /// assert_eq!(Semitone(5).abs(), Semitone(5));
-    /// assert_eq!(Semitone(-5).abs(), Semitone(5));
-    /// assert_eq!(Semitone(0).abs(), Semitone(0));
+    /// assert_eq!(Semitones(5).abs(), Semitones(5));
+    /// assert_eq!(Semitones(-5).abs(), Semitones(5));
+    /// assert_eq!(Semitones(0).abs(), Semitones(0));
     /// ```
     pub fn abs(self) -> Self {
         Self(self.0.abs())
     }
 }
 
-impl Add for Semitone {
-    type Output = Semitone;
+impl Add for Semitones {
+    type Output = Semitones;
 
     fn add(self, rhs: Self) -> Self::Output {
         Self(self.0 + rhs.0)
     }
 }
 
-impl Sub for Semitone {
-    type Output = Semitone;
+impl Sub for Semitones {
+    type Output = Semitones;
 
     fn sub(self, rhs: Self) -> Self::Output {
         Self(self.0 - rhs.0)
     }
 }
 
-impl Neg for Semitone {
-    type Output = Semitone;
+impl Neg for Semitones {
+    type Output = Semitones;
 
     fn neg(self) -> Self::Output {
         Self(-self.0)
     }
 }
 
-impl AddAssign for Semitone {
+impl AddAssign for Semitones {
     fn add_assign(&mut self, rhs: Self) {
         self.0 += rhs.0;
     }
 }
 
-impl SubAssign for Semitone {
+impl SubAssign for Semitones {
     fn sub_assign(&mut self, rhs: Self) {
         self.0 -= rhs.0;
     }
 }
 
-impl Mul<i16> for Semitone {
-    type Output = Semitone;
+impl Mul<i16> for Semitones {
+    type Output = Semitones;
 
     fn mul(self, rhs: i16) -> Self::Output {
         Self(self.0 * rhs)
     }
 }
 
-impl Div<i16> for Semitone {
-    type Output = Semitone;
+impl Div<i16> for Semitones {
+    type Output = Semitones;
 
     fn div(self, rhs: i16) -> Self::Output {
         Self(self.0 / rhs)
     }
 }
 
-impl Mul<Semitone> for i16 {
-    type Output = Semitone;
+impl Mul<Semitones> for i16 {
+    type Output = Semitones;
 
-    fn mul(self, rhs: Semitone) -> Self::Output {
-        Semitone(self * rhs.0)
+    fn mul(self, rhs: Semitones) -> Self::Output {
+        Semitones(self * rhs.0)
     }
 }
 
-impl MulAssign<i16> for Semitone {
+impl MulAssign<i16> for Semitones {
     fn mul_assign(&mut self, rhs: i16) {
         self.0 *= rhs;
     }
 }
 
-impl DivAssign<i16> for Semitone {
+impl DivAssign<i16> for Semitones {
     fn div_assign(&mut self, rhs: i16) {
         self.0 /= rhs;
     }
 }
 
-impl fmt::Display for Semitone {
+impl fmt::Display for Semitones {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         self.0.fmt(f)
     }
@@ -188,79 +188,79 @@ mod tests {
 
     #[test]
     fn constants() {
-        assert_eq!(Semitone::UNISON, Semitone(0));
-        assert_eq!(Semitone::OCTAVE, Semitone(12));
+        assert_eq!(Semitones::UNISON, Semitones(0));
+        assert_eq!(Semitones::OCTAVE, Semitones(12));
     }
 
     #[test]
     fn arithmetic() {
-        assert_eq!(Semitone(5) + Semitone(3), Semitone(8));
-        assert_eq!(Semitone(5) - Semitone(3), Semitone(2));
-        assert_eq!(-Semitone(5), Semitone(-5));
-        assert_eq!(Semitone(5) * 3, Semitone(15));
-        assert_eq!(3 * Semitone(5), Semitone(15));
-        assert_eq!(Semitone(15) / 3, Semitone(5));
+        assert_eq!(Semitones(5) + Semitones(3), Semitones(8));
+        assert_eq!(Semitones(5) - Semitones(3), Semitones(2));
+        assert_eq!(-Semitones(5), Semitones(-5));
+        assert_eq!(Semitones(5) * 3, Semitones(15));
+        assert_eq!(3 * Semitones(5), Semitones(15));
+        assert_eq!(Semitones(15) / 3, Semitones(5));
 
-        let mut s = Semitone(10);
-        s += Semitone(5);
-        assert_eq!(s, Semitone(15));
-        s -= Semitone(3);
-        assert_eq!(s, Semitone(12));
+        let mut s = Semitones(10);
+        s += Semitones(5);
+        assert_eq!(s, Semitones(15));
+        s -= Semitones(3);
+        assert_eq!(s, Semitones(12));
         s *= 2;
-        assert_eq!(s, Semitone(24));
+        assert_eq!(s, Semitones(24));
         s /= 4;
-        assert_eq!(s, Semitone(6));
+        assert_eq!(s, Semitones(6));
     }
 
     #[test]
     fn normalize() {
-        assert_eq!(Semitone(0).normalize(), Semitone(0));
-        assert_eq!(Semitone(12).normalize(), Semitone(0));
-        assert_eq!(Semitone(14).normalize(), Semitone(2));
-        assert_eq!(Semitone(-1).normalize(), Semitone(11));
+        assert_eq!(Semitones(0).normalize(), Semitones(0));
+        assert_eq!(Semitones(12).normalize(), Semitones(0));
+        assert_eq!(Semitones(14).normalize(), Semitones(2));
+        assert_eq!(Semitones(-1).normalize(), Semitones(11));
     }
 
     #[test]
     fn octaves() {
-        assert_eq!(Semitone(0).octaves(), 0);
-        assert_eq!(Semitone(11).octaves(), 0);
-        assert_eq!(Semitone(12).octaves(), 1);
-        assert_eq!(Semitone(-1).octaves(), -1);
+        assert_eq!(Semitones(0).octaves(), 0);
+        assert_eq!(Semitones(11).octaves(), 0);
+        assert_eq!(Semitones(12).octaves(), 1);
+        assert_eq!(Semitones(-1).octaves(), -1);
     }
 
     #[test]
     fn abs() {
-        assert_eq!(Semitone(5).abs(), Semitone(5));
-        assert_eq!(Semitone(-5).abs(), Semitone(5));
+        assert_eq!(Semitones(5).abs(), Semitones(5));
+        assert_eq!(Semitones(-5).abs(), Semitones(5));
     }
 
     #[test]
     fn signs() {
-        assert!(Semitone(1).is_positive());
-        assert!(!Semitone(0).is_positive());
-        assert!(Semitone(-1).is_negative());
-        assert!(!Semitone(0).is_negative());
+        assert!(Semitones(1).is_positive());
+        assert!(!Semitones(0).is_positive());
+        assert!(Semitones(-1).is_negative());
+        assert!(!Semitones(0).is_negative());
     }
 
     #[test]
     fn ordering() {
-        assert!(Semitone(5) > Semitone(3));
-        assert!(Semitone(-1) < Semitone(0));
+        assert!(Semitones(5) > Semitones(3));
+        assert!(Semitones(-1) < Semitones(0));
     }
 
     #[test]
     fn display() {
-        assert_eq!(format!("{}", Semitone(7)), "7");
-        assert_eq!(format!("{}", Semitone(-3)), "-3");
+        assert_eq!(format!("{}", Semitones(7)), "7");
+        assert_eq!(format!("{}", Semitones(-3)), "-3");
     }
 
     #[test]
     fn normalize_within_octave() {
-        for semis in (-100..=100).map(Semitone) {
+        for semis in (-100..=100).map(Semitones) {
             let norm = semis.normalize();
 
             assert!(
-                Semitone::UNISON <= norm && norm < Semitone::OCTAVE,
+                Semitones::UNISON <= norm && norm < Semitones::OCTAVE,
                 "normalizing should be within an octave, failed: {semis:?}, norm: {norm}",
             );
 

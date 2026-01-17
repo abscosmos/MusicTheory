@@ -1,5 +1,5 @@
 use std::fmt;
-use crate::semitone::Semitone;
+use crate::semitone::Semitones;
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -14,11 +14,11 @@ impl AccidentalSign {
     pub const SHARP: Self = Self { offset: 1 };
     pub const DOUBLE_SHARP: Self = Self { offset: 2 };
 
-    pub fn as_semitone_offset(self) -> Semitone {
-        Semitone(self.offset)
+    pub fn as_semitone_offset(self) -> Semitones {
+        Semitones(self.offset)
     }
 
-    pub fn from_semitone_offset(offset: Semitone) -> Self {
+    pub fn from_semitone_offset(offset: Semitones) -> Self {
         Self { offset: offset.0 }
     }
 }
@@ -69,13 +69,13 @@ impl fmt::Display for AccidentalSign {
     }
 }
 
-impl From<Semitone> for AccidentalSign {
-    fn from(value: Semitone) -> Self {
+impl From<Semitones> for AccidentalSign {
+    fn from(value: Semitones) -> Self {
         Self::from_semitone_offset(value)
     }
 }
 
-impl From<AccidentalSign> for Semitone {
+impl From<AccidentalSign> for Semitones {
     fn from(value: AccidentalSign) -> Self {
         value.as_semitone_offset()
     }

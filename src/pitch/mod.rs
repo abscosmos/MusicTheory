@@ -35,7 +35,7 @@ use regex::Regex;
 use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
 use crate::interval::Interval;
 use crate::interval::IntervalQuality;
-use crate::semitone::Semitone;
+use crate::semitone::Semitones;
 use crate::harmony::Key;
 
 mod class;
@@ -180,15 +180,15 @@ impl Pitch {
     /// # Examples
     /// ```
     /// # use music_theory::prelude::*;
-    /// assert_eq!(Pitch::F_SHARP.semitones_to(Pitch::B), Semitone(5));
+    /// assert_eq!(Pitch::F_SHARP.semitones_to(Pitch::B), Semitones(5));
     /// // Wraps around the edge of the octave.
-    /// assert_eq!(Pitch::B.semitones_to(Pitch::D), Semitone(3));
+    /// assert_eq!(Pitch::B.semitones_to(Pitch::D), Semitones(3));
     /// ```
-    pub fn semitones_to(self, rhs: Self) -> Semitone {
+    pub fn semitones_to(self, rhs: Self) -> Semitones {
         let lhs = self.as_pitch_class() as u8 as i8;
         let rhs = rhs.as_pitch_class() as u8 as i8;
 
-        Semitone((rhs - lhs).rem_euclid(12) as _)
+        Semitones((rhs - lhs).rem_euclid(12) as _)
     }
 
     /// Returns the [`Letter`] component of the `Pitch`.
@@ -226,7 +226,7 @@ impl Pitch {
     /// Returns the signed semitone offset of `self` from C.
     ///
     /// Can return negative values for pitches below C (e.g., C♭♭ returns -2).
-    pub(crate) fn semitones_offset_from_c(self) -> Semitone {
+    pub(crate) fn semitones_offset_from_c(self) -> Semitones {
         let fifths_plus_one = self.as_fifths_from_c() + 1;
 
         let n = match fifths_plus_one.rem_euclid(7) {
@@ -240,7 +240,7 @@ impl Pitch {
             _ => unreachable!("i8::rem_euclid(7) must be [0, 7)")
         } + fifths_plus_one.div_euclid(7);
 
-        Semitone(n as _)
+        Semitones(n as _)
     }
 
     /// Returns the same pitch spelled with either [sharps](Spelling::Sharps) or [flats](Spelling::Flats).
