@@ -2,17 +2,80 @@ use std::fmt;
 use std::num::NonZeroU16;
 use std::str::FromStr;
 
+/// The quality component of an interval, such as "major", "minor", or "perfect".
+///
+/// Interval quality, combined with an [`IntervalNumber`](super::IntervalNumber), determines
+/// the precise distance between two pitches. For example, a major third and a minor third
+/// have the same interval number (3) but different qualities.
+///
+/// # Perfect vs Major/Minor Intervals
+///
+/// Intervals are categorized into two groups based on their interval number:
+/// - **Perfect intervals**: Unisons, fourths, fifths, and octaves can be perfect, augmented, or diminished
+/// - **Major/minor intervals**: Seconds, thirds, sixths, and sevenths can be major, minor, augmented, or diminished
+///
+/// # Augmented and Diminished Qualities
+///
+/// Both augmented and diminished qualities can be stacked multiple times (e.g., doubly augmented).
+/// The [`NonZeroU16`] parameter indicates how many times the quality is applied.
+///
+/// # Examples
+///
+/// ```
+/// # use music_theory::prelude::*;
+/// // Standard qualities
+/// let major = IntervalQuality::Major;
+/// let perfect = IntervalQuality::Perfect;
+///
+/// // Multiple augmentations/diminishments
+/// let doubly_aug = IntervalQuality::Augmented(2.try_into().unwrap());
+/// assert_eq!(doubly_aug.shorthand(), "AA");
+///
+/// // Parse from shorthand notation
+/// let minor: IntervalQuality = "m".parse().unwrap();
+/// assert_eq!(minor, IntervalQuality::Minor);
+///
+/// // Inversion flips major ↔ minor, augmented ↔ diminished
+/// assert_eq!(IntervalQuality::Major.inverted(), IntervalQuality::Minor);
+/// assert_eq!(IntervalQuality::AUGMENTED.inverted(), IntervalQuality::DIMINISHED);
+/// ```
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum IntervalQuality {
+    /// A diminished quality, with the count indicating how many times diminished.
+    /// For example, `Diminished(2)` represents a doubly diminished interval.
     Diminished(NonZeroU16),
+    /// A minor quality, used for seconds, thirds, sixths, and sevenths.
     Minor,
+    /// A perfect quality, used for unisons, fourths, fifths, and octaves.
     Perfect,
+    /// A major quality, used for seconds, thirds, sixths, and sevenths.
     Major,
+    /// An augmented quality, with the count indicating how many times augmented.
+    /// For example, `Augmented(2)` represents a doubly augmented interval.
     Augmented(NonZeroU16),
 }
 
 impl IntervalQuality {
+    /// Returns the shorthand notation for the interval quality.
+    ///
+    /// The shorthand uses single letters:
+    /// - `P` for [perfect](Self::Perfect)
+    /// - `M` for [major](Self::Major)
+    /// - `m` for [minor](Self::Minor)
+    /// - `d` for [diminished](Self::Diminished) (repeated for multiple diminishments)
+    /// - `A` for [augmented](Self::Augmented) (repeated for multiple augmentations)
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// assert_eq!(IntervalQuality::Major.shorthand(), "M");
+    /// assert_eq!(IntervalQuality::Minor.shorthand(), "m");
+    ///
+    /// // Multiple augmentations/diminishments repeat the letter
+    /// let doubly_dim = IntervalQuality::Diminished(2.try_into().unwrap());
+    /// assert_eq!(doubly_dim.shorthand(), "dd");
+    /// ```
     pub fn shorthand(self) -> String {
         match self {
             IntervalQuality::Perfect => "P".to_owned(),
@@ -23,6 +86,27 @@ impl IntervalQuality {
         }
     }
 
+    /// Returns the inverted interval quality.
+    ///
+    /// When an interval is inverted:
+    /// - Perfect remains perfect
+    /// - Major becomes minor (and vice versa)
+    /// - Augmented becomes diminished (and vice versa)
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// use IntervalQuality as Q;
+    ///
+    /// assert_eq!(Q::Perfect.inverted(), Q::Perfect);
+    /// assert_eq!(Q::Major.inverted(), Q::Minor);
+    /// assert_eq!(Q::DIMINISHED.inverted(), Q::AUGMENTED);
+    ///
+    /// // Degree is preserved
+    /// let doubly_aug = Q::Augmented(2.try_into().unwrap());
+    /// let doubly_dim = Q::Diminished(2.try_into().unwrap());
+    /// assert_eq!(doubly_aug.inverted(), doubly_dim);
+    /// ```
     pub fn inverted(self) -> Self {
         use IntervalQuality as Q;
 
@@ -36,6 +120,14 @@ impl IntervalQuality {
     }
 }
 
+/// Error returned when parsing an [`IntervalQuality`] from [`&str`](prim@str) fails.
+///
+/// # Examples
+/// ```
+/// # use music_theory::prelude::*;
+/// assert!("M".parse::<IntervalQuality>().is_ok());
+/// assert!("X".parse::<IntervalQuality>().is_err());
+/// ```
 #[derive(Debug, thiserror::Error, Eq, PartialEq, Hash, Copy, Clone)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[error("The provided &str could not be converted into a IntervalQuality")]
