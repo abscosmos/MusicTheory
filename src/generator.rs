@@ -42,7 +42,7 @@ use crate::pitch::{Pitch, PitchClass};
 ///
 /// Notes are generated with simplified sharp-based spellings from [`PitchClass`]
 /// (e.g., C#, not Db). To get different enharmonic spellings, use methods like
-/// [`Pitch::bias`] on the resulting notes.
+/// [`Pitch::respell_with`] on the resulting notes.
 ///
 /// # Examples
 ///

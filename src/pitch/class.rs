@@ -8,29 +8,97 @@ use crate::pitch::{Pitch, Letter, AccidentalSign, PitchFromStrError, Spelling};
 use crate::prelude::Key;
 use crate::semitone::Semitones;
 
+/// A pitch class representing one of the twelve chromatic pitches.
+///
+/// Pitch classes represent the twelve pitches in an octave, without spelling or octave information.
+/// For example, the pitches [C#](Pitch::C_SHARP) and [Db](Pitch::D_FLAT) are both pitch class [Cs](PitchClass::Cs).
+///
+/// Since pitch classes are spelling agnostic, to convert a pitch class to a specific spelling,
+/// use [`spell_with`](Self::spell_with) or [`spell_in_key`](Self::spell_in_key).
+///
+/// # Examples
+///
+/// ```
+/// # use music_theory::prelude::*;
+/// // Pitch classes can be transposed by intervals
+/// assert_eq!(PitchClass::C + Interval::MAJOR_THIRD, PitchClass::E);
+///
+/// // ... or by semitones
+/// assert_eq!(PitchClass::F + Semitones(1), PitchClass::Fs);
+///
+/// // Spell pitch classes with sharps or flats
+/// assert_eq!(PitchClass::Cs.spell_with(Spelling::Sharps), Pitch::C_SHARP);
+/// assert_eq!(PitchClass::Cs.spell_with(Spelling::Flats), Pitch::D_FLAT);
+///
+/// assert_eq!(
+///     Pitch::F_SHARP.as_pitch_class(),
+///     Pitch::G_FLAT.as_pitch_class(),
+///     "both are PitchClass::Fs",
+/// );
+/// # assert_eq!(Pitch::G_FLAT.as_pitch_class(), PitchClass::Fs)
+/// ```
 #[repr(u8)]
 #[derive(Copy, Clone, Eq, PartialEq, Debug, FromRepr, EnumIter, Ord, PartialOrd)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum PitchClass {
-    C = 0,  /* C /B# */
-    Cs, /* C#/D♭ */
+    /// C / B#
+    C = 0,
+    /// C# / Db
+    Cs,
+    /// D
     D,
-    Ds, /* D#/E♭ */
-    E,  /* E /F♭ */
-    F,  /* F /E♭ */
-    Fs, /* F#/G♭ */
+    /// D# / Eb
+    Ds,
+    /// E / Fb
+    E,
+    /// F / E#
+    F,
+    /// F# / Gb
+    Fs,
+    /// G
     G,
-    Gs, /* G#/A♭ */
+    /// G# / Ab
+    Gs,
+    /// A
     A,
-    As, /* A#/B♭ */
-    B,  /* B /C♭ */
+    /// A# / Bb
+    As,
+    /// B / Cb
+    B,
 }
 
 impl PitchClass {
+    /// Transposes this pitch class by the given interval.
+    ///
+    /// This is equivalent to using the [+ operator](Add::add).
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// let a = PitchClass::A;
+    /// assert_eq!(a.transpose(Interval::MAJOR_THIRD), PitchClass::Cs);
+    /// assert_eq!(a.transpose(Interval::PERFECT_FIFTH), PitchClass::E);
+    ///
+    /// // Equivalent to the '+' operator
+    /// assert_eq!(PitchClass::D + Interval::MINOR_THIRD, PitchClass::F);
+    /// ```
     pub fn transpose(&self, interval: Interval) -> Self {
         *self + interval.semitones()
     }
 
+    /// Returns the letter of this pitch class.
+    ///
+    /// For pitch classes with accidentals, returns the letter used in the sharp spelling.
+    /// For example, `Cs` returns [`Letter::C`], not [`Letter::D`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// assert_eq!(PitchClass::Ds.letter(), Letter::D);
+    /// assert_eq!(PitchClass::E.letter(), Letter::E);
+    /// ```
     pub fn letter(self) -> Letter {
         use PitchClass as PC;
         use Letter as L;
@@ -46,6 +114,20 @@ impl PitchClass {
         }
     }
 
+    /// Returns the accidental of this pitch class.
+    ///
+    /// Pitch classes without accidentals return [`AccidentalSign::NATURAL`], and those with
+    /// accidentals always return [`AccidentalSign::SHARP`].
+    ///
+    /// [`AccidentalSign::FLAT`] is never returned.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// assert_eq!(PitchClass::A.accidental(), AccidentalSign::NATURAL);
+    /// assert_eq!(PitchClass::Fs.accidental(), AccidentalSign::SHARP);
+    /// ```
     pub fn accidental(self) -> AccidentalSign {
         use PitchClass as PC;
 
@@ -55,11 +137,35 @@ impl PitchClass {
         }
     }
 
+    /// Creates a pitch class from a chroma, in `[0, 11]`.
+    ///
+    /// Returns `None` if the chroma value is greater than 11.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// assert_eq!(PitchClass::from_chroma(4), Some(PitchClass::E));
+    /// assert_eq!(PitchClass::from_chroma(11), Some(PitchClass::B));
+    /// assert_eq!(PitchClass::from_chroma(12), None);
+    /// ```
     #[inline(always)]
     pub const fn from_chroma(chroma: u8) -> Option<Self> {
         Self::from_repr(chroma)
     }
 
+    /// Returns the chroma value of this pitch class, in `[0, 11]`.
+    ///
+    /// [`PitchClass::C`] has chroma `0`, and counts up until [`PitchClass::B`] with chroma `11`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// assert_eq!(PitchClass::C.chroma(), 0);
+    /// assert_eq!(PitchClass::Cs.chroma(), 1);
+    /// assert_eq!(PitchClass::B.chroma(), 11);
+    /// ```
     pub fn chroma(self) -> u8 {
         self as u8
     }
@@ -92,7 +198,7 @@ impl PitchClass {
         }
     }
 
-    /// Spells pitch class in the context of a musical key.
+    /// Spells this pitch class in the context of a musical key.
     ///
     /// This method checks if the pitch class appears in the key's scale and returns
     /// the proper spelling used in that scale. For chromatic notes not in the scale,
@@ -109,7 +215,7 @@ impl PitchClass {
     /// let cb_major = Key::major(Pitch::C_FLAT);
     /// assert_eq!(PitchClass::E.spell_in_key(cb_major), Pitch::F_FLAT);
     ///
-    /// // C# major: C♯, D♯, *E♯*, F♯, G♯, A♯, B♯
+    /// // C# major: C#, D#, *E#*, F#, G#, A#, B#
     /// let cs_major = Key::major(Pitch::C_SHARP);
     /// assert_eq!(PitchClass::F.spell_in_key(cs_major), Pitch::E_SHARP);
     ///
@@ -135,6 +241,19 @@ impl PitchClass {
 }
 
 impl EnharmonicEq for PitchClass {
+    /// Checks if two pitch classes are enharmonically equivalent.
+    ///
+    /// For pitch classes, enharmonic equivalence is the same as regular equality.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// use music_theory::enharmonic::EnharmonicEq;
+    ///
+    /// assert!(PitchClass::C.eq_enharmonic(&PitchClass::C));
+    /// assert!(!PitchClass::C.eq_enharmonic(&PitchClass::Cs));
+    /// ```
     fn eq_enharmonic(&self, rhs: &Self) -> bool {
         self == rhs
     }
@@ -143,6 +262,15 @@ impl EnharmonicEq for PitchClass {
 impl Add<Semitones> for PitchClass {
     type Output = PitchClass;
 
+    /// Transposes a pitch class by a number of semitones.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// assert_eq!(PitchClass::C + Semitones(4), PitchClass::E);
+    /// assert_eq!(PitchClass::G + Semitones(5), PitchClass::C);
+    /// ```
     fn add(self, rhs: Semitones) -> Self::Output {
         let pitch = (self as u8 as i16 + rhs.0)
             .rem_euclid(12)
@@ -157,6 +285,15 @@ impl Add<Semitones> for PitchClass {
 impl Sub<Semitones> for PitchClass {
     type Output = PitchClass;
 
+    /// Transposes a pitch class down by a number of semitones.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// assert_eq!(PitchClass::E - Semitones(4), PitchClass::C);
+    /// assert_eq!(PitchClass::D - Semitones(3), PitchClass::B);
+    /// ```
     fn sub(self, rhs: Semitones) -> Self::Output {
         self + (-rhs)
     }
@@ -165,12 +302,40 @@ impl Sub<Semitones> for PitchClass {
 impl FromStr for PitchClass {
     type Err = PitchFromStrError;
 
+    /// Parses a pitch class from a [`&str`](prim@str).
+    ///
+    /// Accepts pitch notation with optional accidentals (e.g., "C", "F#", "Bb").
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// assert_eq!("F#".parse::<PitchClass>(), Ok(PitchClass::Fs));
+    /// assert_eq!("Db".parse::<PitchClass>(), Ok(PitchClass::Cs));
+    ///
+    /// // Octave numbers aren't allowed
+    /// assert_eq!("C4".parse::<PitchClass>(), Err(PitchFromStrError));
+    /// ```
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(Pitch::from_str(s)?.into())
     }
 }
 
 impl fmt::Display for PitchClass {
+    /// Formats the pitch class using its default sharp spelling.
+    ///
+    /// Natural pitch classes display as their letter, chromatic pitch classes
+    /// display with a sharp symbol.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// assert_eq!(PitchClass::C.to_string(), "C");
+    /// assert_eq!(PitchClass::Cs.to_string(), "C♯");
+    /// assert_eq!(PitchClass::E.to_string(), "E");
+    /// assert_eq!(PitchClass::Fs.to_string(), "F♯");
+    /// ```
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let pitch = Pitch::from(*self);
         write!(f, "{pitch}")
@@ -180,6 +345,15 @@ impl fmt::Display for PitchClass {
 impl Add<Interval> for PitchClass {
     type Output = Self;
 
+    /// Transposes a pitch class by an interval.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// assert_eq!(PitchClass::C + Interval::MAJOR_THIRD, PitchClass::E);
+    /// assert_eq!(PitchClass::F + Interval::PERFECT_FIFTH, PitchClass::C);
+    /// ```
     fn add(self, rhs: Interval) -> Self::Output {
         self.transpose(rhs)
     }
@@ -188,6 +362,15 @@ impl Add<Interval> for PitchClass {
 impl Sub<Interval> for PitchClass {
     type Output = Self;
 
+    /// Transposes a pitch class down by an interval.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// assert_eq!(PitchClass::E - Interval::MAJOR_THIRD, PitchClass::C);
+    /// assert_eq!(PitchClass::C - Interval::PERFECT_FIFTH, PitchClass::F);
+    /// ```
     fn sub(self, rhs: Interval) -> Self::Output {
         self + (-rhs)
     }
