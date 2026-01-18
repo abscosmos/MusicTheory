@@ -804,14 +804,14 @@ impl fmt::Display for Interval {
 }
 
 impl EnharmonicEq for Interval {
-    fn eq_enharmonic(&self, rhs: &Self) -> bool {
-        self.semitones() == rhs.semitones()
+    fn eq_enharmonic(&self, other: &Self) -> bool {
+        self.semitones() == other.semitones()
     }
 }
 
 impl EnharmonicOrd for Interval {
-    fn cmp_enharmonic(&self, rhs: &Self) -> Ordering {
-        self.semitones().0.cmp(&rhs.semitones().0)
+    fn cmp_enharmonic(&self, other: &Self) -> Ordering {
+        self.semitones().0.cmp(&other.semitones().0)
     }
 }
 

@@ -533,8 +533,8 @@ impl EnharmonicEq for Pitch {
     /// assert!(Pitch::E_SHARP.eq_enharmonic(&Pitch::F));
     /// assert!(!Pitch::C.eq_enharmonic(&Pitch::D));
     /// ```
-    fn eq_enharmonic(&self, rhs: &Self) -> bool {
-        self.as_pitch_class() == rhs.as_pitch_class()
+    fn eq_enharmonic(&self, other: &Self) -> bool {
+        self.as_pitch_class() == other.as_pitch_class()
     }
 }
 
@@ -588,9 +588,9 @@ impl EnharmonicOrd for Pitch {
     /// assert_eq!(Pitch::C.cmp_enharmonic(&Pitch::E), Ordering::Less);
     /// assert_eq!(Pitch::G.cmp_enharmonic(&Pitch::D), Ordering::Greater);
     /// ```
-    fn cmp_enharmonic(&self, rhs: &Self) -> Ordering {
+    fn cmp_enharmonic(&self, other: &Self) -> Ordering {
         self.as_pitch_class()
-            .cmp(&rhs.as_pitch_class())
+            .cmp(&other.as_pitch_class())
     }
 }
 

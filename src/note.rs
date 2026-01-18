@@ -541,9 +541,9 @@ impl Ord for Note {
 }
 
 impl EnharmonicOrd for Note {
-    fn cmp_enharmonic(&self, rhs: &Self) -> Ordering {
+    fn cmp_enharmonic(&self, other: &Self) -> Ordering {
         let lhs = self.simplified();
-        let rhs = rhs.simplified();
+        let rhs = other.simplified();
 
         lhs.octave
             .cmp(&rhs.octave)
@@ -554,8 +554,8 @@ impl EnharmonicOrd for Note {
 }
 
 impl EnharmonicEq for Note {
-    fn eq_enharmonic(&self, rhs: &Self) -> bool {
-        self.semitones_to(*rhs).0 == 0
+    fn eq_enharmonic(&self, other: &Self) -> bool {
+        self.semitones_to(*other).0 == 0
     }
 }
 

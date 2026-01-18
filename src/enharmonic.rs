@@ -55,7 +55,7 @@ pub trait EnharmonicEq {
     /// assert!(Pitch::C_SHARP.eq_enharmonic(&Pitch::D_FLAT));
     /// assert!(Interval::MINOR_THIRD.eq_enharmonic(&Interval::AUGMENTED_SECOND));
     /// ```
-    fn eq_enharmonic(&self, rhs: &Self) -> bool;
+    fn eq_enharmonic(&self, other: &Self) -> bool;
 
     /// Checks if two musical objects are not enharmonically equivalent.
     ///
@@ -70,8 +70,8 @@ pub trait EnharmonicEq {
     ///
     /// assert!(Pitch::C.ne_enharmonic(&Pitch::A));
     /// ```
-    fn ne_enharmonic(&self, rhs: &Self) -> bool {
-        !self.eq_enharmonic(rhs)
+    fn ne_enharmonic(&self, other: &Self) -> bool {
+        !self.eq_enharmonic(other)
     }
 }
 
@@ -135,5 +135,5 @@ pub trait EnharmonicOrd {
     ///     Ordering::Greater
     /// );
     /// ```
-    fn cmp_enharmonic(&self, rhs: &Self) -> Ordering;
+    fn cmp_enharmonic(&self, other: &Self) -> Ordering;
 }

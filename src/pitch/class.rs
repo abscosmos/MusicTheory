@@ -267,8 +267,8 @@ impl EnharmonicEq for PitchClass {
     /// assert!(PitchClass::C.eq_enharmonic(&PitchClass::C));
     /// assert!(!PitchClass::C.eq_enharmonic(&PitchClass::Cs));
     /// ```
-    fn eq_enharmonic(&self, rhs: &Self) -> bool {
-        self == rhs
+    fn eq_enharmonic(&self, other: &Self) -> bool {
+        self == other
     }
 }
 
