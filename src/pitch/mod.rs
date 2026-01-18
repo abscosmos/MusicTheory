@@ -1,30 +1,44 @@
 //! Pitch representation and manipulation.
 //!
-//! The [`Pitch`] type represents a musical pitch through letter and accidental.
-//! It provides functionality for pitch comparison, enharmonic equivalence,
-//! transposition, and various other musical operations.
+//! The [`Pitch`] type represents a musical pitch with specific spelling, combining a
+//! [`Letter`] (A-G) with an [`AccidentalSign`] (sharp, flat, natural, etc.).
+//! For spelling-agnostic pitch representation, use [`PitchClass`].
 //!
 //! # Examples
+//!
 //! ```
-//! use music_theory::prelude::*;
-//!
+//! # use music_theory::prelude::*;
 //! // Create a pitch from letter and accidental
-//! let c_sharp = Pitch::from_letter_and_accidental(Letter::C, AccidentalSign::SHARP);
+//! let c_sharp = Pitch::from_letter_and_accidental(
+//!     Letter::C,
+//!     AccidentalSign::SHARP
+//! );
 //!
-//! // Create from string notation
-//! let d_flat = "Db".parse::<Pitch>().unwrap();
+//! assert_eq!(c_sharp, Pitch::C_SHARP);
 //!
-//! // Use a predefined constant
-//! let a_double_sharp = Pitch::A_DOUBLE_SHARP;
+//! // Parse from string notation
+//! let d_flat: Pitch = "Db".parse().unwrap();
+//! assert_eq!(d_flat, Pitch::D_FLAT);
 //!
 //! // Check enharmonic equivalence
+//! use music_theory::enharmonic::EnharmonicEq;
 //! assert!(c_sharp.eq_enharmonic(&d_flat));
 //!
+//! // Work with pitch classes (spelling-agnostic)
+//! let cs = PitchClass::Cs;
+//! assert_eq!(c_sharp.as_pitch_class(), cs);
+//! assert_eq!(d_flat.as_pitch_class(), cs); // Same pitch class
+//!
+//! // Spell pitch classes with sharps or flats
+//! assert_eq!(cs.spell_with(Spelling::Sharps), c_sharp);
+//! assert_eq!(cs.spell_with(Spelling::Flats), d_flat);
+//!
 //! // Transpose pitches by intervals
-//! assert_eq!(c_sharp + Interval::AUGMENTED_SIXTH, a_double_sharp);
+//! assert_eq!(
+//!     Pitch::D_SHARP + Interval::AUGMENTED_SIXTH,
+//!     Pitch::B_DOUBLE_SHARP
+//! );
 //! ```
-
-// TODO: module docs need updating, since many other types have been moved into this module
 
 use std::cmp::Ordering;
 use std::fmt;
