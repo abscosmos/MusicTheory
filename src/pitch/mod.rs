@@ -794,7 +794,7 @@ impl Sub<Interval> for Pitch {
     ///
     /// ```
     /// # use music_theory::prelude::*;
-    /// assert_eq!(Pitch::B_FLAT - Interval::MINOR_SECOND, Pitch::A_FLAT);
+    /// assert_eq!(Pitch::B_FLAT - Interval::MINOR_SECOND, Pitch::A);
     /// ```
     fn sub(self, rhs: Interval) -> Self::Output {
         self + (-rhs)
