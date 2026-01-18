@@ -577,12 +577,39 @@ impl Deref for IntervalClassVector {
 }
 
 impl From<PitchClassSet> for IntervalClassVector {
+    /// Converts a pitch class set into its interval class vector.
+    ///
+    /// This is equivalent to calling [`PitchClassSet::interval_class_vector`].
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// # use music_theory::set::{PitchClassSet, IntervalClassVector};
+    /// let pcset = PitchClassSet::from_iter([PitchClass::C, PitchClass::E, PitchClass::G]);
+    /// let icv = IntervalClassVector::from(pcset);
+    /// assert_eq!(*icv, [0, 0, 1, 1, 1, 0]);
+    /// ```
     fn from(pcset: PitchClassSet) -> Self {
         pcset.interval_class_vector()
     }
 }
 
 impl FromIterator<PitchClass> for IntervalClassVector {
+    /// Creates an interval class vector from an iterator of pitch classes.
+    ///
+    /// This first collects the pitch classes into a [`PitchClassSet`], then
+    /// computes the interval class vector.
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// # use music_theory::set::IntervalClassVector;
+    /// let icv = [PitchClass::C, PitchClass::E, PitchClass::G]
+    ///     .into_iter()
+    ///     .collect::<IntervalClassVector>();
+    ///
+    /// assert_eq!(*icv, [0, 0, 1, 1, 1, 0]);
+    /// ```
     fn from_iter<T: IntoIterator<Item = PitchClass>>(iter: T) -> Self {
         PitchClassSet::from_iter(iter).into()
     }
