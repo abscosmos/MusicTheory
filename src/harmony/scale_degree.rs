@@ -10,13 +10,20 @@ use crate::scales::numeral::Numeral7 as ScaleDegreeExp;
 #[derive(Copy, Clone, Eq, PartialEq, Default, Debug, Ord, PartialOrd, strum_macros::FromRepr)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum ScaleDegree {
+    /// Scale degree I: The tonic.
     #[default]
     I = 1,
+    /// Scale degree II: The supertonic.
     II,
+    /// Scale degree III: The mediant.
     III,
+    /// Scale degree IV: The subdominant.
     IV,
+    /// Scale degree V: The dominant.
     V,
+    /// Scale degree VI: The submediant.
     VI,
+    /// Scale degree VII: The leading tone (or subtonic in natural minor).
     VII,
 }
 
