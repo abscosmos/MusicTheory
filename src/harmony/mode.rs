@@ -1,5 +1,10 @@
 use crate::scales::definition::heptatonic::DiatonicMode as DiatonicModeExperimental;
 
+/// Diatonic modes, also known as the modes of the major scale.
+///
+/// Most commonly used are [`Ionian`](Self::Ionian) ([major](Self::MAJOR)) and
+/// [`Aeolian`](Self::Aeolian) ([natural minor](Self::NATURAL_MINOR)).
+///
 /// Copy of [implementation in experimental scales module][exp].
 /// Intended to be used until a stable version on scales is released.
 ///
@@ -18,7 +23,9 @@ pub enum DiatonicMode {
 }
 
 impl DiatonicMode {
+    /// Mode of the major scale, also known as [`Ionian`](Self::Ionian).
     pub const MAJOR: Self = Self::Ionian;
+    /// Mode of the natural minor scale, also known as [`Aeolian`](Self::Aeolian).
     pub const NATURAL_MINOR: Self = Self::Aeolian;
 
     pub(crate) fn as_experimental(self) -> DiatonicModeExperimental {
