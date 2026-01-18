@@ -156,9 +156,23 @@ impl PitchClassSet {
 
 impl fmt::Debug for PitchClassSet {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_tuple("PitchClassSet")
-            .field(&format_args!("0b{:012b}", self.0))
+        struct PcWithChroma(PitchClass);
+
+        impl fmt::Debug for PcWithChroma {
+            fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                write!(f, "{:?} ({})", self.0, self.0.chroma())
+            }
+        }
+
+        f.debug_set()
+            .entries(self.into_iter().map(PcWithChroma))
             .finish()
+    }
+}
+
+impl fmt::Display for PitchClassSet {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_set().entries(*self).finish()
     }
 }
 
@@ -291,9 +305,9 @@ mod tests {
     #[test]
     fn new() {
         let cde = PitchClassSet::new(2688).expect("in range");
-        
-        assert_eq!(format!("{cde:?}"), "PitchClassSet(0b101010000000)");
-        
+
+        assert_eq!(format!("{cde:?}"), "{C (0), D (2), E (4)}");
+
         assert_eq!(cde, PitchClassSet::from_iter([PitchClass::C, PitchClass::D, PitchClass::E]));
     }
     
