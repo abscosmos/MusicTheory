@@ -41,6 +41,21 @@ use crate::set::PitchClassSet;
 pub struct IntervalClassVector([u8; 6]);
 
 impl IntervalClassVector {
+    /// The interval class vector of the empty set, containing no pitch classes.
+    ///
+    /// This contains zero of every interval class: `<0, 0, 0, 0, 0, 0>`.
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// # use music_theory::set::{PitchClassSet, IntervalClassVector};
+    /// assert_eq!(
+    ///     PitchClassSet::EMPTY.interval_class_vector(),
+    ///     IntervalClassVector::EMPTY,
+    /// );
+    /// ```
+    pub const EMPTY: Self = Self([0, 0, 0, 0, 0, 0]);
+
     /// The interval class vector of the chromatic aggregate, containing all 12 pitch classes.
     ///
     /// This contains all interval classes at their maximum counts: `<12, 12, 12, 12, 12, 6>`.
