@@ -153,6 +153,7 @@ impl IntervalClassVector {
     /// assert_eq!(dom7.total(), 6);
     /// ```
     // TODO: might get confused with (*icv).len() due to auto-deref
+    #[doc(alias = "len")]
     pub fn total(self) -> u8 {
         self.0.iter().sum()
     }
