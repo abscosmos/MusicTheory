@@ -7,12 +7,14 @@ use crate::scales::numeral::Numeral;
 use crate::scales::sized_scale::SizedScale;
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct RootedDynamicScale<R: Clone + Add<Interval, Output = R> + Into<Pitch> + PartialOrd> {
     pub root: R,
     pub scale: DynamicScale,
 }
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct RootedSizedScale<R: Clone + Add<Interval, Output = R> + Into<Pitch>, const N: usize, S: SizedScale<N> + Clone> {
     pub root: R,
     pub scale: S,

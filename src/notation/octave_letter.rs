@@ -4,6 +4,7 @@ use crate::pitch::Letter;
 use crate::note::Note;
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct OctaveLetter {
     pub letter: Letter,
     pub octave: i16,
@@ -17,7 +18,7 @@ impl OctaveLetter {
     }
 
     pub fn from_note_lossy(note: Note) -> Self {
-        Self { letter: note.letter(), octave: note.octave }
+        Self { letter: note.pitch.letter(), octave: note.octave }
     }
 
     pub const fn offset_to(self, rhs: Self) -> i16 {

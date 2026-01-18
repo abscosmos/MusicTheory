@@ -2,12 +2,47 @@ use std::fmt;
 use std::num::{NonZeroI16, ParseIntError};
 use std::ops::Neg;
 use std::str::FromStr;
-use serde::{Deserialize, Serialize};
 
-#[derive(Copy, Clone, Eq, PartialEq, Debug, Serialize, Deserialize)]
+/// The diatonic size of an interval, such as "third" or "fifth".
+///
+/// Interval numbers are positive for ascending intervals, and negative for descending intervals.
+/// The smallest number is a [unison](Self::UNISON), since unisons are the additive inverse for intervals.
+///
+/// # Examples
+///
+/// ```
+/// # use music_theory::prelude::*;
+/// // Create using constants
+/// let fifth = IntervalNumber::FIFTH;
+/// assert_eq!(fifth.get(), 5);
+///
+/// // ... or dynamically
+/// let ninth = IntervalNumber::new(9).unwrap();
+/// assert_eq!(ninth.as_simple(), IntervalNumber::SECOND);
+///
+/// // Negative for descending intervals
+/// let desc_fourth = IntervalNumber::new(-4).unwrap();
+/// assert_eq!(desc_fourth, -IntervalNumber::FOURTH);
+/// assert!(!desc_fourth.is_ascending());
+/// ```
+#[derive(Copy, Clone, Eq, PartialEq, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct IntervalNumber(pub NonZeroI16);
 
 impl IntervalNumber {
+    /// Creates a new `IntervalNumber`.
+    ///
+    /// Returns `None` if the number is zero, as interval numbers cannot be zero.
+    /// Negative numbers represent descending intervals.
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// assert_eq!(IntervalNumber::new(3), Some(IntervalNumber::THIRD));
+    /// assert_eq!(IntervalNumber::new(-5), Some(-IntervalNumber::FIFTH));
+    /// // Zero is invalid
+    /// assert_eq!(IntervalNumber::new(0), None);
+    /// ```
     pub const fn new(number: i16) -> Option<Self> {
         // TODO: Option::map and ? operator both aren't const yet
         match NonZeroI16::new(number) {
@@ -16,14 +51,56 @@ impl IntervalNumber {
         }
     }
 
+    /// Returns the inner value of the interval number.
+    ///
+    /// Positive values indicate ascending intervals, negative values indicate descending intervals.
+    /// Since this value is never zero, you can get it as a [`NonZeroI16`] using `self.0` instead.
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// assert_eq!(IntervalNumber::FIFTH.get(), 5);
+    /// assert_eq!((-IntervalNumber::THIRD).get(), -3);
+    /// ```
     pub fn get(self) -> i16 {
         self.0.get()
     }
 
+    /// Returns the shorthand notation for the interval number.
+    ///
+    /// This is identical to [`Self::get`] and returns the numeric value.
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// assert_eq!(IntervalNumber::SEVENTH.shorthand(), 7);
+    /// ```
     pub fn shorthand(self) -> i16 {
         self.get()
     }
 
+    /// Reduces a compound interval to its simple form.
+    ///
+    /// Simplified intervals are in `[1, 8]`, so compound intervals (9ths, 10ths, etc.)
+    /// are reduced by removing complete octaves. The direction is preserved.
+    /// Octaves and multiples of octaves reduce to an octave, *not a unison!*
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// // Simple intervals remain unchanged
+    /// assert_eq!(IntervalNumber::THIRD.as_simple(), IntervalNumber::THIRD);
+    ///
+    /// // Compound intervals reduce to their simple form
+    /// assert_eq!(IntervalNumber::NINTH.as_simple(), IntervalNumber::SECOND);
+    /// assert_eq!(IntervalNumber::THIRTEENTH.as_simple(), IntervalNumber::SIXTH);
+    ///
+    /// // Octaves and multiples of octaves remain as octaves
+    /// assert_eq!(IntervalNumber::FIFTEENTH.as_simple(), IntervalNumber::OCTAVE);
+    ///
+    /// // Direction is preserved
+    /// assert_eq!((-IntervalNumber::NINTH).as_simple(), -IntervalNumber::SECOND);
+    /// ```
     pub fn as_simple(self) -> Self {
         if self.get().abs() != 1 && (self.get().abs() - 1) % 7 == 0 {
             match self.get().is_positive() {
@@ -38,6 +115,25 @@ impl IntervalNumber {
         }
     }
 
+    /// Returns `true` if `self` is a perfect interval number (1, 4, 5, or 8).
+    ///
+    /// Perfect interval numbers can have perfect, augmented, or diminished qualities,
+    /// but not major or minor. The other interval numbers (2, 3, 6, 7) are major/minor
+    /// and cannot be perfect.
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// assert!(IntervalNumber::FIFTH.is_perfect());
+    /// assert!(IntervalNumber::OCTAVE.is_perfect());
+    ///
+    /// assert!(!IntervalNumber::THIRD.is_perfect());
+    /// assert!(!IntervalNumber::SIXTH.is_perfect());
+    ///
+    /// // Works with compound intervals based on their simple form
+    /// assert!(IntervalNumber::ELEVENTH.is_perfect()); // 11 -> 4
+    /// assert!(!IntervalNumber::NINTH.is_perfect());   // 9 -> 2
+    /// ```
     pub fn is_perfect(self) -> bool {
         match self.as_simple().get().abs() {
             1 | 4 | 5 | 8 => true,
@@ -46,10 +142,35 @@ impl IntervalNumber {
         }
     }
 
+    /// Returns `true` if this is an ascending interval (positive).
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// assert!(IntervalNumber::FIFTH.is_ascending());
+    /// assert!(!(-IntervalNumber::THIRD).is_ascending());
+    /// ```
     pub fn is_ascending(self) -> bool {
         self.get().is_positive()
     }
 
+    /// Returns the interval number with the specified direction.
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// let fifth = IntervalNumber::FIFTH;
+    ///
+    /// // Already ascending
+    /// assert_eq!(fifth.with_direction(true), fifth);
+    ///
+    /// // Make descending
+    /// assert_eq!(fifth.with_direction(false), -fifth);
+    ///
+    /// // Descending to ascending
+    /// let desc = -IntervalNumber::THIRD;
+    /// assert_eq!(desc.with_direction(true), IntervalNumber::THIRD);
+    /// ```
     pub fn with_direction(self, ascending: bool) -> Self {
         if self.is_ascending() == ascending {
             self
@@ -58,14 +179,68 @@ impl IntervalNumber {
         }
     }
 
+    /// Returns the number of complete octaves in this interval.
+    ///
+    /// The direction of the interval is ignored. For signed, use [`Self::octave_signed`].
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// assert_eq!(IntervalNumber::THIRD.octave_unsigned(), 0);
+    /// assert_eq!(IntervalNumber::SEVENTH.octave_unsigned(), 0);
+    ///
+    /// assert_eq!(IntervalNumber::OCTAVE.octave_unsigned(), 1);
+    /// assert_eq!(IntervalNumber::TENTH.octave_unsigned(), 1);
+    ///
+    /// // Sign is ignored
+    /// assert_eq!((-IntervalNumber::THIRTEENTH).octave_unsigned(), 1);
+    /// ```
     pub fn octave_unsigned(self) -> i16 { // TODO: make this return u16
         (self.get().abs() - 1) / 7
     }
 
+    /// Returns the number of complete octaves in this interval (signed).
+    ///
+    /// If you don't need the sign, consider [`Self::octave_unsigned`].
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// assert_eq!(IntervalNumber::NINTH.octave_signed(), 1);
+    /// assert_eq!(IntervalNumber::FIFTEENTH.octave_signed(), 2);
+    ///
+    /// // Negative for descending intervals
+    /// assert_eq!((-IntervalNumber::NINTH).octave_signed(), -1);
+    /// assert_eq!((-IntervalNumber::FIFTEENTH).octave_signed(), -2);
+    /// ```
     pub fn octave_signed(self) -> i16 {
         self.octave_unsigned() * self.get().signum()
     }
 
+    /// Returns the inverted interval number.
+    ///
+    /// Inversion flips an interval around: seconds become sevenths, thirds become sixths, etc.
+    /// This takes into account compound intervals, and inverts them within the octave they're in.
+    /// Unisons and octaves invert to themselves. Direction is preserved.
+    ///
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// // Simple interval inversions
+    /// assert_eq!(IntervalNumber::SECOND.inverted(), IntervalNumber::SEVENTH);
+    /// assert_eq!(IntervalNumber::THIRD.inverted(), IntervalNumber::SIXTH);
+    ///
+    /// // Unison and octave invert to themselves
+    /// assert_eq!(IntervalNumber::UNISON.inverted(), IntervalNumber::UNISON);
+    /// assert_eq!(IntervalNumber::OCTAVE.inverted(), IntervalNumber::OCTAVE);
+    ///
+    /// // Compound intervals account for octave displacement
+    /// assert_eq!(IntervalNumber::NINTH.inverted(), IntervalNumber::FOURTEENTH);
+    ///
+    /// // Direction is preserved
+    /// assert_eq!((-IntervalNumber::THIRD).inverted(), -IntervalNumber::SIXTH);
+    /// ```
     pub fn inverted(self) -> Self {
         let simple_abs = self.as_simple().get().abs();
 
@@ -85,6 +260,7 @@ impl IntervalNumber {
             .expect("can't be zero")
     }
 
+    /// Returns the amount of semitones a major/perfect interval of this number would have.
     pub(super) fn base_semitones_with_octave_unsigned(self) -> i16 {
         let without_octave = match self.as_simple().get().abs() {
             1 | 8 => 0,

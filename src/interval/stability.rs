@@ -1,5 +1,3 @@
-use serde::{Serialize, Deserialize};
-
 /// The harmonic stability level of an interval.
 ///
 /// Represents the degree of consonance or dissonance of an interval in traditional
@@ -27,7 +25,8 @@ use serde::{Serialize, Deserialize};
 /// let ambiguous = Interval::PERFECT_FOURTH.stability();
 /// assert_eq!(ambiguous, None);
 /// ```
-#[derive(Copy, Clone, Eq, PartialEq, Debug, Hash, Serialize, Deserialize)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Stability {
     /// The most stable intervals: perfect unisons, fifths, and octaves
     PerfectConsonance,
@@ -38,6 +37,17 @@ pub enum Stability {
 }
 
 impl Stability {
+    /// Returns `true` if the interval is either a [perfect](Self::PerfectConsonance) or
+    /// [imperfect](Self::ImperfectConsonance) consonance.
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// // Consonances are consonant
+    /// assert!(Stability::ImperfectConsonance.is_consonant());
+    /// // ... while dissonances are not
+    /// assert!(!Stability::Dissonance.is_consonant());
+    /// ```
     pub fn is_consonant(self) -> bool {
         matches!(self, Self::PerfectConsonance | Self::ImperfectConsonance)
     }

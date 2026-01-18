@@ -50,7 +50,8 @@ macro_rules! define_scale {
     
     // support for chromatic 1 mode
     (@try_custom_mode $name: ident, $size:expr, []) => {
-        #[derive(Copy, Clone, Eq, PartialEq, Default, Debug, serde::Serialize, serde::Deserialize)]
+        #[derive(Copy, Clone, Eq, PartialEq, Default, Debug)]
+        #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
         pub struct $name;
         
         ::paste::paste! {
@@ -78,7 +79,8 @@ macro_rules! define_scale {
 
     (@custom_mode $name: ident, [$first_var:ident $(, $rest_var:ident)*]) => {
         #[repr(u8)]
-        #[derive(Copy, Clone, Eq, PartialEq, Default, Debug, Ord, PartialOrd, strum_macros::FromRepr, serde::Serialize, serde::Deserialize)]
+        #[derive(Copy, Clone, Eq, PartialEq, Default, Debug, Ord, PartialOrd, strum_macros::FromRepr)]
+        #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
         pub enum $name {
             #[default]
             $first_var = 1,
@@ -101,7 +103,8 @@ macro_rules! define_scale {
     };
     
     (@definition $def_name:ident, $size:expr, $mode_name:ident, $intervals:expr) => {
-        #[derive(Debug, Copy, Clone, serde::Serialize, serde::Deserialize)]
+        #[derive(Debug, Copy, Clone)]
+        #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
         pub struct $def_name;
     
         impl $crate::scales::ScaleDefinition<$size> for $def_name {
@@ -123,7 +126,8 @@ macro_rules! define_scale {
     };
     
     (@define_exact $name:ident, $var:ident, $mode:ident, $def:ident, $size:expr) => {
-        #[derive(Default, Debug, Clone, Copy, serde::Serialize, serde::Deserialize)]
+        #[derive(Default, Debug, Clone, Copy)]
+        #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
         pub struct $name;
         
         impl $crate::scales::exact_scale::ExactScale<$size> for $name {
