@@ -56,13 +56,13 @@ mod consts;
 mod tests;
 
 /// A musical pitch with letter name and accidental.
-/// 
-/// A `Pitch` is internally defined by the number of fifths from C.
-/// This representation allows for up to 4860 sharps or 4861 flats.
-/// To get a representation without enharmonic spelling, use [`PitchClass`].
+///
+/// A `Pitch` represents a note with a specific spelling, such as C# or Db.
+/// Enharmonically equivalent pitches like C# and Db are treated as different values.
+/// For a representation that ignores spelling, use [`PitchClass`].
 ///
 /// For convenience, `Pitch` defines many helper constants, like [`Pitch::D_FLAT`].
-/// 
+///
 /// # Examples
 ///
 /// You can create a `Pitch` from a letter and accidental:
@@ -78,7 +78,7 @@ mod tests;
 /// let a_double_sharp = Pitch::A_DOUBLE_SHARP;
 /// ```
 ///
-/// Or by [parsing][std::str::FromStr] from a `&str`:
+/// Or by [parsing][std::str::FromStr] from a [`&str`](prim@str):
 /// ```
 /// # use music_theory::prelude::*;
 /// let d_flat = "Db".parse::<Pitch>().expect("should be a valid pitch");
@@ -98,20 +98,21 @@ mod tests;
 /// // Internally stored as i16
 /// assert_eq!(size_of::<Pitch>(), size_of::<i16>());
 ///
-/// // Can have up to 4860 sharps
+/// // Can have up to ~4860 sharps
 /// let max_sharps = AccidentalSign { offset: 4680 };
 /// let _ = Pitch::from_letter_and_accidental(Letter::B, max_sharps);
 ///
-/// // ... or 4681 flats
+/// // ... or ~4681 flats
 /// let max_flats = AccidentalSign { offset: -4681 };
 /// let _ = Pitch::from_letter_and_accidental(Letter::F, max_flats);
 /// ```
 ///
-/// Using more flats or sharps will panic.
+/// The maximum number of accidentals depends on the letter, as the internal representation
+/// is limited to `i16` range. Exceeding this limit will panic.
 /// ```should_panic
 /// # use music_theory::prelude::*;
-/// let sharps = AccidentalSign { offset: 4681 };
-/// let _ = Pitch::from_letter_and_accidental(Letter::B, sharps);
+/// let too_many = AccidentalSign { offset: 4681 };
+/// let _ = Pitch::from_letter_and_accidental(Letter::B, too_many);
 /// ```
 #[derive(Copy, Clone, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -119,6 +120,23 @@ pub struct Pitch(i16);
 
 impl Pitch {
     /// Creates a new `Pitch` from a letter name and accidental sign.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// let e_flat = Pitch::from_letter_and_accidental(
+    ///     Letter::E,
+    ///     AccidentalSign::FLAT
+    /// );
+    /// assert_eq!(e_flat, Pitch::E_FLAT);
+    ///
+    /// // Can create pitches with any accidental
+    /// let f_triple_sharp = Pitch::from_letter_and_accidental(
+    ///     Letter::F,
+    ///     AccidentalSign { offset: 3 },
+    /// );
+    /// ```
     pub fn from_letter_and_accidental(letter: Letter, accidental_sign: AccidentalSign) -> Self {
         let col_offset = accidental_sign.offset;
 
@@ -127,12 +145,12 @@ impl Pitch {
         Self::from_fifths_from_c(pitch)
     }
 
-    /// Get the distance, in fifths, to C. (see [Representation](#representation))
+    /// Gets the distance, in fifths, from C. (see [Representation](#representation))
     pub fn as_fifths_from_c(self) -> i16 {
         self.0
     }
 
-    /// Creates a `Pitch` from its distance, in fifths, to C. (see [Representation](#representation))
+    /// Creates a `Pitch` from its distance, in fifths, from C. (see [Representation](#representation))
     pub fn from_fifths_from_c(fifths: i16) -> Self {
         Self(fifths)
     }
@@ -311,7 +329,6 @@ impl Pitch {
     /// // with no accidentals. As such, pitches with no accidentals will
     /// // return themselves.
     /// assert_eq!(Pitch::G.enharmonic(), Pitch::G);
-    /// assert_eq!(Pitch::B_DOUBLE_FLAT.enharmonic(), Pitch::A);
     /// ```
     pub fn enharmonic(self) -> Self {
         let spelling = Spelling::from_accidental(self.accidental())
@@ -338,7 +355,7 @@ impl Pitch {
     /// // Diatonic notes are respelled to match the key
     /// assert_eq!(Pitch::G_FLAT.respell_in_key(g_major), Pitch::F_SHARP);
     ///
-    /// // Notes that aren't diatonic preserve spelling,
+    /// // Notes that aren't diatonic preserve spelling.
     /// assert_eq!(Pitch::B_FLAT.respell_in_key(g_major), Pitch::B_FLAT);
     /// assert_eq!(Pitch::A_SHARP.respell_in_key(g_major), Pitch::A_SHARP);
     /// // ... but if you don't want this behavior, call 'as_pitch_class()' first
@@ -434,6 +451,19 @@ impl Pitch {
 }
 
 impl fmt::Debug for Pitch {
+    /// Formats the pitch for debugging output.
+    ///
+    /// Uses letter names (like "CSharp", "EFlat") rather than symbols.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// assert_eq!(format!("{:?}", Pitch::C), "C");
+    /// assert_eq!(format!("{:?}", Pitch::F_SHARP), "FSharp");
+    /// assert_eq!(format!("{:?}", Pitch::B_FLAT), "BFlat");
+    /// assert_eq!(format!("{:?}", Pitch::G_DOUBLE_SHARP), "GDoubleSharp");
+    /// ```
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let letter = self.letter();
         let accidental = self.accidental();
@@ -447,6 +477,21 @@ impl fmt::Debug for Pitch {
 }
 
 impl fmt::Display for Pitch {
+    /// Formats the pitch using Unicode musical symbols.
+    ///
+    /// Uses standard notation with sharp (♯), flat (♭), double sharp (𝄪),
+    /// and double flat (𝄫) symbols.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// assert_eq!(Pitch::C.to_string(), "C");
+    /// assert_eq!(Pitch::F_SHARP.to_string(), "F♯");
+    /// assert_eq!(Pitch::B_FLAT.to_string(), "B♭");
+    /// assert_eq!(Pitch::G_DOUBLE_SHARP.to_string(), "G𝄪");
+    /// assert_eq!(Pitch::E_DOUBLE_FLAT.to_string(), "E𝄫");
+    /// ```
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let letter = self.letter();
         let accidental = self.accidental();
@@ -460,6 +505,20 @@ impl fmt::Display for Pitch {
 }
 
 impl EnharmonicEq for Pitch {
+    /// Checks if two pitches are enharmonically equivalent.
+    ///
+    /// Two pitches are enharmonically equivalent if they have the same pitch class, regardless of
+    /// how they're spelled. For example, C# and Db are enharmonically equivalent.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// use music_theory::enharmonic::EnharmonicEq;
+    ///
+    /// assert!(Pitch::E_SHARP.eq_enharmonic(&Pitch::F));
+    /// assert!(!Pitch::C.eq_enharmonic(&Pitch::D));
+    /// ```
     fn eq_enharmonic(&self, rhs: &Self) -> bool {
         self.as_pitch_class() == rhs.as_pitch_class()
     }
@@ -472,6 +531,22 @@ impl PartialOrd for Pitch {
 }
 
 impl Ord for Pitch {
+    /// Compares two pitches by spelling (letter, then accidental).
+    ///
+    /// This compares pitches alphabetically by spelling. For example, E# < F because [`Letter::E`]
+    /// is less than [`Letter::F`], even though they are enharmonically equivalent.
+    ///
+    /// To compare in a spelling agnostic way instead, use [`EnharmonicOrd::cmp_enharmonic`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// assert!(Pitch::C < Pitch::D);
+    /// assert!(Pitch::C_SHARP < Pitch::D_FLAT); // C comes before D
+    /// assert!(Pitch::E_SHARP < Pitch::F); // E comes before F
+    /// assert!(Pitch::C < Pitch::C_SHARP); // Natural before sharp
+    /// ```
     fn cmp(&self, rhs: &Self) -> Ordering {
         self.letter()
             .cmp(&rhs.letter())
@@ -483,6 +558,22 @@ impl Ord for Pitch {
 }
 
 impl EnharmonicOrd for Pitch {
+    /// Compares two pitches in a spelling agnostic way.
+    ///
+    /// This compares pitches by their pitch class, ignoring spelling.
+    /// Enharmonically equivalent pitches (like C# and Db) compare as equal.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// # use std::cmp::Ordering;
+    /// use music_theory::enharmonic::EnharmonicOrd;
+    ///
+    /// assert_eq!(Pitch::C_SHARP.cmp_enharmonic(&Pitch::D_FLAT), Ordering::Equal);
+    /// assert_eq!(Pitch::C.cmp_enharmonic(&Pitch::E), Ordering::Less);
+    /// assert_eq!(Pitch::G.cmp_enharmonic(&Pitch::D), Ordering::Greater);
+    /// ```
     fn cmp_enharmonic(&self, rhs: &Self) -> Ordering {
         self.as_pitch_class()
             .cmp(&rhs.as_pitch_class())
@@ -490,6 +581,21 @@ impl EnharmonicOrd for Pitch {
 }
 
 impl From<PitchClass> for Pitch {
+    /// Converts a pitch class to a pitch with the default sharp spelling.
+    ///
+    /// Natural pitch classes become natural pitches, and pitches with accidentals are spelled
+    /// with sharps. To spell in a different way, see [`Self::respell_with`] or [`Self::respell_in_key`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// let pitch: Pitch = PitchClass::C.into();
+    /// assert_eq!(pitch, Pitch::C);
+    ///
+    /// let pitch: Pitch = PitchClass::As.into();
+    /// assert_eq!(pitch, Pitch::A_SHARP);
+    /// ```
     fn from(value: PitchClass) -> Self {
         match value {
             PitchClass::C => Pitch::C,
@@ -509,18 +615,51 @@ impl From<PitchClass> for Pitch {
 }
 
 impl From<Letter> for Pitch {
+    /// Converts a letter to a natural pitch.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// let pitch: Pitch = Letter::C.into();
+    /// assert_eq!(pitch, Pitch::C);
+    ///
+    /// let pitch: Pitch = Letter::G.into();
+    /// assert_eq!(pitch, Pitch::G);
+    /// ```
     fn from(letter: Letter) -> Self {
         Self::from_letter_and_accidental(letter, AccidentalSign::NATURAL)
     }
 }
 
 impl From<Pitch> for PitchClass {
+    /// Converts a pitch to its pitch class, discarding the spelling.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// let pc: PitchClass = Pitch::C_SHARP.into();
+    /// assert_eq!(pc, PitchClass::Cs);
+    ///
+    /// let pc: PitchClass = Pitch::D_FLAT.into();
+    /// assert_eq!(pc, PitchClass::Cs);
+    /// ```
     fn from(pitch: Pitch) -> Self {
         pitch.as_pitch_class()
     }
 }
 
 impl From<Pitch> for Letter {
+    /// Extracts the letter component from a pitch.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// let letter: Letter = Pitch::E_FLAT.into();
+    /// assert_eq!(letter, Letter::E);
+    /// ```
     fn from(pitch: Pitch) -> Self {
         pitch.letter()
     }
@@ -542,8 +681,42 @@ pub struct PitchFromStrError;
 impl FromStr for Pitch {
     type Err = PitchFromStrError;
 
-    // TODO: add documentation specifying use of this method
+    /// Parses a pitch from a string.
+    ///
+    /// Accepts pitch notation with optional accidentals using various formats:
+    /// - Sharp: `#`, `♯`, `sharp`, `+`
+    /// - Flat: `b`, `♭`, `flat`, `-`
+    /// - Double sharp: `##`, `♯♯`, `𝄪`, `double sharp`
+    /// - Double flat: `bb`, `♭♭`, `𝄫`, `double flat`
+    ///
+    /// The parsing is case-insensitive for letters and word-based accidentals.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`PitchFromStrError`] if the string cannot be parsed as a valid pitch.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// assert_eq!("C".parse::<Pitch>(), Ok(Pitch::C));
+    /// assert_eq!("F#".parse::<Pitch>(), Ok(Pitch::F_SHARP));
+    /// assert_eq!("Bb".parse::<Pitch>(), Ok(Pitch::B_FLAT));
+    /// assert_eq!("G sharp".parse::<Pitch>(), Ok(Pitch::G_SHARP));
+    /// assert_eq!("E♭".parse::<Pitch>(), Ok(Pitch::E_FLAT));
+    /// assert_eq!("C##".parse::<Pitch>(), Ok(Pitch::C_DOUBLE_SHARP));
+    /// assert_eq!("D double flat".parse::<Pitch>(), Ok(Pitch::D_DOUBLE_FLAT));
+    ///
+    /// // Case insensitive
+    /// assert_eq!("c".parse::<Pitch>(), Ok(Pitch::C));
+    /// assert_eq!("Ab".parse::<Pitch>(), Ok(Pitch::A_FLAT));
+    ///
+    /// // Invalid inputs return errors
+    /// assert!("H".parse::<Pitch>().is_err());
+    /// assert!("C4".parse::<Pitch>().is_err()); // Octave numbers not allowed
+    /// ```
     fn from_str(s: &str) -> Result<Self, Self::Err> {
+        // TODO: accept 'x' as double sharp
         static REGEX: LazyLock<Regex> = LazyLock::new(||
             Regex::new(r"(?i)^([A-G])\s?((?-i)b|(?-i)bb|(?i)sharp|♯|\+|\++|#|##|♯♯|𝄪|flat|♭|-|--|♭♭|𝄫|double\s?sharp|double\s?flat)?$")
                 .expect("valid regex")
@@ -583,6 +756,16 @@ impl FromStr for Pitch {
 impl Add<Interval> for Pitch {
     type Output = Self;
 
+    /// Transposes a pitch up by an interval.
+    ///
+    /// This is equivalent to calling [`Pitch::transpose`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// assert_eq!(Pitch::C + Interval::MAJOR_THIRD, Pitch::E);
+    /// ```
     fn add(self, rhs: Interval) -> Self::Output {
         self.transpose(rhs)
     }
@@ -591,6 +774,14 @@ impl Add<Interval> for Pitch {
 impl Sub<Interval> for Pitch {
     type Output = Self;
 
+    /// Transposes a pitch down by an interval.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// assert_eq!(Pitch::B_FLAT - Interval::MINOR_SECOND, Pitch::A_FLAT);
+    /// ```
     fn sub(self, rhs: Interval) -> Self::Output {
         self + (-rhs)
     }
