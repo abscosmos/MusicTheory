@@ -17,7 +17,7 @@
 //! assert!(Interval::AUGMENTED_FOURTH.eq_enharmonic(&Interval::DIMINISHED_FIFTH));
 //! ```
 
-use std::cmp::Ordering;
+use std::cmp::{self, Ordering};
 
 /// Trait for comparing musical objects enharmonically.
 ///
@@ -193,5 +193,77 @@ pub trait EnharmonicOrd {
     /// ```
     fn ge_enharmonic(&self, other: &Self) -> bool {
         self.cmp_enharmonic(other).is_ge()
+    }
+
+    /// Compares and returns the maximum of two values enharmonically.
+    ///
+    /// Returns the second argument if the comparison determines them to be enharmonically equal.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use music_theory::prelude::*;
+    /// use music_theory::enharmonic::EnharmonicOrd;
+    ///
+    /// assert_eq!(Pitch::C.max_enharmonic(Pitch::E), Pitch::E);
+    /// ```
+    fn max_enharmonic(self, other: Self) -> Self
+        where Self: Sized
+    {
+        cmp::max_by(self, other, EnharmonicOrd::cmp_enharmonic)
+    }
+
+    /// Compares and returns the minimum of two values enharmonically.
+    ///
+    /// Returns the first argument if the comparison determines them to be enharmonically equal.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use music_theory::prelude::*;
+    /// use music_theory::enharmonic::EnharmonicOrd;
+    ///
+    /// assert_eq!(Pitch::C.min_enharmonic(Pitch::E), Pitch::C);
+    /// ```
+    fn min_enharmonic(self, other: Self) -> Self
+        where Self: Sized
+    {
+        cmp::min_by(self, other, EnharmonicOrd::cmp_enharmonic)
+    }
+
+    /// Restrict a value to a certain interval enharmonically.
+    ///
+    /// Returns `max` if `self` is enharmonically greater than `max`, and `min` if `self` is
+    /// enharmonically less than `min`. Otherwise this returns `self`.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `min > max` enharmonically.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use music_theory::prelude::*;
+    /// use music_theory::enharmonic::EnharmonicOrd;
+    ///
+    /// assert_eq!(Pitch::A.clamp_enharmonic(Pitch::C, Pitch::E), Pitch::C);
+    /// assert_eq!(Pitch::D.clamp_enharmonic(Pitch::C, Pitch::E), Pitch::D);
+    /// assert_eq!(Pitch::G.clamp_enharmonic(Pitch::C, Pitch::E), Pitch::E);
+    /// ```
+    fn clamp_enharmonic(self, min: Self, max: Self) -> Self
+        where Self: Sized
+    {
+        assert!(
+            min.le_enharmonic(&max),
+            "min must be less than max!"
+        );
+
+        if self.lt_enharmonic(&min) {
+            min
+        } else if self.gt_enharmonic(&max) {
+            max
+        } else {
+            self
+        }
     }
 }
