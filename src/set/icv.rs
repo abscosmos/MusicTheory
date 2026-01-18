@@ -308,6 +308,33 @@ impl IntervalClassVector {
         Some((dot_product as f32) / (denominator_sq as f32).sqrt())
     }
 
+    /// Similarity coefficient based on shared interval content.
+    ///
+    /// Returns a value in [0.0, 1.0] where:
+    /// - 1.0 means identical ICVs
+    /// - 0.0 means maximally different ICVs
+    ///
+    /// Uses the formula: `1 - (l1_distance / max_possible_l1_distance)`
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::set::IntervalClassVector;
+    /// let icv1 = IntervalClassVector::new([2, 5, 4, 3, 6, 1]).unwrap();
+    /// // identical ICVs have max similarity of 1
+    /// assert_eq!(icv1.similarity_coefficient(icv1), 1.0);
+    ///
+    /// // Empty and chromatic aggregate are maximally different
+    /// let empty = IntervalClassVector::new([0, 0, 0, 0, 0, 0]).unwrap();
+    /// let chromatic = IntervalClassVector::CHROMATIC_AGGREGATE;
+    /// assert_eq!(empty.similarity_coefficient(chromatic), 0.0);
+    /// ```
+    pub fn similarity_coefficient(self, other: Self) -> f32 {
+        let max_distance = Self::CHROMATIC_AGGREGATE.total();
+
+        let distance = self.manhattan_distance(other);
+        1.0 - (distance as f32 / max_distance as f32)
+    }
+
     /// Returns how many distinct interval classes are present (nonzero count).
     ///
     /// # Examples
