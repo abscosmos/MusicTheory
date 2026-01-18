@@ -1,6 +1,5 @@
 use std::fmt;
 use std::ops::{Add, BitAnd, BitOr, BitXor, Not, Sub};
-use strum::IntoEnumIterator;
 use crate::pitch::PitchClass;
 use crate::set::IntervalClassVector;
 use crate::semitone::Semitones;
