@@ -162,6 +162,16 @@ impl fmt::Debug for PitchClassSet {
     }
 }
 
+impl fmt::Binary for PitchClassSet {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        if f.alternate() {
+            f.write_str("0b")?;
+        }
+
+        write!(f, "{:012b}", self.0)
+    }
+}
+
 impl Not for PitchClassSet {
     type Output = Self;
 
