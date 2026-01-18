@@ -24,7 +24,7 @@ use crate::set::pcset::PitchClassSet;
 /// ]);
 ///
 /// assert_eq!(
-///     set.into_iter().rev().collect::Vec<_>(),
+///     set.into_iter().rev().collect::<Vec<_>>(),
 ///     vec![PitchClass::G, PitchClass::E, PitchClass::C]
 /// );
 /// ```
