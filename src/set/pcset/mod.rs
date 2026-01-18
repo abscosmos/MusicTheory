@@ -126,11 +126,11 @@ impl PitchClassSet {
     /// ```
     /// # use music_theory::set::PitchClassSet;
     /// // Extra bits are masked off
-    /// let set = PitchClassSet::new_masked(u16::MAX);
+    /// let set = PitchClassSet::from_bits_masked(u16::MAX);
     /// assert_eq!(set, PitchClassSet::CHROMATIC_AGGREGATE);
     /// ```
     #[inline(always)]
-    pub fn new_masked(set: u16) -> Self {
+    pub fn from_bits_masked(set: u16) -> Self {
         Self(set & Self::MASK)
     }
 
@@ -330,7 +330,7 @@ impl PitchClassSet {
         // Rotate bits (accounting for 12-bit width, not 16)
         let rotated = (self.0 >> shift) | (self.0 << (12 - shift));
 
-        Self::new_masked(rotated)
+        Self::from_bits_masked(rotated)
     }
 
     /// Invert the set around the given pitch class axis.
@@ -614,7 +614,7 @@ impl PitchClassSet {
     /// ```
     #[inline(always)]
     pub fn complement(self) -> Self {
-        Self::new_masked(!self.0)
+        Self::from_bits_masked(!self.0)
     }
 
     /// Returns the normalized (prime) form of this pitch class set.

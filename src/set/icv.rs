@@ -142,7 +142,7 @@ impl IntervalClassVector {
         // TODO: could also check that n = pcset.len(), nC2 == icv.total()
 
         (0..=PitchClassSet::CHROMATIC_AGGREGATE.get())
-            .map(|set| PitchClassSet::new_masked(set).interval_class_vector())
+            .map(|set| PitchClassSet::from_bits_masked(set).interval_class_vector())
             .any(|icv| icv == self)
     }
 
@@ -717,7 +717,7 @@ mod tests {
 
     #[test]
     pub fn total() {
-        for pcset in (0x000..=0xfff).map(PitchClassSet::new_masked) {
+        for pcset in (0x000..=0xfff).map(PitchClassSet::from_bits_masked) {
             assert_eq!(
                 pcset.interval_class_vector().total(),
                 pcset.len() * pcset.len().saturating_sub(1) / 2,
