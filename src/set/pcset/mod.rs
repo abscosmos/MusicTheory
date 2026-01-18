@@ -167,6 +167,45 @@ impl PitchClassSet {
             .unwrap_or_default()
     }
 
+    /// Returns `true` if this set is a transposition of the other set.
+    ///
+    /// Two pitch class sets are transpositions of each other if one can be obtained
+    /// by transposing the other by some number of semitones.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// # use music_theory::set::PitchClassSet;
+    /// // C major triad [C, E, G]
+    /// let c_major = PitchClassSet::from_iter([
+    ///     PitchClass::C,
+    ///     PitchClass::E,
+    ///     PitchClass::G,
+    /// ]);
+    ///
+    /// // D major triad [D, F#, A]
+    /// let d_major = PitchClassSet::from_iter([
+    ///     PitchClass::D,
+    ///     PitchClass::Fs,
+    ///     PitchClass::A,
+    /// ]);
+    ///
+    /// // C minor triad [C, Eb, G]
+    /// let c_minor = PitchClassSet::from_iter([
+    ///     PitchClass::C,
+    ///     PitchClass::Ds,
+    ///     PitchClass::G,
+    /// ]);
+    ///
+    /// assert!(c_major.is_transposition_of(d_major));
+    /// assert!(d_major.is_transposition_of(c_major));
+    /// assert!(!c_major.is_transposition_of(c_minor));
+    /// ```
+    pub fn is_transposition_of(self, other: Self) -> bool {
+        self.normalized() == other.normalized()
+    }
+
     /// Returns a helper type that displays pitch classes as their chroma values.
     ///
     /// # Example
