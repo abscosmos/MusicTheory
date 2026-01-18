@@ -1,4 +1,6 @@
 use crate::scales::definition::heptatonic::DiatonicMode as DiatonicModeExperimental;
+#[allow(unused_imports, reason = "used in documentation")]
+use crate::harmony::ScaleDegree;
 
 /// Diatonic modes, also known as the modes of the major scale.
 ///
@@ -13,12 +15,20 @@ use crate::scales::definition::heptatonic::DiatonicMode as DiatonicModeExperimen
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum DiatonicMode {
     #[default]
+    /// Ionian, the mode of the major scale.
     Ionian = 1,
+    /// Dorian, a minor mode with raised [6th](ScaleDegree::VI).
     Dorian,
+    /// Phrygian, a minor mode with a flattened [2nd](ScaleDegree::II).
     Phrygian,
+    /// Lydian, a major mode with a raised [4th](ScaleDegree::IV).
     Lydian,
+    /// Mixolydian, a major mode with a flattened [7th](ScaleDegree::VII).
     Mixolydian,
+    /// Aeolian, the mode of the natural minor scale.
     Aeolian,
+    /// Locrian, a diminished mode with a flattened [2nd](ScaleDegree::II), [3rd](ScaleDegree::III),
+    /// [5th](ScaleDegree::V), [6th](ScaleDegree::VI) and [7th](ScaleDegree::VII).
     Locrian,
 }
 
