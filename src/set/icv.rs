@@ -1,6 +1,7 @@
 use std::{array, fmt};
 use std::cmp::Ordering;
 use std::ops::Deref;
+use std::str::FromStr;
 use crate::pitch::PitchClass;
 use crate::set::PitchClassSet;
 
@@ -599,6 +600,78 @@ impl fmt::Display for IntervalClassVector {
         let [ic1, ic2, ic3, ic4, ic5, ic6] = self.0;
 
         write!(f, "<{ic1}, {ic2}, {ic3}, {ic4}, {ic5}, {ic6}>")
+    }
+}
+
+/// Error returned if [parsing](FromStr) an [`IntervalClassVector`] fails.
+#[derive(Debug, Clone, PartialEq, Eq, thiserror::Error)]
+pub enum ParseIcvError {
+    /// Error returned if input [`&str`](prim@str) didn't contain 6, comma separated numbers
+    /// enclosed in angle brackets.
+    #[error("Didn't contain 6, comma separated numbers enclosed in angle brackets")]
+    InvalidFormat,
+    /// Error returned if the parsed interval class vector had invalid interval counts.
+    ///
+    /// For more information, see [`IntervalClassVector::new`].
+    #[error("Invalid interval class vector")]
+    InvalidIcv,
+}
+
+impl FromStr for IntervalClassVector {
+    type Err = ParseIcvError;
+
+    /// Parses an `IntervalClassVector` from a string in angle bracket notation.
+    ///
+    /// The format is `<ic1, ic2, ic3, ic4, ic5, ic6>`. Spacing after commas is optional.
+    /// See [`IntervalClassVector::new`] for the maximum interval count for each class.
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::set::{IntervalClassVector, ParseIcvError};
+    /// let icv1: IntervalClassVector = "<1, 2, 3, 4, 5, 6>".parse().unwrap();
+    /// assert_eq!(icv1, IntervalClassVector::new([1, 2, 3, 4, 5, 6]).unwrap());
+    ///
+    /// let icv2: IntervalClassVector = "<0,0,1,1,1,0>".parse().unwrap();
+    /// assert_eq!(icv2, IntervalClassVector::new([0, 0, 1, 1, 1, 0]).unwrap());
+    ///
+    /// assert_eq!(
+    ///     "1, 2, 3, 4, 5, 6".parse::<IntervalClassVector>(),
+    ///     Err(ParseIcvError::InvalidFormat), // missing brackets
+    /// );
+    ///
+    /// assert_eq!(
+    ///     "<1, 2, 3, 4, 5>".parse::<IntervalClassVector>(),
+    ///     Err(ParseIcvError::InvalidFormat), // only 5 classes
+    /// );
+    ///
+    /// assert_eq!(
+    ///     "<1, 2, 3, 4, 5, 13>".parse::<IntervalClassVector>(),
+    ///     Err(ParseIcvError::InvalidIcv), // out of range
+    /// );
+    /// ```
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let content = s
+            .strip_prefix('<')
+            .ok_or(ParseIcvError::InvalidFormat)?
+            .strip_suffix('>')
+            .ok_or(ParseIcvError::InvalidFormat)?;
+
+        let mut parts = content.split(',').map(str::trim);
+
+        let mut arr = [0u8; 6];
+
+        for ic in &mut arr {
+            *ic = parts.next()
+                .ok_or(ParseIcvError::InvalidFormat)?
+                .parse()
+                .map_err(|_| ParseIcvError::InvalidFormat)?;
+        }
+
+        if parts.next().is_some() {
+            return Err(ParseIcvError::InvalidFormat);
+        }
+
+        Self::new(arr).ok_or(ParseIcvError::InvalidIcv)
     }
 }
 
