@@ -118,6 +118,47 @@ impl PitchClassSet {
         Self::new_masked(rotated)
     }
 
+    /// Invert the set around the given pitch class axis.
+    ///
+    /// Inversion around axis `a` maps each pitch class `p` to `(2a - p) mod 12`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// # use music_theory::set::PitchClassSet;
+    /// // C major triad [C, E, G] = [0, 4, 7]
+    /// let c_major = PitchClassSet::from_iter([
+    ///     PitchClass::C,
+    ///     PitchClass::E,
+    ///     PitchClass::G,
+    /// ]);
+    ///
+    /// // Invert around C: [0, 4, 7] -> [0, 8, 5] = [C, Gs, F]
+    /// assert_eq!(
+    ///     c_major.invert_around(PitchClass::C),
+    ///     PitchClassSet::from_iter([
+    ///         PitchClass::C,
+    ///         PitchClass::F,
+    ///         PitchClass::Gs,
+    ///     ])
+    /// );
+    /// ```
+    #[must_use = "This method returns a new PitchClassSet instead of mutating the original"]
+    pub fn invert_around(self, axis: PitchClass) -> Self {
+        let mut result = 0u16;
+
+        for i in 0..12 {
+            if self.0 & (1 << i) != 0 {
+                let new_bit = (10i32 - i).rem_euclid(12) as u32;
+                result |= 1 << new_bit;
+            }
+        }
+
+        // Then transpose by 2×axis (T_2a I formula)
+        Self(result).transpose(Semitones(2 * axis.chroma() as i16))
+    }
+
     #[inline(always)]
     pub fn is_superset_of(self, rhs: Self) -> bool {
         (self.0 & rhs.0) == rhs.0
@@ -254,6 +295,25 @@ mod tests {
         assert_eq!(format!("{cde:?}"), "{C (0), D (2), E (4)}");
 
         assert_eq!(cde, PitchClassSet::from_iter([PitchClass::C, PitchClass::D, PitchClass::E]));
+    }
+
+    #[test]
+    fn invert() {
+        use strum::IntoEnumIterator;
+
+        let pcset = PitchClass::iter()
+            .take(7)
+            .collect::<PitchClassSet>();
+
+        let inverted = PitchClass::iter()
+            .skip(6)
+            .chain([PitchClass::C])
+            .collect::<PitchClassSet>();
+
+        assert_eq!(
+            pcset.invert_around(PitchClass::C),
+            inverted,
+        );
     }
     
     #[test]
