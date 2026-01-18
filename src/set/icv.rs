@@ -3,7 +3,7 @@ use std::cmp::Ordering;
 use std::ops::Deref;
 use std::str::FromStr;
 use crate::pitch::PitchClass;
-use crate::set::PitchClassSet;
+use crate::set::pcset::PitchClassSet;
 
 /// An interval class vector (ICV) representing the intervals present in a set of pitch classes.
 ///
@@ -141,8 +141,8 @@ impl IntervalClassVector {
         // TODO: before checking all possible pcsets, check if total() is a triangular number; might be faster on average, bench
         // TODO: could also check that n = pcset.len(), nC2 == icv.total()
 
-        (0..=PitchClassSet::CHROMATIC_AGGREGATE.get())
-            .map(|set| PitchClassSet::new_masked(set).interval_class_vector())
+        (0..=PitchClassSet::CHROMATIC_AGGREGATE.bits())
+            .map(|set| PitchClassSet::from_bits_masked(set).interval_class_vector())
             .any(|icv| icv == self)
     }
 
@@ -717,7 +717,7 @@ mod tests {
 
     #[test]
     pub fn total() {
-        for pcset in (0x000..=0xfff).map(PitchClassSet::new_masked) {
+        for pcset in (0x000..=0xfff).map(PitchClassSet::from_bits_masked) {
             assert_eq!(
                 pcset.interval_class_vector().total(),
                 pcset.len() * pcset.len().saturating_sub(1) / 2,
