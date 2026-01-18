@@ -182,7 +182,7 @@ impl IntervalClassVector {
 
     /// Returns the number of positions where the two ICVs differ.
     ///
-    /// This is the Hamming distance between the two vectors, and doesn't take into the
+    /// This is the Hamming distance between the two vectors, and doesn't take into account the
     /// magnitude of difference between two counts.
     ///
     /// # Examples
@@ -220,7 +220,7 @@ impl IntervalClassVector {
     /// # use music_theory::set::IntervalClassVector;
     /// let icv1 = IntervalClassVector::new([1, 2, 3, 4, 5, 1]).unwrap();
     /// let icv2 = IntervalClassVector::new([2, 2, 3, 1, 5, 1]).unwrap();
-    /// // ic1 differs by 1, icv4 differs by 3
+    /// // ic1 differs by 1, ic4 differs by 3
     /// assert_eq!(icv1.manhattan_distance(icv2), 4);
     /// ```
     #[doc(alias = "l1_distance")]
@@ -242,7 +242,7 @@ impl IntervalClassVector {
     /// # use music_theory::set::IntervalClassVector;
     /// let icv1 = IntervalClassVector::new([1, 2, 3, 4, 2, 1]).unwrap();
     /// let icv2 = IntervalClassVector::new([2, 1, 0, 4, 6, 2]).unwrap();
-    /// // 1^2 + 1^2 + 3^2 + 0^2 + 4^2 + 1^1 = 28
+    /// // 1^2 + 1^2 + 3^2 + 0^2 + 4^2 + 1^2 = 28
     /// assert_eq!(icv1.euclidean_distance_squared(icv2), 28);
     /// ```
     #[doc(alias = "l2_distance_squared")]
@@ -346,7 +346,7 @@ impl IntervalClassVector {
     /// # use music_theory::set::IntervalClassVector;
     /// let icv = IntervalClassVector::new([4, 4, 0, 3, 0, 2]).unwrap();
     /// // has ic1, ic2, ic4, and ic6
-    /// assert_eq!(icv.distinct_classes(), 4)
+    /// assert_eq!(icv.distinct_classes(), 4);
     ///
     /// let major_triad = IntervalClassVector::from_iter([
     ///     PitchClass::C,
