@@ -3,7 +3,9 @@ use std::ops::{BitAnd, BitXor, Not};
 use strum::IntoEnumIterator;
 use crate::pitch::PitchClass;
 use crate::set::IntervalClassVector;
-// TODO: implement IntoIterator for PitchClassSet
+
+mod into_iter;
+pub use into_iter::*;
 
 #[derive(Copy, Clone, Eq, PartialEq, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -43,30 +45,15 @@ impl PitchClassSet {
     fn index(pc: PitchClass) -> u8 {
         11 - pc.chroma()
     }
-    
-    pub fn from_pitch_classes(pitch_classes: &[PitchClass]) -> Self {
-        pitch_classes.iter().copied().fold(
-            PitchClassSet::default(),
-            PitchClassSet::with_set,
-        )
-    }
-    
-    pub fn pitch_classes(self) -> Vec<PitchClass> {
-        PitchClass::iter()
-            .filter(|pc| self.is_set(*pc))
-            .collect()
-    }
 
     pub fn interval_class_vector(self) -> IntervalClassVector {
         let mut icv = [0u8; 6];
 
-        for pc1 in PitchClass::iter()
-            .filter(|pc| self.is_set(*pc))
-        {
-            for pc2 in PitchClass::iter()
-                .skip(pc1.chroma() as usize + 1)
-                .filter(|pc| self.is_set(*pc))
-            {
+        let mut remaining = self.into_iter();
+
+        while let Some(pc1) = remaining.next() {
+            // this only iterates over the remaining (which haven't yet been consumed)
+            for pc2 in remaining.clone() {
                 let interval = pc1.semitones_to(pc2).0;
 
                 let ic = if interval > 6 { 12 - interval } else { interval };
@@ -167,10 +154,15 @@ impl BitXor for PitchClassSet {
 
 impl FromIterator<PitchClass> for PitchClassSet {
     fn from_iter<T: IntoIterator<Item = PitchClass>>(iter: T) -> Self {
-        iter.into_iter().fold(
-            PitchClassSet::default(),
-            PitchClassSet::with_set,
-        )
+        let mut new = Self::default();
+        new.extend(iter);
+        new
+    }
+}
+
+impl Extend<PitchClass> for PitchClassSet {
+    fn extend<T: IntoIterator<Item=PitchClass>>(&mut self, iter: T) {
+        *self = iter.into_iter().fold(*self, PitchClassSet::with_set);
     }
 }
 
@@ -184,24 +176,7 @@ mod tests {
         
         assert_eq!(format!("{cde:?}"), "PitchClassSet(0b101010000000)");
         
-        assert_eq!(cde, PitchClassSet::from_pitch_classes(&[PitchClass::C, PitchClass::D, PitchClass::E]));
-    }
-    
-    #[test]
-    fn pitch_classes() {
-        let pcs = [
-            PitchClass::Cs,
-            PitchClass::D,
-            PitchClass::F,
-            PitchClass::G,
-            PitchClass::As,
-        ];
-
-        let set = PitchClassSet::from_pitch_classes(&pcs);
-
-        assert_eq!(set.pitch_classes(), pcs);
-
-        assert_eq!(pcs.len(), set.len() as _);
+        assert_eq!(cde, PitchClassSet::from_iter([PitchClass::C, PitchClass::D, PitchClass::E]));
     }
     
     #[test]
@@ -230,8 +205,8 @@ mod tests {
             PitchClass::G,
         ];
         
-        let pcs_cmaj = PitchClassSet::from_pitch_classes(&cmaj);
-        let pcs_cmaj_pentatonic = PitchClassSet::from_pitch_classes(&cmaj_pentatonic);
+        let pcs_cmaj = PitchClassSet::from_iter(cmaj);
+        let pcs_cmaj_pentatonic = PitchClassSet::from_iter(cmaj_pentatonic);
         
         assert!(pcs_cmaj.is_superset_of(pcs_cmaj_pentatonic));
         assert!(pcs_cmaj_pentatonic.is_subset_of(pcs_cmaj));
