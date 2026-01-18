@@ -8,19 +8,17 @@
 //! ```
 //! # use music_theory::prelude::*;
 //! // Create a key using common constructors
-//! let c_major = Key::major(Pitch::C);
-//! let e_minor = Key::minor(Pitch::E);
+//! let f_minor = Key::minor(Pitch::F);
 //!
-//! // E minor has three flats
-//! assert_eq!(e_minor.sharps(), -3)
+//! // F minor has four flats
+//! assert_eq!(f_minor.sharps(), -4);
 //!
-//! // Scale degree V in G major is D
-//! let g_major = Key::major(Pitch::G);
-//! assert_eq!(g_major.relative_pitch(ScaleDegree::V), Pitch::D);
+//! // Scale degree VI in F minor is Db
+//! assert_eq!(f_minor.relative_pitch(ScaleDegree::VI), Pitch::D_FLAT);
 //!
-//! // Relative minor of E major is C# minor
-//! let e_minor = Key::major(Pitch::E).relative(DiatonicMode::NATURAL_MINOR);
-//! assert_eq!(e_minor, Key::minor(Pitch::C_SHARP));
+//! // Relative major of F minor is Ab major
+//! let ab_major = f_minor.relative(DiatonicMode::MAJOR);
+//! assert_eq!(ab_major, Key::major(Pitch::A_FLAT));
 //! ```
 
 mod key;
