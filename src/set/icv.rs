@@ -51,7 +51,7 @@ impl IntervalClassVector {
     /// # use music_theory::set::{PitchClassSet, IntervalClassVector};
     /// assert_eq!(
     ///     PitchClassSet::CHROMATIC_AGGREGATE.interval_class_vector(),
-    ///     IntervalClassVector::CHROMATIC_AGGREGATE
+    ///     IntervalClassVector::CHROMATIC_AGGREGATE,
     /// );
     ///
     /// let aggregate = IntervalClassVector::CHROMATIC_AGGREGATE;
