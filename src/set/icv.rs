@@ -96,6 +96,9 @@ impl IntervalClassVector {
     /// Not all valid ICVs correspond to an actual pitch class set.
     /// This checks whether there exists any [`PitchClassSet`] whose ICV equals `self`.
     ///
+    /// Currently, this function is implemented as a **brute-force search through all 4096 possible
+    /// pitch class sets**. Avoid calling this method in performance critical loops.
+    ///
     /// # Examples
     /// ```
     /// # use music_theory::prelude::*;
