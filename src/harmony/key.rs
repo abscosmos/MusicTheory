@@ -111,8 +111,8 @@ impl Key {
     /// # Examples
     /// ```
     /// # use music_theory::prelude::*;
-    /// let a_minor = Key::minor(Pitch::F);
-    /// assert_eq!(a_minor.sharps(), -4);
+    /// let f_minor = Key::minor(Pitch::F);
+    /// assert_eq!(f_minor.sharps(), -4);
     /// ```
     pub fn minor(tonic: Pitch) -> Self {
         Self::new(tonic, DiatonicMode::NATURAL_MINOR)
