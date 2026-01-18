@@ -3,6 +3,7 @@ use std::ops::{BitAnd, BitXor, Not};
 use strum::IntoEnumIterator;
 use crate::pitch::PitchClass;
 use crate::set::IntervalClassVector;
+use crate::semitone::Semitones;
 
 mod into_iter;
 pub use into_iter::*;
@@ -77,6 +78,38 @@ impl PitchClassSet {
     #[must_use = "This method returns a new PitchClassSet instead of mutating the original"]
     pub fn with_cleared(self, pc: PitchClass) -> Self {
         Self(self.0 & !(1 << Self::index(pc)))
+    }
+
+    /// Transpose all pitch classes by the given number of semitones.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// # use music_theory::set::PitchClassSet;
+    /// let c_maj = [PitchClass::C, PitchClass::E, PitchClass::G];
+    ///
+    /// let c_maj_pcset = PitchClassSet::from_iter(c_maj);
+    ///
+    /// // Transpose up by 7 semitones to get G major
+    /// let g_maj_pcset = c_maj_pcset.transpose(Semitones(7));
+    ///
+    /// assert_eq!(
+    ///     g_maj_pcset,
+    ///     PitchClassSet::from_iter(
+    ///         // maps to: [G, B, D]
+    ///         c_maj.map(|pc| pc + Semitones(7))
+    ///     ),
+    /// );
+    /// ```
+    #[must_use = "This method returns a new PitchClassSet instead of mutating the original"]
+    pub fn transpose(self, semitones: Semitones) -> Self {
+        let shift = semitones.normalize().0 as u32;
+
+        // Rotate bits (accounting for 12-bit width, not 16)
+        let rotated = (self.0 >> shift) | (self.0 << (12 - shift));
+
+        Self::new_masked(rotated)
     }
 
     #[inline(always)]
