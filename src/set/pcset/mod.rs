@@ -641,7 +641,7 @@ impl PitchClassSet {
     ///     PitchClass::A,
     /// ]);
     ///
-    /// // The D and C major pcsets normalizes to the same thing,
+    /// // The D and C major pcsets normalize to the same thing,
     /// // as they're transpositions of each other
     /// assert_eq!(c_major.normalized(), d_major.normalized());
     /// ```
