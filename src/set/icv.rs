@@ -1,4 +1,5 @@
 use std::{array, fmt};
+use std::cmp::Ordering;
 use std::ops::Deref;
 use crate::pitch::PitchClass;
 use crate::set::PitchClassSet;
@@ -507,6 +508,46 @@ impl IntervalClassVector {
             .expect("should be valid ICV");
 
         Some(diff)
+    }
+
+    /// Compares two ICVs based on subset/superset relationships.
+    ///
+    /// Returns:
+    /// - `Some(Ordering::Equal)` if the ICVs are identical
+    /// - `Some(Ordering::Greater)` if `self` is a superset of `other`
+    /// - `Some(Ordering::Less)` if `self` is a subset of `other`
+    /// - `None` if the ICVs are incomparable (neither is a subset of the other)
+    ///
+    /// # Examples
+    /// ```
+    /// # use std::cmp::Ordering;
+    /// # use music_theory::set::IntervalClassVector;
+    /// let icv1 = IntervalClassVector::new([1, 2, 3, 4, 5, 1]).unwrap();
+    /// let icv2 = IntervalClassVector::new([2, 3, 4, 5, 6, 2]).unwrap();
+    /// let icv3 = IntervalClassVector::new([1, 2, 3, 4, 5, 1]).unwrap();
+    ///
+    /// // Equal ICVs
+    /// assert_eq!(icv1.partial_cmp_subset(icv3), Some(Ordering::Equal));
+    ///
+    /// // icv2 is a superset of icv1
+    /// assert_eq!(icv1.partial_cmp_subset(icv2), Some(Ordering::Less));
+    /// assert_eq!(icv2.partial_cmp_subset(icv1), Some(Ordering::Greater));
+    ///
+    /// // Incomparable ICVs
+    /// let icv4 = IntervalClassVector::new([5, 0, 0, 0, 0, 0]).unwrap();
+    /// let icv5 = IntervalClassVector::new([0, 5, 0, 0, 0, 0]).unwrap();
+    /// assert_eq!(icv4.partial_cmp_subset(icv5), None);
+    /// ```
+    pub fn partial_cmp_subset(self, other: Self) -> Option<Ordering> {
+        if self == other {
+            Some(Ordering::Equal)
+        } else if self.is_superset_of(other) {
+            Some(Ordering::Greater)
+        } else if self.is_subset_of(other) {
+            Some(Ordering::Less)
+        } else {
+            None
+        }
     }
 }
 
