@@ -146,8 +146,8 @@ impl fmt::Display for Letter {
 ///
 /// ```
 /// # use music_theory::prelude::*;
-/// assert_eq!("C".parse::<Letter>(), Some(Letter::C));
-/// assert_eq!("g".parse::<Letter>(), Some(Letter::G));
+/// assert_eq!("C".parse::<Letter>(), Ok(Letter::C));
+/// assert_eq!("g".parse::<Letter>(), Ok(Letter::G));
 /// assert_eq!("H".parse::<Letter>(), Err(InvalidLetter));
 /// ```
 #[derive(Copy, Clone, Debug, thiserror::Error, Eq, PartialEq)]
