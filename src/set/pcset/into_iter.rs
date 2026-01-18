@@ -10,6 +10,24 @@ use crate::set::pcset::PitchClassSet;
 /// An iterator over the pitch classes in a [`PitchClassSet`].
 ///
 /// Iterates in ascending order from C to B.
+///
+/// # Examples
+///
+/// ```
+/// # use music_theory::prelude::*;
+/// # use music_theory::set::PitchClassSet;
+///
+/// let set = PitchClassSet::from_iter([
+///     PitchClass::C,
+///     PitchClass::E,
+///     PitchClass::G,
+/// ]);
+///
+/// assert_eq!(
+///     set.into_iter().rev().collect::Vec<_>(),
+///     vec![PitchClass::G, PitchClass::E, PitchClass::C]
+/// );
+/// ```
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct IntoIter(PitchClassSet);
 
@@ -69,6 +87,27 @@ impl IntoIterator for PitchClassSet {
     type Item = PitchClass;
     type IntoIter = IntoIter;
 
+    /// Creates an iterator over the pitch classes in the set.
+    ///
+    /// The iterator yields pitch classes in ascending order from C to B.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// # use music_theory::set::PitchClassSet;
+    /// let set = PitchClassSet::from_iter([
+    ///     PitchClass::G,
+    ///     PitchClass::C,
+    ///     PitchClass::E,
+    /// ]);
+    ///
+    /// let mut iter = set.into_iter();
+    /// assert_eq!(iter.next(), Some(PitchClass::C));
+    /// assert_eq!(iter.next(), Some(PitchClass::E));
+    /// assert_eq!(iter.next(), Some(PitchClass::G));
+    /// assert_eq!(iter.next(), None);
+    /// ```
     fn into_iter(self) -> Self::IntoIter {
         IntoIter(self)
     }

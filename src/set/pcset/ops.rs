@@ -5,6 +5,9 @@ use crate::set::PitchClassSet;
 impl Not for PitchClassSet {
     type Output = Self;
 
+    /// Returns the complement of the pitch class set.
+    ///
+    /// See [`PitchClassSet::complement`] for more information.
     fn not(self) -> Self::Output {
         self.complement()
     }
@@ -13,6 +16,9 @@ impl Not for PitchClassSet {
 impl BitAnd for PitchClassSet {
     type Output = Self;
 
+    /// Returns the intersection of two pitch class sets.
+    ///
+    /// See [`PitchClassSet::intersection`] for more information.
     fn bitand(self, rhs: Self) -> Self::Output {
         self.intersection(rhs)
     }
@@ -21,6 +27,9 @@ impl BitAnd for PitchClassSet {
 impl BitXor for PitchClassSet {
     type Output = Self;
 
+    /// Returns the symmetric difference of two pitch class sets.
+    ///
+    /// See [`PitchClassSet::symmetric_difference`] for more information.
     fn bitxor(self, rhs: Self) -> Self::Output {
         self.symmetric_difference(rhs)
     }
@@ -29,6 +38,9 @@ impl BitXor for PitchClassSet {
 impl BitOr for PitchClassSet {
     type Output = Self;
 
+    /// Returns the union of two pitch class sets.
+    ///
+    /// See [`PitchClassSet::union`] for more information.
     fn bitor(self, rhs: Self) -> Self::Output {
         self.union(rhs)
     }
@@ -39,29 +51,7 @@ impl Add<Semitones> for PitchClassSet {
 
     /// Transpose the pitch class set up by the given number of semitones.
     ///
-    /// # Examples
-    ///
-    /// ```
-    /// # use music_theory::prelude::*;
-    /// # use music_theory::set::PitchClassSet;
-    /// // C major triad [C, E, G]
-    /// let c_major = PitchClassSet::from_iter([
-    ///     PitchClass::C,
-    ///     PitchClass::E,
-    ///     PitchClass::G,
-    /// ]);
-    ///
-    /// // Transpose up by 2 semitones to get D major [D, Fs, A]
-    /// let d_major = c_major + Semitones(2);
-    /// assert_eq!(
-    ///     d_major,
-    ///     PitchClassSet::from_iter([
-    ///         PitchClass::D,
-    ///         PitchClass::Fs,
-    ///         PitchClass::A,
-    ///     ]),
-    /// );
-    /// ```
+    /// See [`PitchClassSet::transpose`] for more information.
     fn add(self, rhs: Semitones) -> Self::Output {
         self.transpose(rhs)
     }
@@ -72,29 +62,7 @@ impl Sub<Semitones> for PitchClassSet {
 
     /// Transpose the pitch class set down by the given number of semitones.
     ///
-    /// # Examples
-    ///
-    /// ```
-    /// # use music_theory::prelude::*;
-    /// # use music_theory::set::PitchClassSet;
-    /// // C major triad [C, E, G]
-    /// let c_major = PitchClassSet::from_iter([
-    ///     PitchClass::C,
-    ///     PitchClass::E,
-    ///     PitchClass::G,
-    /// ]);
-    ///
-    /// // Transpose down by 3 semitones to get A major [A, Cs, E]
-    /// let a_major = c_major - Semitones(3);
-    /// assert_eq!(
-    ///     a_major,
-    ///     PitchClassSet::from_iter([
-    ///         PitchClass::A,
-    ///         PitchClass::Cs,
-    ///         PitchClass::E,
-    ///     ])
-    /// );
-    /// ```
+    /// See [`PitchClassSet::transpose`] for more information.
     fn sub(self, rhs: Semitones) -> Self::Output {
         self + (-rhs)
     }

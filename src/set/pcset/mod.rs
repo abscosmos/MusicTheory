@@ -1,6 +1,39 @@
+//! Pitch class sets and set operations.
+//!
+//! A [`PitchClassSet`] represents a collection of pitch classes as a compact 12-bit bitset,
+//! where each bit corresponds to one of the 12 pitch classes.
+//!
+//! # Examples
+//!
+//! ```
+//! use music_theory::prelude::*;
+//! use music_theory::set::PitchClassSet;
+//!
+//! // Create a C major triad
+//! let c_major = PitchClassSet::from_iter([
+//!     PitchClass::C,
+//!     PitchClass::E,
+//!     PitchClass::G,
+//! ]);
+//!
+//! // Transpose the set
+//! let d_major = c_major + Semitones(2);
+//!
+//! // Check if two sets are transpositions
+//! assert!(c_major.is_transposition_of(d_major));
+//!
+//! // Compute the interval class vector
+//! assert_eq!(
+//!     *c_major.interval_class_vector(),
+//!     [0, 0, 1, 1, 1, 0],
+//! );
+//! ```
+
 use crate::pitch::PitchClass;
 use crate::set::IntervalClassVector;
 use crate::semitone::Semitones;
+#[expect(unused_imports, reason = "used in documentation")]
+use std::ops::{Add, BitAnd, BitOr, BitXor, Not};
 
 mod fmt;
 pub use fmt::*;
@@ -12,35 +45,139 @@ pub use ops::*;
 mod into_iter;
 pub use into_iter::*;
 
+/// A collection of pitch classes, stored as a 12-bit bitset.
+///
+/// Pitch class sets support standard set operations (union, intersection, complement),
+/// transposition, inversion, and various analysis functions.
+///
+/// # Examples
+///
+/// ```
+/// # use music_theory::prelude::*;
+/// # use music_theory::set::PitchClassSet;
+/// // Create from an iterator
+/// let major_triad = PitchClassSet::from_iter([
+///     PitchClass::C,
+///     PitchClass::E,
+///     PitchClass::G,
+/// ]);
+///
+/// // Use set operations
+/// let chromatic = PitchClassSet::CHROMATIC_AGGREGATE;
+/// let complement = !major_triad;
+///
+/// assert_eq!(major_triad | complement, chromatic);
+/// assert_eq!(major_triad & complement, PitchClassSet::EMPTY);
+///
+/// // Transpose and invert
+/// let transposed = major_triad + Semitones(7);
+/// let inverted = major_triad.invert_around(PitchClass::C);
+/// ```
 #[derive(Copy, Clone, Eq, PartialEq, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct PitchClassSet(u16);
 
 impl PitchClassSet {
+    /// An empty pitch class set containing no pitch classes.
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::set::PitchClassSet;
+    /// assert!(PitchClassSet::EMPTY.is_empty())
+    /// ```
     pub const EMPTY: Self = Self(0);
+
+    /// The chromatic aggregate containing all 12 pitch classes.
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::set::PitchClassSet;
+    /// assert_eq!(PitchClassSet::CHROMATIC_AGGREGATE.len(), 12);
+    /// ```
     pub const CHROMATIC_AGGREGATE: Self = Self(Self::MASK);
 
     const MASK: u16 = 0xfff;
-    
+
+    /// Creates a new pitch class set from a raw 12-bit value.
+    ///
+    /// Returns `None` if the value uses bits beyond the lower 12 bits.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::set::PitchClassSet;
+    /// // Binary: 100010010000 represents C, E, G (bits 0, 4, 7)
+    /// let c_major = PitchClassSet::from_bits(0b100010010000).unwrap();
+    /// assert_eq!(c_major.len(), 3);
+    ///
+    /// // Values beyond 12 bits return None
+    /// assert_eq!(PitchClassSet::from_bits(0xFFFF), None);
+    /// ```
     pub fn from_bits(set: u16) -> Option<Self> {
         (set <= Self::MASK).then_some(Self(set))
     }
 
+    /// Creates a new pitch class set from a value, masking to 12 bits.
+    ///
+    /// Any bits beyond the lower 12 bits are discarded.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::set::PitchClassSet;
+    /// // Extra bits are masked off
+    /// let set = PitchClassSet::new_masked(u16::MAX);
+    /// assert_eq!(set, PitchClassSet::CHROMATIC_AGGREGATE);
+    /// ```
     #[inline(always)]
     pub fn new_masked(set: u16) -> Self {
         Self(set & Self::MASK)
     }
 
+    /// Returns the raw 12-bit value representing the set.
+    ///
+    /// Each bit corresponds to a pitch class, with bit 0 representing C.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// # use music_theory::set::PitchClassSet;
+    /// let set = PitchClassSet::from_iter([PitchClass::C, PitchClass::D]);
+    /// assert_eq!(set.get(), 0b101000000000);
+    /// ```
     #[inline(always)]
     pub fn get(self) -> u16 {
         self.0
     }
-    
+
+    /// Returns `true` if the set contains no pitch classes.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::set::PitchClassSet;
+    /// assert!(PitchClassSet::EMPTY.is_empty());
+    /// ```
     #[inline(always)]
     pub fn is_empty(self) -> bool {
         self.len() == 0
     }
 
+    /// Returns the number of pitch classes in the set (cardinality).
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// # use music_theory::set::PitchClassSet;
+    /// let major_triad = PitchClassSet::from_iter([
+    ///     PitchClass::C,
+    ///     PitchClass::E,
+    ///     PitchClass::G,
+    /// ]);
+    /// assert_eq!(major_triad.len(), 3);
+    /// ```
     #[doc(alias = "cardinality")]
     #[inline(always)]
     pub fn len(self) -> u8 {
@@ -52,6 +189,26 @@ impl PitchClassSet {
         11 - pc.chroma()
     }
 
+    /// Computes the interval class vector for this pitch class set.
+    ///
+    /// For more information, see [`IntervalClassVector`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// # use music_theory::set::{IntervalClassVector, PitchClassSet};
+    /// let major_triad = PitchClassSet::from_iter([
+    ///     PitchClass::C,
+    ///     PitchClass::E,
+    ///     PitchClass::G,
+    /// ]);
+    ///
+    /// assert_eq!(
+    ///     major_triad.interval_class_vector(),
+    ///     IntervalClassVector::new([0, 0, 1, 1, 1, 0]).unwrap(),
+    /// )
+    /// ```
     pub fn interval_class_vector(self) -> IntervalClassVector {
         let mut icv = [0u8; 6];
 
@@ -70,16 +227,73 @@ impl PitchClassSet {
 
         IntervalClassVector::new(icv).expect("all pcsets should be valid icvs")
     }
-    
+
+    /// Returns `true` if the given pitch class is in the set.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// # use music_theory::set::PitchClassSet;
+    /// let major_triad = PitchClassSet::from_iter([
+    ///     PitchClass::C,
+    ///     PitchClass::E,
+    ///     PitchClass::G,
+    /// ]);
+    ///
+    /// assert!(major_triad.is_set(PitchClass::E));
+    /// assert!(!major_triad.is_set(PitchClass::D));
+    /// ```
     pub fn is_set(self, pc: PitchClass) -> bool {
         (self.0 >> Self::index(pc)) & 1 == 1
     }
-    
+
+    /// Returns a new set with the given pitch class added.
+    ///
+    /// If the pitch class is already in the set, returns an identical set.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// # use music_theory::set::PitchClassSet;
+    /// let triad = PitchClassSet::from_iter([
+    ///     PitchClass::C,
+    ///     PitchClass::E,
+    ///     PitchClass::G,
+    /// ]);
+    ///
+    /// let seventh = triad.with_set(PitchClass::B);
+    ///
+    /// assert_eq!(seventh.len(), 4);
+    /// assert!(seventh.is_set(PitchClass::B));
+    /// ```
     #[must_use = "This method returns a new PitchClassSet instead of mutating the original"]
     pub fn with_set(self, pc: PitchClass) -> Self {
         Self(self.0 | (1 << Self::index(pc)))
     }
 
+    /// Returns a new set with the given pitch class removed.
+    ///
+    /// If the pitch class is not in the set, returns an identical set.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// # use music_theory::set::PitchClassSet;
+    /// let seventh = PitchClassSet::from_iter([
+    ///     PitchClass::C,
+    ///     PitchClass::E,
+    ///     PitchClass::G,
+    ///     PitchClass::B,
+    /// ]);
+    ///
+    /// let triad = seventh.with_cleared(PitchClass::B);
+    ///
+    /// assert_eq!(triad.len(), 3);
+    /// assert!(!triad.is_set(PitchClass::B));
+    /// ```
     #[must_use = "This method returns a new PitchClassSet instead of mutating the original"]
     pub fn with_cleared(self, pc: PitchClass) -> Self {
         Self(self.0 & !(1 << Self::index(pc)))
@@ -160,46 +374,277 @@ impl PitchClassSet {
         Self(result).transpose(Semitones(2 * axis.chroma() as i16))
     }
 
+    /// Returns `true` if this set is a superset of the other set.
+    ///
+    /// A set is a superset of another if it contains all pitch classes in the other set.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// # use music_theory::set::PitchClassSet;
+    /// let major_seventh = PitchClassSet::from_iter([
+    ///     PitchClass::C,
+    ///     PitchClass::E,
+    ///     PitchClass::G,
+    ///     PitchClass::B,
+    /// ]);
+    ///
+    /// let major_triad = PitchClassSet::from_iter([
+    ///     PitchClass::C,
+    ///     PitchClass::E,
+    ///     PitchClass::G,
+    /// ]);
+    ///
+    /// assert!(major_seventh.is_superset_of(major_triad));
+    /// assert!(!major_triad.is_superset_of(major_seventh));
+    /// ```
     #[inline(always)]
     pub fn is_superset_of(self, rhs: Self) -> bool {
         (self.0 & rhs.0) == rhs.0
     }
 
+    /// Returns `true` if this set is a subset of the other set.
+    ///
+    /// A set is a subset of another if all of its pitch classes are contained in the other set.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// # use music_theory::set::PitchClassSet;
+    /// let major_seventh = PitchClassSet::from_iter([
+    ///     PitchClass::C,
+    ///     PitchClass::E,
+    ///     PitchClass::G,
+    ///     PitchClass::B,
+    /// ]);
+    ///
+    /// let major_triad = PitchClassSet::from_iter([
+    ///     PitchClass::C,
+    ///     PitchClass::E,
+    ///     PitchClass::G,
+    /// ]);
+    ///
+    /// assert!(major_triad.is_subset_of(major_seventh));
+    /// assert!(!major_seventh.is_subset_of(major_triad));
+    /// ```
     #[inline(always)]
     pub fn is_subset_of(self, rhs: Self) -> bool {
         (self.0 & rhs.0) == self.0
     }
 
+    /// Returns `true` if the two sets have no pitch classes in common.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// # use music_theory::set::PitchClassSet;
+    /// use PitchClass as PC;
+    ///
+    /// let white_keys = PitchClassSet::from_iter([
+    ///     PC::C, PC::D, PC::E, PC::F, PC::G, PC::A, PC::B,
+    /// ]);
+    ///
+    /// let black_keys = PitchClassSet::from_iter([
+    ///     PC::Cs, PC::Ds, PC::Fs, PC::Gs, PC::As,
+    /// ]);
+    ///
+    /// assert!(white_keys.disjoint(black_keys));
+    /// ```
     #[inline(always)]
     pub fn disjoint(self, rhs: Self) -> bool {
         (self.0 & rhs.0) == 0
     }
 
+    /// Returns the union of two pitch class sets.
+    ///
+    /// The union contains all pitch classes present in either set.
+    /// This is equivalent to using the [| operator](BitOr::bitor).
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// # use music_theory::set::PitchClassSet;
+    /// let c_triad = PitchClassSet::from_iter([
+    ///     PitchClass::C,
+    ///     PitchClass::E,
+    ///     PitchClass::G,
+    /// ]);
+    ///
+    /// let f_triad = PitchClassSet::from_iter([
+    ///     PitchClass::F,
+    ///     PitchClass::A,
+    ///     PitchClass::C,
+    /// ]);
+    ///
+    /// let union = c_triad.union(f_triad);
+    /// assert_eq!(union.len(), 5); // C, E, F, G, A
+    /// ```
     #[inline(always)]
     pub fn union(self, rhs: Self) -> Self {
         Self(self.0 | rhs.0)
     }
 
+    /// Returns the intersection of two pitch class sets.
+    ///
+    /// The intersection contains only pitch classes present in both sets.
+    /// This is equivalent to using the [& operator](BitAnd::bitand).
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// # use music_theory::set::PitchClassSet;
+    /// let c_triad = PitchClassSet::from_iter([
+    ///     PitchClass::C,
+    ///     PitchClass::E,
+    ///     PitchClass::G,
+    /// ]);
+    ///
+    /// let e_triad = PitchClassSet::from_iter([
+    ///     PitchClass::E,
+    ///     PitchClass::G,
+    ///     PitchClass::B,
+    /// ]);
+    ///
+    /// assert_eq!(
+    ///     c_triad.intersection(e_triad),
+    ///     PitchClassSet::from_iter([
+    ///         PitchClass::E,
+    ///         PitchClass::G,
+    ///     ]),
+    /// );
+    /// ```
     #[inline(always)]
     pub fn intersection(self, rhs: Self) -> Self {
         Self(self.0 & rhs.0)
     }
 
+    /// Returns the difference of two pitch class sets.
+    ///
+    /// The difference contains pitch classes in this set but not in the other set.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// # use music_theory::set::PitchClassSet;
+    /// use PitchClass as PC;
+    ///
+    /// let c_major_scale = PitchClassSet::from_iter([
+    ///     PC::C, PC::D, PC::E, PC::F, PC::G, PC::A, PC::B,
+    /// ]);
+    ///
+    /// let c_triad = PitchClassSet::from_iter([PC::C, PC::E, PC::G]);
+    ///
+    /// assert_eq!(
+    ///     c_major_scale.difference(c_triad),
+    ///     PitchClassSet::from_iter([PC::D, PC::F, PC::A, PC::B])
+    /// );
+    ///
+    /// assert_eq!(c_triad.difference(c_major_scale), PitchClassSet::EMPTY)
+    /// ```
     #[inline(always)]
     pub fn difference(self, rhs: Self) -> Self {
         Self(self.0 & !rhs.0)
     }
 
+    /// Returns the symmetric difference of two pitch class sets.
+    ///
+    /// The symmetric difference contains pitch classes in either set but not in both.
+    /// This is equivalent to using the [^ operator](BitXor::bitxor).
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// # use music_theory::set::PitchClassSet;
+    /// let c_triad = PitchClassSet::from_iter([
+    ///     PitchClass::C,
+    ///     PitchClass::E,
+    ///     PitchClass::G,
+    /// ]);
+    ///
+    /// let f_triad = PitchClassSet::from_iter([
+    ///     PitchClass::F,
+    ///     PitchClass::A,
+    ///     PitchClass::C,
+    /// ]);
+    ///
+    /// assert_eq!(
+    ///     c_triad.symmetric_difference(f_triad),
+    ///     PitchClassSet::from_iter([
+    ///         // C is excluded because it's in both sets
+    ///         PitchClass::E,
+    ///         PitchClass::F,
+    ///         PitchClass::G,
+    ///         PitchClass::A,
+    ///     ]),
+    /// );
+    /// ```
     #[inline(always)]
     pub fn symmetric_difference(self, rhs: Self) -> Self {
         Self(self.0 ^ rhs.0)
     }
 
+    /// Returns the complement of this pitch class set.
+    ///
+    /// The complement contains all pitch classes not in this set.
+    /// This is equivalent to using the [! operator](Not::not).
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// # use music_theory::set::PitchClassSet;
+    /// let c_triad = PitchClassSet::from_iter([
+    ///     PitchClass::C,
+    ///     PitchClass::E,
+    ///     PitchClass::G,
+    /// ]);
+    ///
+    /// let complement = c_triad.complement();
+    ///
+    /// assert_eq!(complement.len(), 9);
+    /// assert!(!complement.is_set(PitchClass::C));
+    /// assert!(complement.is_set(PitchClass::D));
+    /// ```
     #[inline(always)]
     pub fn complement(self) -> Self {
         Self::new_masked(!self.0)
     }
 
+    /// Returns the normalized (prime) form of this pitch class set.
+    ///
+    /// Provides a canonical representation for comparing sets in pitch-class set theory.
+    /// If the set is not empty, [`PitchClass::C`] is guaranteed to be set.
+    ///
+    /// If you're comparing normalized pitch class sets, consider [`Self::is_transposition_of`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// # use music_theory::set::PitchClassSet;
+    /// let c_major = PitchClassSet::from_iter([
+    ///     PitchClass::C,
+    ///     PitchClass::E,
+    ///     PitchClass::G,
+    /// ]);
+    ///
+    /// let d_major = PitchClassSet::from_iter([
+    ///     PitchClass::D,
+    ///     PitchClass::Fs,
+    ///     PitchClass::A,
+    /// ]);
+    ///
+    /// // The D and C major pcsets normalizes to the same thing,
+    /// // as they're transpositions of each other
+    /// assert_eq!(c_major.normalized(), d_major.normalized());
+    /// ```
     #[must_use = "This method returns a new PitchClassSet instead of mutating the original"]
     pub fn normalized(self) -> Self {
         (0..12)
@@ -272,6 +717,17 @@ impl PitchClassSet {
 }
 
 impl FromIterator<PitchClass> for PitchClassSet {
+    /// Creates a pitch class set from an iterator of pitch classes.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// # use music_theory::set::PitchClassSet;
+    /// let pitches = vec![PitchClass::C, PitchClass::E, PitchClass::G];
+    /// let set = PitchClassSet::from_iter(pitches);
+    /// assert_eq!(set.len(), 3);
+    /// ```
     fn from_iter<T: IntoIterator<Item = PitchClass>>(iter: T) -> Self {
         let mut new = Self::default();
         new.extend(iter);
@@ -280,6 +736,17 @@ impl FromIterator<PitchClass> for PitchClassSet {
 }
 
 impl Extend<PitchClass> for PitchClassSet {
+    /// Extends the pitch class set with pitch classes from an iterator.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// # use music_theory::set::PitchClassSet;
+    /// let mut set = PitchClassSet::from_iter([PitchClass::C, PitchClass::E]);
+    /// set.extend([PitchClass::G, PitchClass::B]);
+    /// assert_eq!(set.len(), 4);
+    /// ```
     fn extend<T: IntoIterator<Item=PitchClass>>(&mut self, iter: T) {
         *self = iter.into_iter().fold(*self, PitchClassSet::with_set);
     }
