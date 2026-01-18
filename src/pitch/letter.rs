@@ -103,13 +103,13 @@ impl Letter {
     /// # use music_theory::prelude::*;
     /// // F becomes F♯ in G major
     /// assert_eq!(
-    ///     Letter::F.to_pitch_in_key(Key::G_MAJOR),
+    ///     Letter::F.to_pitch_in_key(Key::major(Pitch::G)),
     ///     Pitch::F_SHARP,
     /// );
     ///
     /// // F remains F natural in C major
     /// assert_eq!(
-    ///     Letter::F.to_pitch_in_key(Key::C_MAJOR),
+    ///     Letter::F.to_pitch_in_key(Key::major(Pitch::C)),
     ///     Pitch::F,
     /// );
     /// ```
