@@ -3,7 +3,7 @@ use std::num::{NonZeroI16, ParseIntError};
 use std::ops::Neg;
 use std::str::FromStr;
 
-/// The diatonic distance of an interval, such as "third" or "fifth".
+/// The diatonic size of an interval, such as "third" or "fifth".
 ///
 /// Interval numbers are positive for ascending intervals, and negative for descending interval.
 /// The smallest number is a [unison](Self::UNISON), since unisons are the additive inverse for intervals.
