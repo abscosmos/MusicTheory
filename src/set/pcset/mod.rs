@@ -106,7 +106,7 @@ impl PitchClassSet {
     ///
     /// ```
     /// # use music_theory::set::PitchClassSet;
-    /// // Binary: 100010010000 represents C, E, G (bits 0, 4, 7)
+    /// // Binary: 100010010000 represents C, E, G (chromas 0, 4, 7)
     /// let c_major = PitchClassSet::from_bits(0b100010010000).unwrap();
     /// assert_eq!(c_major.len(), 3);
     ///
