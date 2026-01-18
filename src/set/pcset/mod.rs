@@ -41,6 +41,7 @@ impl PitchClassSet {
         self.len() == 0
     }
 
+    #[doc(alias = "cardinality")]
     #[inline(always)]
     pub fn len(self) -> u8 {
         self.0.count_ones() as _
