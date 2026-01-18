@@ -157,6 +157,7 @@ impl IntervalClassVector {
     /// ```
     // TODO: might get confused with (*icv).len() due to auto-deref
     #[doc(alias = "len")]
+    #[doc(alias = "l1_norm")]
     pub fn total(self) -> u8 {
         self.0.iter().sum()
     }
@@ -190,6 +191,106 @@ impl IntervalClassVector {
             .zip(other.0)
             .filter(|(a, b)| a != b)
             .count() as _
+    }
+
+    /// Manhattan distance (L1 distance)
+    ///
+    /// This is the sum of absolute differences of each interval class.
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::set::IntervalClassVector;
+    /// let icv1 = IntervalClassVector::new([1, 2, 3, 4, 5, 1]).unwrap();
+    /// let icv2 = IntervalClassVector::new([2, 2, 3, 1, 5, 1]).unwrap();
+    /// // ic1 differs by 1, icv4 differs by 3
+    /// assert_eq!(icv1.manhattan_distance(icv2), 4);
+    /// ```
+    #[doc(alias = "l1_distance")]
+    pub fn manhattan_distance(self, other: Self) -> u8 {
+        self.0.iter()
+            .zip(other.0.iter())
+            .map(|(a, b)| a.abs_diff(*b))
+            .sum()
+    }
+
+    /// Euclidean distance squared (L2 distance squared).
+    ///
+    /// Computes Euclidean distance without taking a square root.
+    /// This preserves ordering (d1^2 < d2^2 if and only if d1 < d2) while
+    /// avoiding floating-point arithmetic.
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::set::IntervalClassVector;
+    /// let icv1 = IntervalClassVector::new([1, 2, 3, 4, 2, 1]).unwrap();
+    /// let icv2 = IntervalClassVector::new([2, 1, 0, 4, 6, 2]).unwrap();
+    /// // 1^2 + 1^2 + 3^2 + 0^2 + 4^2 + 1^1 = 28
+    /// assert_eq!(icv1.euclidean_distance_squared(icv2), 28);
+    /// ```
+    #[doc(alias = "l2_distance_squared")]
+    pub fn euclidean_distance_squared(self, other: Self) -> u16 {
+        // 'u16' is the return type here, as range is [0, 756]
+        self.0.iter()
+            .zip(other.0.iter())
+            .map(|(a, b)| {
+                let diff = a.abs_diff(*b) as u16;
+                diff * diff
+            })
+            .sum()
+    }
+
+    /// L2 norm squared (Euclidean norm squared).
+    ///
+    /// Computes L2 norm without taking a square root.
+    /// This preserves ordering (m1^2 < m2^2 if and only if m1 < m2) while
+    /// avoiding floating-point arithmetic.
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::set::IntervalClassVector;
+    /// let icv = IntervalClassVector::new([1, 2, 3, 4, 5, 1]).unwrap();
+    /// assert_eq!(icv.l2_norm_squared(), 56);
+    /// ```
+    #[doc(alias = "euclidean_norm_squared")]
+    pub fn l2_norm_squared(self) -> u16 {
+        self.euclidean_distance_squared(Self::default())
+    }
+
+    /// Cosine similarity between two interval class vectors.
+    ///
+    /// Returns a value in `[0.0, 1.0]` where:
+    /// - 1.0 means identical direction (same relative interval distribution)
+    /// - 0.0 means orthogonal (no similarity in distribution)
+    ///
+    /// Since no components of [`IntervalClassVector`] can be negative, cosine similarity is
+    /// always positive.
+    ///
+    /// Cosine similarity is scale-invariant: ICVs with the same proportions but different
+    /// magnitudes will have similarity close to 1.0.
+    ///
+    /// Returns `None` if either vector is all zeros.
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::set::IntervalClassVector;
+    /// let icv1 = IntervalClassVector::new([0, 0, 1, 1, 1, 0]).unwrap();
+    /// let icv2 = IntervalClassVector::new([0, 0, 2, 2, 2, 0]).unwrap();
+    /// let sim = icv1.cosine_similarity(icv2).unwrap();
+    /// assert!((sim - 1.0).abs() < 0.001); // Same direction, different magnitude
+    /// ```
+    pub fn cosine_similarity(self, other: Self) -> Option<f32> {
+        let dot_product: u32 = self.0.iter()
+            .zip(other.0.iter())
+            .map(|(a, b)| (*a as u32) * (*b as u32))
+            .sum();
+
+        let denominator_sq = self.l2_norm_squared() * other.l2_norm_squared();
+
+        if denominator_sq == 0 {
+            return None;
+        }
+
+        Some((dot_product as f32) / (denominator_sq as f32).sqrt())
     }
 
     /// Returns how many distinct interval classes are present (nonzero count).
