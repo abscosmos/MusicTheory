@@ -4,20 +4,13 @@ use std::str::FromStr;
 
 /// The quality component of an interval, such as "major", "minor", or "perfect".
 ///
-/// Interval quality, combined with an [`IntervalNumber`](super::IntervalNumber), determines
-/// the precise distance between two pitches. For example, a major third and a minor third
-/// have the same interval number (3) but different qualities.
-///
-/// # Perfect vs Major/Minor Intervals
-///
-/// Intervals are categorized into two groups based on their interval number:
-/// - **Perfect intervals**: Unisons, fourths, fifths, and octaves can be perfect, augmented, or diminished
-/// - **Major/minor intervals**: Seconds, thirds, sixths, and sevenths can be major, minor, augmented, or diminished
-///
 /// # Augmented and Diminished Qualities
 ///
-/// Both augmented and diminished qualities can be stacked multiple times (e.g., doubly augmented).
-/// The [`NonZeroU16`] parameter indicates how many times the quality is applied.
+/// Intervals can be diminished or augmented multiple times (e.g., doubly augmented).
+/// The [`NonZeroU16`] parameter in [`Self::Augmented`] and [`Self::Diminished`]
+/// indicates how many times the quality is applied.
+///
+/// For convenience, [`Self::DIMINISHED`] and [`Self::AUGMENTED`] constants are available.
 ///
 /// # Examples
 ///
@@ -31,11 +24,6 @@ use std::str::FromStr;
 /// let doubly_aug = IntervalQuality::Augmented(2.try_into().unwrap());
 /// assert_eq!(doubly_aug.shorthand(), "AA");
 ///
-/// // Parse from shorthand notation
-/// let minor: IntervalQuality = "m".parse().unwrap();
-/// assert_eq!(minor, IntervalQuality::Minor);
-///
-/// // Inversion flips major ↔ minor, augmented ↔ diminished
 /// assert_eq!(IntervalQuality::Major.inverted(), IntervalQuality::Minor);
 /// assert_eq!(IntervalQuality::AUGMENTED.inverted(), IntervalQuality::DIMINISHED);
 /// ```
