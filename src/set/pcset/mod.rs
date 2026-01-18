@@ -22,7 +22,7 @@ impl PitchClassSet {
 
     const MASK: u16 = 0xfff;
     
-    pub fn new(set: u16) -> Option<Self> {
+    pub fn from_bits(set: u16) -> Option<Self> {
         (set <= Self::MASK).then_some(Self(set))
     }
 
@@ -290,7 +290,7 @@ mod tests {
 
     #[test]
     fn new() {
-        let cde = PitchClassSet::new(2688).expect("in range");
+        let cde = PitchClassSet::from_bits(2688).expect("in range");
 
         assert_eq!(format!("{cde:?}"), "{C (0), D (2), E (4)}");
 
@@ -318,9 +318,9 @@ mod tests {
     
     #[test]
     fn set_ops() {
-        let set = PitchClassSet::new(0b000011001100).expect("only necessary bits set");
+        let set = PitchClassSet::from_bits(0b000011001100).expect("only necessary bits set");
         
-        assert_eq!(!set, PitchClassSet::new(0b111100110011).expect("only necessary bits set"));
+        assert_eq!(!set, PitchClassSet::from_bits(0b111100110011).expect("only necessary bits set"));
         
         assert_eq!(!!set, set);
         
