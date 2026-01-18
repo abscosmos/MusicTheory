@@ -1,3 +1,31 @@
+//! Musical intervals and their components.
+//!
+//! An [`Interval`] represents the distance between two pitches, combining a
+//! [`quality`](IntervalQuality) (major, minor, perfect, etc.) with a
+//! [`number`](IntervalNumber) (unison, second, third, etc.).
+//!
+//! # Examples
+//!
+//! ```
+//! use music_theory::prelude::*;
+//!
+//! // Create intervals using constants
+//! let major_third = Interval::MAJOR_THIRD;
+//! let perfect_fifth = Interval::PERFECT_FIFTH;
+//!
+//! // Intervals can be combined
+//! assert_eq!(
+//!     Interval::MAJOR_THIRD + Interval::MINOR_THIRD,
+//!     Interval::PERFECT_FIFTH
+//! );
+//!
+//! // Check harmonic stability
+//! assert_eq!(
+//!     Interval::MAJOR_THIRD.stability(),
+//!     Some(Stability::ImperfectConsonance)
+//! );
+//! ```
+
 use std::cmp::Ordering;
 use std::fmt;
 use std::iter::Sum;
