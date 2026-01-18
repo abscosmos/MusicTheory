@@ -152,6 +152,41 @@ impl PitchClassSet {
     pub fn complement(self) -> Self {
         Self::new_masked(!self.0)
     }
+
+    /// Returns a helper type that displays pitch classes as their chroma values.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use music_theory::prelude::*;
+    /// # use music_theory::set::PitchClassSet;
+    /// let set = PitchClassSet::from_iter([
+    ///     PitchClass::C,
+    ///     PitchClass::E,
+    ///     PitchClass::G
+    /// ]);
+    ///
+    /// assert_eq!(
+    ///     format!("{}", set.display_chromas()),
+    ///     "{0, 4, 7}"
+    /// );
+    /// ```
+    pub fn display_chromas(self) -> DisplayChromas {
+        DisplayChromas(self)
+    }
+}
+
+/// Helper type for displaying pitch class sets as integers (chroma values).
+///
+/// Obtained via [`PitchClassSet::display_chromas()`].
+pub struct DisplayChromas(PitchClassSet);
+
+impl fmt::Display for DisplayChromas {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_set()
+            .entries(self.0.into_iter().map(PitchClass::chroma))
+            .finish()
+    }
 }
 
 impl fmt::Debug for PitchClassSet {
