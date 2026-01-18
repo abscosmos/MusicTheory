@@ -2,12 +2,17 @@ use std::fmt;
 use std::ops::{BitAnd, BitXor, Not};
 use strum::IntoEnumIterator;
 use crate::pitch::PitchClass;
+use crate::set::IntervalClassVector;
+// TODO: implement IntoIterator for PitchClassSet
 
 #[derive(Copy, Clone, Eq, PartialEq, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct PitchClassSet(u16);
 
 impl PitchClassSet {
+    pub const EMPTY: Self = Self(0);
+    pub const CHROMATIC_AGGREGATE: Self = Self(Self::MASK);
+
     const MASK: u16 = 0xfff;
     
     pub fn new(set: u16) -> Option<Self> {
@@ -50,6 +55,27 @@ impl PitchClassSet {
         PitchClass::iter()
             .filter(|pc| self.is_set(*pc))
             .collect()
+    }
+
+    pub fn interval_class_vector(self) -> IntervalClassVector {
+        let mut icv = [0u8; 6];
+
+        for pc1 in PitchClass::iter()
+            .filter(|pc| self.is_set(*pc))
+        {
+            for pc2 in PitchClass::iter()
+                .skip(pc1.chroma() as usize + 1)
+                .filter(|pc| self.is_set(*pc))
+            {
+                let interval = pc1.semitones_to(pc2).0;
+
+                let ic = if interval > 6 { 12 - interval } else { interval };
+
+                icv[(ic - 1) as usize] += 1;
+            }
+        }
+
+        IntervalClassVector::new(icv).expect("all pcsets should be valid icvs")
     }
     
     pub fn is_set(self, pc: PitchClass) -> bool {
@@ -136,6 +162,15 @@ impl BitXor for PitchClassSet {
 
     fn bitxor(self, rhs: Self) -> Self::Output {
         self.symmetric_difference(rhs)
+    }
+}
+
+impl FromIterator<PitchClass> for PitchClassSet {
+    fn from_iter<T: IntoIterator<Item = PitchClass>>(iter: T) -> Self {
+        iter.into_iter().fold(
+            PitchClassSet::default(),
+            PitchClassSet::with_set,
+        )
     }
 }
 
