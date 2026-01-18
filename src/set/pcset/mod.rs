@@ -144,10 +144,10 @@ impl PitchClassSet {
     /// # use music_theory::prelude::*;
     /// # use music_theory::set::PitchClassSet;
     /// let set = PitchClassSet::from_iter([PitchClass::C, PitchClass::D]);
-    /// assert_eq!(set.get(), 0b101000000000);
+    /// assert_eq!(set.bits(), 0b101000000000);
     /// ```
     #[inline(always)]
-    pub fn get(self) -> u16 {
+    pub fn bits(self) -> u16 {
         self.0
     }
 
@@ -650,7 +650,7 @@ impl PitchClassSet {
         (0..12)
             .map(|s| self + Semitones(s))
             .filter(|pcset| pcset.is_set(PitchClass::C))
-            .min_by_key(|pcset| pcset.get())
+            .min_by_key(|pcset| pcset.bits())
             .unwrap_or_default()
     }
 

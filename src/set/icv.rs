@@ -141,7 +141,7 @@ impl IntervalClassVector {
         // TODO: before checking all possible pcsets, check if total() is a triangular number; might be faster on average, bench
         // TODO: could also check that n = pcset.len(), nC2 == icv.total()
 
-        (0..=PitchClassSet::CHROMATIC_AGGREGATE.get())
+        (0..=PitchClassSet::CHROMATIC_AGGREGATE.bits())
             .map(|set| PitchClassSet::from_bits_masked(set).interval_class_vector())
             .any(|icv| icv == self)
     }
