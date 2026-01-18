@@ -158,6 +158,15 @@ impl PitchClassSet {
         Self::new_masked(!self.0)
     }
 
+    #[must_use = "This method returns a new PitchClassSet instead of mutating the original"]
+    pub fn normalized(self) -> Self {
+        (0..12)
+            .map(|s| self + Semitones(s))
+            .filter(|pcset| pcset.is_set(PitchClass::C))
+            .min_by_key(|pcset| pcset.get())
+            .unwrap_or_default()
+    }
+
     /// Returns a helper type that displays pitch classes as their chroma values.
     ///
     /// # Example
