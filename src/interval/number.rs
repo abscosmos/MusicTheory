@@ -5,7 +5,7 @@ use std::str::FromStr;
 
 /// The diatonic size of an interval, such as "third" or "fifth".
 ///
-/// Interval numbers are positive for ascending intervals, and negative for descending interval.
+/// Interval numbers are positive for ascending intervals, and negative for descending intervals.
 /// The smallest number is a [unison](Self::UNISON), since unisons are the additive inverse for intervals.
 ///
 /// # Examples
@@ -81,7 +81,7 @@ impl IntervalNumber {
 
     /// Reduces a compound interval to its simple form.
     ///
-    /// Simplified intervals in `[1, 8]`, and compound intervals (9ths, 10ths, etc.)
+    /// Simplified intervals are in `[1, 8]`, so compound intervals (9ths, 10ths, etc.)
     /// are reduced by removing complete octaves. The direction is preserved.
     /// Octaves and multiples of octaves reduce to an octave, *not a unison!*
     ///

@@ -377,7 +377,7 @@ impl Interval {
         semitones != 0 && semitones.signum() != self.number.get().signum()
     }
     
-    /// Expands a subzero interval an equivalent non-subzero compound interval.
+    /// Expands a subzero interval into an equivalent non-subzero compound interval.
     ///
     /// Adds octaves to a subzero interval until it spans in the expected direction.
     /// For non-subzero intervals, returns the interval unchanged.
@@ -644,7 +644,7 @@ impl Interval {
 
     /// Reduces a compound interval to its simple form.
     ///
-    /// Simplified intervals are in `[1, 8]`, and compound intervals (9ths, 10ths, etc.)
+    /// Simple intervals are in `[1, 8]`, and compound intervals (9ths, 10ths, etc.)
     /// are reduced by removing complete octaves. The direction is preserved.
     /// Octaves and multiples of octaves reduce to an octave, *not a unison!*
     ///
