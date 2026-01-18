@@ -352,9 +352,9 @@ fn eq_ord_enharmonic() {
     assert!(!I::MINOR_THIRD.eq_enharmonic(&I::DIMINISHED_FOURTH));
     assert!(!I::PERFECT_TWELFTH.eq_enharmonic(&I::AUGMENTED_TWELFTH));
 
-    assert_eq!(I::AUGMENTED_FOURTH.cmp_enharmonic(&I::PERFECT_FIFTH), Ordering::Less);
+    assert!(I::AUGMENTED_FOURTH.lt_enharmonic(&I::PERFECT_FIFTH));
     assert_eq!(I::MAJOR_NINTH.cmp_enharmonic(&I::DIMINISHED_TENTH), Ordering::Equal);
-    assert_eq!(I::PERFECT_FIFTEENTH.cmp_enharmonic(&I::DIMINISHED_FIFTEENTH), Ordering::Greater);
+    assert!(I::PERFECT_FIFTEENTH.gt_enharmonic(&I::DIMINISHED_FIFTEENTH));
 }
 
 #[test]

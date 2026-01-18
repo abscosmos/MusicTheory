@@ -136,4 +136,62 @@ pub trait EnharmonicOrd {
     /// );
     /// ```
     fn cmp_enharmonic(&self, other: &Self) -> Ordering;
+
+    /// Tests enharmonically less than (for `self` and `other`)
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use music_theory::prelude::*;
+    /// use music_theory::enharmonic::EnharmonicOrd;
+    ///
+    /// assert!(Pitch::C.lt_enharmonic(&Pitch::D));
+    /// ```
+    fn lt_enharmonic(&self, other: &Self) -> bool {
+        self.cmp_enharmonic(other).is_lt()
+    }
+
+    /// Tests enharmonically less than or equal to (for `self` and `other`)
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use music_theory::prelude::*;
+    /// use music_theory::enharmonic::EnharmonicOrd;
+    ///
+    /// assert!(Pitch::C.le_enharmonic(&Pitch::C_SHARP));
+    /// assert!(Pitch::C_SHARP.le_enharmonic(&Pitch::D_FLAT));
+    /// ```
+    fn le_enharmonic(&self, other: &Self) -> bool {
+        self.cmp_enharmonic(other).is_le()
+    }
+
+    /// Tests enharmonically greater than (for `self` and `other`)
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use music_theory::prelude::*;
+    /// use music_theory::enharmonic::EnharmonicOrd;
+    ///
+    /// assert!(Pitch::E.gt_enharmonic(&Pitch::C));
+    /// ```
+    fn gt_enharmonic(&self, other: &Self) -> bool {
+        self.cmp_enharmonic(other).is_gt()
+    }
+
+    /// Tests enharmonically greater than or equal to (for `self` and `other`)
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use music_theory::prelude::*;
+    /// use music_theory::enharmonic::EnharmonicOrd;
+    ///
+    /// assert!(Pitch::D.ge_enharmonic(&Pitch::C_SHARP));
+    /// assert!(Pitch::C_SHARP.ge_enharmonic(&Pitch::D_FLAT));
+    /// ```
+    fn ge_enharmonic(&self, other: &Self) -> bool {
+        self.cmp_enharmonic(other).is_ge()
+    }
 }
