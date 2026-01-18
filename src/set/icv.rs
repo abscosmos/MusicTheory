@@ -354,7 +354,7 @@ impl IntervalClassVector {
     /// assert_eq!(major_triad.distinct_classes(), 3);
     /// ```
     pub fn distinct_classes(self) -> u8 {
-        self.0.iter().filter(|&&count| count != 0).count() as u8
+        self.hamming_distance(Self::EMPTY)
     }
 
     /// Returns `true` if all six interval classes are present.
