@@ -139,6 +139,7 @@ impl IntervalClassVector {
     /// ```
     pub fn came_from_pitch_class_set(self) -> bool {
         // TODO: before checking all possible pcsets, check if total() is a triangular number; might be faster on average, bench
+        // TODO: could also check that n = pcset.len(), nC2 == icv.total()
 
         (0..=PitchClassSet::CHROMATIC_AGGREGATE.get())
             .map(|set| PitchClassSet::new_masked(set).interval_class_vector())
