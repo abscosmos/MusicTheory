@@ -1,5 +1,4 @@
-use std::cmp::Ordering;
-use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
+use crate::enharmonic::EnharmonicEq;
 
 /// Trait for converting musical objects to their spelling-agnostic representation.
 ///
