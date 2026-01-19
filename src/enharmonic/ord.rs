@@ -35,8 +35,8 @@ pub trait EnharmonicOrd {
     /// Compares two musical objects enharmonically.
     ///
     /// Returns [`Ordering::Equal`] if the objects are enharmonically equivalent,
-    /// [`Ordering::Less`] if `self` is lower than `rhs`, and [`Ordering::Greater`]
-    /// if `self` is higher than `rhs`.
+    /// [`Ordering::Less`] if `self` is lower than `other`, and [`Ordering::Greater`]
+    /// if `self` is higher than `other`.
     ///
     /// # Examples
     ///
