@@ -18,7 +18,7 @@ use crate::enharmonic::WithoutSpelling;
 /// Using in a sorted collection:
 ///
 /// ```
-/// # use music_theory::prelude::*;
+/// # use music_theory::Pitch;
 /// use music_theory::enharmonic::CmpEnharmonic;
 /// use std::collections::BTreeSet;
 ///
@@ -34,7 +34,7 @@ use crate::enharmonic::WithoutSpelling;
 /// Using as a HashMap key:
 ///
 /// ```
-/// # use music_theory::prelude::*;
+/// # use music_theory::{Pitch};
 /// use music_theory::enharmonic::CmpEnharmonic;
 /// use std::collections::HashMap;
 ///

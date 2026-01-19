@@ -17,20 +17,23 @@ use crate::scales::sized_scale::SizedScale as _;
 ///
 /// You can create a key from a tonic and mode:
 /// ```
-/// # use music_theory::prelude::*;
+/// # use music_theory::Pitch;
+/// # use music_theory::harmony::{Key, DiatonicMode};
 /// let d_minor = Key::new(Pitch::D, DiatonicMode::NATURAL_MINOR);
 /// ```
 ///
 /// Or use the convenience constructors:
 /// ```
-/// # use music_theory::prelude::*;
+/// # use music_theory::Pitch;
+/// # use music_theory::harmony::Key;
 /// let g_major = Key::major(Pitch::G);
 /// let e_minor = Key::minor(Pitch::E);
 /// ```
 ///
 /// You can create keys from their key signature:
 /// ```
-/// # use music_theory::prelude::*;
+/// # use music_theory::Pitch;
+/// # use music_theory::harmony::{Key, DiatonicMode};
 /// // D major has 2 sharps
 /// let d_major = Key::from_sharps(2, DiatonicMode::MAJOR);
 /// assert_eq!(d_major.tonic, Pitch::D);
@@ -40,7 +43,8 @@ use crate::scales::sized_scale::SizedScale as _;
 ///
 /// Keys can tell you their key signature (number of sharps or flats):
 /// ```
-/// # use music_theory::prelude::*;
+/// # use music_theory::Pitch;
+/// # use music_theory::harmony::Key;
 /// // G major has 1 sharp (F#)
 /// assert_eq!(Key::major(Pitch::G).sharps(), 1);
 ///
@@ -55,7 +59,8 @@ use crate::scales::sized_scale::SizedScale as _;
 ///
 /// Relative keys share the same key signature:
 /// ```
-/// # use music_theory::prelude::*;
+/// # use music_theory::Pitch;
+/// # use music_theory::harmony::{Key, DiatonicMode};
 /// let c_major = Key::major(Pitch::C);
 /// let a_minor = c_major.relative(DiatonicMode::NATURAL_MINOR);
 ///
@@ -65,7 +70,8 @@ use crate::scales::sized_scale::SizedScale as _;
 ///
 /// Parallel keys share the same tonic:
 /// ```
-/// # use music_theory::prelude::*;
+/// # use music_theory::Pitch;
+/// # use music_theory::harmony::{Key, DiatonicMode};
 /// let c_major = Key::major(Pitch::C);
 /// let c_minor = c_major.parallel(DiatonicMode::NATURAL_MINOR);
 ///
@@ -86,7 +92,8 @@ impl Key {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Pitch;
+    /// # use music_theory::harmony::{Key, DiatonicMode};
     /// let d_dorian = Key::new(Pitch::D, DiatonicMode::Dorian);
     /// ```
     pub fn new(tonic: Pitch, mode: DiatonicMode) -> Self {
@@ -97,7 +104,8 @@ impl Key {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Pitch;
+    /// # use music_theory::harmony::Key;
     /// let g_major = Key::major(Pitch::G);
     /// assert_eq!(g_major.sharps(), 1);
     /// ```
@@ -109,7 +117,8 @@ impl Key {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Pitch;
+    /// # use music_theory::harmony::Key;
     /// let f_minor = Key::minor(Pitch::F);
     /// assert_eq!(f_minor.sharps(), -4);
     /// ```
@@ -121,7 +130,8 @@ impl Key {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Pitch;
+    /// # use music_theory::harmony::Key;
     /// let c_major = Key::major(Pitch::C);
     /// let d_major = c_major.with_tonic(Pitch::D);
     ///
@@ -137,7 +147,8 @@ impl Key {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Pitch;
+    /// # use music_theory::harmony::{Key, DiatonicMode};
     /// // D major has 2 sharps (F# and C#)
     /// assert_eq!(
     ///     Key::from_sharps(2, DiatonicMode::MAJOR),
@@ -168,7 +179,8 @@ impl Key {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Pitch;
+    /// # use music_theory::harmony::{Key, DiatonicMode};
     /// // G major has 1 sharp
     /// assert_eq!(Key::major(Pitch::G).sharps(), 1);
     ///
@@ -196,7 +208,9 @@ impl Key {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Pitch;
+    /// # use music_theory::pitch::Spelling;
+    /// # use music_theory::harmony::Key;
     /// assert_eq!(Key::major(Pitch::G).spelling(), Some(Spelling::Sharps));
     /// assert_eq!(Key::major(Pitch::F).spelling(), Some(Spelling::Flats));
     /// assert_eq!(Key::minor(Pitch::A).spelling(), None);
@@ -215,7 +229,8 @@ impl Key {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Pitch;
+    /// # use music_theory::harmony::{Key, DiatonicMode};
     /// // D *major* has 2 sharps
     /// assert_eq!(
     ///     Key::try_from_sharps_tonic(2, Pitch::D),
@@ -255,7 +270,8 @@ impl Key {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Pitch;
+    /// # use music_theory::harmony::{Key, DiatonicMode};
     /// use DiatonicMode as Mode;
     ///
     /// // Get the parallel minor
@@ -280,7 +296,8 @@ impl Key {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Pitch;
+    /// # use music_theory::harmony::{Key, DiatonicMode};
     /// use DiatonicMode as Mode;
     ///
     /// // Get the relative minor
@@ -315,7 +332,8 @@ impl Key {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Pitch;
+    /// # use music_theory::harmony::{Key, DiatonicMode, ScaleDegree};
     /// // If E is the 3rd degree of a major key, the key is C major
     /// assert_eq!(
     ///     Key::from_pitch_degree(
@@ -370,7 +388,8 @@ impl Key {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{Pitch, Interval};
+    /// # use music_theory::harmony::Key;
     /// // Transpose C major up a whole step
     /// assert_eq!(
     ///     Key::major(Pitch::C).transpose(Interval::MAJOR_SECOND),
@@ -393,7 +412,8 @@ impl Key {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Pitch;
+    /// # use music_theory::harmony::Key;
     /// // G major has one sharp: F#
     /// assert_eq!(
     ///     Key::major(Pitch::G).alterations(),
@@ -439,7 +459,8 @@ impl Key {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{Letter, AccidentalSign, Pitch};
+    /// # use music_theory::harmony::Key;
     /// let g_major = Key::major(Pitch::G);
     ///
     /// // F is sharped in G major
@@ -466,7 +487,8 @@ impl Key {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Pitch;
+    /// # use music_theory::harmony::{Key, ScaleDegree};
     /// let g_major = Key::major(Pitch::G);
     ///
     /// // The tonic (1st degree) is G
@@ -499,7 +521,8 @@ impl Key {
     /// ```
     /// # #[cfg(feature = "experimental-scales")]
     /// # {
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Pitch;
+    /// # use music_theory::harmony::Key;
     /// let g_major = Key::major(Pitch::G);
     /// let scale = g_major.scale();
     ///
@@ -526,7 +549,8 @@ impl Key {
     /// ```
     /// # #[cfg(feature = "experimental-scales")]
     /// # {
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Pitch;
+    /// # use music_theory::harmony::Key;
     /// # use music_theory::scales::definition::heptatonic::DiatonicMode;
     /// let c_major = Key::major(Pitch::C);
     /// let chord_scales = c_major.chord_scales();

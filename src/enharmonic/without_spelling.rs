@@ -71,7 +71,7 @@ use crate::EnharmonicEq;
 /// # Examples
 ///
 /// ```
-/// # use music_theory::prelude::*;
+/// # use music_theory::{Pitch, PitchClass};
 /// use music_theory::enharmonic::WithoutSpelling as _;
 ///
 /// // Pitch to PitchClass removes spelling information,
@@ -89,7 +89,7 @@ pub trait WithoutSpelling: EnharmonicEq {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{Pitch, PitchClass};
     /// use music_theory::enharmonic::WithoutSpelling as _;
     ///
     /// assert_eq!(Pitch::C_SHARP.without_spelling(), PitchClass::Cs);

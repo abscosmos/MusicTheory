@@ -11,7 +11,7 @@ use std::str::FromStr;
 /// # Examples
 ///
 /// ```
-/// # use music_theory::prelude::*;
+/// # use music_theory::interval::IntervalNumber;
 /// // Create using constants
 /// let fifth = IntervalNumber::FIFTH;
 /// assert_eq!(fifth.get(), 5);
@@ -37,7 +37,7 @@ impl IntervalNumber {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::interval::IntervalNumber;
     /// assert_eq!(IntervalNumber::new(3), Some(IntervalNumber::THIRD));
     /// assert_eq!(IntervalNumber::new(-5), Some(-IntervalNumber::FIFTH));
     /// // Zero is invalid
@@ -58,7 +58,7 @@ impl IntervalNumber {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::interval::IntervalNumber;
     /// assert_eq!(IntervalNumber::FIFTH.get(), 5);
     /// assert_eq!((-IntervalNumber::THIRD).get(), -3);
     /// ```
@@ -72,7 +72,7 @@ impl IntervalNumber {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::interval::IntervalNumber;
     /// assert_eq!(IntervalNumber::SEVENTH.shorthand(), 7);
     /// ```
     pub fn shorthand(self) -> i16 {
@@ -87,7 +87,7 @@ impl IntervalNumber {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::interval::IntervalNumber;
     /// // Simple intervals remain unchanged
     /// assert_eq!(IntervalNumber::THIRD.as_simple(), IntervalNumber::THIRD);
     ///
@@ -123,7 +123,7 @@ impl IntervalNumber {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::interval::IntervalNumber;
     /// assert!(IntervalNumber::FIFTH.is_perfect());
     /// assert!(IntervalNumber::OCTAVE.is_perfect());
     ///
@@ -146,7 +146,7 @@ impl IntervalNumber {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::interval::IntervalNumber;
     /// assert!(IntervalNumber::FIFTH.is_ascending());
     /// assert!(!(-IntervalNumber::THIRD).is_ascending());
     /// ```
@@ -158,7 +158,7 @@ impl IntervalNumber {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::interval::IntervalNumber;
     /// let fifth = IntervalNumber::FIFTH;
     ///
     /// // Already ascending
@@ -185,7 +185,7 @@ impl IntervalNumber {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::interval::IntervalNumber;
     /// assert_eq!(IntervalNumber::THIRD.octave_unsigned(), 0);
     /// assert_eq!(IntervalNumber::SEVENTH.octave_unsigned(), 0);
     ///
@@ -205,7 +205,7 @@ impl IntervalNumber {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::interval::IntervalNumber;
     /// assert_eq!(IntervalNumber::NINTH.octave_signed(), 1);
     /// assert_eq!(IntervalNumber::FIFTEENTH.octave_signed(), 2);
     ///
@@ -226,7 +226,7 @@ impl IntervalNumber {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::interval::IntervalNumber;
     /// // Simple interval inversions
     /// assert_eq!(IntervalNumber::SECOND.inverted(), IntervalNumber::SEVENTH);
     /// assert_eq!(IntervalNumber::THIRD.inverted(), IntervalNumber::SIXTH);

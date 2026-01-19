@@ -7,7 +7,8 @@
 /// # Examples
 ///
 /// ```rust
-/// # use music_theory::prelude::*;
+/// # use music_theory::Interval;
+/// # use music_theory::interval::Stability;
 /// // Check if an interval is consonant
 /// let stability = Interval::MAJOR_THIRD.stability().unwrap();
 /// assert!(stability.is_consonant());
@@ -42,7 +43,7 @@ impl Stability {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::interval::Stability;
     /// // Consonances are consonant
     /// assert!(Stability::ImperfectConsonance.is_consonant());
     /// // ... while dissonances are not

@@ -5,7 +5,7 @@
 //!
 //! # Examples
 //! ```
-//! # use music_theory::prelude::*;
+//! # use music_theory::{Pitch, Note};
 //! # use music_theory::generator::NoteGenerator;
 //! // Create a generator starting from middle C that's ascending
 //! let mut ascending = NoteGenerator::new(Note::MIDDLE_C);
@@ -47,7 +47,7 @@ use crate::{Pitch, PitchClass, Note};
 ///
 /// Basic usage:
 /// ```
-/// # use music_theory::prelude::*;
+/// # use music_theory::{Pitch, Note};
 /// # use music_theory::generator::NoteGenerator;
 /// let mut generator = NoteGenerator::new(Note::MIDDLE_C);
 /// assert_eq!(generator.nth(1), Some(Note::new(Pitch::C_SHARP, 4)));
@@ -55,7 +55,7 @@ use crate::{Pitch, PitchClass, Note};
 ///
 /// Generating notes in reverse:
 /// ```
-/// # use music_theory::prelude::*;
+/// # use music_theory::{Pitch, Note};
 /// # use music_theory::generator::NoteGenerator;
 /// let mut generator = NoteGenerator::reversed(Note::MIDDLE_C);
 /// assert_eq!(generator.nth(1), Some(Note::new(Pitch::B, 3)));
@@ -63,7 +63,7 @@ use crate::{Pitch, PitchClass, Note};
 ///
 /// Or, just in a specific range:
 /// ```
-/// # use music_theory::prelude::*;
+/// # use music_theory::{Note, Pitch};
 /// # use music_theory::generator::NoteGenerator;
 /// // Generate one octave starting from C4
 /// let mut octave = NoteGenerator::range_inclusive(
@@ -107,7 +107,7 @@ impl NoteGenerator {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{Pitch, Note};
     /// # use music_theory::generator::NoteGenerator;
     /// let mut generator = NoteGenerator::new(Note::MIDDLE_C);
     /// assert_eq!(generator.next(), Some(Note::MIDDLE_C));
@@ -128,7 +128,7 @@ impl NoteGenerator {
     ///
     /// This method may cause confusion when switching the direction in the middle of using it:
     /// ```rust
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{Pitch, Note};
     /// # use music_theory::generator::NoteGenerator;
     /// let mut generator = NoteGenerator::new(Note::MIDDLE_C);
     /// assert_eq!(generator.next(), Some(Note::MIDDLE_C));
@@ -145,7 +145,7 @@ impl NoteGenerator {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{Pitch, Note};
     /// # use music_theory::generator::NoteGenerator;
     /// let mut generator = NoteGenerator::new(Note::MIDDLE_C).reverse();
     /// assert_eq!(generator.next(), Some(Note::MIDDLE_C));
@@ -159,7 +159,7 @@ impl NoteGenerator {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{Pitch, Note};
     /// # use music_theory::generator::NoteGenerator;
     /// let mut generator = NoteGenerator::reversed(Note::MIDDLE_C);
     /// assert_eq!(generator.next(), Some(Note::MIDDLE_C));
@@ -176,7 +176,7 @@ impl NoteGenerator {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{Pitch, Note};
     /// # use music_theory::generator::NoteGenerator;
     /// // Ascending range from [C4 to E4)
     /// let ascending = NoteGenerator::range(
@@ -213,7 +213,7 @@ impl NoteGenerator {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{Pitch, Note};
     /// # use music_theory::generator::NoteGenerator;
     /// // Ascending range from [C4 to E4]
     /// let ascending = NoteGenerator::range_inclusive(
@@ -251,7 +251,7 @@ impl NoteGenerator {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{Pitch, Note};
     /// # use music_theory::generator::NoteGenerator;
     /// let until_max = NoteGenerator::new(Note::MIDDLE_C).take_until_overflow();
     /// // Since this is not infinite, it's fine to call 'last'
@@ -279,7 +279,7 @@ impl NoteGenerator {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{Pitch, Note};
     /// # use music_theory::generator::NoteGenerator;
     /// let mut ascending = NoteGenerator::full_note_range(false);
     /// // First note is the minimum representable note
@@ -301,7 +301,7 @@ impl NoteGenerator {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{Pitch, Note};
     /// # use music_theory::generator::NoteGenerator;
     /// let mut generator = NoteGenerator::new(Note::MIDDLE_C);
     ///
@@ -370,7 +370,7 @@ impl Iterator for NoteGenerator {
     ///
     /// # Examples
     /// ```should_panic
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Note;
     /// # use music_theory::generator::NoteGenerator;
     /// let generator = NoteGenerator::new(Note::MIDDLE_C);
     /// generator.count(); // This will panic!
@@ -386,7 +386,7 @@ impl Iterator for NoteGenerator {
     ///
     /// # Examples
     /// ```should_panic
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Note;
     /// # use music_theory::generator::NoteGenerator;
     /// let generator = NoteGenerator::new(Note::MIDDLE_C);
     /// generator.last(); // This will panic!

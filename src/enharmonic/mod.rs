@@ -13,7 +13,7 @@
 //! # Examples
 //!
 //! ```
-//! # use music_theory::prelude::*;
+//! # use music_theory::{Pitch, PitchClass};
 //! # use std::collections::BTreeSet;
 //! use music_theory::enharmonic::{
 //!     self,
@@ -61,7 +61,7 @@ pub use wrapper::*;
 /// # Examples
 ///
 /// ```
-/// # use music_theory::prelude::*;
+/// # use music_theory::Pitch;
 /// use music_theory::enharmonic;
 ///
 /// assert_eq!(enharmonic::max(Pitch::C, Pitch::E), Pitch::E);
@@ -78,7 +78,7 @@ pub fn max<T: EnharmonicOrd>(v1: T, v2: T) -> T {
 /// # Examples
 ///
 /// ```
-/// # use music_theory::prelude::*;
+/// # use music_theory::Pitch;
 /// use music_theory::enharmonic;
 ///
 /// assert_eq!(enharmonic::min(Pitch::C, Pitch::E), Pitch::C);
@@ -95,7 +95,7 @@ pub fn min<T: EnharmonicOrd>(v1: T, v2: T) -> T {
 /// # Examples
 ///
 /// ```
-/// # use music_theory::prelude::*;
+/// # use music_theory::Pitch;
 /// use music_theory::enharmonic;
 ///
 /// assert_eq!(enharmonic::minmax(Pitch::E, Pitch::C), (Pitch::C, Pitch::E));

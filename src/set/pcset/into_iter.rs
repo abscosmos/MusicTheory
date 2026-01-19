@@ -14,7 +14,7 @@ use crate::set::pcset::PitchClassSet;
 /// # Examples
 ///
 /// ```
-/// # use music_theory::prelude::*;
+/// # use music_theory::PitchClass;
 /// # use music_theory::set::PitchClassSet;
 ///
 /// let set = PitchClassSet::from_iter([
@@ -94,7 +94,7 @@ impl IntoIterator for PitchClassSet {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::PitchClass;
     /// # use music_theory::set::PitchClassSet;
     /// let set = PitchClassSet::from_iter([
     ///     PitchClass::G,

@@ -8,7 +8,7 @@ use crate::Semitones;
 /// # Examples
 ///
 /// ```
-/// # use music_theory::prelude::*;
+/// # use music_theory::{AccidentalSign, Semitones};
 /// // Use the predefined constants
 /// let sharp = AccidentalSign::SHARP;
 /// let flat = AccidentalSign::FLAT;
@@ -37,7 +37,7 @@ impl AccidentalSign {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{AccidentalSign, Semitones};
     /// assert_eq!(AccidentalSign::DOUBLE_FLAT.offset_semitones(), Semitones(-2));
     /// ```
     pub const DOUBLE_FLAT: Self = Self { offset: -2 };
@@ -47,7 +47,7 @@ impl AccidentalSign {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{AccidentalSign, Semitones};
     /// assert_eq!(AccidentalSign::FLAT.offset_semitones(), Semitones(-1));
     /// ```
     pub const FLAT: Self = Self { offset: -1 };
@@ -57,7 +57,7 @@ impl AccidentalSign {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{AccidentalSign, Semitones};
     /// assert_eq!(AccidentalSign::NATURAL.offset_semitones(), Semitones(0));
     /// ```
     pub const NATURAL: Self = Self { offset: 0 };
@@ -67,7 +67,7 @@ impl AccidentalSign {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{AccidentalSign, Semitones};
     /// assert_eq!(AccidentalSign::SHARP.offset_semitones(), Semitones(1));
     /// ```
     pub const SHARP: Self = Self { offset: 1 };
@@ -77,7 +77,7 @@ impl AccidentalSign {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{AccidentalSign, Semitones};
     /// assert_eq!(AccidentalSign::DOUBLE_SHARP.offset_semitones(), Semitones(2));
     /// ```
     pub const DOUBLE_SHARP: Self = Self { offset: 2 };
@@ -89,7 +89,7 @@ impl AccidentalSign {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{AccidentalSign, Semitones};
     /// assert_eq!(AccidentalSign::SHARP.offset_semitones(), Semitones(1));
     /// assert_eq!(AccidentalSign::NATURAL.offset_semitones(), Semitones(0));
     ///
@@ -109,7 +109,7 @@ impl AccidentalSign {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{AccidentalSign, Semitones};
     /// let sharp = AccidentalSign::from_offset_semitones(Semitones(1));
     /// assert_eq!(sharp, AccidentalSign::SHARP);
     ///
@@ -153,7 +153,7 @@ impl fmt::Display for AccidentalSign {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{AccidentalSign, Semitones};
     /// assert_eq!(format!("{}", AccidentalSign::NATURAL), "♮");
     /// assert_eq!(format!("{}", AccidentalSign::SHARP), "♯");
     /// assert_eq!(format!("{}", AccidentalSign::FLAT), "♭");
@@ -193,7 +193,7 @@ impl From<Semitones> for AccidentalSign {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{AccidentalSign, Semitones};
     /// let sharp: AccidentalSign = Semitones(1).into();
     /// assert_eq!(sharp, AccidentalSign::SHARP);
     ///
@@ -211,7 +211,7 @@ impl From<AccidentalSign> for Semitones {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{AccidentalSign, Semitones};
     /// let semitones: Semitones = AccidentalSign::SHARP.into();
     /// assert_eq!(semitones, Semitones(1));
     ///
