@@ -35,6 +35,7 @@ use std::ops::{Add, Neg, Sub};
 use std::str::FromStr;
 use crate::enharmonic::WithoutSpelling;
 use crate::{Note, Pitch, Semitones, EnharmonicEq, EnharmonicOrd};
+use crate::enharmonic;
 
 mod quality;
 pub use quality::*;
@@ -44,7 +45,6 @@ pub use number::*;
 
 mod stability;
 pub use stability::*;
-use crate::enharmonic;
 
 mod consts;
 
