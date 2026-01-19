@@ -312,6 +312,9 @@ pub trait WithoutSpelling {
     fn without_spelling(self) -> Self::Unspelled;
 }
 
+// TODO: not sure if these should be blanket impls or supertraits, since if
+//     'without_spelling' is expensive, but there's a cheap way to check for Eq / Ord,
+//     calling Enharmonic{Eq, Ord} must perform the expensive conversion
 impl<T: WithoutSpelling<Unspelled: Eq> + Copy> EnharmonicEq for T {
     fn eq_enharmonic(&self, other: &Self) -> bool {
         self.without_spelling() == other.without_spelling()
