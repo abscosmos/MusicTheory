@@ -49,12 +49,25 @@ pub trait WithoutSpelling {
 //     calling Enharmonic{Eq, Ord} must perform the expensive conversion
 impl<T: WithoutSpelling<Unspelled: Eq> + Copy> EnharmonicEq for T {
     fn eq_enharmonic(&self, other: &Self) -> bool {
-        self.without_spelling() == other.without_spelling()
+        defer::eq(self, other)
     }
 }
 
 impl<T: WithoutSpelling<Unspelled: Ord> + Copy> EnharmonicOrd for T {
     fn cmp_enharmonic(&self, other: &Self) -> Ordering {
-        self.without_spelling().cmp(&other.without_spelling())
+        defer::cmp(self, other)
+    }
+}
+
+pub(crate) mod defer {
+    use std::cmp::Ordering;
+    use super::WithoutSpelling;
+
+    pub fn eq<T: WithoutSpelling<Unspelled: Eq> + Copy>(v1: &T, v2: &T) -> bool {
+        v1.without_spelling() == v2.without_spelling()
+    }
+
+    pub fn cmp<T: WithoutSpelling<Unspelled: Ord> + Copy>(v1: &T, v2: &T) -> Ordering {
+        v1.without_spelling().cmp(&v2.without_spelling())
     }
 }
