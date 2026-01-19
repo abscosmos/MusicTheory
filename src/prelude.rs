@@ -10,9 +10,8 @@
 //! # let _ = Pitch::C;
 //! ```
 
-pub use crate::interval::*;
-pub use crate::pitch::*;
-pub use crate::note::*;
-pub use crate::harmony::*;
-pub use crate::enharmonic::*;
-pub use crate::semitone::*;
+pub use crate::interval::Interval;
+pub use crate::pitch::{Pitch, PitchClass, AccidentalSign, Letter};
+pub use crate::note::Note;
+pub use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
+pub use crate::semitone::Semitones;
