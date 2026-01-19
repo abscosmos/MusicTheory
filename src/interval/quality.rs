@@ -51,6 +51,36 @@ pub enum Quality {
 }
 
 impl Quality {
+    /// Returns `true` if this quality is augmented (of any degree).
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::interval::Quality;
+    /// assert!(Quality::AUGMENTED.is_augmented());
+    /// assert!(!Quality::Major.is_augmented());
+    ///
+    /// let doubly_aug = Quality::Augmented(2.try_into().unwrap());
+    /// assert!(doubly_aug.is_augmented());
+    /// ```
+    pub fn is_augmented(self) -> bool {
+        matches!(self, Self::Augmented(_))
+    }
+
+    /// Returns `true` if this quality is diminished (of any degree).
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::interval::Quality;
+    /// assert!(Quality::DIMINISHED.is_diminished());
+    /// assert!(!Quality::Minor.is_diminished());
+    ///
+    /// let doubly_dim = Quality::Diminished(2.try_into().unwrap());
+    /// assert!(doubly_dim.is_diminished());
+    /// ```
+    pub fn is_diminished(self) -> bool {
+        matches!(self, Self::Diminished(_))
+    }
+
     /// Returns the shorthand notation for the interval quality.
     ///
     /// The shorthand uses single letters:
