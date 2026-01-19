@@ -8,6 +8,8 @@
 //!
 //! ```
 //! # use music_theory::prelude::*;
+//! use music_theory::enharmonic::EnharmonicEq as _;
+//!
 //! // Create a pitch from letter and accidental
 //! let c_sharp = Pitch::from_letter_and_accidental(
 //!     Letter::C,
@@ -21,7 +23,6 @@
 //! assert_eq!(d_flat, Pitch::D_FLAT);
 //!
 //! // Check enharmonic equivalence
-//! use music_theory::enharmonic::EnharmonicEq;
 //! assert!(c_sharp.eq_enharmonic(&d_flat));
 //!
 //! // Work with pitch classes (spelling-agnostic)
