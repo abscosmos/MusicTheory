@@ -489,7 +489,7 @@ impl Interval {
     /// assert_eq!(Interval::DIMINISHED_FIFTH.shorthand(), "d5");
     /// ```
     pub fn shorthand(self) -> String {
-        format!("{}{}", self.quality.shorthand(), self.number.shorthand())
+        format!("{}{}", self.quality.shorthand(), self.number.get())
     }
 
     /// Returns the inverted interval.

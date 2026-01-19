@@ -74,19 +74,6 @@ impl Number {
         self.0.get()
     }
 
-    /// Returns the shorthand notation for the interval number.
-    ///
-    /// This is identical to [`Self::get`] and returns the numeric value.
-    ///
-    /// # Examples
-    /// ```
-    /// # use music_theory::interval::Number;
-    /// assert_eq!(Number::SEVENTH.shorthand(), 7);
-    /// ```
-    pub fn shorthand(self) -> i16 {
-        self.get()
-    }
-
     /// Reduces a compound interval to its simple form.
     ///
     /// Simplified intervals are in `[1, 8]`, so compound intervals (9ths, 10ths, etc.)
@@ -293,9 +280,10 @@ impl Neg for Number {
     }
 }
 
+// TODO: this should print something like "Fifth"
 impl fmt::Display for Number {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.shorthand())
+        write!(f, "{}", self.get())
     }
 }
 
@@ -316,12 +304,8 @@ mod tests {
         assert!(Number::new(5).is_some());
         assert!(Number::new(-8).is_some());
         assert!(Number::new(0).is_none());
-    }
-    
-    #[test]
-    fn number_shorthand() {
+
         assert_eq!(Number::FIFTH.get(), 5);
-        assert_eq!(Number::FIFTH.shorthand(), 5);
     }
     
     #[test]
