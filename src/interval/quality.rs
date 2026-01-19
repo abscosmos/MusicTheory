@@ -138,6 +138,44 @@ impl Quality {
             Quality::Augmented(n) => Quality::Diminished(n),
         }
     }
+
+    /// Compares two qualities with a total ordering.
+    ///
+    /// `Diminished(∞) < Diminished(1) < Minor < Perfect < Major < Augmented(1) < Augmented(∞)`
+    ///
+    /// Unlike [`PartialOrd`], this method can compare all qualities even though
+    /// Minor/Major and Perfect apply to different interval types in practice.
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::interval::Quality;
+    /// use std::cmp::Ordering;
+    ///
+    /// assert_eq!(Quality::DIMINISHED.total_cmp(&Quality::Minor), Ordering::Less);
+    /// assert_eq!(Quality::Minor.total_cmp(&Quality::Major), Ordering::Less);
+    /// assert_eq!(Quality::Perfect.total_cmp(&Quality::Major), Ordering::Less);
+    /// assert_eq!(Quality::Major.total_cmp(&Quality::AUGMENTED), Ordering::Less);
+    ///
+    /// let doubly_dim = Quality::Diminished(2.try_into().unwrap());
+    /// assert_eq!(doubly_dim.total_cmp(&Quality::DIMINISHED), Ordering::Less);
+    /// ```
+    pub fn total_cmp(&self, other: &Self) -> std::cmp::Ordering {
+        fn variant_ord(q: &Quality) -> u8 {
+            match q {
+                Quality::Diminished(_) => 0,
+                Quality::Minor => 1,
+                Quality::Perfect => 2,
+                Quality::Major => 3,
+                Quality::Augmented(_) => 4,
+            }
+        }
+
+        match (self, other) {
+            (Quality::Diminished(a), Quality::Diminished(b)) => b.cmp(a), // More diminished = smaller
+            (Quality::Augmented(a), Quality::Augmented(b)) => a.cmp(b),   // More augmented = larger
+            _ => variant_ord(self).cmp(&variant_ord(other)),
+        }
+    }
 }
 
 /// Error returned when parsing an [`Quality`] from [`&str`](prim@str) fails.
@@ -181,6 +219,42 @@ impl FromStr for Quality {
             ),
 
             _ => Err(ParseIntervalQualityErr),
+        }
+    }
+}
+
+impl PartialOrd for Quality {
+    /// Compares two qualities with a partial ordering.
+    ///
+    /// Returns `None` when comparing Minor/Major with Perfect, since these
+    /// qualities apply to different interval types and aren't directly comparable.
+    ///
+    /// Within the same category:
+    /// - More diminished is smaller, and diminished qualities are smaller than all others
+    /// - Minor < Major
+    /// - More augmented is greater, and augmented qualities are larger than all others
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::interval::Quality;
+    /// assert!(Quality::Minor < Quality::Major);
+    /// // Doubly diminished is smaller than diminished
+    /// assert!(Quality::Diminished(2.try_into().unwrap()) < Quality::DIMINISHED);
+    ///
+    /// assert!(Quality::DIMINISHED < Quality::Minor);
+    /// assert!(Quality::Major < Quality::AUGMENTED);
+    ///
+    /// // Incomparable
+    /// assert_eq!(Quality::Minor.partial_cmp(&Quality::Perfect), None);
+    /// assert_eq!(Quality::Perfect.partial_cmp(&Quality::Major), None);
+    /// ```
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        use Quality as Q;
+
+        match (self, other) {
+            // one perfect, other major/minor
+            (Q::Minor | Q::Major, Q::Perfect) | (Q::Perfect, Q::Minor | Q::Major) => None,
+            _ => Some(self.total_cmp(other)),
         }
     }
 }
