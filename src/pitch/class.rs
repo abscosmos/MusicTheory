@@ -6,7 +6,7 @@ use strum_macros::{EnumIter, FromRepr};
 use crate::enharmonic::{self, EnharmonicEq, EnharmonicOrd, WithoutSpelling};
 use crate::interval::Interval;
 use crate::pitch::{Pitch, Letter, AccidentalSign, PitchFromStrError, Spelling};
-use crate::prelude::Key;
+use crate::harmony::Key;
 use crate::semitone::Semitones;
 
 /// A pitch class representing one of the twelve chromatic pitches.
