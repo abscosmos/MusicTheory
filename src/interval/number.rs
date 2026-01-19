@@ -97,16 +97,12 @@ impl Number {
     /// assert_eq!((-Number::NINTH).as_simple(), -Number::SECOND);
     /// ```
     pub fn as_simple(self) -> Self {
-        if self.get().abs() != 1 && (self.get().abs() - 1) % 7 == 0 {
-            match self.get().is_positive() {
-                true => Self::OCTAVE,
-                false => -Self::OCTAVE,
-            }
+        let simple = (self.get().abs() - 1) % 7 + 1;
+
+        if self.with_direction(true) != Self::UNISON && simple == Self::UNISON.get() {
+            Self::with_direction(Self::OCTAVE, self.is_ascending())
         } else {
-            let num = (self.get().abs() - 1) % 7 + 1;
-            
-            Self::new(num * self.get().signum())
-                .expect("can't be zero")
+            Self::new(simple).expect("can't be zero").with_direction(self.is_ascending())
         }
     }
 
