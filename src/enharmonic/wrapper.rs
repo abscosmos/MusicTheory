@@ -1,4 +1,5 @@
 use std::cmp::Ordering;
+use std::fmt;
 use std::hash::{Hash, Hasher};
 use crate::enharmonic::{EnharmonicEq, EnharmonicOrd, WithoutSpelling};
 
@@ -46,7 +47,7 @@ use crate::enharmonic::{EnharmonicEq, EnharmonicOrd, WithoutSpelling};
 /// [`BTreeMap`]: std::collections::BTreeMap
 /// [`BTreeSet`]: std::collections::BTreeSet
 #[repr(transparent)]
-#[derive(Copy, Clone, Debug, Default)]
+#[derive(Copy, Clone, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CmpEnharmonic<T>(pub T);
 
@@ -76,5 +77,17 @@ impl<T: EnharmonicOrd + EnharmonicEq> PartialOrd for CmpEnharmonic<T> {
 impl<T: WithoutSpelling<Unspelled: Hash> + Copy> Hash for CmpEnharmonic<T> {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.0.without_spelling().hash(state);
+    }
+}
+
+impl<T: fmt::Debug> fmt::Debug for CmpEnharmonic<T> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        self.0.fmt(f)
+    }
+}
+
+impl<T: fmt::Display> fmt::Display for CmpEnharmonic<T> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        self.0.fmt(f)
     }
 }
