@@ -50,7 +50,7 @@ use std::sync::LazyLock;
 use regex::Regex;
 use crate::{Interval, Semitones, EnharmonicEq, EnharmonicOrd};
 use crate::enharmonic::{self, WithoutSpelling};
-use crate::interval::IntervalQuality;
+use crate::interval::Quality;
 use crate::harmony::Key;
 
 mod class;
@@ -405,8 +405,6 @@ impl Pitch {
     /// assert_eq!(Pitch::C.transpose(m2), Pitch::C + m2);
     /// ```
     pub fn transpose(self, interval: Interval) -> Self {
-        use IntervalQuality as Q;
-        
         let start = match interval.number().as_simple().get().abs() {
             1 | 8 => 7,
             2 => 9,
@@ -419,11 +417,11 @@ impl Pitch {
         };
 
         let quality_offset = match interval.quality() {
-            Q::Augmented(n) => -(n.get() as i16 - 1),
-            Q::Perfect | Q::Major => 1,
-            Q::Minor => 2,
-            
-            Q::Diminished(n) => match interval.number().is_perfect() {
+            Quality::Augmented(n) => -(n.get() as i16 - 1),
+            Quality::Perfect | Quality::Major => 1,
+            Quality::Minor => 2,
+
+            Quality::Diminished(n) => match interval.number().is_perfect() {
                 true => n.get() as i16 + 1,
                 false => n.get() as i16 + 2,
             }
