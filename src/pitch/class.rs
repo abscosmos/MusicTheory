@@ -38,7 +38,7 @@ use crate::semitone::Semitones;
 /// # assert_eq!(Pitch::G_FLAT.as_pitch_class(), PitchClass::Fs)
 /// ```
 #[repr(u8)]
-#[derive(Copy, Clone, Eq, PartialEq, Debug, FromRepr, EnumIter, Ord, PartialOrd)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Hash, FromRepr, EnumIter, Ord, PartialOrd)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum PitchClass {
     /// C / B#
