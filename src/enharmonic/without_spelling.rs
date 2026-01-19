@@ -84,7 +84,7 @@ use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
 ///     Pitch::D_FLAT.without_spelling()
 /// );
 /// ```
-pub trait WithoutSpelling: EnharmonicEq + EnharmonicOrd {
+pub trait WithoutSpelling: EnharmonicEq {
     /// The type representing the spelling-agnostic form.
     type Unspelled;
 
