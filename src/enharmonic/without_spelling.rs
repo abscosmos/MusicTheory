@@ -8,9 +8,10 @@ use crate::enharmonic::EnharmonicEq;
 /// chromatic position.
 ///
 /// # Supertraits
-/// This requires [`EnharmonicEq`] and [`EnharmonicOrd`] to be implemented.
-/// Unless [`WithoutSpelling::without_spelling`] is expensive for your type, and you can implement
-/// [`EnharmonicEq`] and [`EnharmonicOrd`] cheaper, you should implement it like this:
+/// This requires [`EnharmonicEq`] to be implemented. If applicable, implementing [`EnharmonicOrd`]
+/// is recommended. Unless [`WithoutSpelling::without_spelling`] is expensive for your type, and you
+/// can implement [`EnharmonicEq`] and [`EnharmonicOrd`] cheaper, you should implement them in terms
+/// of [`WithoutSpelling`] as shown:
 /// ```
 /// use music_theory::enharmonic::{WithoutSpelling, EnharmonicEq, EnharmonicOrd};
 /// use std::cmp::Ordering;
@@ -78,6 +79,7 @@ use crate::enharmonic::EnharmonicEq;
 /// assert_eq!(Pitch::C_SHARP.without_spelling(), PitchClass::Cs);
 /// assert_eq!(Pitch::D_FLAT.without_spelling(), PitchClass::Cs);
 /// ```
+/// [`EnharmonicOrd`]: crate::enharmonic::EnharmonicOrd;
 pub trait WithoutSpelling: EnharmonicEq {
     /// The type representing the spelling-agnostic form.
     type Unspelled;
