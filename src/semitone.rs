@@ -1,5 +1,7 @@
+use std::cmp::Ordering;
 use std::fmt;
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
+use crate::enharmonic::{self, EnharmonicEq, EnharmonicOrd, WithoutSpelling};
 
 /// A signed distance in semitones.
 ///
@@ -100,6 +102,26 @@ impl Semitones {
     /// ```
     pub fn abs(self) -> Self {
         Self(self.0.abs())
+    }
+}
+
+impl WithoutSpelling for Semitones {
+    type Unspelled = Self;
+
+    fn without_spelling(self) -> Self::Unspelled {
+        self
+    }
+}
+
+impl EnharmonicEq for Semitones {
+    fn eq_enharmonic(&self, other: &Self) -> bool {
+        enharmonic::defer_without_spelling::eq(self, other)
+    }
+}
+
+impl EnharmonicOrd for Semitones {
+    fn cmp_enharmonic(&self, other: &Self) -> Ordering {
+        enharmonic::defer_without_spelling::cmp(self, other)
     }
 }
 
