@@ -33,7 +33,7 @@ use std::str::FromStr;
 /// assert_eq!(Quality::Major.inverted(), Quality::Minor);
 /// assert_eq!(Quality::AUGMENTED.inverted(), Quality::DIMINISHED);
 /// ```
-#[derive(Copy, Clone, Eq, PartialEq, Debug)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Hash)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Quality {
     /// A diminished quality, with the count indicating how many times diminished.

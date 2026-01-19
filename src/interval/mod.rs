@@ -97,7 +97,7 @@ mod tests;
 /// // Intervals can be inverted
 /// assert_eq!(Interval::MAJOR_THIRD.inverted(), Interval::MINOR_SIXTH);
 /// ```
-#[derive(Copy, Clone, Eq, PartialEq, Debug)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Hash)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Interval {
     /// The quality of the interval.
