@@ -8,8 +8,8 @@
 /// # Examples
 ///
 /// ```
-/// # use music_theory::prelude::*;
-/// use music_theory::enharmonic::EnharmonicEq as _;
+/// # use music_theory::{Pitch, Interval};
+/// use music_theory::EnharmonicEq as _;
 ///
 /// // Different spellings of the same pitch class
 /// assert!(Pitch::C_SHARP.eq_enharmonic(&Pitch::D_FLAT));
@@ -28,8 +28,8 @@ pub trait EnharmonicEq {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
-    /// use music_theory::enharmonic::EnharmonicEq as _;
+    /// # use music_theory::{Pitch, Interval};
+    /// use music_theory::EnharmonicEq as _;
     ///
     /// assert!(Pitch::C_SHARP.eq_enharmonic(&Pitch::D_FLAT));
     /// assert!(Interval::MINOR_THIRD.eq_enharmonic(&Interval::AUGMENTED_SECOND));
@@ -44,8 +44,8 @@ pub trait EnharmonicEq {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
-    /// use music_theory::enharmonic::EnharmonicEq as _;
+    /// # use music_theory::Pitch;
+    /// use music_theory::EnharmonicEq as _;
     ///
     /// assert!(Pitch::C.ne_enharmonic(&Pitch::A));
     /// ```

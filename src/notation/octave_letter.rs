@@ -1,7 +1,6 @@
 use std::cmp::Ordering;
 use std::fmt;
-use crate::pitch::Letter;
-use crate::note::Note;
+use crate::{Note, Letter};
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]

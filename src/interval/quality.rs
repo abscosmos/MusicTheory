@@ -15,7 +15,7 @@ use std::str::FromStr;
 /// # Examples
 ///
 /// ```
-/// # use music_theory::prelude::*;
+/// # use music_theory::interval::IntervalQuality;
 /// // Standard qualities
 /// let major = IntervalQuality::Major;
 /// let perfect = IntervalQuality::Perfect;
@@ -56,7 +56,7 @@ impl IntervalQuality {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::interval::IntervalQuality;
     /// assert_eq!(IntervalQuality::Major.shorthand(), "M");
     /// assert_eq!(IntervalQuality::Minor.shorthand(), "m");
     ///
@@ -83,7 +83,7 @@ impl IntervalQuality {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::interval::IntervalQuality;
     /// use IntervalQuality as Q;
     ///
     /// assert_eq!(Q::Perfect.inverted(), Q::Perfect);
@@ -112,7 +112,7 @@ impl IntervalQuality {
 ///
 /// # Examples
 /// ```
-/// # use music_theory::prelude::*;
+/// # use music_theory::interval::IntervalQuality;
 /// assert!("M".parse::<IntervalQuality>().is_ok());
 /// assert!("X".parse::<IntervalQuality>().is_err());
 /// ```

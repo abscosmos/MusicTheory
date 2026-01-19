@@ -1,5 +1,5 @@
 use std::fmt;
-use crate::pitch::PitchClass;
+use crate::PitchClass;
 use crate::set::PitchClassSet;
 
 /// Helper type for displaying pitch class sets as integers (chroma values).
@@ -9,7 +9,7 @@ use crate::set::PitchClassSet;
 /// # Examples
 ///
 /// ```
-/// # use music_theory::prelude::*;
+/// # use music_theory::PitchClass;
 /// # use music_theory::set::PitchClassSet;
 /// let set = PitchClassSet::from_iter([
 ///     PitchClass::C,
@@ -37,7 +37,7 @@ impl fmt::Debug for PitchClassSet {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::PitchClass;
     /// # use music_theory::set::PitchClassSet;
     /// let set = PitchClassSet::from_iter([
     ///     PitchClass::C,
@@ -70,7 +70,7 @@ impl fmt::Display for PitchClassSet {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::PitchClass;
     /// # use music_theory::set::PitchClassSet;
     /// let set = PitchClassSet::from_iter([
     ///     PitchClass::C,
@@ -93,7 +93,7 @@ impl fmt::Binary for PitchClassSet {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::PitchClass;
     /// # use music_theory::set::PitchClassSet;
     /// let set = PitchClassSet::from_iter([PitchClass::C]);
     ///

@@ -7,8 +7,9 @@
 //! # Examples
 //!
 //! ```
-//! # use music_theory::prelude::*;
-//! use music_theory::enharmonic::EnharmonicEq as _;
+//! # use music_theory::{PitchClass, Pitch, Letter, AccidentalSign, Interval};
+//! # use music_theory::pitch::Spelling;
+//! use music_theory::EnharmonicEq as _;
 //! 
 //! // Create a pitch from letter and accidental
 //! let c_sharp = Pitch::from_letter_and_accidental(
@@ -47,10 +48,9 @@ use std::ops::{Add, Sub};
 use std::str::FromStr;
 use std::sync::LazyLock;
 use regex::Regex;
-use crate::enharmonic::{self, EnharmonicEq, EnharmonicOrd, WithoutSpelling};
-use crate::interval::Interval;
+use crate::{Interval, Semitones, EnharmonicEq, EnharmonicOrd};
+use crate::enharmonic::{self, WithoutSpelling};
 use crate::interval::IntervalQuality;
-use crate::semitone::Semitones;
 use crate::harmony::Key;
 
 mod class;
@@ -82,20 +82,20 @@ mod tests;
 ///
 /// You can create a `Pitch` from a letter and accidental:
 /// ```
-/// # use music_theory::prelude::*;
+/// # use music_theory::{Pitch, Letter, AccidentalSign};
 /// let c_sharp = Pitch::from_letter_and_accidental(Letter::C, AccidentalSign::SHARP);
 /// # assert_eq!(c_sharp, Pitch::C_SHARP);
 /// ```
 ///
 /// Or from a constant:
 /// ```
-/// # use music_theory::prelude::*;
+/// # use music_theory::Pitch;
 /// let a_double_sharp = Pitch::A_DOUBLE_SHARP;
 /// ```
 ///
 /// Or by [parsing][std::str::FromStr] from a [`&str`](prim@str):
 /// ```
-/// # use music_theory::prelude::*;
+/// # use music_theory::Pitch;
 /// let d_flat = "Db".parse::<Pitch>().expect("should be a valid pitch");
 /// # assert_eq!(d_flat, Pitch::D_FLAT);
 /// ```
@@ -105,7 +105,7 @@ mod tests;
 /// `Pitch` is stored by how many fifths away from C it is, as an [`i16`][prim@i16].
 /// This makes it cheap to copy and operate on.
 /// ```
-/// # use music_theory::prelude::*;
+/// # use music_theory::{Pitch, Letter, AccidentalSign};
 /// // Helper methods to get the internal representation
 /// assert_eq!(Pitch::D.as_fifths_from_c(), 2);
 /// assert_eq!(Pitch::from_fifths_from_c(-13), Pitch::G_DOUBLE_FLAT);
@@ -125,7 +125,7 @@ mod tests;
 /// The maximum number of accidentals depends on the letter, as the internal representation
 /// is limited to `i16` range. Exceeding this limit will panic.
 /// ```should_panic
-/// # use music_theory::prelude::*;
+/// # use music_theory::{Pitch, AccidentalSign, Letter};
 /// let too_many = AccidentalSign { offset: 4681 };
 /// let _ = Pitch::from_letter_and_accidental(Letter::B, too_many);
 /// ```
@@ -139,7 +139,7 @@ impl Pitch {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{Pitch, Letter, AccidentalSign};
     /// let e_flat = Pitch::from_letter_and_accidental(
     ///     Letter::E,
     ///     AccidentalSign::FLAT
@@ -173,7 +173,7 @@ impl Pitch {
     /// Returns the [`PitchClass`] of the `Pitch`, discarding enharmonic spelling.
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{Pitch, PitchClass};
     /// assert_eq!(Pitch::D_SHARP.as_pitch_class(), PitchClass::Ds);
     /// assert_eq!(Pitch::G_FLAT.as_pitch_class(), PitchClass::Fs);
     /// assert_eq!(Pitch::A_DOUBLE_SHARP.as_pitch_class(), PitchClass::B);
@@ -200,7 +200,7 @@ impl Pitch {
     /// Gets the Pitch's [pitch class](PitchClass) chroma.
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Pitch;
     /// assert_eq!(Pitch::C.chroma(), 0);
     /// assert_eq!(Pitch::E.chroma(), 4);
     /// assert_eq!(Pitch::D_DOUBLE_SHARP.chroma(), 4);
@@ -212,7 +212,7 @@ impl Pitch {
     /// Returns how many semitones `rhs` is from `self`. Always positive, in `[0,11]`.
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{Pitch, Semitones};
     /// assert_eq!(Pitch::F_SHARP.semitones_to(Pitch::B), Semitones(5));
     /// // Wraps around the edge of the octave.
     /// assert_eq!(Pitch::B.semitones_to(Pitch::D), Semitones(3));
@@ -227,7 +227,7 @@ impl Pitch {
     /// Returns the [`Letter`] component of the `Pitch`.
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{Pitch, Letter};
     /// assert_eq!(Pitch::D_SHARP.letter(), Letter::D);
     /// ```
     pub fn letter(self) -> Letter {
@@ -246,7 +246,7 @@ impl Pitch {
     /// Returns the [`AccidentalSign`] of the `Pitch`.
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{Pitch, AccidentalSign};
     /// assert_eq!(Pitch::F_DOUBLE_FLAT.accidental(), AccidentalSign::DOUBLE_FLAT);
     /// assert_eq!(Pitch::G.accidental(), AccidentalSign::NATURAL);
     /// ```
@@ -284,7 +284,8 @@ impl Pitch {
     /// [`Self::simplified`].
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Pitch;
+    /// # use music_theory::pitch::Spelling;
     /// // Spell a pitch with flats
     /// assert_eq!(Pitch::A_SHARP.respell_with(Spelling::Flats), Pitch::B_FLAT);
     /// // ... or with sharps
@@ -311,7 +312,7 @@ impl Pitch {
     /// Returns the same pitch with fewer accidentals.
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Pitch;
     /// assert_eq!(Pitch::E_SHARP.simplified(), Pitch::F);
     /// assert_eq!(Pitch::F_DOUBLE_SHARP.simplified(), Pitch::G);
     /// assert_eq!(Pitch::C_DOUBLE_FLAT.simplified(), Pitch::B_FLAT);
@@ -335,7 +336,7 @@ impl Pitch {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Pitch;
     /// assert_eq!(Pitch::C_SHARP.enharmonic(), Pitch::D_FLAT);
     /// assert_eq!(Pitch::B_DOUBLE_FLAT.enharmonic(), Pitch::A);
     /// assert_eq!(Pitch::E_DOUBLE_SHARP.enharmonic(), Pitch::G_FLAT);
@@ -364,7 +365,8 @@ impl Pitch {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Pitch;
+    /// # use music_theory::harmony::Key;
     /// let g_major = Key::major(Pitch::G);
     ///
     /// // Diatonic notes are respelled to match the key
@@ -394,7 +396,7 @@ impl Pitch {
     /// Transposes the pitch by the given interval. Has the same behavior as the [`+` operator](Add::add).
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{Pitch, Interval};
     /// assert_eq!(Pitch::D.transpose(Interval::MAJOR_THIRD), Pitch::F_SHARP);
     /// // Descending intervals are also supported
     /// assert_eq!(Pitch::B.transpose(-Interval::MINOR_SIXTH), Pitch::D_SHARP);
@@ -437,7 +439,7 @@ impl Pitch {
     /// Calculates the interval between `self` and `rhs`. Will always return an ascending interval.
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{Pitch, Interval};
     /// assert_eq!(Pitch::C.distance_to(Pitch::G), Interval::PERFECT_FIFTH);
     /// 
     /// // Aware of enharmonic spelling, like a tritone being either an A4 or d5
@@ -452,7 +454,7 @@ impl Pitch {
     /// This is much more efficient than [`Self::transpose`] due to internal [representation](#representation).
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Pitch;
     /// // B is 3 fifths clockwise from D on the circle of fifths
     /// assert_eq!(Pitch::D.transpose_fifths(3), Pitch::B);
     /// // ... and Eb is 4 fifths counterclockwise
@@ -473,7 +475,7 @@ impl fmt::Debug for Pitch {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Pitch;
     /// assert_eq!(format!("{:?}", Pitch::C), "C");
     /// assert_eq!(format!("{:?}", Pitch::F_SHARP), "FSharp");
     /// assert_eq!(format!("{:?}", Pitch::B_FLAT), "BFlat");
@@ -500,7 +502,7 @@ impl fmt::Display for Pitch {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Pitch;
     /// assert_eq!(Pitch::C.to_string(), "C");
     /// assert_eq!(Pitch::F_SHARP.to_string(), "F♯");
     /// assert_eq!(Pitch::B_FLAT.to_string(), "B♭");
@@ -556,7 +558,7 @@ impl Ord for Pitch {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Pitch;
     /// assert!(Pitch::C < Pitch::D);
     /// assert!(Pitch::C_SHARP < Pitch::D_FLAT); // C comes before D
     /// assert!(Pitch::E_SHARP < Pitch::F); // E comes before F
@@ -581,7 +583,7 @@ impl From<PitchClass> for Pitch {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{Pitch, PitchClass};
     /// let pitch: Pitch = PitchClass::C.into();
     /// assert_eq!(pitch, Pitch::C);
     ///
@@ -612,7 +614,7 @@ impl From<Letter> for Pitch {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{Letter, Pitch};
     /// let pitch: Pitch = Letter::C.into();
     /// assert_eq!(pitch, Pitch::C);
     ///
@@ -630,7 +632,7 @@ impl From<Pitch> for PitchClass {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{Pitch, PitchClass};
     /// let pc: PitchClass = Pitch::C_SHARP.into();
     /// assert_eq!(pc, PitchClass::Cs);
     ///
@@ -648,7 +650,7 @@ impl From<Pitch> for Letter {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{Pitch, Letter};
     /// let letter: Letter = Pitch::E_FLAT.into();
     /// assert_eq!(letter, Letter::E);
     /// ```
@@ -660,7 +662,8 @@ impl From<Pitch> for Letter {
 /// Error returned by [`Pitch::from_str`] if the [`&str`](prim@str) could not be parsed into a `Pitch`.
 /// # Examples
 /// ```
-/// # use music_theory::prelude::*;
+/// # use music_theory::Pitch;
+/// # use music_theory::pitch::PitchFromStrError;
 /// assert_eq!("D half-flat".parse::<Pitch>(), Err(PitchFromStrError));
 /// ```
 #[derive(Debug, thiserror::Error, Eq, PartialEq, Copy, Clone)]
@@ -690,7 +693,7 @@ impl FromStr for Pitch {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Pitch;
     /// assert_eq!("C".parse::<Pitch>(), Ok(Pitch::C));
     /// assert_eq!("F#".parse::<Pitch>(), Ok(Pitch::F_SHARP));
     /// assert_eq!("Bb".parse::<Pitch>(), Ok(Pitch::B_FLAT));
@@ -755,7 +758,7 @@ impl Add<Interval> for Pitch {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{Pitch, Interval};
     /// assert_eq!(Pitch::C + Interval::MAJOR_THIRD, Pitch::E);
     /// ```
     fn add(self, rhs: Interval) -> Self::Output {
@@ -771,7 +774,7 @@ impl Sub<Interval> for Pitch {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{Pitch, Interval};
     /// assert_eq!(Pitch::B_FLAT - Interval::MINOR_SECOND, Pitch::A);
     /// ```
     fn sub(self, rhs: Interval) -> Self::Output {

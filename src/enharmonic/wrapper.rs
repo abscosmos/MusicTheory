@@ -1,7 +1,8 @@
 use std::cmp::Ordering;
 use std::fmt;
 use std::hash::{Hash, Hasher};
-use crate::enharmonic::{EnharmonicEq, EnharmonicOrd, WithoutSpelling};
+use crate::{EnharmonicEq, EnharmonicOrd};
+use crate::enharmonic::WithoutSpelling;
 
 /// A wrapper that implements standard comparison traits using enharmonic comparison.
 ///
@@ -17,7 +18,7 @@ use crate::enharmonic::{EnharmonicEq, EnharmonicOrd, WithoutSpelling};
 /// Using in a sorted collection:
 ///
 /// ```
-/// # use music_theory::prelude::*;
+/// # use music_theory::Pitch;
 /// use music_theory::enharmonic::CmpEnharmonic;
 /// use std::collections::BTreeSet;
 ///
@@ -33,7 +34,7 @@ use crate::enharmonic::{EnharmonicEq, EnharmonicOrd, WithoutSpelling};
 /// Using as a HashMap key:
 ///
 /// ```
-/// # use music_theory::prelude::*;
+/// # use music_theory::{Pitch};
 /// use music_theory::enharmonic::CmpEnharmonic;
 /// use std::collections::HashMap;
 ///

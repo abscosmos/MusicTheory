@@ -1,7 +1,8 @@
 use std::cmp::Ordering;
 use std::fmt;
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
-use crate::enharmonic::{self, EnharmonicEq, EnharmonicOrd, WithoutSpelling};
+use crate::{EnharmonicEq, EnharmonicOrd};
+use crate::enharmonic::{self, WithoutSpelling};
 
 /// A signed distance in semitones.
 ///
@@ -10,7 +11,7 @@ use crate::enharmonic::{self, EnharmonicEq, EnharmonicOrd, WithoutSpelling};
 ///
 /// # Examples
 /// ```
-/// # use music_theory::prelude::*;
+/// # use music_theory::Semitones;
 /// let fifth = Semitones(7);
 /// let octave = Semitones::OCTAVE;
 ///
@@ -36,7 +37,7 @@ impl Semitones {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Semitones;
     /// assert_eq!(Semitones(14).normalize(), Semitones(2));
     /// assert_eq!(Semitones(12).normalize(), Semitones(0));
     ///
@@ -52,7 +53,7 @@ impl Semitones {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Semitones;
     /// assert!(Semitones(5).is_positive());
     /// assert!(!Semitones(0).is_positive());
     /// assert!(!Semitones(-3).is_positive());
@@ -65,7 +66,7 @@ impl Semitones {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Semitones;
     /// assert!(Semitones(-3).is_negative());
     /// assert!(!Semitones(0).is_negative());
     /// assert!(!Semitones(5).is_negative());
@@ -78,7 +79,7 @@ impl Semitones {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Semitones;
     /// assert_eq!(Semitones(0).octaves(), 0);
     /// assert_eq!(Semitones(11).octaves(), 0);
     /// assert_eq!(Semitones(12).octaves(), 1);
@@ -95,7 +96,7 @@ impl Semitones {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Semitones;
     /// assert_eq!(Semitones(5).abs(), Semitones(5));
     /// assert_eq!(Semitones(-5).abs(), Semitones(5));
     /// assert_eq!(Semitones(0).abs(), Semitones(0));

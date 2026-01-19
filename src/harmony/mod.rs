@@ -6,7 +6,8 @@
 //!
 //! # Examples
 //! ```
-//! # use music_theory::prelude::*;
+//! # use music_theory::Pitch;
+//! # use music_theory::harmony::{Key, DiatonicMode, ScaleDegree};
 //! // Create a key using common constructors
 //! let f_minor = Key::minor(Pitch::F);
 //!

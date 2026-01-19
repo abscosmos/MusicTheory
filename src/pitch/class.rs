@@ -3,11 +3,10 @@ use std::fmt;
 use std::ops::{Add, Sub};
 use std::str::FromStr;
 use strum_macros::{EnumIter, FromRepr};
-use crate::enharmonic::{self, EnharmonicEq, EnharmonicOrd, WithoutSpelling};
-use crate::interval::Interval;
-use crate::pitch::{Pitch, Letter, AccidentalSign, PitchFromStrError, Spelling};
-use crate::prelude::Key;
-use crate::semitone::Semitones;
+use crate::enharmonic::{self, WithoutSpelling};
+use crate::{Pitch, Letter, AccidentalSign, Interval, Semitones, EnharmonicEq, EnharmonicOrd};
+use crate::pitch::{PitchFromStrError, Spelling};
+use crate::harmony::Key;
 
 /// A pitch class representing one of the twelve chromatic pitches.
 ///
@@ -20,7 +19,8 @@ use crate::semitone::Semitones;
 /// # Examples
 ///
 /// ```
-/// # use music_theory::prelude::*;
+/// # use music_theory::{PitchClass, Pitch, Interval, Semitones};
+/// # use music_theory::pitch::Spelling;
 /// // Pitch classes can be transposed by intervals
 /// assert_eq!(PitchClass::C + Interval::MAJOR_THIRD, PitchClass::E);
 ///
@@ -76,7 +76,7 @@ impl PitchClass {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{PitchClass, Interval};
     /// let a = PitchClass::A;
     /// assert_eq!(a.transpose(Interval::MAJOR_THIRD), PitchClass::Cs);
     /// assert_eq!(a.transpose(Interval::PERFECT_FIFTH), PitchClass::E);
@@ -96,7 +96,7 @@ impl PitchClass {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{PitchClass, Letter};
     /// assert_eq!(PitchClass::Ds.letter(), Letter::D);
     /// assert_eq!(PitchClass::E.letter(), Letter::E);
     /// ```
@@ -125,7 +125,7 @@ impl PitchClass {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{PitchClass, AccidentalSign};
     /// assert_eq!(PitchClass::A.accidental(), AccidentalSign::NATURAL);
     /// assert_eq!(PitchClass::Fs.accidental(), AccidentalSign::SHARP);
     /// ```
@@ -145,7 +145,7 @@ impl PitchClass {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::PitchClass;
     /// assert_eq!(PitchClass::from_chroma(4), Some(PitchClass::E));
     /// assert_eq!(PitchClass::from_chroma(11), Some(PitchClass::B));
     /// assert_eq!(PitchClass::from_chroma(12), None);
@@ -162,7 +162,7 @@ impl PitchClass {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::PitchClass;
     /// assert_eq!(PitchClass::C.chroma(), 0);
     /// assert_eq!(PitchClass::Cs.chroma(), 1);
     /// assert_eq!(PitchClass::B.chroma(), 11);
@@ -174,7 +174,7 @@ impl PitchClass {
     /// Returns how many semitones `rhs` is from `self`. Always positive, in `[0,11]`.
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{PitchClass, Semitones};
     /// assert_eq!(PitchClass::C.semitones_to(PitchClass::E), Semitones(4));
     /// assert_eq!(PitchClass::Fs.semitones_to(PitchClass::B), Semitones(5));
     /// // Wraps around the octave
@@ -191,7 +191,8 @@ impl PitchClass {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{Pitch, PitchClass};
+    /// # use music_theory::pitch::Spelling;
     /// // Spell a pitch class with flats
     /// assert_eq!(PitchClass::Cs.spell_with(Spelling::Flats), Pitch::D_FLAT);
     /// // ... or with sharps
@@ -224,7 +225,8 @@ impl PitchClass {
     /// Keys with no alterations (C major, A minor) default to sharps for chromatic notes.
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{Pitch, PitchClass};
+    /// # use music_theory::harmony::Key;
     /// // Cb major: Cb, Db, Eb, *Fb*, Gb, Ab, Bb
     /// let cb_major = Key::major(Pitch::C_FLAT);
     /// assert_eq!(PitchClass::E.spell_in_key(cb_major), Pitch::F_FLAT);
@@ -282,7 +284,7 @@ impl Add<Semitones> for PitchClass {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{PitchClass, Semitones};
     /// assert_eq!(PitchClass::C + Semitones(4), PitchClass::E);
     /// assert_eq!(PitchClass::G + Semitones(5), PitchClass::C);
     /// ```
@@ -305,7 +307,7 @@ impl Sub<Semitones> for PitchClass {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{PitchClass, Semitones};
     /// assert_eq!(PitchClass::E - Semitones(4), PitchClass::C);
     /// assert_eq!(PitchClass::D - Semitones(3), PitchClass::B);
     /// ```
@@ -324,7 +326,8 @@ impl FromStr for PitchClass {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::PitchClass;
+    /// # use music_theory::pitch::PitchFromStrError;
     /// assert_eq!("F#".parse::<PitchClass>(), Ok(PitchClass::Fs));
     /// assert_eq!("Db".parse::<PitchClass>(), Ok(PitchClass::Cs));
     ///
@@ -345,7 +348,7 @@ impl fmt::Display for PitchClass {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::PitchClass;
     /// assert_eq!(PitchClass::C.to_string(), "C");
     /// assert_eq!(PitchClass::Cs.to_string(), "C♯");
     /// assert_eq!(PitchClass::E.to_string(), "E");
@@ -365,7 +368,7 @@ impl Add<Interval> for PitchClass {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{PitchClass, Interval};
     /// assert_eq!(PitchClass::C + Interval::MAJOR_THIRD, PitchClass::E);
     /// assert_eq!(PitchClass::F + Interval::PERFECT_FIFTH, PitchClass::C);
     /// ```
@@ -382,7 +385,7 @@ impl Sub<Interval> for PitchClass {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{PitchClass, Interval};
     /// assert_eq!(PitchClass::E - Interval::MAJOR_THIRD, PitchClass::C);
     /// assert_eq!(PitchClass::C - Interval::PERFECT_FIFTH, PitchClass::F);
     /// ```

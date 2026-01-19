@@ -1,4 +1,4 @@
-use crate::pitch::AccidentalSign;
+use crate::AccidentalSign;
 
 /// Spelling preference for pitches.
 ///
@@ -9,7 +9,8 @@ use crate::pitch::AccidentalSign;
 /// or [`Pitch::respell_with`](crate::pitch::Pitch::respell_with).
 /// # Examples
 /// ```rust
-/// # use music_theory::prelude::*;
+/// # use music_theory::{Pitch, PitchClass};
+/// # use music_theory::pitch::Spelling;
 /// // D#/Eb spelled with sharps becomes D♯
 /// assert_eq!(PitchClass::Ds.spell_with(Spelling::Sharps), Pitch::D_SHARP);
 ///
@@ -34,7 +35,8 @@ impl Spelling {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::AccidentalSign;
+    /// # use music_theory::pitch::Spelling;
     /// assert_eq!(
     ///     Spelling::from_accidental(AccidentalSign::SHARP),
     ///     Some(Spelling::Sharps)
@@ -61,7 +63,7 @@ impl Spelling {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::pitch::Spelling;
     /// assert_eq!(Spelling::Sharps.flip(), Spelling::Flats);
     /// assert_eq!(Spelling::Flats.flip(), Spelling::Sharps);
     /// ```

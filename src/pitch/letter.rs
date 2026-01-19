@@ -2,7 +2,7 @@ use std::fmt;
 use std::str::FromStr;
 use strum_macros::{EnumIter, FromRepr};
 use crate::harmony::Key;
-use crate::pitch::Pitch;
+use crate::Pitch;
 
 /// A musical note letter (C, D, E, F, G, A, or B).
 ///
@@ -12,7 +12,7 @@ use crate::pitch::Pitch;
 /// # Examples
 ///
 /// ```
-/// # use music_theory::prelude::*;
+/// # use music_theory::Letter;
 /// // Letters can be compared
 /// assert!(Letter::C < Letter::D);
 /// assert!(Letter::G > Letter::F);
@@ -51,7 +51,7 @@ impl Letter {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Letter;
     /// assert_eq!(Letter::D.step(), 1);
     /// assert_eq!(Letter::B.step(), 6);
     /// ```
@@ -66,7 +66,7 @@ impl Letter {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Letter;
     /// assert_eq!(Letter::from_step(4), Some(Letter::G));
     /// assert_eq!(Letter::from_step(7), None);
     /// ```
@@ -82,7 +82,7 @@ impl Letter {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Letter;
     /// // C to E is 2 steps up
     /// assert_eq!(Letter::C.offset_between(Letter::E), 2);
     /// // E to C wraps around
@@ -100,7 +100,8 @@ impl Letter {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{Pitch, Letter};
+    /// # use music_theory::harmony::Key;
     /// // F becomes F♯ in G major
     /// assert_eq!(
     ///     Letter::F.to_pitch_in_key(Key::major(Pitch::G)),
@@ -145,7 +146,8 @@ impl fmt::Display for Letter {
 /// # Examples
 ///
 /// ```
-/// # use music_theory::prelude::*;
+/// # use music_theory::Letter;
+/// # use music_theory::pitch::InvalidLetter;
 /// assert_eq!("C".parse::<Letter>(), Ok(Letter::C));
 /// assert_eq!("g".parse::<Letter>(), Ok(Letter::G));
 /// assert_eq!("H".parse::<Letter>(), Err(InvalidLetter));
@@ -170,7 +172,8 @@ impl FromStr for Letter {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Letter;
+    /// # use music_theory::pitch::InvalidLetter;
     /// assert_eq!("F".parse::<Letter>(), Ok(Letter::F));
     /// assert_eq!("a".parse::<Letter>(), Ok(Letter::A));
     /// assert_eq!("Bb".parse::<Letter>(), Err(InvalidLetter));

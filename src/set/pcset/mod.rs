@@ -6,7 +6,7 @@
 //! # Examples
 //!
 //! ```
-//! use music_theory::prelude::*;
+//! use music_theory::{PitchClass, Semitones};
 //! use music_theory::set::PitchClassSet;
 //!
 //! // Create a C major triad
@@ -29,9 +29,8 @@
 //! );
 //! ```
 
-use crate::pitch::PitchClass;
+use crate::{PitchClass, Semitones};
 use crate::set::IntervalClassVector;
-use crate::semitone::Semitones;
 #[expect(unused_imports, reason = "used in documentation")]
 use std::ops::{Add, BitAnd, BitOr, BitXor, Not};
 
@@ -53,7 +52,7 @@ pub use into_iter::*;
 /// # Examples
 ///
 /// ```
-/// # use music_theory::prelude::*;
+/// # use music_theory::{PitchClass, Semitones};
 /// # use music_theory::set::PitchClassSet;
 /// // Create from an iterator
 /// let major_triad = PitchClassSet::from_iter([
@@ -141,7 +140,7 @@ impl PitchClassSet {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::PitchClass;
     /// # use music_theory::set::PitchClassSet;
     /// let set = PitchClassSet::from_iter([PitchClass::C, PitchClass::D]);
     /// assert_eq!(set.bits(), 0b101000000000);
@@ -169,7 +168,7 @@ impl PitchClassSet {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::PitchClass;
     /// # use music_theory::set::PitchClassSet;
     /// let major_triad = PitchClassSet::from_iter([
     ///     PitchClass::C,
@@ -196,7 +195,7 @@ impl PitchClassSet {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::PitchClass;
     /// # use music_theory::set::{IntervalClassVector, PitchClassSet};
     /// let major_triad = PitchClassSet::from_iter([
     ///     PitchClass::C,
@@ -233,7 +232,7 @@ impl PitchClassSet {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::PitchClass;
     /// # use music_theory::set::PitchClassSet;
     /// let major_triad = PitchClassSet::from_iter([
     ///     PitchClass::C,
@@ -255,7 +254,7 @@ impl PitchClassSet {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::PitchClass;
     /// # use music_theory::set::PitchClassSet;
     /// let triad = PitchClassSet::from_iter([
     ///     PitchClass::C,
@@ -280,7 +279,7 @@ impl PitchClassSet {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::PitchClass;
     /// # use music_theory::set::PitchClassSet;
     /// let seventh = PitchClassSet::from_iter([
     ///     PitchClass::C,
@@ -306,7 +305,7 @@ impl PitchClassSet {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{PitchClass, Semitones};
     /// # use music_theory::set::PitchClassSet;
     /// let c_maj = [PitchClass::C, PitchClass::E, PitchClass::G];
     ///
@@ -340,7 +339,7 @@ impl PitchClassSet {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::PitchClass;
     /// # use music_theory::set::PitchClassSet;
     /// // C major triad [C, E, G] = [0, 4, 7]
     /// let c_major = PitchClassSet::from_iter([
@@ -381,7 +380,7 @@ impl PitchClassSet {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::PitchClass;
     /// # use music_theory::set::PitchClassSet;
     /// let major_seventh = PitchClassSet::from_iter([
     ///     PitchClass::C,
@@ -411,7 +410,7 @@ impl PitchClassSet {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::PitchClass;
     /// # use music_theory::set::PitchClassSet;
     /// let major_seventh = PitchClassSet::from_iter([
     ///     PitchClass::C,
@@ -439,7 +438,7 @@ impl PitchClassSet {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::PitchClass;
     /// # use music_theory::set::PitchClassSet;
     /// use PitchClass as PC;
     ///
@@ -466,7 +465,7 @@ impl PitchClassSet {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::PitchClass;
     /// # use music_theory::set::PitchClassSet;
     /// let c_triad = PitchClassSet::from_iter([
     ///     PitchClass::C,
@@ -496,7 +495,7 @@ impl PitchClassSet {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::PitchClass;
     /// # use music_theory::set::PitchClassSet;
     /// let c_triad = PitchClassSet::from_iter([
     ///     PitchClass::C,
@@ -530,7 +529,7 @@ impl PitchClassSet {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::PitchClass;
     /// # use music_theory::set::PitchClassSet;
     /// use PitchClass as PC;
     ///
@@ -560,7 +559,7 @@ impl PitchClassSet {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::PitchClass;
     /// # use music_theory::set::PitchClassSet;
     /// let c_triad = PitchClassSet::from_iter([
     ///     PitchClass::C,
@@ -598,7 +597,7 @@ impl PitchClassSet {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::PitchClass;
     /// # use music_theory::set::PitchClassSet;
     /// let c_triad = PitchClassSet::from_iter([
     ///     PitchClass::C,
@@ -627,7 +626,7 @@ impl PitchClassSet {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::PitchClass;
     /// # use music_theory::set::PitchClassSet;
     /// let c_major = PitchClassSet::from_iter([
     ///     PitchClass::C,
@@ -662,7 +661,7 @@ impl PitchClassSet {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::PitchClass;
     /// # use music_theory::set::PitchClassSet;
     /// // C major triad [C, E, G]
     /// let c_major = PitchClassSet::from_iter([
@@ -698,7 +697,7 @@ impl PitchClassSet {
     /// # Example
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::PitchClass;
     /// # use music_theory::set::PitchClassSet;
     /// let set = PitchClassSet::from_iter([
     ///     PitchClass::C,
@@ -722,7 +721,7 @@ impl FromIterator<PitchClass> for PitchClassSet {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::PitchClass;
     /// # use music_theory::set::PitchClassSet;
     /// let pitches = vec![PitchClass::C, PitchClass::E, PitchClass::G];
     /// let set = PitchClassSet::from_iter(pitches);
@@ -741,7 +740,7 @@ impl Extend<PitchClass> for PitchClassSet {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::PitchClass;
     /// # use music_theory::set::PitchClassSet;
     /// let mut set = PitchClassSet::from_iter([PitchClass::C, PitchClass::E]);
     /// set.extend([PitchClass::G, PitchClass::B]);

@@ -1,6 +1,5 @@
 use std::array;
-use crate::interval::Interval;
-use crate::pitch::Pitch;
+use crate::{Pitch, Interval};
 
 pub fn scale_relative_intervals<const N: usize>(pitches: [Pitch; N]) -> [Interval; N] {
     array::from_fn(|i| {

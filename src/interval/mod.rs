@@ -7,7 +7,8 @@
 //! # Examples
 //!
 //! ```
-//! use music_theory::prelude::*;
+//! # use music_theory::Interval;
+//! # use music_theory::interval::Stability;
 //!
 //! // Create intervals using constants
 //! let major_third = Interval::MAJOR_THIRD;
@@ -32,10 +33,8 @@ use std::iter::Sum;
 use std::num::{NonZeroI16, NonZeroU16, ParseIntError};
 use std::ops::{Add, Neg, Sub};
 use std::str::FromStr;
-use crate::enharmonic::{EnharmonicEq, EnharmonicOrd, WithoutSpelling};
-use crate::note::Note;
-use crate::pitch::Pitch;
-use crate::semitone::Semitones;
+use crate::enharmonic::WithoutSpelling;
+use crate::{Note, Pitch, Semitones, EnharmonicEq, EnharmonicOrd};
 
 mod quality;
 pub use quality::*;
@@ -69,7 +68,8 @@ mod tests;
 /// # Examples
 ///
 /// ```
-/// # use music_theory::prelude::*;
+/// # use music_theory::{Pitch, Interval, Semitones};
+/// # use music_theory::interval::{IntervalQuality, IntervalNumber};
 /// // Create using constants
 /// let major_third = Interval::MAJOR_THIRD;
 /// assert_eq!(major_third.semitones(), Semitones(4));
@@ -116,7 +116,8 @@ impl Interval {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Interval;
+    /// # use music_theory::interval::{IntervalQuality, IntervalNumber};
     /// assert_eq!(
     ///     Interval::new(IntervalQuality::Perfect, IntervalNumber::FIFTH),
     ///     Some(Interval::PERFECT_FIFTH),
@@ -147,7 +148,8 @@ impl Interval {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Interval;
+    /// # use music_theory::interval::IntervalNumber;
     /// assert_eq!(
     ///     Interval::new_maj_or_perfect(IntervalNumber::FIFTH),
     ///     Interval::PERFECT_FIFTH
@@ -176,7 +178,8 @@ impl Interval {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Interval;
+    /// # use music_theory::interval::{IntervalQuality, IntervalNumber};
     /// use IntervalQuality as Quality;
     /// use IntervalNumber as Number;
     ///
@@ -203,7 +206,7 @@ impl Interval {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{Pitch, Note, Interval};
     /// let c4 = Note::new(Pitch::C, 4);
     /// let e4 = Note::new(Pitch::E, 4);
     /// let a5 = Note::new(Pitch::A, 5);
@@ -258,7 +261,7 @@ impl Interval {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{Pitch, Interval};
     /// assert_eq!(
     ///     Interval::between_pitches(Pitch::C, Pitch::E),
     ///     Interval::MAJOR_THIRD
@@ -316,7 +319,8 @@ impl Interval {
     /// # Examples
     ///
     /// ```rust
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Interval;
+    /// # use music_theory::interval::Stability;
     /// // Perfect consonances
     /// assert_eq!(Interval::PERFECT_FIFTH.stability(), Some(Stability::PerfectConsonance));
     ///
@@ -357,7 +361,8 @@ impl Interval {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Interval;
+    /// # use music_theory::interval::{IntervalQuality, IntervalNumber};
     /// use IntervalQuality as Quality;
     /// use IntervalNumber as Number;
     ///
@@ -385,7 +390,8 @@ impl Interval {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Interval;
+    /// # use music_theory::interval::{IntervalQuality, IntervalNumber};
     /// use IntervalQuality as Quality;
     /// use IntervalNumber as Number;
     ///
@@ -431,7 +437,8 @@ impl Interval {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Interval;
+    /// # use music_theory::interval::IntervalQuality;
     /// assert_eq!(Interval::MAJOR_THIRD.quality(), IntervalQuality::Major);
     /// assert_eq!(Interval::PERFECT_FIFTH.quality(), IntervalQuality::Perfect);
     /// ```
@@ -443,7 +450,8 @@ impl Interval {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Interval;
+    /// # use music_theory::interval::IntervalNumber;
     /// assert_eq!(Interval::MAJOR_THIRD.number(), IntervalNumber::THIRD);
     /// assert_eq!(Interval::PERFECT_FIFTH.number(), IntervalNumber::FIFTH);
     /// ```
@@ -457,7 +465,7 @@ impl Interval {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{Interval, Semitones};
     /// assert_eq!(Interval::PERFECT_FIFTH.semitones(), Semitones(7));
     /// // Descending intervals are negative
     /// assert_eq!((-Interval::MAJOR_THIRD).semitones(), Semitones(-4));
@@ -491,7 +499,7 @@ impl Interval {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Interval;
     /// assert_eq!(Interval::PERFECT_FIFTH.shorthand(), "P5");
     /// assert_eq!(Interval::MINOR_SEVENTH.shorthand(), "m7");
     /// assert_eq!(Interval::DIMINISHED_FIFTH.shorthand(), "d5");
@@ -507,7 +515,7 @@ impl Interval {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Interval;
     /// assert_eq!(
     ///     Interval::MAJOR_THIRD.inverted(),
     ///     Interval::MINOR_SIXTH
@@ -534,7 +542,8 @@ impl Interval {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Interval;
+    /// # use music_theory::interval::{IntervalQuality, IntervalNumber};
     /// // Normal intervals invert successfully
     /// assert!(Interval::MAJOR_THIRD.inverted_strict_non_subzero().is_some());
     ///
@@ -564,7 +573,7 @@ impl Interval {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{Interval, Semitones};
     /// assert_eq!(
     ///     Interval::from_semitones_preferred(Semitones(4)),
     ///     Interval::MAJOR_THIRD
@@ -618,7 +627,7 @@ impl Interval {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Interval;
     /// assert!(Interval::MAJOR_THIRD.is_ascending());
     /// assert!(!(-Interval::MAJOR_THIRD).is_ascending());
     /// ```
@@ -630,7 +639,7 @@ impl Interval {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Interval;
     /// let m3 = Interval::MAJOR_THIRD;
     ///
     /// assert_eq!(m3.with_direction(true), m3);
@@ -651,7 +660,7 @@ impl Interval {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Interval;
     /// assert_eq!(Interval::MAJOR_TENTH.as_simple(), Interval::MAJOR_THIRD);
     /// assert_eq!(Interval::PERFECT_FIFTEENTH.as_simple(), Interval::PERFECT_OCTAVE);
     /// assert_eq!((-Interval::MAJOR_THIRD).as_simple(), -Interval::MAJOR_THIRD);
@@ -667,7 +676,7 @@ impl Interval {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Interval;
     /// let m3 = Interval::MAJOR_THIRD;
     /// assert_eq!(m3.swap_direction_invert(), -Interval::MINOR_SIXTH);
     /// ```
@@ -680,7 +689,7 @@ impl Interval {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Interval;
     /// assert_eq!(Interval::MAJOR_THIRD.abs(), Interval::MAJOR_THIRD);
     /// assert_eq!((-Interval::MAJOR_THIRD).abs(), Interval::MAJOR_THIRD);
     /// ```
@@ -737,7 +746,7 @@ impl Interval {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Interval;
     /// // Perfect unison is preserved
     /// assert_eq!(
     ///     Interval::PERFECT_UNISON.neg_preserve_perfect_unison(),
@@ -828,7 +837,8 @@ impl EnharmonicOrd for Interval {
 ///
 /// # Examples
 /// ```
-/// # use music_theory::prelude::*;
+/// # use music_theory::Interval;
+/// # use music_theory::interval::{ParseIntervalError, ParseIntervalQualityErr};
 /// assert_eq!(
 ///     "P5".parse::<Interval>(),
 ///     Ok(Interval::PERFECT_FIFTH),

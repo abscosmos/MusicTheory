@@ -2,7 +2,7 @@ use std::{array, fmt};
 use std::cmp::Ordering;
 use std::ops::Deref;
 use std::str::FromStr;
-use crate::pitch::PitchClass;
+use crate::PitchClass;
 use crate::set::pcset::PitchClassSet;
 
 /// An interval class vector (ICV) representing the intervals present in a set of pitch classes.
@@ -15,7 +15,7 @@ use crate::set::pcset::PitchClassSet;
 ///
 /// # Examples
 /// ```rust
-/// # use music_theory::prelude::*;
+/// # use music_theory::PitchClass;
 /// # use music_theory::set::{PitchClassSet, IntervalClassVector};
 /// let icv1 = IntervalClassVector::new([12, 2, 6, 2, 4, 6]).unwrap();
 ///
@@ -49,7 +49,6 @@ impl IntervalClassVector {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
     /// # use music_theory::set::{PitchClassSet, IntervalClassVector};
     /// assert_eq!(
     ///     PitchClassSet::EMPTY.interval_class_vector(),
@@ -64,7 +63,6 @@ impl IntervalClassVector {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
     /// # use music_theory::set::{PitchClassSet, IntervalClassVector};
     /// assert_eq!(
     ///     PitchClassSet::CHROMATIC_AGGREGATE.interval_class_vector(),
@@ -118,7 +116,7 @@ impl IntervalClassVector {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::PitchClass;
     /// # use music_theory::set::{IntervalClassVector, PitchClassSet};
     /// let major_triad = PitchClassSet::from_iter([
     ///     PitchClass::C,
@@ -157,7 +155,7 @@ impl IntervalClassVector {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::PitchClass;
     /// # use music_theory::set::IntervalClassVector;
     /// let icv = IntervalClassVector::new([2, 5, 7, 0, 3, 0]).unwrap();
     ///
@@ -187,9 +185,7 @@ impl IntervalClassVector {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
-    /// use music_theory::set::IntervalClassVector;
-    ///
+    /// # use music_theory::set::IntervalClassVector;
     /// let icv1 = IntervalClassVector::new([1, 2, 3, 4, 5, 6]).unwrap();
     /// // identical icvs have a hamming distance of zero
     /// assert_eq!(icv1.hamming_distance(icv1), 0);
@@ -342,7 +338,7 @@ impl IntervalClassVector {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::PitchClass;
     /// # use music_theory::set::IntervalClassVector;
     /// let icv = IntervalClassVector::new([4, 4, 0, 3, 0, 2]).unwrap();
     /// // has ic1, ic2, ic4, and ic6
@@ -364,7 +360,6 @@ impl IntervalClassVector {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
     /// # use music_theory::set::IntervalClassVector;
     /// let icv1 = IntervalClassVector::new([4, 2, 1, 2, 4, 2]).unwrap();
     /// assert!(icv1.has_all_classes());
@@ -380,7 +375,7 @@ impl IntervalClassVector {
     ///
     /// # Examples
     /// ```rust
-    /// # use music_theory::prelude::PitchClass;
+    /// # use music_theory::PitchClass;
     /// # use music_theory::set::{IntervalClassVector, PitchClassSet};
     /// // [0, 1, 4, 6] is an all interval tetrachord
     /// let icv1 = IntervalClassVector::from_iter([
@@ -404,7 +399,6 @@ impl IntervalClassVector {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
     /// # use music_theory::set::IntervalClassVector;
     /// let icv1 = IntervalClassVector::new([4, 4, 3, 3, 5, 2]).unwrap();
     /// // deref used here to get as array
@@ -583,7 +577,7 @@ impl From<PitchClassSet> for IntervalClassVector {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::PitchClass;
     /// # use music_theory::set::{PitchClassSet, IntervalClassVector};
     /// let pcset = PitchClassSet::from_iter([PitchClass::C, PitchClass::E, PitchClass::G]);
     /// let icv = IntervalClassVector::from(pcset);
@@ -602,7 +596,7 @@ impl FromIterator<PitchClass> for IntervalClassVector {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::PitchClass;
     /// # use music_theory::set::IntervalClassVector;
     /// let icv = [PitchClass::C, PitchClass::E, PitchClass::G]
     ///     .into_iter()

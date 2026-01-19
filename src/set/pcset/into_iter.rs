@@ -1,6 +1,6 @@
 use std::iter::FusedIterator;
 use strum::IntoEnumIterator;
-use crate::pitch::PitchClass;
+use crate::PitchClass;
 use crate::set::pcset::PitchClassSet;
 
 // TODO: unsure if there should be a separate wrapper type returned when calling into_iter?
@@ -14,7 +14,7 @@ use crate::set::pcset::PitchClassSet;
 /// # Examples
 ///
 /// ```
-/// # use music_theory::prelude::*;
+/// # use music_theory::PitchClass;
 /// # use music_theory::set::PitchClassSet;
 ///
 /// let set = PitchClassSet::from_iter([
@@ -94,7 +94,7 @@ impl IntoIterator for PitchClassSet {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::PitchClass;
     /// # use music_theory::set::PitchClassSet;
     /// let set = PitchClassSet::from_iter([
     ///     PitchClass::G,

@@ -9,8 +9,8 @@ use std::cmp::{self, Ordering};
 /// # Examples
 ///
 /// ```
-/// # use music_theory::prelude::*;
-/// use music_theory::enharmonic::EnharmonicOrd as _;
+/// # use music_theory::{Pitch, Interval};
+/// use music_theory::EnharmonicOrd as _;
 /// use std::cmp::Ordering;
 ///
 /// // C# and Db occupy the same chromatic position
@@ -41,8 +41,8 @@ pub trait EnharmonicOrd {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
-    /// use music_theory::enharmonic::EnharmonicOrd as _;
+    /// # use music_theory::{Pitch, Interval};
+    /// use music_theory::EnharmonicOrd as _;
     /// use std::cmp::Ordering;
     ///
     /// assert_eq!(
@@ -67,7 +67,7 @@ pub trait EnharmonicOrd {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Pitch;
     /// use music_theory::enharmonic::EnharmonicOrd as _;
     ///
     /// assert!(Pitch::C.lt_enharmonic(&Pitch::D));
@@ -81,8 +81,8 @@ pub trait EnharmonicOrd {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
-    /// use music_theory::enharmonic::EnharmonicOrd as _;
+    /// # use music_theory::Pitch;
+    /// use music_theory::EnharmonicOrd as _;
     ///
     /// assert!(Pitch::C.le_enharmonic(&Pitch::C_SHARP));
     /// assert!(Pitch::C_SHARP.le_enharmonic(&Pitch::D_FLAT));
@@ -96,8 +96,8 @@ pub trait EnharmonicOrd {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
-    /// use music_theory::enharmonic::EnharmonicOrd as _;
+    /// # use music_theory::Pitch;
+    /// use music_theory::EnharmonicOrd as _;
     ///
     /// assert!(Pitch::E.gt_enharmonic(&Pitch::C));
     /// ```
@@ -110,8 +110,8 @@ pub trait EnharmonicOrd {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
-    /// use music_theory::enharmonic::EnharmonicOrd as _;
+    /// # use music_theory::Pitch;
+    /// use music_theory::EnharmonicOrd as _;
     ///
     /// assert!(Pitch::D.ge_enharmonic(&Pitch::C_SHARP));
     /// assert!(Pitch::C_SHARP.ge_enharmonic(&Pitch::D_FLAT));
@@ -127,8 +127,8 @@ pub trait EnharmonicOrd {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
-    /// use music_theory::enharmonic::EnharmonicOrd as _;
+    /// # use music_theory::Pitch;
+    /// use music_theory::EnharmonicOrd as _;
     ///
     /// assert_eq!(Pitch::C.max_enharmonic(Pitch::E), Pitch::E);
     /// ```
@@ -145,8 +145,8 @@ pub trait EnharmonicOrd {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
-    /// use music_theory::enharmonic::EnharmonicOrd as _;
+    /// # use music_theory::Pitch;
+    /// use music_theory::EnharmonicOrd as _;
     ///
     /// assert_eq!(Pitch::C.min_enharmonic(Pitch::E), Pitch::C);
     /// ```
@@ -168,8 +168,8 @@ pub trait EnharmonicOrd {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::prelude::*;
-    /// use music_theory::enharmonic::EnharmonicOrd as _;
+    /// # use music_theory::Pitch;
+    /// use music_theory::EnharmonicOrd as _;
     ///
     /// assert_eq!(Pitch::C.clamp_enharmonic(Pitch::E, Pitch::G), Pitch::E);
     /// assert_eq!(Pitch::F.clamp_enharmonic(Pitch::E, Pitch::G), Pitch::F);

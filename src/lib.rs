@@ -1,9 +1,8 @@
-pub mod note;
+mod note;
 pub mod enharmonic;
 pub mod interval;
-pub mod semitone;
+mod semitone;
 pub mod pitch;
-pub mod prelude;
 pub mod set;
 pub mod harmony;
 
@@ -27,6 +26,13 @@ pub mod notation;
 pub mod generator;
 #[cfg(not(feature = "experimental-note-gen"))]
 mod generator;
+
+// -- REEXPORTS --
+pub use crate::interval::Interval;
+pub use crate::pitch::{Pitch, PitchClass, AccidentalSign, Letter};
+pub use crate::note::Note;
+pub use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
+pub use crate::semitone::Semitones;
 
 /*
 TODO:

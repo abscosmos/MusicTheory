@@ -1,4 +1,4 @@
-use crate::pitch::Pitch;
+use crate::Pitch;
 
 macro_rules! define_pitches {
     ($($name:ident = $value:expr),* $(,)?) => {

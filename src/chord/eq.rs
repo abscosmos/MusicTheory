@@ -1,6 +1,5 @@
 use crate::chord::Chord;
-use crate::enharmonic::EnharmonicEq;
-use crate::pitch::Pitch;
+use crate::{Pitch, EnharmonicEq};
 
 impl Chord {
     // TODO: is there a more efficient way of doing this?

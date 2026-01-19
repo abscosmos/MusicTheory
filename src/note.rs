@@ -4,7 +4,7 @@
 //!
 //! # Examples
 //! ```
-//! # use music_theory::prelude::*;
+//! # use music_theory::{Note, Pitch, Interval};
 //! let c4 = Note::new(Pitch::C, 4);
 //! let g4 = c4 + Interval::PERFECT_FIFTH;
 //! assert_eq!(g4, Note::new(Pitch::G, 4));
@@ -15,9 +15,8 @@ use std::fmt;
 use std::ops::{Add, Sub};
 use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
 use crate::harmony::Key;
-use crate::interval::Interval;
-use crate::pitch::{Pitch, PitchClass, Spelling};
-use crate::semitone::Semitones;
+use crate::{Pitch, PitchClass, Interval, Semitones};
+use crate::pitch::Spelling;
 
 /// A musical note with pitch and octave.
 ///
@@ -27,21 +26,21 @@ use crate::semitone::Semitones;
 ///
 /// You can create a `Note` from a pitch and octave:
 /// ```
-/// # use music_theory::prelude::*;
+/// # use music_theory::{Note, Pitch};
 /// let middle_c = Note::new(Pitch::C, 4);
 /// # assert_eq!(middle_c, Note::MIDDLE_C);
 /// ```
 ///
 /// Notes can be transposed by intervals:
 /// ```
-/// # use music_theory::prelude::*;
+/// # use music_theory::{Pitch, Note, Interval};
 /// let fs5 = Note::A4 + Interval::MAJOR_SIXTH;
 /// assert_eq!(fs5, Note::new(Pitch::F_SHARP, 5));
 /// ```
 ///
 /// And can be converted to other representations:
 /// ```
-/// # use music_theory::prelude::*;
+/// # use music_theory::Note;
 /// // Converting to and from MIDI
 /// assert_eq!(Note::MIDDLE_C.as_midi(), Some(60));
 /// assert_eq!(Note::from_midi(69), Note::A4);
@@ -73,7 +72,7 @@ impl Note {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{Note, Pitch};
     /// let c4 = Note::new(Pitch::C, 4);
     /// let eb2 = Note::new(Pitch::E_FLAT, 2);
     /// let gx6 = Note::new(Pitch::G_DOUBLE_SHARP, 6);
@@ -89,7 +88,7 @@ impl Note {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{Note, Pitch, Semitones};
     /// let e4 = Note::new(Pitch::E, 4);
     /// assert_eq!(Note::MIDDLE_C.semitones_to(e4), Semitones(4));
     ///
@@ -110,7 +109,7 @@ impl Note {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{Note, Pitch, Interval};
     /// assert_eq!(
     ///     Note::MIDDLE_C.distance_to(Note::new(Pitch::G, 4)),
     ///     Interval::PERFECT_FIFTH,
@@ -137,7 +136,7 @@ impl Note {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::Note;
     /// // A4 is 440 Hz
     /// assert_eq!(Note::from_frequency_hz(440.0), Some(Note::A4));
     ///
@@ -180,7 +179,7 @@ impl Note {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{Note, Pitch};
     /// assert_eq!(Note::A4.as_frequency_hz(), 440.0);
     ///
     /// // Middle C is approximately 261.6256 Hz
@@ -200,7 +199,7 @@ impl Note {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{Note, Pitch, Interval};
     /// assert_eq!(
     ///     Note::new(Pitch::D, 4).transpose(Interval::MAJOR_THIRD),
     ///     Note::new(Pitch::F_SHARP, 4),
@@ -265,7 +264,8 @@ impl Note {
     /// [`Self::simplified`].
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{Note, Pitch};
+    /// # use music_theory::pitch::Spelling;
     /// // Spell a note with flats
     /// assert_eq!(
     ///     Note::new(Pitch::A_SHARP, 4).respell_with(Spelling::Flats),
@@ -307,7 +307,7 @@ impl Note {
     /// Returns the same note with fewer accidentals.
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{Note, Pitch};
     /// assert_eq!(
     ///     Note::new(Pitch::C_FLAT, 4).simplified(),
     ///     Note::new(Pitch::B, 3),
@@ -339,7 +339,7 @@ impl Note {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{Pitch, Note};
     /// assert_eq!(
     ///     Note::new(Pitch::C_SHARP, 4).enharmonic(),
     ///     Note::new(Pitch::D_FLAT, 4),
@@ -377,7 +377,8 @@ impl Note {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{Note, Pitch};
+    /// # use music_theory::harmony::Key;
     /// let cs_major = Key::major(Pitch::C_SHARP);
     ///
     /// // Diatonic notes are respelled to match the key
@@ -414,7 +415,7 @@ impl Note {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{Note, Pitch};
     /// // A4 (concert pitch) is MIDI note 69
     /// assert_eq!(Note::A4.as_midi(), Some(69));
     ///
@@ -443,7 +444,7 @@ impl Note {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{Note, Pitch};
     /// // Middle C is within MIDI range
     /// assert_eq!(Note::MIDDLE_C.as_midi_strict(), Some(60));
     ///
@@ -465,7 +466,7 @@ impl Note {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{Note, Pitch};
     /// // MIDI 60 is middle C
     /// assert_eq!(Note::from_midi(60), Note::MIDDLE_C);
     ///
@@ -496,7 +497,7 @@ impl Note {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::prelude::*;
+    /// # use music_theory::{Pitch, Note};
     /// assert_eq!(
     ///     Note::MIDDLE_C.transpose_fifths(1),
     ///     Note::new(Pitch::G, 4),
