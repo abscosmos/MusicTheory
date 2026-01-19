@@ -18,6 +18,7 @@
 //! ```
 
 use std::cmp::{self, Ordering};
+use std::hash::{Hash, Hasher};
 
 /// Trait for comparing musical objects enharmonically.
 ///
@@ -401,6 +402,21 @@ pub fn minmax<T: EnharmonicOrd>(v1: T, v2: T) -> (T, T) {
 /// // C# and Db are enharmonically equivalent, so only one is kept
 /// assert_eq!(set.len(), 2);
 /// ```
+///
+/// Using as a HashMap key:
+///
+/// ```
+/// # use music_theory::prelude::*;
+/// use music_theory::enharmonic::CmpEnharmonic;
+/// use std::collections::HashMap;
+///
+/// let mut map = HashMap::new();
+/// map.insert(CmpEnharmonic(Pitch::C_SHARP), "C# major");
+///
+/// // D♭ is enharmonically equivalent to C#, so it maps to the same value
+/// assert_eq!(map.get(&CmpEnharmonic(Pitch::D_FLAT)), Some(&"C# major"));
+/// ```
+///
 /// [`BTreeMap`]: std::collections::BTreeMap
 /// [`BTreeSet`]: std::collections::BTreeSet
 #[repr(transparent)]
@@ -428,5 +444,11 @@ impl<T: EnharmonicOrd + EnharmonicEq> PartialOrd for CmpEnharmonic<T> {
     #[inline]
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
+    }
+}
+
+impl<T: WithoutSpelling<Unspelled: Hash> + Copy> Hash for CmpEnharmonic<T> {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.0.without_spelling().hash(state);
     }
 }
