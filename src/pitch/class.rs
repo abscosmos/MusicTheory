@@ -1,8 +1,9 @@
+use std::cmp::Ordering;
 use std::fmt;
 use std::ops::{Add, Sub};
 use std::str::FromStr;
 use strum_macros::{EnumIter, FromRepr};
-use crate::enharmonic::EnharmonicEq;
+use crate::enharmonic::{self, EnharmonicEq, EnharmonicOrd, WithoutSpelling};
 use crate::interval::Interval;
 use crate::pitch::{Pitch, Letter, AccidentalSign, PitchFromStrError, Spelling};
 use crate::prelude::Key;
@@ -38,7 +39,7 @@ use crate::semitone::Semitones;
 /// # assert_eq!(Pitch::G_FLAT.as_pitch_class(), PitchClass::Fs)
 /// ```
 #[repr(u8)]
-#[derive(Copy, Clone, Eq, PartialEq, Debug, FromRepr, EnumIter, Ord, PartialOrd)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Hash, FromRepr, EnumIter, Ord, PartialOrd)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum PitchClass {
     /// C / B#
@@ -253,22 +254,23 @@ impl PitchClass {
     }
 }
 
+impl WithoutSpelling for PitchClass {
+    type Unspelled = Self;
+
+    fn without_spelling(self) -> Self::Unspelled {
+        self
+    }
+}
+
 impl EnharmonicEq for PitchClass {
-    /// Checks if two pitch classes are enharmonically equivalent.
-    ///
-    /// For pitch classes, enharmonic equivalence is the same as regular equality.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # use music_theory::prelude::*;
-    /// use music_theory::enharmonic::EnharmonicEq;
-    ///
-    /// assert!(PitchClass::C.eq_enharmonic(&PitchClass::C));
-    /// assert!(!PitchClass::C.eq_enharmonic(&PitchClass::Cs));
-    /// ```
-    fn eq_enharmonic(&self, rhs: &Self) -> bool {
-        self == rhs
+    fn eq_enharmonic(&self, other: &Self) -> bool {
+        enharmonic::defer_without_spelling::eq(self, other)
+    }
+}
+
+impl EnharmonicOrd for PitchClass {
+    fn cmp_enharmonic(&self, other: &Self) -> Ordering {
+        enharmonic::defer_without_spelling::cmp(self, other)
     }
 }
 

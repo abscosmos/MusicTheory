@@ -8,6 +8,8 @@
 //!
 //! ```
 //! # use music_theory::prelude::*;
+//! use music_theory::enharmonic::EnharmonicEq as _;
+//! 
 //! // Create a pitch from letter and accidental
 //! let c_sharp = Pitch::from_letter_and_accidental(
 //!     Letter::C,
@@ -21,7 +23,6 @@
 //! assert_eq!(d_flat, Pitch::D_FLAT);
 //!
 //! // Check enharmonic equivalence
-//! use music_theory::enharmonic::EnharmonicEq;
 //! assert!(c_sharp.eq_enharmonic(&d_flat));
 //!
 //! // Work with pitch classes (spelling-agnostic)
@@ -46,7 +47,7 @@ use std::ops::{Add, Sub};
 use std::str::FromStr;
 use std::sync::LazyLock;
 use regex::Regex;
-use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
+use crate::enharmonic::{self, EnharmonicEq, EnharmonicOrd, WithoutSpelling};
 use crate::interval::Interval;
 use crate::interval::IntervalQuality;
 use crate::semitone::Semitones;
@@ -518,23 +519,23 @@ impl fmt::Display for Pitch {
     }
 }
 
+impl WithoutSpelling for Pitch {
+    type Unspelled = PitchClass;
+
+    fn without_spelling(self) -> Self::Unspelled {
+        self.as_pitch_class()
+    }
+}
+
 impl EnharmonicEq for Pitch {
-    /// Checks if two pitches are enharmonically equivalent.
-    ///
-    /// Two pitches are enharmonically equivalent if they have the same pitch class, regardless of
-    /// how they're spelled. For example, C# and Db are enharmonically equivalent.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # use music_theory::prelude::*;
-    /// use music_theory::enharmonic::EnharmonicEq;
-    ///
-    /// assert!(Pitch::E_SHARP.eq_enharmonic(&Pitch::F));
-    /// assert!(!Pitch::C.eq_enharmonic(&Pitch::D));
-    /// ```
-    fn eq_enharmonic(&self, rhs: &Self) -> bool {
-        self.as_pitch_class() == rhs.as_pitch_class()
+    fn eq_enharmonic(&self, other: &Self) -> bool {
+        enharmonic::defer_without_spelling::eq(self, other)
+    }
+}
+
+impl EnharmonicOrd for Pitch {
+    fn cmp_enharmonic(&self, other: &Self) -> Ordering {
+        enharmonic::defer_without_spelling::cmp(self, other)
     }
 }
 
@@ -568,29 +569,6 @@ impl Ord for Pitch {
                 self.accidental()
                     .cmp(&rhs.accidental())
             )
-    }
-}
-
-impl EnharmonicOrd for Pitch {
-    /// Compares two pitches in a spelling agnostic way.
-    ///
-    /// This compares pitches by their pitch class, ignoring spelling.
-    /// Enharmonically equivalent pitches (like C# and Db) compare as equal.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # use music_theory::prelude::*;
-    /// # use std::cmp::Ordering;
-    /// use music_theory::enharmonic::EnharmonicOrd;
-    ///
-    /// assert_eq!(Pitch::C_SHARP.cmp_enharmonic(&Pitch::D_FLAT), Ordering::Equal);
-    /// assert_eq!(Pitch::C.cmp_enharmonic(&Pitch::E), Ordering::Less);
-    /// assert_eq!(Pitch::G.cmp_enharmonic(&Pitch::D), Ordering::Greater);
-    /// ```
-    fn cmp_enharmonic(&self, rhs: &Self) -> Ordering {
-        self.as_pitch_class()
-            .cmp(&rhs.as_pitch_class())
     }
 }
 

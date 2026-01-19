@@ -32,7 +32,7 @@ use std::iter::Sum;
 use std::num::{NonZeroI16, NonZeroU16, ParseIntError};
 use std::ops::{Add, Neg, Sub};
 use std::str::FromStr;
-use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
+use crate::enharmonic::{EnharmonicEq, EnharmonicOrd, WithoutSpelling};
 use crate::note::Note;
 use crate::pitch::Pitch;
 use crate::semitone::Semitones;
@@ -45,6 +45,7 @@ pub use number::*;
 
 mod stability;
 pub use stability::*;
+use crate::enharmonic;
 
 mod consts;
 
@@ -803,15 +804,23 @@ impl fmt::Display for Interval {
     }
 }
 
+impl WithoutSpelling for Interval {
+    type Unspelled = Semitones;
+
+    fn without_spelling(self) -> Self::Unspelled {
+        self.semitones()
+    }
+}
+
 impl EnharmonicEq for Interval {
-    fn eq_enharmonic(&self, rhs: &Self) -> bool {
-        self.semitones() == rhs.semitones()
+    fn eq_enharmonic(&self, other: &Self) -> bool {
+        enharmonic::defer_without_spelling::eq(self, other)
     }
 }
 
 impl EnharmonicOrd for Interval {
-    fn cmp_enharmonic(&self, rhs: &Self) -> Ordering {
-        self.semitones().0.cmp(&rhs.semitones().0)
+    fn cmp_enharmonic(&self, other: &Self) -> Ordering {
+        enharmonic::defer_without_spelling::cmp(self, other)
     }
 }
 
