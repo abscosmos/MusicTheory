@@ -25,6 +25,7 @@ pub use ord::*;
 
 mod without_spelling;
 pub use without_spelling::WithoutSpelling;
+pub(crate) use without_spelling::defer as defer_without_spelling;
 
 mod wrapper;
 pub use wrapper::*;

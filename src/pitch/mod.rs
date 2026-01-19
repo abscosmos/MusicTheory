@@ -47,7 +47,7 @@ use std::ops::{Add, Sub};
 use std::str::FromStr;
 use std::sync::LazyLock;
 use regex::Regex;
-use crate::enharmonic::{EnharmonicEq, WithoutSpelling};
+use crate::enharmonic::{self, EnharmonicEq, EnharmonicOrd, WithoutSpelling};
 use crate::interval::Interval;
 use crate::interval::IntervalQuality;
 use crate::semitone::Semitones;
@@ -524,6 +524,18 @@ impl WithoutSpelling for Pitch {
 
     fn without_spelling(self) -> Self::Unspelled {
         self.as_pitch_class()
+    }
+}
+
+impl EnharmonicEq for Pitch {
+    fn eq_enharmonic(&self, other: &Self) -> bool {
+        enharmonic::defer_without_spelling::eq(self, other)
+    }
+}
+
+impl EnharmonicOrd for Pitch {
+    fn cmp_enharmonic(&self, other: &Self) -> Ordering {
+        enharmonic::defer_without_spelling::cmp(self, other)
     }
 }
 

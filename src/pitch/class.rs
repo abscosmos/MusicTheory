@@ -1,8 +1,9 @@
+use std::cmp::Ordering;
 use std::fmt;
 use std::ops::{Add, Sub};
 use std::str::FromStr;
 use strum_macros::{EnumIter, FromRepr};
-use crate::enharmonic::WithoutSpelling;
+use crate::enharmonic::{self, EnharmonicEq, EnharmonicOrd, WithoutSpelling};
 use crate::interval::Interval;
 use crate::pitch::{Pitch, Letter, AccidentalSign, PitchFromStrError, Spelling};
 use crate::prelude::Key;
@@ -258,6 +259,18 @@ impl WithoutSpelling for PitchClass {
 
     fn without_spelling(self) -> Self::Unspelled {
         self
+    }
+}
+
+impl EnharmonicEq for PitchClass {
+    fn eq_enharmonic(&self, other: &Self) -> bool {
+        enharmonic::defer_without_spelling::eq(self, other)
+    }
+}
+
+impl EnharmonicOrd for PitchClass {
+    fn cmp_enharmonic(&self, other: &Self) -> Ordering {
+        enharmonic::defer_without_spelling::cmp(self, other)
     }
 }
 
