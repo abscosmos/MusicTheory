@@ -367,9 +367,9 @@ impl Interval {
     /// ```
     // TODO: does this work for descending intervals?
     pub fn is_subzero(self) -> bool {
-        let semitones = self.semitones().0;
-
-        semitones != 0 && semitones.signum() != self.number.get().signum()
+        self.quality.is_diminished()
+            && self.semitones() != Semitones::UNISON
+            && self.semitones().is_positive() != self.is_ascending()
     }
     
     /// Expands a subzero interval into an equivalent non-subzero compound interval.
