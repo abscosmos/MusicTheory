@@ -1,7 +1,7 @@
-pub mod note;
+mod note;
 pub mod enharmonic;
 pub mod interval;
-pub mod semitone;
+mod semitone;
 pub mod pitch;
 pub mod set;
 pub mod harmony;
