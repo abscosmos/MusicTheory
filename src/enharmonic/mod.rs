@@ -1,20 +1,44 @@
 //! Enharmonic equivalence and ordering for musical types.
 //!
-//! This module provides traits for comparing musical objects in a spelling-agnostic way.
-//! Two notes or intervals that are spelled differently but represent the same pitch class
-//! or chromatic distance are considered enharmonically equivalent.
+//! This module provides traits and utilities for comparing musical objects in a
+//! spelling-agnostic way. The core traits are [`EnharmonicEq`] and [`EnharmonicOrd`].
+//! The [`WithoutSpelling`] trait converts objects to a spelling-agnostic form.
+//!
+//! The module also provides the [`CmpEnharmonic`] wrapper, which uses enharmonic
+//! equivalence for [`Eq`] / [`PartialEq`] and [`Ord`] / [`PartialOrd`].
+//!
+//! Helper functions like [`max`], [`min`], and [`minmax`] provide convenient ways to
+//! compare values enharmonically, similar to methods in [`std::cmp`].
 //!
 //! # Examples
 //!
 //! ```
 //! # use music_theory::prelude::*;
-//! use music_theory::enharmonic::EnharmonicEq as _;
+//! # use std::collections::BTreeSet;
+//! use music_theory::enharmonic::{
+//!     self,
+//!     EnharmonicEq as _,
+//!     EnharmonicOrd as _,
+//!     WithoutSpelling as _,
+//!     CmpEnharmonic,
+//! };
 //!
-//! // C# and Db represent the same pitch class
+//! // Compare pitches enharmonically
 //! assert!(Pitch::C_SHARP.eq_enharmonic(&Pitch::D_FLAT));
+//! assert!(Pitch::C.lt_enharmonic(&Pitch::E));
 //!
-//! // Augmented fourth and diminished fifth span the same chromatic distance
-//! assert!(Interval::AUGMENTED_FOURTH.eq_enharmonic(&Interval::DIMINISHED_FIFTH));
+//! // Pitches without spelling are PitchClasses
+//! assert_eq!(Pitch::D_FLAT.without_spelling(), PitchClass::Cs);
+//!
+//! // Find the maximum pitch enharmonically
+//! let highest = enharmonic::max(Pitch::C_SHARP, Pitch::E);
+//! assert_eq!(highest, Pitch::E);
+//!
+//! // Use CmpEnharmonic wrapper for collections
+//! let mut pitches = BTreeSet::new();
+//! pitches.insert(CmpEnharmonic(Pitch::C_SHARP));
+//! pitches.insert(CmpEnharmonic(Pitch::D_FLAT)); // Treated as duplicate
+//! assert_eq!(pitches.len(), 1);
 //! ```
 
 mod eq;
