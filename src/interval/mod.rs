@@ -680,19 +680,7 @@ impl Interval {
     }
 
     fn add_interval(self, rhs: Self) -> Self {
-        let ln = self.number.get();
-        let rn = rhs.number.get();
-
-        let offset = {
-            let ls = ln.signum();
-            let rs = rn.signum();
-            let ss = (ln + rn).signum();
-
-            -ls * rs * ss + (ss == 0) as i16
-        };
-
-        let num = Number::new(ln + rn + offset)
-            .expect("nonzero");
+        let num = self.number + rhs.number;
 
         let distance = self.semitones().0 + rhs.semitones().0;
 

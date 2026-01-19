@@ -1,6 +1,6 @@
 use std::fmt;
 use std::num::{NonZeroI16, ParseIntError};
-use std::ops::Neg;
+use std::ops::{Add, Neg, Sub};
 use std::str::FromStr;
 
 /// The diatonic size of an interval, such as "third" or "fifth".
@@ -265,6 +265,36 @@ impl Number {
         };
 
         without_octave + self.octave_unsigned() as i16 * 12
+    }
+}
+
+impl Add for Number {
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        let ln = self.get();
+        let rn = rhs.get();
+
+        // this is a *heavily* compressed version of what used to be a large match statement
+        // checking the git history would probably be the best way to figure out how it works
+        // sorry :)
+        let offset = {
+            let ls = ln.signum();
+            let rs = rn.signum();
+            let ss = (ln + rn).signum();
+
+            -ls * rs * ss + (ss == 0) as i16
+        };
+
+        Self::new(ln + rn + offset).expect("shouldn't be zero")
+    }
+}
+
+impl Sub for Number {
+    type Output = Self;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        self + (-rhs)
     }
 }
 
