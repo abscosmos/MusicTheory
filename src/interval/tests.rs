@@ -346,6 +346,8 @@ fn direction() {
 
 #[test]
 fn eq_ord_enharmonic() {
+    use crate::enharmonic::{EnharmonicEq as _, EnharmonicOrd as _};
+    
     assert!(I::MAJOR_SIXTH.eq_enharmonic(&I::DIMINISHED_SEVENTH));
     assert!(I::AUGMENTED_THIRTEENTH.eq_enharmonic(&I::MINOR_FOURTEENTH));
 
