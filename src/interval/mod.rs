@@ -30,7 +30,7 @@
 use std::cmp::Ordering;
 use std::fmt;
 use std::iter::Sum;
-use std::num::{NonZeroI16, NonZeroU16, ParseIntError};
+use std::num::{NonZeroI16, NonZeroU16};
 use std::ops::{Add, Neg, Sub};
 use std::str::FromStr;
 use crate::enharmonic::WithoutSpelling;
@@ -818,21 +818,17 @@ pub enum ParseIntervalError {
     /// The quality-number combination is not a valid interval.
     #[error("The interval wasn't a valid interval")]
     InvalidInterval,
-    /// Failed to parse the interval's quality.
-    #[error(transparent)]
-    QualityErr(#[from] ParseIntervalQualityErr),
-    /// Failed to parse the interval's number.
-    #[error("Failed to parse number: {0}")]
-    NumberErr(#[from] ParseIntError),
 }
 
 impl FromStr for Interval {
     type Err = ParseIntervalError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
+        use ParseIntervalError as ParseErr;
+
         if s.chars()
             .last()
-            .ok_or(ParseIntervalError::InvalidFormat)?
+            .ok_or(ParseErr::InvalidFormat)?
             .is_ascii_digit()
         {
             let leading_negative = s.starts_with('-');
@@ -842,30 +838,33 @@ impl FromStr for Interval {
             let s = &s[start..];
 
             let split = s.find(|c: char| c.is_ascii_digit() || c == '-')
-                .ok_or(ParseIntervalError::InvalidFormat)?;
+                .ok_or(ParseErr::InvalidFormat)?;
 
             let (quality_str, num_str) = s.split_at(split);
 
-            let quality = quality_str.parse()?;
+            let quality = quality_str.parse()
+                .map_err(|_| ParseErr::InvalidFormat)?;
 
-            let number = num_str.parse()?;
+            let number = num_str.parse()
+                .map_err(|_| ParseErr::InvalidFormat)?;
 
-            let ivl = Self::new(quality, number).ok_or(ParseIntervalError::InvalidInterval)?;
+            let ivl = Self::new(quality, number).ok_or(ParseErr::InvalidInterval)?;
 
-            if leading_negative {
-                Ok(-ivl)
-            } else {
-                Ok(ivl)
-            }
+            Ok(ivl.with_direction(!leading_negative))
         } else {
             let split = s.find(|c: char| !c.is_ascii_digit() && c != '-')
                 .ok_or(ParseIntervalError::InvalidFormat)?;
 
             let (num_str, quality_str) = s.split_at(split);
 
+            let quality = quality_str.parse()
+                .map_err(|_| ParseErr::InvalidFormat)?;
+
+            let number = num_str.parse()
+                .map_err(|_| ParseErr::InvalidFormat)?;
+
             Ok(
-                Self::new(quality_str.parse()?, num_str.parse()?)
-                    .ok_or(ParseIntervalError::InvalidInterval)?
+                Self::new(quality, number).ok_or(ParseIntervalError::InvalidInterval)?
             )
         }
     }

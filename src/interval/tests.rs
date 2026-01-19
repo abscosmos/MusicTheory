@@ -71,8 +71,8 @@ fn from_str() {
 
     assert_eq!("".parse::<I>(), Err(ParseIntervalError::InvalidFormat));
     assert_eq!("P3".parse::<I>(), Err(ParseIntervalError::InvalidInterval));
-    assert_eq!("q3".parse::<I>(), Err(ParseIntervalError::QualityErr(ParseIntervalQualityErr)));
-    assert!(matches!("m0".parse::<I>(), Err(ParseIntervalError::NumberErr(..))));
+    assert_eq!("q3".parse::<I>(), Err(ParseIntervalError::InvalidFormat));
+    assert_eq!("m0".parse::<I>(), Err(ParseIntervalError::InvalidFormat));
 }
 
 #[test] // TODO: make tests better, test descending intervals
