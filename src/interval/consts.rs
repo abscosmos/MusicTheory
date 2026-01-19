@@ -16,6 +16,7 @@ macro_rules! define_consts {
     };
 }
 
+#[doc(hidden)]
 impl Interval {
     // this function is only to be used for defining constants
     const unsafe fn new_unchecked(quality: Quality, number: Number) -> Self {
