@@ -2,7 +2,7 @@ use std::fmt;
 use std::ops::{Add, Sub};
 use std::str::FromStr;
 use strum_macros::{EnumIter, FromRepr};
-use crate::enharmonic::EnharmonicEq;
+use crate::enharmonic::WithoutSpelling;
 use crate::interval::Interval;
 use crate::pitch::{Pitch, Letter, AccidentalSign, PitchFromStrError, Spelling};
 use crate::prelude::Key;
@@ -253,22 +253,11 @@ impl PitchClass {
     }
 }
 
-impl EnharmonicEq for PitchClass {
-    /// Checks if two pitch classes are enharmonically equivalent.
-    ///
-    /// For pitch classes, enharmonic equivalence is the same as regular equality.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # use music_theory::prelude::*;
-    /// use music_theory::enharmonic::EnharmonicEq;
-    ///
-    /// assert!(PitchClass::C.eq_enharmonic(&PitchClass::C));
-    /// assert!(!PitchClass::C.eq_enharmonic(&PitchClass::Cs));
-    /// ```
-    fn eq_enharmonic(&self, other: &Self) -> bool {
-        self == other
+impl WithoutSpelling for PitchClass {
+    type Unspelled = Self;
+
+    fn without_spelling(self) -> Self::Unspelled {
+        self
     }
 }
 
