@@ -73,15 +73,10 @@ use crate::enharmonic::EnharmonicEq;
 /// # use music_theory::prelude::*;
 /// use music_theory::enharmonic::WithoutSpelling as _;
 ///
-/// // Pitch to PitchClass removes spelling information
+/// // Pitch to PitchClass removes spelling information,
+/// // and both map to the same pitch class
 /// assert_eq!(Pitch::C_SHARP.without_spelling(), PitchClass::Cs);
 /// assert_eq!(Pitch::D_FLAT.without_spelling(), PitchClass::Cs);
-///
-/// // Both pitches map to the same pitch class
-/// assert_eq!(
-///     Pitch::C_SHARP.without_spelling(),
-///     Pitch::D_FLAT.without_spelling()
-/// );
 /// ```
 pub trait WithoutSpelling: EnharmonicEq {
     /// The type representing the spelling-agnostic form.
