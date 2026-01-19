@@ -654,19 +654,6 @@ impl Interval {
         }
     }
 
-    /// Inverts the interval and reverses its direction.
-    ///
-    /// # Examples
-    /// ```
-    /// # use music_theory::Interval;
-    /// let m3 = Interval::MAJOR_THIRD;
-    /// assert_eq!(m3.swap_direction_invert(), -Interval::MINOR_SIXTH);
-    /// ```
-    // TODO: better name? and tests
-    pub fn swap_direction_invert(self) -> Self {
-        -self.inverted()
-    }
-
     /// Returns the ascending form of the interval.
     ///
     /// # Examples
