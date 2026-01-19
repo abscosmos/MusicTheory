@@ -33,7 +33,7 @@ use std::str::FromStr;
 /// assert_eq!(desc_fourth, -Number::FOURTH);
 /// assert!(!desc_fourth.is_ascending());
 /// ```
-#[derive(Copy, Clone, Eq, PartialEq, Debug, Hash)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Hash)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Number(pub NonZeroI16);
 
