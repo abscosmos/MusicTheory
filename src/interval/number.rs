@@ -7,7 +7,7 @@ use std::str::FromStr;
 ///
 /// Interval numbers are positive for ascending intervals, and negative for descending intervals.
 /// The smallest number is a [unison](Self::UNISON), since unisons are the additive inverse for intervals.
-/// 
+///
 /// For convenience, constants like [`Self::THIRD`] are available.
 ///
 /// If importing this type conflicts with other types, consider aliasing it:
@@ -357,15 +357,13 @@ mod tests {
     fn general_as_simple() {
         use Number as N;
         
-        let as_simple = |x: N| x.as_simple();
-        
         assert_eq!(
-            [N::NINTH, N::TENTH, N::ELEVENTH, N::TWELFTH, N::THIRTEENTH, N::FOURTEENTH, N::FIFTEENTH].map(as_simple),
+            [N::NINTH, N::TENTH, N::ELEVENTH, N::TWELFTH, N::THIRTEENTH, N::FOURTEENTH, N::FIFTEENTH].map(N::as_simple),
             [N::SECOND, N::THIRD, N::FOURTH, N::FIFTH, N::SIXTH, N::SEVENTH, N::OCTAVE]
         );
 
         assert_eq!(
-            [N::NINTH, N::TENTH, N::ELEVENTH, N::TWELFTH, N::THIRTEENTH, N::FOURTEENTH, N::FIFTEENTH].map(Neg::neg).map(as_simple),
+            [N::NINTH, N::TENTH, N::ELEVENTH, N::TWELFTH, N::THIRTEENTH, N::FOURTEENTH, N::FIFTEENTH].map(Neg::neg).map(N::as_simple),
             [N::SECOND, N::THIRD, N::FOURTH, N::FIFTH, N::SIXTH, N::SEVENTH, N::OCTAVE].map(Neg::neg)
         );
         
