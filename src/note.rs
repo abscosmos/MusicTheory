@@ -15,9 +15,8 @@ use std::fmt;
 use std::ops::{Add, Sub};
 use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
 use crate::harmony::Key;
-use crate::interval::Interval;
-use crate::pitch::{Pitch, PitchClass, Spelling};
-use crate::semitone::Semitones;
+use crate::{Pitch, PitchClass, Interval, Semitones};
+use crate::pitch::Spelling;
 
 /// A musical note with pitch and octave.
 ///

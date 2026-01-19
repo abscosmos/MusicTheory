@@ -1,5 +1,5 @@
 use std::ops::{Add, BitAnd, BitOr, BitXor, Not, Sub};
-use crate::semitone::Semitones;
+use crate::Semitones;
 use crate::set::PitchClassSet;
 
 impl Not for PitchClassSet {

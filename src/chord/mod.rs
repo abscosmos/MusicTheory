@@ -1,7 +1,5 @@
 use crate::chord::types::ChordType;
-use crate::enharmonic::EnharmonicOrd;
-use crate::interval::Interval;
-use crate::pitch::Pitch;
+use crate::{Pitch, Interval, EnharmonicOrd};
 
 pub mod quality;
 pub mod size;

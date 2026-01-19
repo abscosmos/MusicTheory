@@ -1,5 +1,5 @@
 use std::fmt;
-use crate::semitone::Semitones;
+use crate::Semitones;
 
 /// An accidental that modifies a pitch.
 ///

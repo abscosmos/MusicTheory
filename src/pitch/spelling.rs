@@ -1,4 +1,4 @@
-use crate::pitch::AccidentalSign;
+use crate::AccidentalSign;
 
 /// Spelling preference for pitches.
 ///

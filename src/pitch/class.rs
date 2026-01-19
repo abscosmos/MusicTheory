@@ -3,11 +3,10 @@ use std::fmt;
 use std::ops::{Add, Sub};
 use std::str::FromStr;
 use strum_macros::{EnumIter, FromRepr};
-use crate::enharmonic::{self, EnharmonicEq, EnharmonicOrd, WithoutSpelling};
-use crate::interval::Interval;
-use crate::pitch::{Pitch, Letter, AccidentalSign, PitchFromStrError, Spelling};
+use crate::enharmonic::{self, WithoutSpelling};
+use crate::{Pitch, Letter, AccidentalSign, Interval, Semitones, EnharmonicEq, EnharmonicOrd};
+use crate::pitch::{PitchFromStrError, Spelling};
 use crate::harmony::Key;
-use crate::semitone::Semitones;
 
 /// A pitch class representing one of the twelve chromatic pitches.
 ///

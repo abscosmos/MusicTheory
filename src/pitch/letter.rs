@@ -2,7 +2,7 @@ use std::fmt;
 use std::str::FromStr;
 use strum_macros::{EnumIter, FromRepr};
 use crate::harmony::Key;
-use crate::pitch::Pitch;
+use crate::Pitch;
 
 /// A musical note letter (C, D, E, F, G, A, or B).
 ///

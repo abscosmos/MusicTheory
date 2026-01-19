@@ -1,5 +1,5 @@
 use super::*;
-use crate::pitch::{Letter, AccidentalSign};
+use crate::{Letter, AccidentalSign};
 use std::num::NonZeroU16;
 
 use Interval as I;

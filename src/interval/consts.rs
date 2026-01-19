@@ -1,5 +1,6 @@
 use std::num::NonZeroU16;
-use crate::interval::{Interval, IntervalNumber, IntervalQuality};
+use crate::Interval;
+use crate::interval::{IntervalNumber, IntervalQuality};
 
 use IntervalNumber as IN;
 use IntervalQuality as IQ;

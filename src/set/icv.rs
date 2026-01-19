@@ -2,7 +2,7 @@ use std::{array, fmt};
 use std::cmp::Ordering;
 use std::ops::Deref;
 use std::str::FromStr;
-use crate::pitch::PitchClass;
+use crate::PitchClass;
 use crate::set::pcset::PitchClassSet;
 
 /// An interval class vector (ICV) representing the intervals present in a set of pitch classes.

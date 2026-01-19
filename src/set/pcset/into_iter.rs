@@ -1,6 +1,6 @@
 use std::iter::FusedIterator;
 use strum::IntoEnumIterator;
-use crate::pitch::PitchClass;
+use crate::PitchClass;
 use crate::set::pcset::PitchClassSet;
 
 // TODO: unsure if there should be a separate wrapper type returned when calling into_iter?

@@ -1,5 +1,5 @@
 use std::fmt;
-use crate::pitch::PitchClass;
+use crate::PitchClass;
 use crate::set::PitchClassSet;
 
 /// Helper type for displaying pitch class sets as integers (chroma values).

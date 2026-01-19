@@ -31,8 +31,7 @@
 //! ```
 
 use std::iter::Take;
-use crate::note::Note;
-use crate::pitch::{Pitch, PitchClass};
+use crate::{Pitch, PitchClass, Note};
 
 /// An infinite iterator that generates [notes](Note) chromatically.
 ///

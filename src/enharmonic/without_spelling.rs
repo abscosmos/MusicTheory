@@ -1,4 +1,4 @@
-use crate::enharmonic::EnharmonicEq;
+use crate::EnharmonicEq;
 
 /// Trait for converting musical objects to their spelling-agnostic representation.
 ///

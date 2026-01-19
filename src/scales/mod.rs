@@ -1,5 +1,5 @@
 use std::fmt;
-use crate::interval::Interval;
+use crate::Interval;
 
 pub mod typed_scale;
 pub mod exact_scale;

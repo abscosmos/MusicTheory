@@ -1,7 +1,8 @@
 use std::cmp::Ordering;
 use std::fmt;
 use std::hash::{Hash, Hasher};
-use crate::enharmonic::{EnharmonicEq, EnharmonicOrd, WithoutSpelling};
+use crate::{EnharmonicEq, EnharmonicOrd};
+use crate::enharmonic::WithoutSpelling;
 
 /// A wrapper that implements standard comparison traits using enharmonic comparison.
 ///

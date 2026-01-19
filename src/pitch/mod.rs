@@ -47,10 +47,9 @@ use std::ops::{Add, Sub};
 use std::str::FromStr;
 use std::sync::LazyLock;
 use regex::Regex;
-use crate::enharmonic::{self, EnharmonicEq, EnharmonicOrd, WithoutSpelling};
-use crate::interval::Interval;
+use crate::{Interval, Semitones, EnharmonicEq, EnharmonicOrd};
+use crate::enharmonic::{self, WithoutSpelling};
 use crate::interval::IntervalQuality;
-use crate::semitone::Semitones;
 use crate::harmony::Key;
 
 mod class;

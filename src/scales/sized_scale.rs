@@ -1,5 +1,5 @@
 use std::ops::Add;
-use crate::interval::Interval;
+use crate::Interval;
 use crate::scales;
 use crate::scales::dyn_scale::DynamicScale;
 use crate::scales::numeral::Numeral;

@@ -1,7 +1,8 @@
 use std::cmp::Ordering;
 use std::fmt;
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
-use crate::enharmonic::{self, EnharmonicEq, EnharmonicOrd, WithoutSpelling};
+use crate::{EnharmonicEq, EnharmonicOrd};
+use crate::enharmonic::{self, WithoutSpelling};
 
 /// A signed distance in semitones.
 ///

@@ -1,7 +1,7 @@
 use std::fmt;
 use std::num::NonZeroU8;
 use std::ops::RangeInclusive;
-use crate::pitch::Letter;
+use crate::Letter;
 use crate::notation::{OctaveLetter, StemDirection, GetStemDirectionParams};
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]

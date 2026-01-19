@@ -29,9 +29,8 @@
 //! );
 //! ```
 
-use crate::pitch::PitchClass;
+use crate::{PitchClass, Semitones};
 use crate::set::IntervalClassVector;
-use crate::semitone::Semitones;
 #[expect(unused_imports, reason = "used in documentation")]
 use std::ops::{Add, BitAnd, BitOr, BitXor, Not};
 

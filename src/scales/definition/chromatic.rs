@@ -1,4 +1,4 @@
-use crate::interval::Interval;
+use crate::Interval;
 use crate::scales::definition::define_scale;
 use crate::scales::exact_scale::ExactScale;
 use crate::scales::typed_scale::TypedScale;

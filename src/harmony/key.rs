@@ -1,7 +1,6 @@
-use crate::interval::Interval;
-use crate::pitch::{Pitch, Letter, AccidentalSign, Spelling};
-use crate::harmony::mode::DiatonicMode;
-use crate::harmony::ScaleDegree;
+use crate::{Pitch, Letter, AccidentalSign, Interval};
+use crate::pitch::Spelling;
+use crate::harmony::{ScaleDegree, DiatonicMode};
 use crate::scales::definition::heptatonic::{DiatonicMode as DiatonicModeExperimental, DiatonicScale};
 use crate::scales::rooted::RootedSizedScale;
 use crate::scales::ScaleMode as _;
