@@ -186,8 +186,8 @@ impl Number {
     /// // Sign is ignored
     /// assert_eq!((-Number::THIRTEENTH).octave_unsigned(), 1);
     /// ```
-    pub fn octave_unsigned(self) -> i16 { // TODO: make this return u16
-        (self.get().abs() - 1) / 7
+    pub fn octave_unsigned(self) -> u16 {
+        (self.get().abs() - 1) as u16 / 7
     }
 
     /// Returns the number of complete octaves in this interval (signed).
@@ -205,7 +205,7 @@ impl Number {
     /// assert_eq!((-Number::FIFTEENTH).octave_signed(), -2);
     /// ```
     pub fn octave_signed(self) -> i16 {
-        self.octave_unsigned() * self.get().signum()
+        self.octave_unsigned() as i16 * self.get().signum()
     }
 
     /// Returns the inverted interval number.
@@ -242,8 +242,8 @@ impl Number {
         };
 
         let num = match simple_abs {
-            1..=7 => 7 * self.octave_unsigned() + n,
-            8 => 7 * (self.octave_unsigned() - 1) + n,
+            1..=7 => 7 * self.octave_unsigned() as i16 + n,
+            8 => 7 * (self.octave_unsigned() as i16 - 1) + n,
             _ => unreachable!("abs of as_simple must be within [1,8]")
         };
 
@@ -264,7 +264,7 @@ impl Number {
             _ => unreachable!("abs of as_simple must be within [1,8]"),
         };
 
-        without_octave + self.octave_unsigned() * 12
+        without_octave + self.octave_unsigned() as i16 * 12
     }
 }
 
