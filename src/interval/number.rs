@@ -7,29 +7,37 @@ use std::str::FromStr;
 ///
 /// Interval numbers are positive for ascending intervals, and negative for descending intervals.
 /// The smallest number is a [unison](Self::UNISON), since unisons are the additive inverse for intervals.
+/// 
+/// For convenience, constants like [`Self::THIRD`] are available.
+///
+/// If importing this type conflicts with other types, consider aliasing it:
+/// ```
+/// use music_theory::interval::Number as IntervalNumber;
+/// # let _ = IntervalNumber::THIRD;
+/// ```
 ///
 /// # Examples
 ///
 /// ```
-/// # use music_theory::interval::IntervalNumber;
+/// # use music_theory::interval::Number;
 /// // Create using constants
-/// let fifth = IntervalNumber::FIFTH;
+/// let fifth = Number::FIFTH;
 /// assert_eq!(fifth.get(), 5);
 ///
 /// // ... or dynamically
-/// let ninth = IntervalNumber::new(9).unwrap();
-/// assert_eq!(ninth.as_simple(), IntervalNumber::SECOND);
+/// let ninth = Number::new(9).unwrap();
+/// assert_eq!(ninth.as_simple(), Number::SECOND);
 ///
 /// // Negative for descending intervals
-/// let desc_fourth = IntervalNumber::new(-4).unwrap();
-/// assert_eq!(desc_fourth, -IntervalNumber::FOURTH);
+/// let desc_fourth = Number::new(-4).unwrap();
+/// assert_eq!(desc_fourth, -Number::FOURTH);
 /// assert!(!desc_fourth.is_ascending());
 /// ```
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct IntervalNumber(pub NonZeroI16);
+pub struct Number(pub NonZeroI16);
 
-impl IntervalNumber {
+impl Number {
     /// Creates a new `IntervalNumber`.
     ///
     /// Returns `None` if the number is zero, as interval numbers cannot be zero.
@@ -37,11 +45,11 @@ impl IntervalNumber {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::interval::IntervalNumber;
-    /// assert_eq!(IntervalNumber::new(3), Some(IntervalNumber::THIRD));
-    /// assert_eq!(IntervalNumber::new(-5), Some(-IntervalNumber::FIFTH));
+    /// # use music_theory::interval::Number;
+    /// assert_eq!(Number::new(3), Some(Number::THIRD));
+    /// assert_eq!(Number::new(-5), Some(-Number::FIFTH));
     /// // Zero is invalid
-    /// assert_eq!(IntervalNumber::new(0), None);
+    /// assert_eq!(Number::new(0), None);
     /// ```
     pub const fn new(number: i16) -> Option<Self> {
         // TODO: Option::map and ? operator both aren't const yet
@@ -58,9 +66,9 @@ impl IntervalNumber {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::interval::IntervalNumber;
-    /// assert_eq!(IntervalNumber::FIFTH.get(), 5);
-    /// assert_eq!((-IntervalNumber::THIRD).get(), -3);
+    /// # use music_theory::interval::Number;
+    /// assert_eq!(Number::FIFTH.get(), 5);
+    /// assert_eq!((-Number::THIRD).get(), -3);
     /// ```
     pub fn get(self) -> i16 {
         self.0.get()
@@ -72,8 +80,8 @@ impl IntervalNumber {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::interval::IntervalNumber;
-    /// assert_eq!(IntervalNumber::SEVENTH.shorthand(), 7);
+    /// # use music_theory::interval::Number;
+    /// assert_eq!(Number::SEVENTH.shorthand(), 7);
     /// ```
     pub fn shorthand(self) -> i16 {
         self.get()
@@ -87,19 +95,19 @@ impl IntervalNumber {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::interval::IntervalNumber;
+    /// # use music_theory::interval::Number;
     /// // Simple intervals remain unchanged
-    /// assert_eq!(IntervalNumber::THIRD.as_simple(), IntervalNumber::THIRD);
+    /// assert_eq!(Number::THIRD.as_simple(), Number::THIRD);
     ///
     /// // Compound intervals reduce to their simple form
-    /// assert_eq!(IntervalNumber::NINTH.as_simple(), IntervalNumber::SECOND);
-    /// assert_eq!(IntervalNumber::THIRTEENTH.as_simple(), IntervalNumber::SIXTH);
+    /// assert_eq!(Number::NINTH.as_simple(), Number::SECOND);
+    /// assert_eq!(Number::THIRTEENTH.as_simple(), Number::SIXTH);
     ///
     /// // Octaves and multiples of octaves remain as octaves
-    /// assert_eq!(IntervalNumber::FIFTEENTH.as_simple(), IntervalNumber::OCTAVE);
+    /// assert_eq!(Number::FIFTEENTH.as_simple(), Number::OCTAVE);
     ///
     /// // Direction is preserved
-    /// assert_eq!((-IntervalNumber::NINTH).as_simple(), -IntervalNumber::SECOND);
+    /// assert_eq!((-Number::NINTH).as_simple(), -Number::SECOND);
     /// ```
     pub fn as_simple(self) -> Self {
         if self.get().abs() != 1 && (self.get().abs() - 1) % 7 == 0 {
@@ -123,16 +131,16 @@ impl IntervalNumber {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::interval::IntervalNumber;
-    /// assert!(IntervalNumber::FIFTH.is_perfect());
-    /// assert!(IntervalNumber::OCTAVE.is_perfect());
+    /// # use music_theory::interval::Number;
+    /// assert!(Number::FIFTH.is_perfect());
+    /// assert!(Number::OCTAVE.is_perfect());
     ///
-    /// assert!(!IntervalNumber::THIRD.is_perfect());
-    /// assert!(!IntervalNumber::SIXTH.is_perfect());
+    /// assert!(!Number::THIRD.is_perfect());
+    /// assert!(!Number::SIXTH.is_perfect());
     ///
     /// // Works with compound intervals based on their simple form
-    /// assert!(IntervalNumber::ELEVENTH.is_perfect()); // 11 -> 4
-    /// assert!(!IntervalNumber::NINTH.is_perfect());   // 9 -> 2
+    /// assert!(Number::ELEVENTH.is_perfect()); // 11 -> 4
+    /// assert!(!Number::NINTH.is_perfect());   // 9 -> 2
     /// ```
     pub fn is_perfect(self) -> bool {
         match self.as_simple().get().abs() {
@@ -146,9 +154,9 @@ impl IntervalNumber {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::interval::IntervalNumber;
-    /// assert!(IntervalNumber::FIFTH.is_ascending());
-    /// assert!(!(-IntervalNumber::THIRD).is_ascending());
+    /// # use music_theory::interval::Number;
+    /// assert!(Number::FIFTH.is_ascending());
+    /// assert!(!(-Number::THIRD).is_ascending());
     /// ```
     pub fn is_ascending(self) -> bool {
         self.get().is_positive()
@@ -158,8 +166,8 @@ impl IntervalNumber {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::interval::IntervalNumber;
-    /// let fifth = IntervalNumber::FIFTH;
+    /// # use music_theory::interval::Number;
+    /// let fifth = Number::FIFTH;
     ///
     /// // Already ascending
     /// assert_eq!(fifth.with_direction(true), fifth);
@@ -168,8 +176,8 @@ impl IntervalNumber {
     /// assert_eq!(fifth.with_direction(false), -fifth);
     ///
     /// // Descending to ascending
-    /// let desc = -IntervalNumber::THIRD;
-    /// assert_eq!(desc.with_direction(true), IntervalNumber::THIRD);
+    /// let desc = -Number::THIRD;
+    /// assert_eq!(desc.with_direction(true), Number::THIRD);
     /// ```
     pub fn with_direction(self, ascending: bool) -> Self {
         if self.is_ascending() == ascending {
@@ -185,15 +193,15 @@ impl IntervalNumber {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::interval::IntervalNumber;
-    /// assert_eq!(IntervalNumber::THIRD.octave_unsigned(), 0);
-    /// assert_eq!(IntervalNumber::SEVENTH.octave_unsigned(), 0);
+    /// # use music_theory::interval::Number;
+    /// assert_eq!(Number::THIRD.octave_unsigned(), 0);
+    /// assert_eq!(Number::SEVENTH.octave_unsigned(), 0);
     ///
-    /// assert_eq!(IntervalNumber::OCTAVE.octave_unsigned(), 1);
-    /// assert_eq!(IntervalNumber::TENTH.octave_unsigned(), 1);
+    /// assert_eq!(Number::OCTAVE.octave_unsigned(), 1);
+    /// assert_eq!(Number::TENTH.octave_unsigned(), 1);
     ///
     /// // Sign is ignored
-    /// assert_eq!((-IntervalNumber::THIRTEENTH).octave_unsigned(), 1);
+    /// assert_eq!((-Number::THIRTEENTH).octave_unsigned(), 1);
     /// ```
     pub fn octave_unsigned(self) -> i16 { // TODO: make this return u16
         (self.get().abs() - 1) / 7
@@ -205,13 +213,13 @@ impl IntervalNumber {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::interval::IntervalNumber;
-    /// assert_eq!(IntervalNumber::NINTH.octave_signed(), 1);
-    /// assert_eq!(IntervalNumber::FIFTEENTH.octave_signed(), 2);
+    /// # use music_theory::interval::Number;
+    /// assert_eq!(Number::NINTH.octave_signed(), 1);
+    /// assert_eq!(Number::FIFTEENTH.octave_signed(), 2);
     ///
     /// // Negative for descending intervals
-    /// assert_eq!((-IntervalNumber::NINTH).octave_signed(), -1);
-    /// assert_eq!((-IntervalNumber::FIFTEENTH).octave_signed(), -2);
+    /// assert_eq!((-Number::NINTH).octave_signed(), -1);
+    /// assert_eq!((-Number::FIFTEENTH).octave_signed(), -2);
     /// ```
     pub fn octave_signed(self) -> i16 {
         self.octave_unsigned() * self.get().signum()
@@ -226,20 +234,20 @@ impl IntervalNumber {
     ///
     /// # Examples
     /// ```
-    /// # use music_theory::interval::IntervalNumber;
+    /// # use music_theory::interval::Number;
     /// // Simple interval inversions
-    /// assert_eq!(IntervalNumber::SECOND.inverted(), IntervalNumber::SEVENTH);
-    /// assert_eq!(IntervalNumber::THIRD.inverted(), IntervalNumber::SIXTH);
+    /// assert_eq!(Number::SECOND.inverted(), Number::SEVENTH);
+    /// assert_eq!(Number::THIRD.inverted(), Number::SIXTH);
     ///
     /// // Unison and octave invert to themselves
-    /// assert_eq!(IntervalNumber::UNISON.inverted(), IntervalNumber::UNISON);
-    /// assert_eq!(IntervalNumber::OCTAVE.inverted(), IntervalNumber::OCTAVE);
+    /// assert_eq!(Number::UNISON.inverted(), Number::UNISON);
+    /// assert_eq!(Number::OCTAVE.inverted(), Number::OCTAVE);
     ///
     /// // Compound intervals account for octave displacement
-    /// assert_eq!(IntervalNumber::NINTH.inverted(), IntervalNumber::FOURTEENTH);
+    /// assert_eq!(Number::NINTH.inverted(), Number::FOURTEENTH);
     ///
     /// // Direction is preserved
-    /// assert_eq!((-IntervalNumber::THIRD).inverted(), -IntervalNumber::SIXTH);
+    /// assert_eq!((-Number::THIRD).inverted(), -Number::SIXTH);
     /// ```
     pub fn inverted(self) -> Self {
         let simple_abs = self.as_simple().get().abs();
@@ -277,7 +285,7 @@ impl IntervalNumber {
     }
 }
 
-impl Neg for IntervalNumber {
+impl Neg for Number {
     type Output = Self;
 
     fn neg(self) -> Self::Output {
@@ -285,13 +293,13 @@ impl Neg for IntervalNumber {
     }
 }
 
-impl fmt::Display for IntervalNumber {
+impl fmt::Display for Number {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.shorthand())
     }
 }
 
-impl FromStr for IntervalNumber {
+impl FromStr for Number {
     type Err = ParseIntError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -302,155 +310,156 @@ impl FromStr for IntervalNumber {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use IntervalNumber as IN;
 
     #[test]
     fn nonzero_number() {
-        assert!(IN::new(5).is_some());
-        assert!(IN::new(-8).is_some());
-        assert!(IN::new(0).is_none());
+        assert!(Number::new(5).is_some());
+        assert!(Number::new(-8).is_some());
+        assert!(Number::new(0).is_none());
     }
     
     #[test]
     fn number_shorthand() {
-        assert_eq!(IN::FIFTH.get(), 5);
-        assert_eq!(IN::FIFTH.shorthand(), 5);
+        assert_eq!(Number::FIFTH.get(), 5);
+        assert_eq!(Number::FIFTH.shorthand(), 5);
     }
     
     #[test]
     fn simple_as_simple() {
-        assert_eq!(IN::SIXTH.as_simple(), IN::SIXTH);
+        assert_eq!(Number::SIXTH.as_simple(), Number::SIXTH);
         
-        assert_eq!((-IN::SEVENTH).as_simple(), -IN::SEVENTH);
+        assert_eq!((-Number::SEVENTH).as_simple(), -Number::SEVENTH);
     }
     
     #[test]
     fn octave_as_simple() {
-        assert_eq!(IN::OCTAVE.as_simple(), IN::OCTAVE);
+        assert_eq!(Number::OCTAVE.as_simple(), Number::OCTAVE);
         
-        assert_eq!((-IN::OCTAVE).as_simple(), -IN::OCTAVE);
+        assert_eq!((-Number::OCTAVE).as_simple(), -Number::OCTAVE);
         
-        assert_eq!(IN::FIFTEENTH.as_simple(), IN::OCTAVE);
+        assert_eq!(Number::FIFTEENTH.as_simple(), Number::OCTAVE);
 
-        assert_eq!((-IN::FIFTEENTH).as_simple(), -IN::OCTAVE);
+        assert_eq!((-Number::FIFTEENTH).as_simple(), -Number::OCTAVE);
         
-        let fifty_seventh = IN::new(57).expect("nonzero");
+        let fifty_seventh = Number::new(57).expect("nonzero");
         
-        assert_eq!(fifty_seventh.as_simple(), IN::OCTAVE);
-        assert_eq!((-fifty_seventh).as_simple(), -IN::OCTAVE);
+        assert_eq!(fifty_seventh.as_simple(), Number::OCTAVE);
+        assert_eq!((-fifty_seventh).as_simple(), -Number::OCTAVE);
     }
     
     #[test]
     fn negative_as_simple() {
-        assert_eq!(-IN::THIRTEENTH.as_simple(), -IN::SIXTH);
-        assert_eq!((-IN::THIRTEENTH).as_simple(), -IN::SIXTH);
+        assert_eq!(-Number::THIRTEENTH.as_simple(), -Number::SIXTH);
+        assert_eq!((-Number::THIRTEENTH).as_simple(), -Number::SIXTH);
     }
     
     #[test]
     fn general_as_simple() {
-        let as_simple = |x: IN| x.as_simple();
+        use Number as N;
+        
+        let as_simple = |x: N| x.as_simple();
         
         assert_eq!(
-            [IN::NINTH, IN::TENTH, IN::ELEVENTH, IN::TWELFTH, IN::THIRTEENTH, IN::FOURTEENTH, IN::FIFTEENTH].map(as_simple),
-            [IN::SECOND, IN::THIRD, IN::FOURTH, IN::FIFTH, IN::SIXTH, IN::SEVENTH, IN::OCTAVE]
+            [N::NINTH, N::TENTH, N::ELEVENTH, N::TWELFTH, N::THIRTEENTH, N::FOURTEENTH, N::FIFTEENTH].map(as_simple),
+            [N::SECOND, N::THIRD, N::FOURTH, N::FIFTH, N::SIXTH, N::SEVENTH, N::OCTAVE]
         );
 
         assert_eq!(
-            [IN::NINTH, IN::TENTH, IN::ELEVENTH, IN::TWELFTH, IN::THIRTEENTH, IN::FOURTEENTH, IN::FIFTEENTH].map(Neg::neg).map(as_simple),
-            [IN::SECOND, IN::THIRD, IN::FOURTH, IN::FIFTH, IN::SIXTH, IN::SEVENTH, IN::OCTAVE].map(Neg::neg)
+            [N::NINTH, N::TENTH, N::ELEVENTH, N::TWELFTH, N::THIRTEENTH, N::FOURTEENTH, N::FIFTEENTH].map(Neg::neg).map(as_simple),
+            [N::SECOND, N::THIRD, N::FOURTH, N::FIFTH, N::SIXTH, N::SEVENTH, N::OCTAVE].map(Neg::neg)
         );
         
         for oct in 0..=15 {
             for base in 2..=8 {
-                assert_eq!(IN::new(7 * oct + base).expect("nonzero").as_simple(), IN::new(base).expect("nonzero"), "{oct}, {base}, {}", 7 * oct + base);
-                assert_eq!((-IN::new(7 * oct + base).expect("nonzero")).as_simple(), IN::new(-base).expect("nonzero"), "{oct}, {base}, {}", 7 * oct + base);
+                assert_eq!(N::new(7 * oct + base).expect("nonzero").as_simple(), N::new(base).expect("nonzero"), "{oct}, {base}, {}", 7 * oct + base);
+                assert_eq!((-N::new(7 * oct + base).expect("nonzero")).as_simple(), N::new(-base).expect("nonzero"), "{oct}, {base}, {}", 7 * oct + base);
             }
         }
     }
     
     #[test]
     fn is_perfect() {
-        assert!(IN::UNISON.is_perfect());
-        assert!(!IN::SECOND.is_perfect());
-        assert!(!IN::THIRD.is_perfect());
-        assert!(IN::FOURTH.is_perfect());
-        assert!(IN::FIFTH.is_perfect());
-        assert!(!IN::SIXTH.is_perfect());
-        assert!(!IN::SEVENTH.is_perfect());
-        assert!(IN::OCTAVE.is_perfect());
+        assert!(Number::UNISON.is_perfect());
+        assert!(!Number::SECOND.is_perfect());
+        assert!(!Number::THIRD.is_perfect());
+        assert!(Number::FOURTH.is_perfect());
+        assert!(Number::FIFTH.is_perfect());
+        assert!(!Number::SIXTH.is_perfect());
+        assert!(!Number::SEVENTH.is_perfect());
+        assert!(Number::OCTAVE.is_perfect());
         
-        assert!((-IN::FOURTH).is_perfect());
-        assert!(!(-IN::SEVENTH).is_perfect());
+        assert!((-Number::FOURTH).is_perfect());
+        assert!(!(-Number::SEVENTH).is_perfect());
         
-        assert!(IN::new(7 * 17 + 4).expect("nonzero").is_perfect());
-        assert!(!IN::new(7 * 17 + 3).expect("nonzero").is_perfect());
-        assert!(IN::new(7 * 13 + 5).expect("nonzero").neg().is_perfect());
-        assert!(!IN::new(7 * 13 + 7).expect("nonzero").neg().is_perfect());
+        assert!(Number::new(7 * 17 + 4).expect("nonzero").is_perfect());
+        assert!(!Number::new(7 * 17 + 3).expect("nonzero").is_perfect());
+        assert!(Number::new(7 * 13 + 5).expect("nonzero").neg().is_perfect());
+        assert!(!Number::new(7 * 13 + 7).expect("nonzero").neg().is_perfect());
     }
     
     #[test]
     fn is_ascending() {
-        assert!(IN::TWELFTH.is_ascending());
-        assert!(!(-IN::NINTH).is_ascending());
+        assert!(Number::TWELFTH.is_ascending());
+        assert!(!(-Number::NINTH).is_ascending());
     }
     
     #[test]
     fn with_direction() {
-        assert_eq!(IN::THIRTEENTH.with_direction(true), IN::THIRTEENTH);
-        assert_eq!(IN::SEVENTH.with_direction(false), -IN::SEVENTH);
+        assert_eq!(Number::THIRTEENTH.with_direction(true), Number::THIRTEENTH);
+        assert_eq!(Number::SEVENTH.with_direction(false), -Number::SEVENTH);
         
-        assert_eq!((-IN::SECOND).with_direction(false), -IN::SECOND);
-        assert_eq!((-IN::OCTAVE).with_direction(true), IN::OCTAVE);
+        assert_eq!((-Number::SECOND).with_direction(false), -Number::SECOND);
+        assert_eq!((-Number::OCTAVE).with_direction(true), Number::OCTAVE);
     }
     
     #[test]
     fn octave() {
-        assert_eq!(IN::UNISON.octave_unsigned(), 0);
-        assert_eq!(IN::SECOND.octave_unsigned(), 0);
-        assert_eq!(IN::SEVENTH.octave_unsigned(), 0);
-        assert_eq!(IN::OCTAVE.octave_unsigned(), 1);
-        assert_eq!(IN::NINTH.octave_unsigned(), 1);
-        assert_eq!(IN::FOURTEENTH.octave_unsigned(), 1);
-        assert_eq!(IN::FIFTEENTH.octave_unsigned(), 2);
+        assert_eq!(Number::UNISON.octave_unsigned(), 0);
+        assert_eq!(Number::SECOND.octave_unsigned(), 0);
+        assert_eq!(Number::SEVENTH.octave_unsigned(), 0);
+        assert_eq!(Number::OCTAVE.octave_unsigned(), 1);
+        assert_eq!(Number::NINTH.octave_unsigned(), 1);
+        assert_eq!(Number::FOURTEENTH.octave_unsigned(), 1);
+        assert_eq!(Number::FIFTEENTH.octave_unsigned(), 2);
         
-        assert_eq!(IN::FOURTEENTH.octave_signed(), 1);
+        assert_eq!(Number::FOURTEENTH.octave_signed(), 1);
         
-        assert_eq!((-IN::OCTAVE).octave_unsigned(), 1);
-        assert_eq!((-IN::FIFTEENTH).octave_signed(), -2);
+        assert_eq!((-Number::OCTAVE).octave_unsigned(), 1);
+        assert_eq!((-Number::FIFTEENTH).octave_signed(), -2);
     }
     
     #[test]
     fn inverted() {
-        assert_eq!(IN::UNISON.inverted(), IN::UNISON);
-        assert_eq!(IN::SECOND.inverted(), IN::SEVENTH);
-        assert_eq!(IN::THIRD.inverted(), IN::SIXTH);
-        assert_eq!(IN::FOURTH.inverted(), IN::FIFTH);
-        assert_eq!(IN::FIFTH.inverted(), IN::FOURTH);
-        assert_eq!(IN::SIXTH.inverted(), IN::THIRD);
-        assert_eq!(IN::SEVENTH.inverted(), IN::SECOND);
-        assert_eq!(IN::OCTAVE.inverted(), IN::OCTAVE);
+        assert_eq!(Number::UNISON.inverted(), Number::UNISON);
+        assert_eq!(Number::SECOND.inverted(), Number::SEVENTH);
+        assert_eq!(Number::THIRD.inverted(), Number::SIXTH);
+        assert_eq!(Number::FOURTH.inverted(), Number::FIFTH);
+        assert_eq!(Number::FIFTH.inverted(), Number::FOURTH);
+        assert_eq!(Number::SIXTH.inverted(), Number::THIRD);
+        assert_eq!(Number::SEVENTH.inverted(), Number::SECOND);
+        assert_eq!(Number::OCTAVE.inverted(), Number::OCTAVE);
         
-        assert_eq!(IN::FOURTEENTH.inverted(), IN::NINTH);
-        assert_eq!((-IN::TWELFTH).inverted(), -IN::ELEVENTH);
+        assert_eq!(Number::FOURTEENTH.inverted(), Number::NINTH);
+        assert_eq!((-Number::TWELFTH).inverted(), -Number::ELEVENTH);
         
-        assert_eq!((-IN::OCTAVE).inverted(), -IN::OCTAVE);
-        assert_eq!(IN::FIFTEENTH.inverted(), IN::FIFTEENTH);
-        assert_eq!((-IN::FIFTEENTH).inverted(), -IN::FIFTEENTH);
+        assert_eq!((-Number::OCTAVE).inverted(), -Number::OCTAVE);
+        assert_eq!(Number::FIFTEENTH.inverted(), Number::FIFTEENTH);
+        assert_eq!((-Number::FIFTEENTH).inverted(), -Number::FIFTEENTH);
 
-        assert_eq!(IN::THIRD.inverted().inverted(), IN::THIRD);
-        assert_eq!(IN::FOURTH.inverted().inverted(), IN::FOURTH);
-        assert_eq!(IN::NINTH.inverted().inverted(), IN::NINTH);
-        assert_eq!(IN::FOURTEENTH.inverted().inverted(), IN::FOURTEENTH);
+        assert_eq!(Number::THIRD.inverted().inverted(), Number::THIRD);
+        assert_eq!(Number::FOURTH.inverted().inverted(), Number::FOURTH);
+        assert_eq!(Number::NINTH.inverted().inverted(), Number::NINTH);
+        assert_eq!(Number::FOURTEENTH.inverted().inverted(), Number::FOURTEENTH);
     }
     
     #[test]
     fn neg() {
-        assert_eq!((-IN::FIFTEENTH).get(), -15);
-        assert_eq!(-(-IN::NINTH), IN::NINTH);
+        assert_eq!((-Number::FIFTEENTH).get(), -15);
+        assert_eq!(-(-Number::NINTH), Number::NINTH);
     }
     
     #[test]
     fn display() {
-        assert_eq!(format!("{}", -IN::ELEVENTH), "-11");
+        assert_eq!(format!("{}", -Number::ELEVENTH), "-11");
     }
 }

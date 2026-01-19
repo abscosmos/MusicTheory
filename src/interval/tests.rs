@@ -1,9 +1,6 @@
-use super::{Quality as Q, *};
+use super::{Quality as Q, Number as N, Interval as I, *};
 use crate::{Letter, AccidentalSign};
 use std::num::NonZeroU16;
-
-use Interval as I;
-use IntervalNumber as IN;
 
 const FOUR: NonZeroU16 = NonZeroU16::new(4).expect("nonzero");
 const SIX: NonZeroU16 = NonZeroU16::new(6).expect("nonzero");
@@ -14,13 +11,13 @@ fn semi(ivl: I) -> i16 {
 }
 
 fn ivl(q: Q, sz: i16) -> I {
-    I::new(q, IN::new(sz).expect("nonzero")).expect("valid interval")
+    I::new(q, N::new(sz).expect("nonzero")).expect("valid interval")
 }
 
 #[test]
 fn new() {
     for num in 1..25 {
-        let num = IN::new(num).expect("nonzero");
+        let num = N::new(num).expect("nonzero");
 
         assert!(I::new(Q::DIMINISHED, num).is_some());
         assert!(I::new(Q::AUGMENTED, num).is_some());
@@ -31,25 +28,25 @@ fn new() {
         }
     }
 
-    assert!(I::new(Q::Major, IN::THIRD).is_some());
-    assert!(I::new(Q::Major, IN::THIRTEENTH).is_some());
-    assert!(I::new(Q::Major, IN::SECOND).is_some());
+    assert!(I::new(Q::Major, N::THIRD).is_some());
+    assert!(I::new(Q::Major, N::THIRTEENTH).is_some());
+    assert!(I::new(Q::Major, N::SECOND).is_some());
 
-    assert!(I::new(Q::Major, IN::FOURTH).is_none());
-    assert!(I::new(Q::Major, IN::TWELFTH).is_none());
-    assert!(I::new(Q::Major, IN::OCTAVE).is_none());
+    assert!(I::new(Q::Major, N::FOURTH).is_none());
+    assert!(I::new(Q::Major, N::TWELFTH).is_none());
+    assert!(I::new(Q::Major, N::OCTAVE).is_none());
 
-    assert!(I::new(Q::Minor, IN::SIXTH).is_some());
-    assert!(I::new(Q::Minor, IN::NINTH).is_some());
+    assert!(I::new(Q::Minor, N::SIXTH).is_some());
+    assert!(I::new(Q::Minor, N::NINTH).is_some());
 
-    assert!(I::new(Q::Minor, IN::ELEVENTH).is_none());
-    assert!(I::new(Q::Minor, IN::UNISON).is_none());
+    assert!(I::new(Q::Minor, N::ELEVENTH).is_none());
+    assert!(I::new(Q::Minor, N::UNISON).is_none());
 
-    assert!(I::new(Q::Perfect, IN::FOURTH).is_some());
-    assert!(I::new(Q::Perfect, IN::FIFTEENTH).is_some());
+    assert!(I::new(Q::Perfect, N::FOURTH).is_some());
+    assert!(I::new(Q::Perfect, N::FIFTEENTH).is_some());
 
-    assert!(I::new(Q::Perfect, IN::SECOND).is_none());
-    assert!(I::new(Q::Perfect, IN::SEVENTH).is_none());
+    assert!(I::new(Q::Perfect, N::SECOND).is_none());
+    assert!(I::new(Q::Perfect, N::SEVENTH).is_none());
 }
 
 #[test]
@@ -60,8 +57,8 @@ fn from_str() {
     assert_eq!("A6".parse(), Ok(I::AUGMENTED_SIXTH));
     assert_eq!("d15".parse(), Ok(I::DIMINISHED_FIFTEENTH));
 
-    assert_eq!("dddd-5".parse(), Ok(I::new(Q::Diminished(FOUR), -IN::FIFTH).expect("valid interval")));
-    assert_eq!("-AAAAAA2".parse(), Ok(I::new(Q::Augmented(SIX), -IN::SECOND).expect("valid interval")));
+    assert_eq!("dddd-5".parse(), Ok(I::new(Q::Diminished(FOUR), -N::FIFTH).expect("valid interval")));
+    assert_eq!("-AAAAAA2".parse(), Ok(I::new(Q::Augmented(SIX), -N::SECOND).expect("valid interval")));
 
     assert_eq!("1P".parse(), Ok(I::PERFECT_UNISON));
     assert_eq!("-7M".parse(), Ok(-I::MAJOR_SEVENTH));
@@ -69,8 +66,8 @@ fn from_str() {
     assert_eq!("A6".parse(), Ok(I::AUGMENTED_SIXTH));
     assert_eq!("d15".parse(), Ok(I::DIMINISHED_FIFTEENTH));
 
-    assert_eq!("-5dddd".parse(), Ok(I::new(Q::Diminished(FOUR), -IN::FIFTH).expect("valid interval")));
-    assert_eq!("-2AAAAAA".parse(), Ok(I::new(Q::Augmented(SIX), -IN::SECOND).expect("valid interval")));
+    assert_eq!("-5dddd".parse(), Ok(I::new(Q::Diminished(FOUR), -N::FIFTH).expect("valid interval")));
+    assert_eq!("-2AAAAAA".parse(), Ok(I::new(Q::Augmented(SIX), -N::SECOND).expect("valid interval")));
 
     assert_eq!("".parse::<I>(), Err(ParseIntervalError::InvalidFormat));
     assert_eq!("P3".parse::<I>(), Err(ParseIntervalError::InvalidInterval));
@@ -80,30 +77,30 @@ fn from_str() {
 
 #[test] // TODO: make tests better, test descending intervals
 fn subzero() {
-    assert!(I::strict_non_subzero(Q::DIMINISHED, IN::UNISON).is_none());
-    assert!(I::new(Q::DIMINISHED, IN::UNISON).expect("valid interval").inverted().inverted_strict_non_subzero().is_none());
+    assert!(I::strict_non_subzero(Q::DIMINISHED, N::UNISON).is_none());
+    assert!(I::new(Q::DIMINISHED, N::UNISON).expect("valid interval").inverted().inverted_strict_non_subzero().is_none());
 
     for num in 2..15 {
-        let num = IN::new(num).expect("nonzero");
+        let num = N::new(num).expect("nonzero");
         assert!(I::strict_non_subzero(Q::DIMINISHED, num).is_some());
         assert!(I::strict_non_subzero(Q::DIMINISHED, num).expect("non subzero").inverted_strict_non_subzero().is_some());
     }
 
     let doubly_diminished = Q::Diminished(NonZeroU16::new(2).expect("nonzero"));
 
-    assert!(I::strict_non_subzero(doubly_diminished, IN::UNISON).is_none());
-    assert!(I::new(doubly_diminished, IN::UNISON).expect("valid interval").inverted().inverted_strict_non_subzero().is_none());
-    assert!(I::strict_non_subzero(doubly_diminished, IN::SECOND).is_none());
-    assert!(I::new(doubly_diminished, IN::SECOND).expect("valid interval").inverted().inverted_strict_non_subzero().is_none());
+    assert!(I::strict_non_subzero(doubly_diminished, N::UNISON).is_none());
+    assert!(I::new(doubly_diminished, N::UNISON).expect("valid interval").inverted().inverted_strict_non_subzero().is_none());
+    assert!(I::strict_non_subzero(doubly_diminished, N::SECOND).is_none());
+    assert!(I::new(doubly_diminished, N::SECOND).expect("valid interval").inverted().inverted_strict_non_subzero().is_none());
 
     for num in 3..15 {
-        let num = IN::new(num).expect("nonzero");
+        let num = N::new(num).expect("nonzero");
         assert!(I::strict_non_subzero(doubly_diminished, num).is_some());
         assert!(I::strict_non_subzero(doubly_diminished, num).expect("non subzero").inverted_strict_non_subzero().is_some());
     }
 
-    assert!(I::new(Q::DIMINISHED, IN::UNISON).expect("valid quality").is_subzero());
-    assert!(!I::new(Q::DIMINISHED, IN::SECOND).expect("valid quality").is_subzero());
+    assert!(I::new(Q::DIMINISHED, N::UNISON).expect("valid quality").is_subzero());
+    assert!(!I::new(Q::DIMINISHED, N::SECOND).expect("valid quality").is_subzero());
 }
 
 #[test]
@@ -212,14 +209,14 @@ fn semitones_aug_dim() {
     fn dim(adj: u16, sz: i16) -> I {
         I::new(
             Q::Diminished(NonZeroU16::new(adj).expect("nonzero")),
-            IN::new(sz).expect("nonzero")
+            N::new(sz).expect("nonzero")
         ).expect("valid interval")
     }
 
     fn aug(adj: u16, sz: i16) -> I {
         I::new(
             Q::Augmented(NonZeroU16::new(adj).expect("nonzero")),
-            IN::new(sz).expect("nonzero")
+            N::new(sz).expect("nonzero")
         ).expect("valid interval")
     }
 
@@ -360,15 +357,13 @@ fn eq_ord_enharmonic() {
 
 #[test]
 fn add_subtract() {
-    use IntervalNumber as IN;
-
     let mut qualities = vec![Q::Perfect, Q::Major, Q::Minor];
     qualities.extend((1..=4).map(|n| Q::Diminished(NonZeroU16::new(n).expect("nonzero"))));
     qualities.extend((1..=4).map(|n| Q::Augmented(NonZeroU16::new(n).expect("nonzero"))));
 
     let mut numbers = Vec::with_capacity(100);
-    numbers.extend((1..=24).map(|n| IN::new(n).expect("nonzero")));
-    numbers.extend((-24..=-1).map(|n| IN::new(n).expect("nonzero")));
+    numbers.extend((1..=24).map(|n| N::new(n).expect("nonzero")));
+    numbers.extend((-24..=-1).map(|n| N::new(n).expect("nonzero")));
 
     let intervals = qualities.iter()
         .flat_map(|iq|

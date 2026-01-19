@@ -1,13 +1,11 @@
 use std::num::NonZeroU16;
 use crate::Interval;
-use crate::interval::{IntervalNumber, Quality};
-
-use IntervalNumber as IN;
+use crate::interval::{Number, Quality};
 
 macro_rules! define_consts {
     ($($quality:ident $num:ident),* $(,)?) => {
         $(
-            paste::paste! { pub const [<$quality _ $num>]: Self = unsafe { Self::new_unchecked(Quality::$quality, IN::$num) }; }
+            paste::paste! { pub const [<$quality _ $num>]: Self = unsafe { Self::new_unchecked(Quality::$quality, Number::$num) }; }
         )*
         
         pub const ALL_CONSTS: &[Self] = &[ // TODO: use count metavar when stabilized
@@ -20,7 +18,7 @@ macro_rules! define_consts {
 
 impl Interval {
     // this function is only to be used for defining constants
-    const unsafe fn new_unchecked(quality: Quality, number: IntervalNumber) -> Self {
+    const unsafe fn new_unchecked(quality: Quality, number: Number) -> Self {
         Self { quality, number }
     }
     
@@ -80,7 +78,7 @@ impl Interval {
     }
 }
 
-impl IntervalNumber {
+impl Number {
     pub const UNISON: Self = Self::new(1).expect("nonzero");
     pub const SECOND: Self =  Self::new(2).expect("nonzero");
     pub const THIRD: Self =  Self::new(3).expect("nonzero");
