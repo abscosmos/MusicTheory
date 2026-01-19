@@ -801,7 +801,7 @@ impl EnharmonicOrd for Interval {
 ///
 /// assert_eq!(
 ///     "XYZ".parse::<Interval>(),
-///     Err(ParseIntervalError::QualityErr(ParseIntervalQualityErr)),
+///     Err(ParseIntervalError::InvalidFormat),
 /// );
 ///
 /// // Perfect third doesn't exist
