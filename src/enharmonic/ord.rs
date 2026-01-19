@@ -171,9 +171,9 @@ pub trait EnharmonicOrd {
     /// # use music_theory::prelude::*;
     /// use music_theory::enharmonic::EnharmonicOrd as _;
     ///
-    /// assert_eq!(Pitch::A.clamp_enharmonic(Pitch::C, Pitch::E), Pitch::C);
-    /// assert_eq!(Pitch::D.clamp_enharmonic(Pitch::C, Pitch::E), Pitch::D);
-    /// assert_eq!(Pitch::G.clamp_enharmonic(Pitch::C, Pitch::E), Pitch::E);
+    /// assert_eq!(Pitch::C.clamp_enharmonic(Pitch::E, Pitch::G), Pitch::E);
+    /// assert_eq!(Pitch::F.clamp_enharmonic(Pitch::E, Pitch::G), Pitch::F);
+    /// assert_eq!(Pitch::B.clamp_enharmonic(Pitch::E, Pitch::G), Pitch::G);
     /// ```
     fn clamp_enharmonic(self, min: Self, max: Self) -> Self
     where Self: Sized
