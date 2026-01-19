@@ -750,6 +750,54 @@ impl Neg for Interval {
     }
 }
 
+impl PartialOrd for Interval {
+    /// Compares intervals by their number and quality (spelling-aware).
+    ///
+    /// See [`Ord::ord`](Ord) implementation for more information.
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for Interval {
+    /// Compares intervals by their number and quality (spelling-aware).
+    ///
+    /// Intervals are ordered by number first (descending < ascending), then by quality.
+    /// For descending intervals, quality order is reversed, so a descending minor third is
+    /// *greater* than a descending major third.
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::Interval;
+    /// # use music_theory::EnharmonicEq as _;
+    /// assert!(-Interval::MAJOR_SIXTH < -Interval::MAJOR_THIRD);
+    /// // Descending intervals are less than ascending
+    /// assert!(-Interval::MAJOR_THIRD < Interval::MAJOR_THIRD);
+    ///
+    /// // If ascending, smaller quality < larger quality
+    /// assert!(Interval::MINOR_THIRD < Interval::MAJOR_THIRD);
+    ///
+    /// // If descending, it's the opposite
+    /// assert!(-Interval::MINOR_THIRD > -Interval::MAJOR_THIRD);
+    ///
+    /// // Enharmonic intervals ordered by spelling
+    /// assert!(Interval::AUGMENTED_FOURTH < Interval::DIMINISHED_FIFTH);
+    /// assert!(Interval::AUGMENTED_FOURTH.eq_enharmonic(&Interval::DIMINISHED_FIFTH));
+    /// ```
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.number
+            .cmp(&other.number)
+            .then_with(|| {
+                let quality_cmp = self.quality.total_cmp(&other.quality);
+                if self.number.is_ascending() {
+                    quality_cmp
+                } else {
+                    quality_cmp.reverse()
+                }
+            })
+    }
+}
+
 impl Default for Interval {
     fn default() -> Self {
         Interval::PERFECT_UNISON
