@@ -69,6 +69,12 @@ fn from_str() {
     assert_eq!("-5dddd".parse(), Ok(I::new(Q::Diminished(FOUR), -N::FIFTH).expect("valid interval")));
     assert_eq!("-2AAAAAA".parse(), Ok(I::new(Q::Augmented(SIX), -N::SECOND).expect("valid interval")));
 
+    assert_eq!(
+        "-m-13".parse::<I>(),
+        Err(ParseIntervalError::InvalidFormat),
+        "negative sign should only be in one place",
+    );
+
     assert_eq!("".parse::<I>(), Err(ParseIntervalError::InvalidFormat));
     assert_eq!("P3".parse::<I>(), Err(ParseIntervalError::InvalidInterval));
     assert_eq!("q3".parse::<I>(), Err(ParseIntervalError::InvalidFormat));

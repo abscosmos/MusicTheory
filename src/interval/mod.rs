@@ -850,7 +850,13 @@ impl FromStr for Interval {
 
             let ivl = Self::new(quality, number).ok_or(ParseErr::InvalidInterval)?;
 
-            Ok(ivl.with_direction(!leading_negative))
+            if !ivl.is_ascending() && leading_negative {
+                Err(ParseIntervalError::InvalidFormat)
+            } else if leading_negative {
+                Ok(-ivl)
+            } else {
+                Ok(ivl)
+            }
         } else {
             let split = s.find(|c: char| !c.is_ascii_digit() && c != '-')
                 .ok_or(ParseIntervalError::InvalidFormat)?;
