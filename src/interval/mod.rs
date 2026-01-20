@@ -94,6 +94,12 @@ mod tests;
 ///     Interval::PERFECT_FIFTH
 /// );
 ///
+/// // ... or scaled, equivalent to repeated addition
+/// assert_eq!(
+///     Interval::MINOR_THIRD * 3,
+///     Interval::DIMINISHED_SEVENTH,
+/// );
+///
 /// // Intervals can be inverted
 /// assert_eq!(Interval::MAJOR_THIRD.inverted(), Interval::MINOR_SIXTH);
 /// ```
