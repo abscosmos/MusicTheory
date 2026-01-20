@@ -906,7 +906,7 @@ impl EnharmonicOrd for Interval {
 /// # Examples
 /// ```
 /// # use music_theory::Interval;
-/// # use music_theory::interval::{ParseIntervalError, ParseQualityErr};
+/// # use music_theory::interval::ParseIntervalError;
 /// assert_eq!(
 ///     "P5".parse::<Interval>(),
 ///     Ok(Interval::PERFECT_FIFTH),
