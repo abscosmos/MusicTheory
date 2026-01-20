@@ -188,8 +188,8 @@ impl Quality {
 /// ```
 #[derive(Debug, thiserror::Error, Eq, PartialEq, Hash, Copy, Clone)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[error("The provided &str could not be converted into a IntervalQuality")]
-pub struct ParseIntervalQualityErr;
+#[error("The provided &str could not be converted into a Quality")]
+pub struct ParseQualityErr;
 
 impl fmt::Display for Quality {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -198,7 +198,7 @@ impl fmt::Display for Quality {
 }
 
 impl FromStr for Quality {
-    type Err = ParseIntervalQualityErr;
+    type Err = ParseQualityErr;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
@@ -209,7 +209,7 @@ impl FromStr for Quality {
             "d" => Ok(Self::DIMINISHED),
             "A" => Ok(Self::AUGMENTED),
 
-            "" => Err(ParseIntervalQualityErr),
+            "" => Err(ParseQualityErr),
 
             s if s.chars().all(|c| c == 'd') => Ok(
                 Self::Diminished(NonZeroU16::new(s.len() as _).expect("cannot be zero"))
@@ -218,7 +218,7 @@ impl FromStr for Quality {
                 Self::Augmented(NonZeroU16::new(s.len() as _).expect("cannot be zero"))
             ),
 
-            _ => Err(ParseIntervalQualityErr),
+            _ => Err(ParseQualityErr),
         }
     }
 }
@@ -287,9 +287,9 @@ mod tests {
         assert_eq!("dddddd".parse(), Ok(Quality::Diminished(SIX)));
         assert_eq!("AAAA".parse(), Ok(Quality::Augmented(FOUR)));
 
-        assert_eq!("".parse::<Quality>(), Err(ParseIntervalQualityErr));
-        assert_eq!("c".parse::<Quality>(), Err(ParseIntervalQualityErr));
-        assert_eq!("MM".parse::<Quality>(), Err(ParseIntervalQualityErr));
+        assert_eq!("".parse::<Quality>(), Err(ParseQualityErr));
+        assert_eq!("c".parse::<Quality>(), Err(ParseQualityErr));
+        assert_eq!("MM".parse::<Quality>(), Err(ParseQualityErr));
     }
     
     #[test]
