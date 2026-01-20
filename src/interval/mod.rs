@@ -31,7 +31,7 @@ use std::cmp::Ordering;
 use std::fmt;
 use std::iter::Sum;
 use std::num::{NonZeroI16, NonZeroU16};
-use std::ops::{Add, Neg, Sub};
+use std::ops::{Add, Mul, Neg, Sub};
 use std::str::FromStr;
 use crate::enharmonic::WithoutSpelling;
 use crate::{Note, Pitch, Semitones, EnharmonicEq, EnharmonicOrd};
@@ -758,6 +758,17 @@ impl Sub for Interval {
 
     fn sub(self, rhs: Self) -> Self::Output {
         self.add(-rhs)
+    }
+}
+
+impl Mul<i16> for Interval {
+    type Output = Self;
+
+    fn mul(self, rhs: i16) -> Self::Output {
+        Self::from_number_and_semitones(
+            self.number * rhs,
+            self.semitones() * rhs,
+        )
     }
 }
 
