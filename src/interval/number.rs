@@ -322,9 +322,13 @@ impl Mul<i16> for Number {
     type Output = Self;
 
     fn mul(self, rhs: i16) -> Self::Output {
-        let num_abs = (self.abs().get() - 1) * rhs + 1;
+        if rhs == 0 {
+            return Self::UNISON.with_direction(self.is_ascending());
+        }
 
-        Self::new(num_abs * self.get().signum()).expect("can't be zero")
+        let num_abs = (self.abs().get() - 1) * rhs.abs() + 1;
+
+        Self::new(num_abs * (self.get().signum() * rhs.signum())).expect("can't be zero")
     }
 }
 
