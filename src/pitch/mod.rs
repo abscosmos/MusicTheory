@@ -129,7 +129,7 @@ mod tests;
 /// let too_many = AccidentalSign { offset: 4681 };
 /// let _ = Pitch::from_letter_and_accidental(Letter::B, too_many);
 /// ```
-#[derive(Copy, Clone, Eq, PartialEq)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Pitch(i16);
 
