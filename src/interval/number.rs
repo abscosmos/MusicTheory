@@ -169,6 +169,18 @@ impl Number {
             -self
         }
     }
+    
+    /// Returns the ascending form of the interval number.
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::interval::Number;
+    /// assert_eq!((-Number::FIFTH).abs(), Number::FIFTH);
+    /// assert_eq!(Number::SEVENTH.abs(), Number::SEVENTH);
+    /// ```
+    pub fn abs(self) -> Self {
+        Self(self.0.abs())
+    }
 
     /// Returns the number of complete octaves in this interval.
     ///
