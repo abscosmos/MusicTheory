@@ -1,6 +1,6 @@
 use std::fmt;
 use std::num::{NonZeroI16, ParseIntError};
-use std::ops::{Add, Neg, Sub};
+use std::ops::{Add, Mul, Neg, Sub};
 use std::str::FromStr;
 
 /// The diatonic size of an interval, such as "third" or "fifth".
@@ -315,6 +315,33 @@ impl Neg for Number {
 
     fn neg(self) -> Self::Output {
         Self(-self.0)
+    }
+}
+
+impl Mul<i16> for Number {
+    type Output = Self;
+
+    /// Multiplies an interval number by a scalar.
+    ///
+    /// Multiplying by a negative value inverts the direction (ascending/descending).
+    /// Multiplying by zero returns a unison in the same direction as the original number.
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::interval::Number;
+    /// assert_eq!(Number::THIRD * 3, Number::SEVENTH);
+    /// assert_eq!(Number::FIFTH * -2, -Number::NINTH);
+    /// assert_eq!(-Number::THIRD * 2, -Number::FIFTH);
+    /// assert_eq!(Number::FIFTH * 0, Number::UNISON);
+    /// ```
+    fn mul(self, rhs: i16) -> Self::Output {
+        if rhs == 0 {
+            return Self::UNISON.with_direction(self.is_ascending());
+        }
+
+        let num_abs = (self.abs().get() - 1) * rhs.abs() + 1;
+
+        Self::new(num_abs * (self.get().signum() * rhs.signum())).expect("can't be zero")
     }
 }
 

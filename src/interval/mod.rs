@@ -31,7 +31,7 @@ use std::cmp::Ordering;
 use std::fmt;
 use std::iter::Sum;
 use std::num::{NonZeroI16, NonZeroU16};
-use std::ops::{Add, Neg, Sub};
+use std::ops::{Add, Mul, Neg, Sub};
 use std::str::FromStr;
 use crate::enharmonic::WithoutSpelling;
 use crate::{Note, Pitch, Semitones, EnharmonicEq, EnharmonicOrd};
@@ -92,6 +92,12 @@ mod tests;
 /// assert_eq!(
 ///     Interval::MAJOR_THIRD + Interval::MINOR_THIRD,
 ///     Interval::PERFECT_FIFTH
+/// );
+///
+/// // ... or scaled, equivalent to repeated addition
+/// assert_eq!(
+///     Interval::MINOR_THIRD * 3,
+///     Interval::DIMINISHED_SEVENTH,
 /// );
 ///
 /// // Intervals can be inverted
@@ -668,34 +674,6 @@ impl Interval {
             .. self
         }
     }
-
-    fn add_interval(self, rhs: Self) -> Self {
-        let num = self.number + rhs.number;
-
-        let distance = self.semitones().0 + rhs.semitones().0;
-
-        let num_sign = num.get().signum();
-
-        let difference = distance - num.base_semitones_with_octave_unsigned() * num_sign;
-
-        let perfect = num.is_perfect();
-
-        let quality = match difference {
-            0 if perfect => Quality::Perfect,
-            0 if !perfect => Quality::Major,
-            -1 if !perfect && num_sign == 1 => Quality::Minor,
-            -1 if !perfect && num_sign == -1 => Quality::AUGMENTED,
-            diff => match diff * num_sign {
-                -1 if !perfect => Quality::Minor,
-                n if n > 0 => Quality::Augmented(NonZeroU16::new(n as u16).expect("zero was handled already")),
-                n if n < 0 && perfect => Quality::Diminished(NonZeroU16::new(-n as u16).expect("nonzero")),
-                n if n < 0 && !perfect => Quality::Diminished(NonZeroU16::new(-(n + 1) as _).expect("nonzero")),
-                _ => unreachable!("all cases covered"),
-            }
-        };
-
-        Self::new(quality, num).expect("valid quality")
-    }
     
     /// Negates the interval, but preserves perfect unisons.
     ///
@@ -724,13 +702,60 @@ impl Interval {
             -self
         }
     }
+
+    /// Creates an interval from a [number](Number) and [semitone](Semitones) count.
+    ///
+    /// Automatically determines the appropriate quality based on the
+    /// number and semitones. This is useful when you know both the
+    /// diatonic size and chromatic distance of an interval.
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::Interval;
+    /// # use music_theory::interval::Number;
+    /// # use music_theory::Semitones;
+    /// // A third spanning 4 semitones is a major third
+    /// assert_eq!(
+    ///     Interval::from_number_and_semitones(Number::THIRD, Semitones(4)),
+    ///     Interval::MAJOR_THIRD,
+    /// );
+    ///
+    /// // A third spanning 5 semitones is an augmented third
+    /// assert_eq!(
+    ///     Interval::from_number_and_semitones(Number::THIRD, Semitones(5)),
+    ///     Interval::AUGMENTED_THIRD,
+    /// );
+    /// ```
+    pub fn from_number_and_semitones(num: Number, intended_semitones: Semitones) -> Self {
+        let perfect = num.is_perfect();
+        let num_sign = num.get().signum();
+
+        let quality = match intended_semitones.0 - num.base_semitones_with_octave_unsigned() * num_sign {
+            0 if perfect => Quality::Perfect,
+            0 if !perfect => Quality::Major,
+            -1 if !perfect && num_sign == 1 => Quality::Minor,
+            -1 if !perfect && num_sign == -1 => Quality::AUGMENTED,
+            diff => match diff * num_sign {
+                -1 if !perfect => Quality::Minor,
+                n if n > 0 => Quality::Augmented(NonZeroU16::new(n as u16).expect("zero was handled already")),
+                n if n < 0 && perfect => Quality::Diminished(NonZeroU16::new(-n as u16).expect("nonzero")),
+                n if n < 0 && !perfect => Quality::Diminished(NonZeroU16::new(-(n + 1) as _).expect("nonzero")),
+                _ => unreachable!("all cases covered"),
+            }
+        };
+
+        Self::new(quality, num).expect("valid quality")
+    }
 }
 
 impl Add for Interval {
     type Output = Self;
 
     fn add(self, rhs: Self) -> Self::Output {
-        self.add_interval(rhs)
+        Self::from_number_and_semitones(
+            self.number + rhs.number,
+            self.semitones() + rhs.semitones(),
+        )
     }
 }
 
@@ -739,6 +764,43 @@ impl Sub for Interval {
 
     fn sub(self, rhs: Self) -> Self::Output {
         self.add(-rhs)
+    }
+}
+
+impl Mul<i16> for Interval {
+    type Output = Self;
+
+    /// Multiplies an interval by a scalar, equivalent to repeatedly adding the interval to itself.
+    ///
+    /// Multiplying by a negative value negates the result. Multiplying by zero
+    /// returns a perfect unison in the same direction as the original interval.
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::Interval;
+    /// assert_eq!(
+    ///     Interval::PERFECT_FOURTH * 3,
+    ///     Interval::MINOR_TENTH,
+    /// );
+    ///
+    /// let m6 = Interval::MINOR_SIXTH;
+    /// assert_eq!(
+    ///     m6 + m6 + m6 + m6 + m6,
+    ///     m6 * 5, // == ddd26
+    /// );
+    ///
+    /// assert_eq!(
+    ///     Interval::MINOR_THIRD * -4,
+    ///     -Interval::DIMINISHED_NINTH,
+    /// );
+    ///
+    /// assert_eq!(Interval::MAJOR_SEVENTH * 0, Interval::PERFECT_UNISON);
+    /// ```
+    fn mul(self, rhs: i16) -> Self::Output {
+        Self::from_number_and_semitones(
+            self.number * rhs,
+            self.semitones() * rhs,
+        )
     }
 }
 
