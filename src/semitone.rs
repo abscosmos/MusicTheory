@@ -178,14 +178,6 @@ impl Div<i16> for Semitones {
     }
 }
 
-impl Mul<Semitones> for i16 {
-    type Output = Semitones;
-
-    fn mul(self, rhs: Semitones) -> Self::Output {
-        Semitones(self * rhs.0)
-    }
-}
-
 impl MulAssign<i16> for Semitones {
     fn mul_assign(&mut self, rhs: i16) {
         self.0 *= rhs;
@@ -220,7 +212,6 @@ mod tests {
         assert_eq!(Semitones(5) - Semitones(3), Semitones(2));
         assert_eq!(-Semitones(5), Semitones(-5));
         assert_eq!(Semitones(5) * 3, Semitones(15));
-        assert_eq!(3 * Semitones(5), Semitones(15));
         assert_eq!(Semitones(15) / 3, Semitones(5));
 
         let mut s = Semitones(10);
