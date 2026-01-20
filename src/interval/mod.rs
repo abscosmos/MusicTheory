@@ -668,13 +668,6 @@ impl Interval {
             .. self
         }
     }
-
-    fn add_interval(self, rhs: Self) -> Self {
-        Self::from_number_and_semitones(
-            self.number + rhs.number,
-            self.semitones() + rhs.semitones(),
-        )
-    }
     
     /// Negates the interval, but preserves perfect unisons.
     ///
@@ -753,7 +746,10 @@ impl Add for Interval {
     type Output = Self;
 
     fn add(self, rhs: Self) -> Self::Output {
-        self.add_interval(rhs)
+        Self::from_number_and_semitones(
+            self.number + rhs.number,
+            self.semitones() + rhs.semitones(),
+        )
     }
 }
 
