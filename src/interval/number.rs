@@ -321,6 +321,19 @@ impl Neg for Number {
 impl Mul<i16> for Number {
     type Output = Self;
 
+    /// Multiplies an interval number by a scalar.
+    ///
+    /// Multiplying by a negative value inverts the direction (ascending/descending).
+    /// Multiplying by zero returns a unison in the same direction as the original number.
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::interval::Number;
+    /// assert_eq!(Number::THIRD * 3, Number::SEVENTH);
+    /// assert_eq!(Number::FIFTH * -2, -Number::NINTH);
+    /// assert_eq!(-Number::THIRD * 2, -Number::FIFTH);
+    /// assert_eq!(Number::FIFTH * 0, Number::UNISON);
+    /// ```
     fn mul(self, rhs: i16) -> Self::Output {
         if rhs == 0 {
             return Self::UNISON.with_direction(self.is_ascending());

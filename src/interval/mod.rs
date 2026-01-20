@@ -764,6 +764,32 @@ impl Sub for Interval {
 impl Mul<i16> for Interval {
     type Output = Self;
 
+    /// Multiplies an interval by a scalar, equivalent to repeatedly adding the interval to itself.
+    ///
+    /// Multiplying by a negative value negates the result. Multiplying by zero
+    /// returns a perfect unison in the same direction as the original interval.
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::Interval;
+    /// assert_eq!(
+    ///     Interval::PERFECT_FOURTH * 3,
+    ///     Interval::MINOR_TENTH,
+    /// );
+    ///
+    /// let m6 = Interval::MINOR_SIXTH;
+    /// assert_eq!(
+    ///     m6 + m6 + m6 + m6 + m6,
+    ///     m6 * 5, // == ddd26
+    /// );
+    ///
+    /// assert_eq!(
+    ///     Interval::MINOR_THIRD * -4,
+    ///     -Interval::DIMINISHED_NINTH,
+    /// );
+    ///
+    /// assert_eq!(Interval::MAJOR_SEVENTH * 0, Interval::PERFECT_UNISON);
+    /// ```
     fn mul(self, rhs: i16) -> Self::Output {
         Self::from_number_and_semitones(
             self.number * rhs,
