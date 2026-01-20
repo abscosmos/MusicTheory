@@ -1,6 +1,6 @@
 use std::fmt;
 use std::num::{NonZeroI16, ParseIntError};
-use std::ops::{Add, Neg, Sub};
+use std::ops::{Add, Mul, Neg, Sub};
 use std::str::FromStr;
 
 /// The diatonic size of an interval, such as "third" or "fifth".
@@ -315,6 +315,16 @@ impl Neg for Number {
 
     fn neg(self) -> Self::Output {
         Self(-self.0)
+    }
+}
+
+impl Mul<i16> for Number {
+    type Output = Self;
+
+    fn mul(self, rhs: i16) -> Self::Output {
+        let num_abs = (self.abs().get() - 1) * rhs + 1;
+
+        Self::new(num_abs * self.get().signum()).expect("can't be zero")
     }
 }
 
