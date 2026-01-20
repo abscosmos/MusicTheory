@@ -663,7 +663,10 @@ impl Interval {
     /// assert_eq!((-Interval::MAJOR_THIRD).abs(), Interval::MAJOR_THIRD);
     /// ```
     pub fn abs(self) -> Self {
-        self.with_direction(true)
+        Self {
+            number: self.number.abs(),
+            .. self
+        }
     }
 
     fn add_interval(self, rhs: Self) -> Self {
