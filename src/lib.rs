@@ -33,25 +33,3 @@ pub use crate::pitch::{Pitch, PitchClass, AccidentalSign, Letter};
 pub use crate::note::Note;
 pub use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
 pub use crate::semitone::Semitones;
-
-/*
-TODO:
-    - add prelude
-    - derive Copy where applicable and change &Self -> Self
-    - full documentation
-    - full tests
-    - easy conversion using From for everything applicable
-    - score stuff
-    - tonal parity:
-        - abc notation
-        - scales & scale types
-        - chords
-        - pcsets
-        - keys & modes
-        - progressions & roman numerals
-        - voicings
-        - rhythm, time signatures, duration
-    - music21 parity?
-        - harmony
-        - ...
-*/
