@@ -1,8 +1,8 @@
 //! Musical intervals and their components.
 //!
 //! An [`Interval`] represents the distance between two pitches, combining a
-//! [`quality`](IntervalQuality) (major, minor, perfect, etc.) with a
-//! [`number`](IntervalNumber) (unison, second, third, etc.).
+//! [`quality`](Quality) (major, minor, perfect, etc.) with a
+//! [`number`](Number) (unison, second, third, etc.).
 //!
 //! # Examples
 //!
@@ -30,11 +30,12 @@
 use std::cmp::Ordering;
 use std::fmt;
 use std::iter::Sum;
-use std::num::{NonZeroI16, NonZeroU16, ParseIntError};
-use std::ops::{Add, Neg, Sub};
+use std::num::{NonZeroI16, NonZeroU16};
+use std::ops::{Add, Mul, Neg, Sub};
 use std::str::FromStr;
 use crate::enharmonic::WithoutSpelling;
 use crate::{Note, Pitch, Semitones, EnharmonicEq, EnharmonicOrd};
+use crate::enharmonic;
 
 mod quality;
 pub use quality::*;
@@ -44,7 +45,6 @@ pub use number::*;
 
 mod stability;
 pub use stability::*;
-use crate::enharmonic;
 
 mod consts;
 
@@ -53,8 +53,8 @@ mod tests;
 
 /// A musical interval representing the distance between two musical objects.
 ///
-/// An interval combines a [`quality`](IntervalQuality) (major, minor, perfect, etc.)
-/// with a [`number`](IntervalNumber) (unison, second, third, etc.). Intervals can either
+/// An interval combines a [`quality`](Quality) (major, minor, perfect, etc.)
+/// with a [`number`](Number) (unison, second, third, etc.). Intervals can either
 /// be ascending or descending.
 ///
 /// Two intervals may be similar, but spelled differently. For example, a [diminished fifth](Self::DIMINISHED_FIFTH)
@@ -69,15 +69,15 @@ mod tests;
 ///
 /// ```
 /// # use music_theory::{Pitch, Interval, Semitones};
-/// # use music_theory::interval::{IntervalQuality, IntervalNumber};
+/// # use music_theory::interval::{Quality, Number};
 /// // Create using constants
 /// let major_third = Interval::MAJOR_THIRD;
 /// assert_eq!(major_third.semitones(), Semitones(4));
 ///
 /// // Create from quality and number
 /// let minor_sixth = Interval::new(
-///     IntervalQuality::Minor,
-///     IntervalNumber::SIXTH
+///     Quality::Minor,
+///     Number::SIXTH
 /// ).unwrap();
 ///
 /// // Parse from shorthand notation
@@ -94,16 +94,22 @@ mod tests;
 ///     Interval::PERFECT_FIFTH
 /// );
 ///
+/// // ... or scaled, equivalent to repeated addition
+/// assert_eq!(
+///     Interval::MINOR_THIRD * 3,
+///     Interval::DIMINISHED_SEVENTH,
+/// );
+///
 /// // Intervals can be inverted
 /// assert_eq!(Interval::MAJOR_THIRD.inverted(), Interval::MINOR_SIXTH);
 /// ```
-#[derive(Copy, Clone, Eq, PartialEq, Debug)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Hash)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Interval {
     /// The quality of the interval.
-    quality: IntervalQuality,
+    quality: Quality,
     /// The diatonic size of the interval.
-    number: IntervalNumber,
+    number: Number,
 }
 
 impl Interval {
@@ -117,54 +123,52 @@ impl Interval {
     /// # Examples
     /// ```
     /// # use music_theory::Interval;
-    /// # use music_theory::interval::{IntervalQuality, IntervalNumber};
+    /// # use music_theory::interval::{Quality, Number};
     /// assert_eq!(
-    ///     Interval::new(IntervalQuality::Perfect, IntervalNumber::FIFTH),
+    ///     Interval::new(Quality::Perfect, Number::FIFTH),
     ///     Some(Interval::PERFECT_FIFTH),
     /// );
     ///
     /// assert_eq!(
-    ///     Interval::new(IntervalQuality::Major, IntervalNumber::FIFTH),
+    ///     Interval::new(Quality::Major, Number::FIFTH),
     ///     None,
     /// );
     /// ```
-    pub fn new(quality: IntervalQuality, number: IntervalNumber) -> Option<Self> {
-        use IntervalQuality as Q;
-
+    pub fn new(quality: Quality, number: Number) -> Option<Self> {
         let unchecked = Some(Self { quality, number });
 
         match quality {
-            Q::Diminished(_) | Q::Augmented(_) => unchecked,
-            Q::Perfect if number.is_perfect() => unchecked,
-            Q::Minor | Q::Major if !number.is_perfect() => unchecked,
+            Quality::Diminished(_) | Quality::Augmented(_) => unchecked,
+            Quality::Perfect if number.is_perfect() => unchecked,
+            Quality::Minor | Quality::Major if !number.is_perfect() => unchecked,
             _ => None,
         }
     }
     
     /// Creates a new interval with major or perfect quality.
     ///
-    /// Returns a [perfect](IntervalQuality::Perfect) interval for perfect interval numbers (1, 4, 5, 8),
-    /// and a [major](IntervalQuality::Major) interval for major/minor interval numbers (2, 3, 6, 7).
+    /// Returns a [perfect](Quality::Perfect) interval for perfect interval numbers (1, 4, 5, 8),
+    /// and a [major](Quality::Major) interval for major/minor interval numbers (2, 3, 6, 7).
     ///
     /// # Examples
     /// ```
     /// # use music_theory::Interval;
-    /// # use music_theory::interval::IntervalNumber;
+    /// # use music_theory::interval::Number;
     /// assert_eq!(
-    ///     Interval::new_maj_or_perfect(IntervalNumber::FIFTH),
+    ///     Interval::new_maj_or_perfect(Number::FIFTH),
     ///     Interval::PERFECT_FIFTH
     /// );
     ///
     /// assert_eq!(
-    ///     Interval::new_maj_or_perfect(IntervalNumber::THIRD),
+    ///     Interval::new_maj_or_perfect(Number::THIRD),
     ///     Interval::MAJOR_THIRD
     /// );
     /// ```
-    pub fn new_maj_or_perfect(number: IntervalNumber) -> Self {
+    pub fn new_maj_or_perfect(number: Number) -> Self {
         let quality = if number.is_perfect() {
-            IntervalQuality::Perfect
+            Quality::Perfect
         } else {
-            IntervalQuality::Major
+            Quality::Major
         };
         
         Self { quality, number }
@@ -179,10 +183,7 @@ impl Interval {
     /// # Examples
     /// ```
     /// # use music_theory::Interval;
-    /// # use music_theory::interval::{IntervalQuality, IntervalNumber};
-    /// use IntervalQuality as Quality;
-    /// use IntervalNumber as Number;
-    ///
+    /// # use music_theory::interval::{Quality, Number};
     /// assert_eq!(
     ///     Interval::strict_non_subzero(Quality::Perfect, Number::FIFTH),
     ///     Some(Interval::PERFECT_FIFTH),
@@ -194,7 +195,7 @@ impl Interval {
     ///     None,
     /// );
     /// ```
-    pub fn strict_non_subzero(quality: IntervalQuality, number: IntervalNumber) -> Option<Self> {
+    pub fn strict_non_subzero(quality: Quality, number: Number) -> Option<Self> {
          Self::new(quality, number).filter(|ivl| !ivl.is_subzero())
     }
 
@@ -251,7 +252,7 @@ impl Interval {
         
         let signed_number = if descending { -new_number } else { new_number };
 
-        Interval::new(base_interval.quality(), IntervalNumber(signed_number))
+        Interval::new(base_interval.quality(), Number(signed_number))
             .expect("quality should still be valid")
     }
     
@@ -279,10 +280,10 @@ impl Interval {
 
         let number = lhs_letter.offset_between(rhs_letter) + 1;
         
-        let number = IntervalNumber::new(number as _)
+        let number = Number::new(number as _)
             .expect("can't be zero since offset_between returns [0, 6], and adding one");
 
-        let number = if number == IntervalNumber::UNISON && lhs > rhs { IntervalNumber::OCTAVE } else { number };
+        let number = if number == Number::UNISON && lhs > rhs { Number::OCTAVE } else { number };
 
         let base_semitones = lhs.semitones_to(rhs).0;
         
@@ -293,13 +294,13 @@ impl Interval {
         };
         
         let quality = match semitones - number.base_semitones_with_octave_unsigned() {
-            -1 if number.is_perfect() => IntervalQuality::DIMINISHED,
-            -1 => IntervalQuality::Minor,
-            0 if number.is_perfect() => IntervalQuality::Perfect,
-            0 => IntervalQuality::Major,
-            n @ 1.. => IntervalQuality::Augmented((n as u16).try_into().expect("can't be zero")),
-            n @ ..-1 if number.is_perfect() => IntervalQuality::Diminished(NonZeroU16::new(-n as u16).expect("shouldn't be zero, as the first arm should've caught that")),
-            n @ ..-1 => IntervalQuality::Diminished(NonZeroU16::new(-n as u16 - 1).expect("shouldn't be zero, as the first arm should've caught that")),
+            -1 if number.is_perfect() => Quality::DIMINISHED,
+            -1 => Quality::Minor,
+            0 if number.is_perfect() => Quality::Perfect,
+            0 => Quality::Major,
+            n @ 1.. => Quality::Augmented((n as u16).try_into().expect("can't be zero")),
+            n @ ..-1 if number.is_perfect() => Quality::Diminished(NonZeroU16::new(-n as u16).expect("shouldn't be zero, as the first arm should've caught that")),
+            n @ ..-1 => Quality::Diminished(NonZeroU16::new(-n as u16 - 1).expect("shouldn't be zero, as the first arm should've caught that")),
         };
         
         Interval::new(quality, number).expect("should be valid")
@@ -335,16 +336,13 @@ impl Interval {
     /// assert_eq!(Interval::PERFECT_FOURTH.stability(), None);
     /// ```
     pub fn stability(self) -> Option<Stability> {
-        use IntervalQuality as Q;
-        use IntervalNumber as N;
-
         match self.quality {
-            Q::Diminished(_) | Q::Augmented(_) => Some(Stability::Dissonance),
+            Quality::Diminished(_) | Quality::Augmented(_) => Some(Stability::Dissonance),
             _ => match self.number.as_simple() {
-                N::UNISON | N::FIFTH | N::OCTAVE => Some(Stability::PerfectConsonance),
-                N::THIRD | N::SIXTH => Some(Stability::ImperfectConsonance),
-                N::SECOND | N::SEVENTH => Some(Stability::Dissonance),
-                N::FOURTH => None,
+                Number::UNISON | Number::FIFTH | Number::OCTAVE => Some(Stability::PerfectConsonance),
+                Number::THIRD | Number::SIXTH => Some(Stability::ImperfectConsonance),
+                Number::SECOND | Number::SEVENTH => Some(Stability::Dissonance),
+                Number::FOURTH => None,
                 _ => unreachable!("as_simple should return number in [1,8]"),
             }
         }
@@ -362,10 +360,7 @@ impl Interval {
     /// # Examples
     /// ```
     /// # use music_theory::Interval;
-    /// # use music_theory::interval::{IntervalQuality, IntervalNumber};
-    /// use IntervalQuality as Quality;
-    /// use IntervalNumber as Number;
-    ///
+    /// # use music_theory::interval::{Quality, Number};
     /// assert!(!Interval::PERFECT_UNISON.is_subzero());
     /// assert!(!Interval::MAJOR_THIRD.is_subzero());
     ///
@@ -378,9 +373,9 @@ impl Interval {
     /// ```
     // TODO: does this work for descending intervals?
     pub fn is_subzero(self) -> bool {
-        let semitones = self.semitones().0;
-
-        semitones != 0 && semitones.signum() != self.number.get().signum()
+        self.quality.is_diminished()
+            && self.semitones() != Semitones::UNISON
+            && self.semitones().is_positive() != self.is_ascending()
     }
     
     /// Expands a subzero interval into an equivalent non-subzero compound interval.
@@ -391,10 +386,7 @@ impl Interval {
     /// # Examples
     /// ```
     /// # use music_theory::Interval;
-    /// # use music_theory::interval::{IntervalQuality, IntervalNumber};
-    /// use IntervalQuality as Quality;
-    /// use IntervalNumber as Number;
-    ///
+    /// # use music_theory::interval::{Quality, Number};
     /// // Non-subzero intervals remain unchanged
     /// assert_eq!(
     ///     Interval::PERFECT_FIFTH.expand_subzero(),
@@ -422,7 +414,7 @@ impl Interval {
 
         let octaves = -semitones.div_euclid(OCTAVE_SEMITONES);
         
-        let new_number = IntervalNumber::new(self.number().get() + octaves * 7)
+        let new_number = Number::new(self.number().get() + octaves * 7)
             .expect("shouldn't be zero to begin with");
         
         let expanded = Self::strict_non_subzero(self.quality, new_number)
@@ -438,11 +430,11 @@ impl Interval {
     /// # Examples
     /// ```
     /// # use music_theory::Interval;
-    /// # use music_theory::interval::IntervalQuality;
-    /// assert_eq!(Interval::MAJOR_THIRD.quality(), IntervalQuality::Major);
-    /// assert_eq!(Interval::PERFECT_FIFTH.quality(), IntervalQuality::Perfect);
+    /// # use music_theory::interval::Quality;
+    /// assert_eq!(Interval::MAJOR_THIRD.quality(), Quality::Major);
+    /// assert_eq!(Interval::PERFECT_FIFTH.quality(), Quality::Perfect);
     /// ```
-    pub fn quality(self) -> IntervalQuality {
+    pub fn quality(self) -> Quality {
         self.quality
     }
 
@@ -451,11 +443,11 @@ impl Interval {
     /// # Examples
     /// ```
     /// # use music_theory::Interval;
-    /// # use music_theory::interval::IntervalNumber;
-    /// assert_eq!(Interval::MAJOR_THIRD.number(), IntervalNumber::THIRD);
-    /// assert_eq!(Interval::PERFECT_FIFTH.number(), IntervalNumber::FIFTH);
+    /// # use music_theory::interval::Number;
+    /// assert_eq!(Interval::MAJOR_THIRD.number(), Number::THIRD);
+    /// assert_eq!(Interval::PERFECT_FIFTH.number(), Number::FIFTH);
     /// ```
-    pub fn number(self) -> IntervalNumber {
+    pub fn number(self) -> Number {
         self.number
     }
 
@@ -473,19 +465,17 @@ impl Interval {
     pub fn semitones(self) -> Semitones {
         let base_oct_semitones = self.number.base_semitones_with_octave_unsigned();
 
-        use IntervalQuality as Q;
-
         let quality_adjust = match self.quality {
-            Q::Perfect | Q::Major => 0,
-            Q::Minor => -1,
+            Quality::Perfect | Quality::Major => 0,
+            Quality::Minor => -1,
 
-            Q::Diminished(n) => if self.number.is_perfect() {
+            Quality::Diminished(n) => if self.number.is_perfect() {
                 -(n.get() as i16)
             } else {
                 -(n.get() as i16 + 1)
             }
 
-            Q::Augmented(n) => n.get() as i16,
+            Quality::Augmented(n) => n.get() as i16,
         };
 
         let unsigned = base_oct_semitones + quality_adjust;
@@ -505,13 +495,13 @@ impl Interval {
     /// assert_eq!(Interval::DIMINISHED_FIFTH.shorthand(), "d5");
     /// ```
     pub fn shorthand(self) -> String {
-        format!("{}{}", self.quality.shorthand(), self.number.shorthand())
+        format!("{}{}", self.quality.shorthand(), self.number.get())
     }
 
     /// Returns the inverted interval.
     ///
-    /// Flips the quality and the number of the interval. See [`IntervalQuality::inverted`] and
-    /// [`IntervalNumber::inverted`] for more information.
+    /// Flips the quality and the number of the interval. See [`Quality::inverted`] and
+    /// [`Number::inverted`] for more information.
     ///
     /// # Examples
     /// ```
@@ -543,13 +533,13 @@ impl Interval {
     /// # Examples
     /// ```
     /// # use music_theory::Interval;
-    /// # use music_theory::interval::{IntervalQuality, IntervalNumber};
+    /// # use music_theory::interval::{Quality, Number};
     /// // Normal intervals invert successfully
     /// assert!(Interval::MAJOR_THIRD.inverted_strict_non_subzero().is_some());
     ///
     /// let doubly_augmented_second = Interval::new(
-    ///     IntervalQuality::Augmented(2.try_into().unwrap()),
-    ///     IntervalNumber::SEVENTH
+    ///     Quality::Augmented(2.try_into().unwrap()),
+    ///     Number::SEVENTH
     /// )
     /// .expect("valid quality & number combination");
     ///
@@ -594,21 +584,19 @@ impl Interval {
 
         let semi_adj = (semi.abs() - 1) % 12;
 
-        use IntervalQuality as Q;
-
         let (quality, base_num) = match semi_adj + 1 {
-            1 => (Q::Minor, 2),
-            2 => (Q::Major, 2),
-            3 => (Q::Minor, 3),
-            4 => (Q::Major, 3),
-            5 => (Q::Perfect, 4),
-            6 => (Q::DIMINISHED, 5),
-            7 => (Q::Perfect, 5),
-            8 => (Q::Minor, 6),
-            9 => (Q::Major, 6),
-            10 => (Q::Minor, 7),
-            11 => (Q::Major, 7),
-            12 => (Q::Perfect, 8),
+            1 => (Quality::Minor, 2),
+            2 => (Quality::Major, 2),
+            3 => (Quality::Minor, 3),
+            4 => (Quality::Major, 3),
+            5 => (Quality::Perfect, 4),
+            6 => (Quality::DIMINISHED, 5),
+            7 => (Quality::Perfect, 5),
+            8 => (Quality::Minor, 6),
+            9 => (Quality::Major, 6),
+            10 => (Quality::Minor, 7),
+            11 => (Quality::Major, 7),
+            12 => (Quality::Perfect, 8),
             _ => unreachable!("should be in range [1,12]"),
         };
 
@@ -616,7 +604,7 @@ impl Interval {
 
         let unsigned = base_num + oct * 7;
 
-        let number = IntervalNumber::new(unsigned * semi.signum())
+        let number = Number::new(unsigned * semi.signum())
             .expect("non zero");
 
         Self::new(quality, number)
@@ -672,19 +660,6 @@ impl Interval {
         }
     }
 
-    /// Inverts the interval and reverses its direction.
-    ///
-    /// # Examples
-    /// ```
-    /// # use music_theory::Interval;
-    /// let m3 = Interval::MAJOR_THIRD;
-    /// assert_eq!(m3.swap_direction_invert(), -Interval::MINOR_SIXTH);
-    /// ```
-    // TODO: better name? and tests
-    pub fn swap_direction_invert(self) -> Self {
-        -self.inverted()
-    }
-
     /// Returns the ascending form of the interval.
     ///
     /// # Examples
@@ -694,49 +669,10 @@ impl Interval {
     /// assert_eq!((-Interval::MAJOR_THIRD).abs(), Interval::MAJOR_THIRD);
     /// ```
     pub fn abs(self) -> Self {
-        self.with_direction(true)
-    }
-
-    fn add_interval(self, rhs: Self) -> Self {
-        let ln = self.number.get();
-        let rn = rhs.number.get();
-
-        let offset = {
-            let ls = ln.signum();
-            let rs = rn.signum();
-            let ss = (ln + rn).signum();
-
-            -ls * rs * ss + (ss == 0) as i16
-        };
-
-        let num = IntervalNumber::new(ln + rn + offset)
-            .expect("nonzero");
-
-        let distance = self.semitones().0 + rhs.semitones().0;
-
-        let num_sign = num.get().signum();
-
-        let difference = distance - num.base_semitones_with_octave_unsigned() * num_sign;
-
-        let perfect = num.is_perfect();
-
-        use IntervalQuality as IQ;
-
-        let quality = match difference {
-            0 if perfect => IQ::Perfect,
-            0 if !perfect => IQ::Major,
-            -1 if !perfect && num_sign == 1 => IQ::Minor,
-            -1 if !perfect && num_sign == -1 => IQ::AUGMENTED,
-            diff => match diff * num_sign {
-                -1 if !perfect => IQ::Minor,
-                n if n > 0 => IQ::Augmented(NonZeroU16::new(n as u16).expect("zero was handled already")),
-                n if n < 0 && perfect => IQ::Diminished(NonZeroU16::new(-n as u16).expect("nonzero")),
-                n if n < 0 && !perfect => IQ::Diminished(NonZeroU16::new(-(n + 1) as _).expect("nonzero")),
-                _ => unreachable!("all cases covered"),
-            }
-        };
-
-        Self::new(quality, num).expect("valid quality")
+        Self {
+            number: self.number.abs(),
+            .. self
+        }
     }
     
     /// Negates the interval, but preserves perfect unisons.
@@ -766,13 +702,60 @@ impl Interval {
             -self
         }
     }
+
+    /// Creates an interval from a [number](Number) and [semitone](Semitones) count.
+    ///
+    /// Automatically determines the appropriate quality based on the
+    /// number and semitones. This is useful when you know both the
+    /// diatonic size and chromatic distance of an interval.
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::Interval;
+    /// # use music_theory::interval::Number;
+    /// # use music_theory::Semitones;
+    /// // A third spanning 4 semitones is a major third
+    /// assert_eq!(
+    ///     Interval::from_number_and_semitones(Number::THIRD, Semitones(4)),
+    ///     Interval::MAJOR_THIRD,
+    /// );
+    ///
+    /// // A third spanning 5 semitones is an augmented third
+    /// assert_eq!(
+    ///     Interval::from_number_and_semitones(Number::THIRD, Semitones(5)),
+    ///     Interval::AUGMENTED_THIRD,
+    /// );
+    /// ```
+    pub fn from_number_and_semitones(num: Number, intended_semitones: Semitones) -> Self {
+        let perfect = num.is_perfect();
+        let num_sign = num.get().signum();
+
+        let quality = match intended_semitones.0 - num.base_semitones_with_octave_unsigned() * num_sign {
+            0 if perfect => Quality::Perfect,
+            0 if !perfect => Quality::Major,
+            -1 if !perfect && num_sign == 1 => Quality::Minor,
+            -1 if !perfect && num_sign == -1 => Quality::AUGMENTED,
+            diff => match diff * num_sign {
+                -1 if !perfect => Quality::Minor,
+                n if n > 0 => Quality::Augmented(NonZeroU16::new(n as u16).expect("zero was handled already")),
+                n if n < 0 && perfect => Quality::Diminished(NonZeroU16::new(-n as u16).expect("nonzero")),
+                n if n < 0 && !perfect => Quality::Diminished(NonZeroU16::new(-(n + 1) as _).expect("nonzero")),
+                _ => unreachable!("all cases covered"),
+            }
+        };
+
+        Self::new(quality, num).expect("valid quality")
+    }
 }
 
 impl Add for Interval {
     type Output = Self;
 
     fn add(self, rhs: Self) -> Self::Output {
-        self.add_interval(rhs)
+        Self::from_number_and_semitones(
+            self.number + rhs.number,
+            self.semitones() + rhs.semitones(),
+        )
     }
 }
 
@@ -784,6 +767,43 @@ impl Sub for Interval {
     }
 }
 
+impl Mul<i16> for Interval {
+    type Output = Self;
+
+    /// Multiplies an interval by a scalar, equivalent to repeatedly adding the interval to itself.
+    ///
+    /// Multiplying by a negative value negates the result. Multiplying by zero
+    /// returns a perfect unison in the same direction as the original interval.
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::Interval;
+    /// assert_eq!(
+    ///     Interval::PERFECT_FOURTH * 3,
+    ///     Interval::MINOR_TENTH,
+    /// );
+    ///
+    /// let m6 = Interval::MINOR_SIXTH;
+    /// assert_eq!(
+    ///     m6 + m6 + m6 + m6 + m6,
+    ///     m6 * 5, // == ddd26
+    /// );
+    ///
+    /// assert_eq!(
+    ///     Interval::MINOR_THIRD * -4,
+    ///     -Interval::DIMINISHED_NINTH,
+    /// );
+    ///
+    /// assert_eq!(Interval::MAJOR_SEVENTH * 0, Interval::PERFECT_UNISON);
+    /// ```
+    fn mul(self, rhs: i16) -> Self::Output {
+        Self::from_number_and_semitones(
+            self.number * rhs,
+            self.semitones() * rhs,
+        )
+    }
+}
+
 impl Neg for Interval {
     type Output = Self;
 
@@ -792,6 +812,54 @@ impl Neg for Interval {
             number: -self.number,
             .. self
         }
+    }
+}
+
+impl PartialOrd for Interval {
+    /// Compares intervals by their number and quality (spelling-aware).
+    ///
+    /// See [`Ord::ord`](Ord) implementation for more information.
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for Interval {
+    /// Compares intervals by their number and quality (spelling-aware).
+    ///
+    /// Intervals are ordered by number first (descending < ascending), then by quality.
+    /// For descending intervals, quality order is reversed, so a descending minor third is
+    /// *greater* than a descending major third.
+    ///
+    /// # Examples
+    /// ```
+    /// # use music_theory::Interval;
+    /// # use music_theory::EnharmonicEq as _;
+    /// assert!(-Interval::MAJOR_SIXTH < -Interval::MAJOR_THIRD);
+    /// // Descending intervals are less than ascending
+    /// assert!(-Interval::MAJOR_THIRD < Interval::MAJOR_THIRD);
+    ///
+    /// // If ascending, smaller quality < larger quality
+    /// assert!(Interval::MINOR_THIRD < Interval::MAJOR_THIRD);
+    ///
+    /// // If descending, it's the opposite
+    /// assert!(-Interval::MINOR_THIRD > -Interval::MAJOR_THIRD);
+    ///
+    /// // Enharmonic intervals ordered by spelling
+    /// assert!(Interval::AUGMENTED_FOURTH < Interval::DIMINISHED_FIFTH);
+    /// assert!(Interval::AUGMENTED_FOURTH.eq_enharmonic(&Interval::DIMINISHED_FIFTH));
+    /// ```
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.number
+            .cmp(&other.number)
+            .then_with(|| {
+                let quality_cmp = self.quality.total_cmp(&other.quality);
+                if self.number.is_ascending() {
+                    quality_cmp
+                } else {
+                    quality_cmp.reverse()
+                }
+            })
     }
 }
 
@@ -838,7 +906,7 @@ impl EnharmonicOrd for Interval {
 /// # Examples
 /// ```
 /// # use music_theory::Interval;
-/// # use music_theory::interval::{ParseIntervalError, ParseIntervalQualityErr};
+/// # use music_theory::interval::ParseIntervalError;
 /// assert_eq!(
 ///     "P5".parse::<Interval>(),
 ///     Ok(Interval::PERFECT_FIFTH),
@@ -846,7 +914,7 @@ impl EnharmonicOrd for Interval {
 ///
 /// assert_eq!(
 ///     "XYZ".parse::<Interval>(),
-///     Err(ParseIntervalError::QualityErr(ParseIntervalQualityErr)),
+///     Err(ParseIntervalError::InvalidFormat),
 /// );
 ///
 /// // Perfect third doesn't exist
@@ -863,21 +931,17 @@ pub enum ParseIntervalError {
     /// The quality-number combination is not a valid interval.
     #[error("The interval wasn't a valid interval")]
     InvalidInterval,
-    /// Failed to parse the interval's quality.
-    #[error(transparent)]
-    QualityErr(#[from] ParseIntervalQualityErr),
-    /// Failed to parse the interval's number.
-    #[error("Failed to parse number: {0}")]
-    NumberErr(#[from] ParseIntError),
 }
 
 impl FromStr for Interval {
     type Err = ParseIntervalError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
+        use ParseIntervalError as ParseErr;
+
         if s.chars()
             .last()
-            .ok_or(ParseIntervalError::InvalidFormat)?
+            .ok_or(ParseErr::InvalidFormat)?
             .is_ascii_digit()
         {
             let leading_negative = s.starts_with('-');
@@ -887,17 +951,21 @@ impl FromStr for Interval {
             let s = &s[start..];
 
             let split = s.find(|c: char| c.is_ascii_digit() || c == '-')
-                .ok_or(ParseIntervalError::InvalidFormat)?;
+                .ok_or(ParseErr::InvalidFormat)?;
 
             let (quality_str, num_str) = s.split_at(split);
 
-            let quality = quality_str.parse()?;
+            let quality = quality_str.parse()
+                .map_err(|_| ParseErr::InvalidFormat)?;
 
-            let number = num_str.parse()?;
+            let number = num_str.parse()
+                .map_err(|_| ParseErr::InvalidFormat)?;
 
-            let ivl = Self::new(quality, number).ok_or(ParseIntervalError::InvalidInterval)?;
+            let ivl = Self::new(quality, number).ok_or(ParseErr::InvalidInterval)?;
 
-            if leading_negative {
+            if !ivl.is_ascending() && leading_negative {
+                Err(ParseIntervalError::InvalidFormat)
+            } else if leading_negative {
                 Ok(-ivl)
             } else {
                 Ok(ivl)
@@ -908,9 +976,14 @@ impl FromStr for Interval {
 
             let (num_str, quality_str) = s.split_at(split);
 
+            let quality = quality_str.parse()
+                .map_err(|_| ParseErr::InvalidFormat)?;
+
+            let number = num_str.parse()
+                .map_err(|_| ParseErr::InvalidFormat)?;
+
             Ok(
-                Self::new(quality_str.parse()?, num_str.parse()?)
-                    .ok_or(ParseIntervalError::InvalidInterval)?
+                Self::new(quality, number).ok_or(ParseIntervalError::InvalidInterval)?
             )
         }
     }
