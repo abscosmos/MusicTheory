@@ -534,10 +534,8 @@ pub fn score_common_tones(first: Voicing, second: Voicing, first_chord: RomanCho
 
         let first_pc = first_note.pitch.as_pitch_class();
 
-        if common_pcs.is_set(first_pc) {
-            if first_note != second_note {
-                penalty += 1;
-            }
+        if common_pcs.is_set(first_pc) && first_note != second_note {
+            penalty += 1;
         }
     }
 
