@@ -3,7 +3,7 @@ use strum_macros::{EnumIter, FromRepr};
 use crate::note::Note;
 use crate::pitch::Pitch;
 
-pub mod rules;
+pub mod rules_old;
 pub mod roman_chord;
 pub mod check;
 pub mod solve;

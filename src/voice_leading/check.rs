@@ -43,7 +43,7 @@ pub enum VoiceLeadingErrorKind {
 }
 
 pub fn score_single(voicing: Voicing, chord: RomanChord, key: Key) -> Result<u16, VoiceLeadingErrorKind> {
-    use crate::voice_leading::rules::{
+    use crate::voice_leading::rules_old::{
         check_bass_note,
         check_completely_voiced,
         check_leading_tone_not_doubled,
@@ -91,7 +91,7 @@ pub fn score_single(voicing: Voicing, chord: RomanChord, key: Key) -> Result<u16
 }
 
 pub fn score_window(v_first: Voicing, v_second: Voicing, c_first: RomanChord, c_second: RomanChord, key: Key) -> Result<u16, VoiceLeadingErrorKind> {
-    use crate::voice_leading::rules::{
+    use crate::voice_leading::rules_old::{
         check_direct_fifths_octaves,
         check_parallel_interval,
         check_unequal_fifths,
