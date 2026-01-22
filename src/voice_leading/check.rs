@@ -57,7 +57,7 @@ pub fn score_single(voicing: Voicing, chord: RomanChord, key: Key) -> Result<u16
     use VoiceLeadingErrorKind as Kind;
 
     // 1. range & spacing
-    check_range(voicing).map_err(|voice| Kind::OutOfRange(voice))?;
+    check_range(voicing).map_err(Kind::OutOfRange)?;
 
     check_spacing(voicing).map_err(|(v1, v2, ivl)| Kind::InvalidSpacing(v1, v2, ivl))?;
 
@@ -115,12 +115,12 @@ pub fn score_window(v_first: Voicing, v_second: Voicing, c_first: RomanChord, c_
     // 5. fifths
     check_unequal_fifths(v_first, v_second).map_err(|(v1, v2)| Kind::UnequalFifths(v1, v2))?;
 
-    check_direct_fifths_octaves(v_first, v_second).map_err(|voice| Kind::DirectFifthsOrOctaves(voice))?;
+    check_direct_fifths_octaves(v_first, v_second).map_err(Kind::DirectFifthsOrOctaves)?;
 
     // 6. resolution
-    check_leading_tone_resolution(v_first, v_second, c_second, key).map_err(|voice| Kind::LeadingToneNotResolved(voice))?;
+    check_leading_tone_resolution(v_first, v_second, c_second, key).map_err(Kind::LeadingToneNotResolved)?;
 
-    check_chordal_seventh_resolution(v_first, c_first, v_second, key).map_err(|voice| Kind::ChordalSeventhNotResolved(voice))?;
+    check_chordal_seventh_resolution(v_first, c_first, v_second, key).map_err(Kind::ChordalSeventhNotResolved)?;
 
     // 7. intervals
     check_melodic_intervals(v_first, v_second).map_err(|(voice, interval)| Kind::InvalidMelodicInterval(voice, interval))?;
