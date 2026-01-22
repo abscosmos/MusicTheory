@@ -24,7 +24,7 @@ pub fn chordal_seventh_resolution(
         if first_note.pitch.as_pitch_class() == seventh.as_pitch_class() {
             let dist = first_note.distance_to(second_note);
 
-            if dist != Interval::PERFECT_UNISON && !matches!(-first_note.distance_to(second_note), Interval::MAJOR_SECOND | Interval::MINOR_SECOND) {
+            if dist != Interval::PERFECT_UNISON && !matches!(-dist.number(), Number::SECOND) {
                 return Err(voice)
             }
         }
