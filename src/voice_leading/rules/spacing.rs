@@ -1,7 +1,7 @@
-use crate::Interval;
 use crate::interval::Number;
 use crate::voice_leading::{Voice, Voicing};
 
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct SpacingRule {
     alto_soprano: Number,
     tenor_alto: Number,

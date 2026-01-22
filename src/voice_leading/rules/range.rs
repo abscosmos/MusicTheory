@@ -1,8 +1,10 @@
+use std::hash::{Hash, Hasher};
 use std::ops::RangeInclusive;
 use strum::IntoEnumIterator;
 use crate::Note;
 use crate::voice_leading::{Voice, Voicing};
 
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct RangeRule {
     ranges: [RangeInclusive<Note>; 4],
 }
@@ -60,5 +62,11 @@ impl RangeRule {
         }
         
         Ok(())
+    }
+}
+
+impl Hash for RangeRule {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.ranges.clone().map(RangeInclusive::into_inner).hash(state);
     }
 }
