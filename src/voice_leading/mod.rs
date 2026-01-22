@@ -9,6 +9,7 @@ pub mod check;
 pub mod solve;
 
 pub mod debug;
+pub mod rules;
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
