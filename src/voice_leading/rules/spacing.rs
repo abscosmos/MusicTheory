@@ -8,6 +8,17 @@ pub struct SpacingRule {
     bass_tenor: Number,
 }
 
+impl Default for SpacingRule {
+    fn default() -> Self {
+        Self::new(
+            Number::OCTAVE,
+            Number::OCTAVE,
+            Number::TENTH,
+        )
+        .expect("all positive")
+    }
+}
+
 impl SpacingRule {
     pub fn new(alto_soprano: Number, tenor_alto: Number, bass_tenor: Number) -> Option<Self> {
         if alto_soprano.is_ascending() && tenor_alto.is_ascending() && bass_tenor.is_ascending() {

@@ -7,6 +7,18 @@ pub struct RangeRule {
     ranges: [RangeInclusive<Note>; 4],
 }
 
+impl Default for RangeRule {
+    fn default() -> Self {
+        Self::new(
+            Voice::Soprano.range(),
+            Voice::Alto.range(),
+            Voice::Tenor.range(),
+            Voice::Bass.range(),
+        )
+        .expect("should be in order")
+    }
+}
+
 impl RangeRule {
     pub fn new(
         soprano: RangeInclusive<Note>,
