@@ -115,6 +115,7 @@ impl RomanChord {
         self.seventh_quality.is_some()
     }
 
+    #[expect(clippy::len_without_is_empty, reason = "roman chords cannot be empty")]
     pub fn len(&self) -> u8 {
         if self.has_seventh() {
             4
