@@ -1,8 +1,7 @@
 use crate::harmony::Key;
-use crate::Interval;
 use crate::voice_leading::roman_chord::{RomanChord, ScaleDegree};
 use crate::voice_leading::rules::voicing::{bass_note, completely_voiced};
-use crate::voice_leading::Voicing;
+use crate::voice_leading::{leading_tone, Voicing};
 
 // TODO: not sure if this method is right
 pub fn root_position_doubling(voicing: Voicing, chord: RomanChord, key: Key) -> bool {
@@ -68,15 +67,7 @@ pub fn leading_tone_not_doubled(v: Voicing, chord: RomanChord, key: Key) -> bool
 
     let chord_pitches = chord.pitches(key);
 
-    let leading_tone = {
-        let mut vii = key.scale_experimental().build_default()[6];
-
-        if RomanChord::mode_has_raised_leading_tone(key.mode) {
-            vii = vii.transpose(Interval::AUGMENTED_UNISON);
-        }
-
-        vii
-    };
+    let leading_tone = leading_tone(key);
 
     let chordal_seventh = chord.has_seventh().then(|| chord_pitches[3]);
 

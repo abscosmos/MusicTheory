@@ -1,8 +1,9 @@
 use strum::IntoEnumIterator;
 use crate::harmony::Key;
 use crate::Interval;
+use crate::interval::Number;
 use crate::voice_leading::roman_chord::{RomanChord, ScaleDegree};
-use crate::voice_leading::{Voice, Voicing};
+use crate::voice_leading::{leading_tone, Voice, Voicing};
 use crate::voice_leading::rules::voicing::completely_voiced;
 
 pub fn chordal_seventh_resolution(
@@ -49,15 +50,7 @@ pub fn leading_tone_resolution(
         return Ok(());
     }
 
-    let leading_tone = {
-        let mut vii = key.scale_experimental().build_default()[6];
-
-        if RomanChord::mode_has_raised_leading_tone(key.mode) {
-            vii = vii.transpose(Interval::AUGMENTED_UNISON);
-        }
-
-        vii
-    };
+    let leading_tone = leading_tone(key);
 
     if leading_tone.distance_to(key.tonic) != Interval::MINOR_SECOND {
         // this mode does not have a leading tone, so it's fine by default

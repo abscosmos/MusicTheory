@@ -1,7 +1,10 @@
 use std::ops::{Deref, Index, IndexMut, RangeInclusive};
 use strum_macros::{EnumIter, FromRepr};
+use crate::harmony::Key;
+use crate::Interval;
 use crate::note::Note;
 use crate::pitch::Pitch;
+use crate::voice_leading::roman_chord::RomanChord;
 
 pub mod rules;
 pub mod roman_chord;
@@ -10,6 +13,17 @@ pub mod solve;
 pub mod motion;
 
 pub mod debug;
+
+pub fn leading_tone(key: Key) -> Pitch {
+    let mut vii = key.scale_experimental().build_default()[6];
+
+    if RomanChord::mode_has_raised_leading_tone(key.mode) {
+        vii = vii + Interval::AUGMENTED_UNISON;
+    }
+
+    vii
+}
+
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
