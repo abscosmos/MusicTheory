@@ -7,6 +7,7 @@ pub mod rules;
 pub mod roman_chord;
 pub mod check;
 pub mod solve;
+pub mod motion;
 
 pub mod debug;
 

@@ -6,6 +6,7 @@ use crate::{Pitch, Note, Interval};
 use crate::set::PitchClassSet;
 use crate::voice_leading::roman_chord::{Quality, RomanChord, ScaleDegree};
 use crate::voice_leading::{Voice, Voicing};
+use crate::voice_leading::motion::{get_motion_between, VoiceMotion};
 
 pub fn check_range(v: Voicing) -> Result<(), Voice> {
     for voice in Voice::iter() {
@@ -431,38 +432,6 @@ pub fn check_eliminated_fifths(first_chord: Option<RomanChord>, second_chord: Ro
 
     // not a valid case
     false
-}
-
-#[derive(Copy, Clone, Debug, Eq, PartialEq)]
-enum VoiceMotion {
-    Oblique,
-    Contrary,
-    Similar,
-    Parallel,
-}
-
-fn get_motion_between(voice_1: Voice, voice_2: Voice, first: Voicing, second: Voicing) -> VoiceMotion {
-    if voice_1 == voice_2 {
-        return VoiceMotion::Oblique;
-    }
-
-    let soprano_first = first[voice_1];
-    let soprano_second = second[voice_1];
-    let bass_first = first[voice_2];
-    let bass_second = second[voice_2];
-
-    let soprano_motion = soprano_first.distance_to(soprano_second);
-    let bass_motion = bass_first.distance_to(bass_second);
-
-    if soprano_motion == Interval::PERFECT_UNISON && bass_motion == Interval::PERFECT_UNISON {
-        VoiceMotion::Oblique
-    } else if soprano_motion == bass_motion {
-        VoiceMotion::Parallel
-    } else if soprano_motion.is_ascending() != bass_motion.is_ascending() {
-        VoiceMotion::Contrary
-    } else {
-        VoiceMotion::Similar
-    }
 }
 
 pub fn score_outer_voice_motion(first: Voicing, second: Voicing) -> u16 {
