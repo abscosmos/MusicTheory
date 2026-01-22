@@ -1,8 +1,9 @@
 use strum_macros::EnumIter;
-use crate::interval::Interval;
+use crate::Interval;
 
 // from https://en.wikipedia.org/wiki/Chord_(music)
 #[derive(Copy, Clone, Eq, PartialEq, Debug, EnumIter)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum ChordType {
     MajorTriad,
     MinorTriad,

@@ -1,6 +1,6 @@
 use std::array;
 use std::ops::Add;
-use crate::interval::Interval;
+use crate::Interval;
 
 fn build_inner<T: Add<Interval, Output = T> + Clone>(ivl: Interval, curr: &mut T) -> T {
     let ret = curr.clone();

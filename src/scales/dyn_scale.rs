@@ -1,5 +1,5 @@
 use std::ops::Add;
-use crate::interval::Interval;
+use crate::Interval;
 use crate::scales;
 use crate::scales::{ScaleDefinition, ScaleMode};
 use crate::scales::typed_scale::TypedScale;
@@ -7,6 +7,7 @@ use crate::scales::typed_scale::TypedScale;
 // var ty, var mode
 // TODO: Box<dyn Metadata>?
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct DynamicScale {
     ivls: Box<[Interval]>,
 }

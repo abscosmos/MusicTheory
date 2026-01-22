@@ -1,9 +1,9 @@
 use std::cmp::Ordering;
 use std::fmt;
-use crate::letter::Letter;
-use crate::note::Note;
+use crate::{Note, Letter};
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct OctaveLetter {
     pub letter: Letter,
     pub octave: i16,
@@ -17,7 +17,7 @@ impl OctaveLetter {
     }
 
     pub fn from_note_lossy(note: Note) -> Self {
-        Self { letter: note.letter(), octave: note.octave }
+        Self { letter: note.pitch.letter(), octave: note.octave }
     }
 
     pub const fn offset_to(self, rhs: Self) -> i16 {
@@ -61,8 +61,7 @@ impl PartialOrd for OctaveLetter {
 
 #[cfg(test)]
 mod tests {
-    use crate::letter::Letter;
-    use crate::octave_letter::OctaveLetter;
+    use super::*;
 
     #[test]
     fn test_offset_to() {

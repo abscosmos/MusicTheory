@@ -1,6 +1,5 @@
 use crate::chord::Chord;
-use crate::enharmonic::EnharmonicEq;
-use crate::pitch::Pitch;
+use crate::{Pitch, EnharmonicEq};
 
 impl Chord {
     // TODO: is there a more efficient way of doing this?
@@ -35,9 +34,9 @@ impl Chord {
 }
 
 impl EnharmonicEq for Chord {
-    fn eq_enharmonic(&self, rhs: &Self) -> bool {
+    fn eq_enharmonic(&self, other: &Self) -> bool {
         self.eq_helper(
-            rhs,
+            other,
             &|p| p.as_pitch_class(),
             &mut |pc| *pc as u8
         )

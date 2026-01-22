@@ -1,11 +1,11 @@
 use std::fmt;
 use std::num::NonZeroU8;
 use std::ops::RangeInclusive;
-use crate::letter::Letter;
-use crate::stem_direction::StemDirection;
-use crate::octave_letter::OctaveLetter;
+use crate::Letter;
+use crate::notation::{OctaveLetter, StemDirection, GetStemDirectionParams};
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct PitchClef {
     // assuming there are only G, C, and F clefs
     // TODO: better field name?
@@ -135,17 +135,6 @@ impl PitchClef {
     }
 }
 
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Default)]
-pub enum GetStemDirectionParams {
-    /// Only the first note and last note are considered (Default)
-    #[default]
-    EndsOnly,
-    /// Only the note furthest above the middle line and furthest below the middle line are considered.
-    ExtremesOnly,
-    /// All notes are considered
-    AllNotes,
-}
-
 impl fmt::Display for PitchClef {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match *self {
@@ -171,6 +160,7 @@ impl fmt::Display for PitchClef {
 /// The first line of the staff is Line(1), and the space above it is Space(1)
 /// Line (0) would correspond to the first ledger line underneath the staff
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum StaffPosition {
     Line(i8),
     Space(i8),
@@ -182,17 +172,17 @@ impl StaffPosition {
 }
 
 #[derive(Copy, Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct PercussionClef;
 
 // should this be represented as a clef?
 #[derive(Copy, Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct TablatureClef;
 
 #[cfg(test)]
 mod tests {
-    use crate::letter::Letter;
-    use crate::octave_letter::OctaveLetter;
-    use super::{PitchClef as Clef, StaffPosition as Pos, *};
+    use super::{*, PitchClef as Clef, StaffPosition as Pos};
 
     const ALL_CONSTS: [PitchClef; 14] = [
         Clef::TREBLE,

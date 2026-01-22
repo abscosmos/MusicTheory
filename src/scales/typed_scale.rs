@@ -1,4 +1,4 @@
-use crate::interval::Interval;
+use crate::Interval;
 use crate::scales::{ScaleDefinition, ScaleMode};
 use crate::scales::dyn_scale::DynamicScale;
 use crate::scales::exact_scale::ExactScale;
@@ -6,6 +6,7 @@ use crate::scales::sized_scale::SizedScale;
 
 // const type, variable mode
 #[derive(Default, Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct TypedScale<S: ScaleDefinition<N>, const N: usize> {
     mode: S::Mode
 }

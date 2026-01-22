@@ -1,5 +1,5 @@
 use std::fmt;
-use crate::interval::Interval;
+use crate::Interval;
 
 pub mod typed_scale;
 pub mod exact_scale;
@@ -7,13 +7,9 @@ pub mod sized_scale;
 pub mod dyn_scale;
 mod build_from;
 pub mod numeral;
-mod define;
-pub mod heptatonic;
-pub mod pentatonic;
-pub mod chromatic;
-pub mod hexatonic;
-pub mod octatonic;
+pub mod definition;
 pub mod rooted;
+pub mod analyze;
 
 pub use numeral::Numeral7;
 
@@ -30,11 +26,6 @@ TODO:
     how the scale was built? 
 */
 
-const T: Interval = Interval::MAJOR_SECOND;
-const S: Interval = Interval::MINOR_SECOND;
-const TS: Interval = Interval::MINOR_THIRD;
-const TT: Interval = Interval::MAJOR_THIRD;
-const A2: Interval = Interval::AUGMENTED_SECOND;
 
 // TODO(generic_const_exprs): N should eventually become an assoc constant
 pub trait ScaleDefinition<const N: usize>: fmt::Debug {
