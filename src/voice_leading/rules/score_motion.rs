@@ -1,5 +1,6 @@
 use strum::IntoEnumIterator;
 use crate::harmony::Key;
+use crate::interval::Number;
 use crate::voice_leading::rules::voicing::completely_voiced;
 use crate::voice_leading::motion::{get_motion_between, VoiceMotion};
 use crate::voice_leading::{Voice, Voicing};
@@ -25,24 +26,17 @@ pub fn melodic_intervals(first: Voicing, second: Voicing) -> u16 {
             continue;
         }
 
-        let semis = first_note.distance_to(second_note)
+        penalty += match first_note.distance_to(second_note)
             .as_simple()
-            .semitones()
-            .0
-            .abs();
-
-        penalty += match semis {
-            // unison to step
-            0..=2 => 0,
-            // min/maj thirds
-            3..=4 => 1,
-            // fourth / tritone
-            5..=6 => 2,
-            // fifths
-            7 => 4,
-            // larger
-            8..=12 => 8,
-            _ => unreachable!("simple intervals have semitone count in [0,12)"),
+            .number()
+            .abs()
+        {
+            Number::UNISON | Number::SECOND => 0,
+            Number::THIRD => 1,
+            Number::FOURTH => 2,
+            Number::FIFTH => 4,
+            Number::SIXTH | Number::SEVENTH | Number::OCTAVE => 10,
+            _ => unreachable!("all cases covered")
         };
     }
 
