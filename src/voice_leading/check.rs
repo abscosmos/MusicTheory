@@ -1,5 +1,6 @@
 use crate::Interval;
 use crate::harmony::Key;
+use crate::interval::Number;
 use crate::voice_leading::roman_chord::RomanChord;
 use crate::voice_leading::{Voice, Voicing};
 
@@ -19,7 +20,7 @@ pub enum VoiceLeadingErrorKind {
     #[error("The {0:?} part was out of range")]
     OutOfRange(Voice),
     #[error("There was in invalid interval of {2} between {0:?} and {1:?}")]
-    InvalidSpacing(Voice, Voice, Interval),
+    InvalidSpacing(Voice, Voice, Number),
     #[error("The chord was not fully voiced")]
     IncompleteVoicing,
     #[error("The bass note was incorrect")]
@@ -55,7 +56,7 @@ pub fn score_single(voicing: Voicing, chord: RomanChord, key: Key) -> Result<u16
     // 1. range & spacing
     placement::range(voicing).map_err(Kind::OutOfRange)?;
 
-    placement::spacing(voicing).map_err(|(v1, v2, ivl)| Kind::InvalidSpacing(v1, v2, ivl))?;
+    placement::spacing(voicing).map_err(|(v1, v2, num)| Kind::InvalidSpacing(v1, v2, num))?;
 
     // 2. voicing
     if !voicing::completely_voiced(voicing, chord, key) {
