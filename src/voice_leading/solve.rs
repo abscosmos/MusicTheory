@@ -12,7 +12,7 @@ pub fn brute_force_search(
     key: Key,
     starting_voicing: Option<&[Voicing]>,
 ) -> Vec<(u16, Vec<Voicing>)> {
-    if progression.len() == 0 {
+    if progression.is_empty() {
         return vec![];
     }
 

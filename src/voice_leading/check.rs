@@ -152,7 +152,7 @@ pub fn check_voice_leading(key: Key, progression: &[RomanChord], voicings: &[Voi
         });
     }
 
-    if progression.len() == 0 {
+    if progression.is_empty() {
         return Ok(0);
     }
 
