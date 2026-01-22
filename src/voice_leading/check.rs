@@ -1,17 +1,18 @@
-use serde::{Deserialize, Serialize};
-use crate::interval::Interval;
-use crate::key::Key;
+use crate::Interval;
+use crate::harmony::Key;
 use crate::voice_leading::roman_chord::RomanChord;
 use crate::voice_leading::{Voice, Voicing};
 
-#[derive(Clone, Eq, PartialEq, Debug, thiserror::Error, Serialize, Deserialize)]
+#[derive(Clone, Eq, PartialEq, Debug, thiserror::Error)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[error("Error in chord {location}: {kind}")]
 pub struct VoiceLeadingError {
     pub kind: VoiceLeadingErrorKind,
     pub location: u16,
 }
 
-#[derive(Clone, Eq, PartialEq, Debug, thiserror::Error, Serialize, Deserialize)]
+#[derive(Clone, Eq, PartialEq, Debug, thiserror::Error)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum VoiceLeadingErrorKind {
     #[error("The progression and voicings were different lengths")]
     MismatchedSizes,

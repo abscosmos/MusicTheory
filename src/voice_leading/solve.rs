@@ -1,9 +1,7 @@
 use std::ops::RangeInclusive;
 use rustc_hash::FxHashMap;
-use serde::{Deserialize, Serialize};
-use crate::key::Key;
-use crate::note::Note;
-use crate::pitch::Pitch;
+use crate::harmony::Key;
+use crate::{Note, Pitch};
 use crate::voice_leading::check::{check_voice_leading, score_single, score_window, VoiceLeadingError};
 use crate::voice_leading::roman_chord::RomanChord;
 use crate::voice_leading::{Voice, Voicing};
@@ -77,7 +75,8 @@ pub fn brute_force_search(
     results
 }
 
-#[derive(Debug, thiserror::Error, Serialize, Deserialize)]
+#[derive(Debug, thiserror::Error)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum StartingVoicingError {
     #[error("Starting voicing length is longer than progression length")]
     SizeMismatch,
@@ -273,12 +272,8 @@ fn generate_notes_in_range(pitches: &[Pitch], range: RangeInclusive<Note>) -> Ve
 
 #[cfg(test)]
 mod tests {
-    use crate::pitch::Pitch;
-    use crate::key::Key;
-    use crate::note::Note;
-    use crate::voice_leading::roman_chord::{RomanChord, ScaleDegree};
-    use crate::voice_leading::solve::{brute_force_search, generate_voice_leadings};
-    use crate::voice_leading::Voicing;
+    use super::*;
+    use crate::voice_leading::roman_chord::ScaleDegree;
 
     // this should take around ~30s to run in release
     #[test]

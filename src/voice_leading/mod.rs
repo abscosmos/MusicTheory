@@ -1,5 +1,4 @@
 use std::ops::{Deref, Index, IndexMut, RangeInclusive};
-use serde::{Deserialize, Serialize};
 use strum_macros::{EnumIter, FromRepr};
 use crate::note::Note;
 use crate::pitch::Pitch;
@@ -9,11 +8,13 @@ pub mod roman_chord;
 pub mod check;
 pub mod solve;
 
-#[derive(Copy, Clone, Eq, PartialEq, Debug, Serialize, Deserialize)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Voicing(pub [Note; 4]);
 
 #[repr(u8)]
-#[derive(Copy, Clone, Eq, PartialEq, Debug, FromRepr, EnumIter, Ord, PartialOrd, Serialize, Deserialize)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug, FromRepr, EnumIter, Ord, PartialOrd)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Voice {
     Soprano = 0,
     Alto = 1,

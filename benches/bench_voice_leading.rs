@@ -1,8 +1,7 @@
 use std::hint::black_box;
 use criterion::{criterion_group, criterion_main, Criterion};
-use music_theory::key::Key;
-use music_theory::note::Note;
-use music_theory::pitch::Pitch;
+use music_theory::harmony::Key;
+use music_theory::{Pitch, Note};
 use music_theory::voice_leading::roman_chord::{RomanChord, ScaleDegree};
 use music_theory::voice_leading::{solve::brute_force_search, Voicing};
 use music_theory::voice_leading::solve::generate_voice_leadings;

@@ -1,11 +1,9 @@
 use std::fmt;
 use std::str::FromStr;
-use serde::{Deserialize, Serialize};
-use crate::interval::{Interval, IntervalQuality};
-use crate::key::Key;
-use crate::pcset::PitchClassSet;
-use crate::pitch::Pitch;
-use crate::scales::heptatonic::DiatonicMode;
+use crate::{Pitch, Interval};
+use crate::interval::Quality as IntervalQuality;
+use crate::harmony::{Key, DiatonicMode};
+use crate::set::PitchClassSet;
 use strum_macros::{EnumIter, EnumString, FromRepr};
 
 // not typed at all!
@@ -19,7 +17,8 @@ pub mod inversions {
 }
 
 #[repr(u8)]
-#[derive(Copy, Clone, Debug, Eq, PartialEq, FromRepr, EnumString, EnumIter, Serialize, Deserialize)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, FromRepr, EnumString, EnumIter)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum ScaleDegree {
     I = 1,
     II = 2,
@@ -40,7 +39,8 @@ impl ScaleDegree {
     }
 }
 
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Quality {
     Major,
     Minor,
@@ -49,11 +49,13 @@ pub enum Quality {
 }
 
 
-#[derive(Debug, thiserror::Error, Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, thiserror::Error, Clone, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[error("Invalid inversion for chord type")]
 pub struct InvalidInversionError;
 
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct RomanChord {
     pub degree: ScaleDegree,
     pub triad_quality: Quality,
@@ -155,8 +157,7 @@ impl RomanChord {
     }
 
     pub fn root_in_key(&self, key: Key) -> Pitch {
-        // TODO: this scale function is experimental
-        let scale = key.scale().build_default();
+        let scale = key.scale_experimental().build_default();
         let mut root = scale[self.degree.as_idx() as usize];
 
         // TODO: maybe this function is overkill?
@@ -200,7 +201,7 @@ impl RomanChord {
             exp_third == third && exp_fifth == fifth && seventh.is_none_or(|s| s == exp_seventh)
         }
 
-        let scale = key.scale().build_default();
+        let scale = key.scale_experimental().build_default();
 
         let scale_raised = {
             let mut s = scale;
@@ -256,7 +257,7 @@ impl RomanChord {
 
         let mut scale = {
             // this is the easiest way to do this
-            let mut scale = Key::new(Pitch::C, mode).scale().build_default();
+            let mut scale = Key::new(Pitch::C, mode).scale_experimental().build_default();
 
             if matches!(degree, ScaleDegree::V | ScaleDegree::VII) && Self::mode_has_raised_leading_tone(mode) {
                 scale[6] = scale[6].transpose(Interval::AUGMENTED_UNISON);
@@ -512,11 +513,8 @@ impl FromStr for RomanChord {
 
 #[cfg(test)]
 mod tests {
-    use std::str::FromStr;
     use strum::IntoEnumIterator;
-    use crate::key::Key;
-    use crate::pitch::Pitch;
-    use super::{RomanChord, ScaleDegree, Quality};
+    use super::*;
 
     fn assert_diatonic_chord(key: Key, degree: ScaleDegree, triad: Quality, seventh: Quality) {
         let expected = RomanChord::seventh(degree, triad, seventh);

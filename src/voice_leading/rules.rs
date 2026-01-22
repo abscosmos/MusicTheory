@@ -1,11 +1,9 @@
 use std::cmp::Ordering;
 use strum::IntoEnumIterator;
-use crate::interval::{Interval, IntervalQuality};
-use crate::key::Key;
-use crate::note::Note;
-use crate::pcset::PitchClassSet;
-use crate::pitch::Pitch;
-use crate::prelude::IntervalNumber;
+use crate::interval::{Number as IntervalNumber, Quality as IntervalQuality};
+use crate::harmony::Key;
+use crate::{Pitch, Note, Interval};
+use crate::set::PitchClassSet;
 use crate::voice_leading::roman_chord::{Quality, RomanChord, ScaleDegree};
 use crate::voice_leading::{Voice, Voicing};
 
@@ -22,7 +20,7 @@ pub fn check_range(v: Voicing) -> Result<(), Voice> {
 // this does not check spelling, which it probably should
 pub fn check_completely_voiced(v: Voicing, chord: RomanChord, key: Key) -> bool {
     let voicing_set = v.into_iter()
-        .map(|p| p.as_pitch_class())
+        .map(|p| p.pitch.as_pitch_class())
         .collect::<PitchClassSet>();
 
     let chord_pitches = chord.pitches(key);
@@ -69,7 +67,7 @@ pub fn check_root_position_doubling(voicing: Voicing, chord: RomanChord, key: Ke
     }
 
     voicing.iter()
-        .map(|n| n.as_pitch_class())
+        .map(|n| n.pitch.as_pitch_class())
         .filter(|&p| p == root)
         .count() >= 2
 }
@@ -88,7 +86,7 @@ pub fn check_leading_tone_not_doubled(v: Voicing, chord: RomanChord, key: Key) -
     let chord_pitches = chord.pitches(key);
 
     let leading_tone = {
-        let mut vii = key.scale().build_default()[6];
+        let mut vii = key.scale_experimental().build_default()[6];
 
         if RomanChord::mode_has_raised_leading_tone(key.mode) {
             vii = vii.transpose(Interval::AUGMENTED_UNISON);
@@ -140,7 +138,7 @@ pub fn check_six_four_doubling(v: Voicing, chord: RomanChord, key: Key) -> bool 
     let bass_pc = chord.bass(key).as_pitch_class();
 
     let count = v.iter()
-        .filter(|n| n.as_pitch_class() == bass_pc)
+        .filter(|n| n.pitch.as_pitch_class() == bass_pc)
         .count();
 
     count >= 2
@@ -293,7 +291,7 @@ pub fn check_leading_tone_resolution(
     }
 
     let leading_tone = {
-        let mut vii = key.scale().build_default()[6];
+        let mut vii = key.scale_experimental().build_default()[6];
 
         if RomanChord::mode_has_raised_leading_tone(key.mode) {
             vii = vii.transpose(Interval::AUGMENTED_UNISON);
@@ -311,8 +309,8 @@ pub fn check_leading_tone_resolution(
         let first_note = first[voice];
         let second_note = second[voice];
 
-        if first_note.as_pitch_class() == leading_tone.as_pitch_class() {
-            if second_note.as_pitch_class() != key.tonic.as_pitch_class() {
+        if first_note.pitch.as_pitch_class() == leading_tone.as_pitch_class() {
+            if second_note.pitch.as_pitch_class() != key.tonic.as_pitch_class() {
                 return Err(voice);
             }
 
@@ -321,8 +319,8 @@ pub fn check_leading_tone_resolution(
             }
         }
 
-        if first_note.as_pitch_class() == leading_tone.as_pitch_class()
-            && second_note.as_pitch_class() != key.tonic.as_pitch_class()
+        if first_note.pitch.as_pitch_class() == leading_tone.as_pitch_class()
+            && second_note.pitch.as_pitch_class() != key.tonic.as_pitch_class()
         {
             return Err(voice);
         }
@@ -347,7 +345,7 @@ pub fn check_chordal_seventh_resolution(
         let first_note = first[voice];
         let second_note = second[voice];
 
-        if first_note.as_pitch_class() == seventh.as_pitch_class() {
+        if first_note.pitch.as_pitch_class() == seventh.as_pitch_class() {
             let dist = first_note.distance_to(second_note);
 
             if dist != Interval::PERFECT_UNISON && !matches!(-first_note.distance_to(second_note), Interval::MAJOR_SECOND | Interval::MINOR_SECOND) {
@@ -407,7 +405,7 @@ pub fn check_eliminated_fifths(first_chord: Option<RomanChord>, second_chord: Ro
     );
 
     let voicing_set = second_voicing.into_iter()
-        .map(|p| p.as_pitch_class())
+        .map(|p| p.pitch.as_pitch_class())
         .collect::<PitchClassSet>();
     
     if voicing_set.len() == second_chord.len() {
@@ -534,7 +532,7 @@ pub fn score_common_tones(first: Voicing, second: Voicing, first_chord: RomanCho
         let first_note = first[voice];
         let second_note = second[voice];
 
-        let first_pc = first_note.as_pitch_class();
+        let first_pc = first_note.pitch.as_pitch_class();
 
         if common_pcs.is_set(first_pc) {
             if first_note != second_note {
