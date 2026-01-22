@@ -6,10 +6,6 @@ use crate::voice_leading::{Voice, Voicing};
 use crate::voice_leading::motion::{get_motion_between, VoiceMotion};
 
 pub fn parallel_interval(first: Voicing, second: Voicing, interval: Interval) -> Result<(), (Voice, Voice)> {
-    fn check(v1: Note, v2: Note, interval: Interval) -> bool {
-        v1.distance_to(v2).as_simple().abs().semitones() == interval.semitones()
-    }
-
     for v1 in Voice::iter() {
         for v2 in Voice::iter() {
             if v2 <= v1 {
@@ -22,8 +18,8 @@ pub fn parallel_interval(first: Voicing, second: Voicing, interval: Interval) ->
             let v2_second = second[v2];
 
             if v1_first != v1_second // oblique is fine
-                && check(v1_first, v2_first, interval)
-                && check(v1_second, v2_second, interval)
+                && (v1_first.distance_to(v2_first).as_simple() == interval)
+                && (v1_second.distance_to(v2_second).as_simple() == interval)
             {
                 return Err((v1, v2));
             }
