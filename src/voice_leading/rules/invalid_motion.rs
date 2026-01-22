@@ -68,13 +68,9 @@ pub fn direct_fifths_octaves(first: Voicing, second: Voicing) -> Result<(), Voic
 
         let soprano_first = first[Voice::Soprano];
         let soprano_second = second[Voice::Soprano];
-        let other_first = first[voice];
         let other_second = second[voice];
 
-        let s_motion = soprano_first.cmp(&soprano_second);
-
-        // only similar motion is the issue; contrary and oblique is fine
-        if !(s_motion == other_first.cmp(&other_second) && s_motion != Ordering::Equal) {
+        if get_motion_between(Voice::Soprano, voice, first, second) != VoiceMotion::Similar {
             continue;
         }
 
