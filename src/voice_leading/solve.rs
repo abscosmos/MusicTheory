@@ -320,4 +320,52 @@ mod tests {
 
         assert_eq!(brute, solver, "brute force and optimized solver should produce the same results (2 starting chords)");
     }
+
+    #[test]
+    fn harmonize_tools_issue() {
+        let progression = [
+            "V",
+            "vi",
+            "I",
+            "ii",
+            "iii",
+            "IV",
+            "V",
+            "vi",
+            "IV",
+            "I",
+        ];
+
+        let parsed = progression.into_iter()
+            .map(|s| s.parse::<RomanChord>().expect("valid chords"))
+            .collect::<Vec<_>>();
+
+        let results = generate_voice_leadings(&parsed, Key::major(Pitch::C), None).expect("results exist");
+
+        let _ = results;
+    }
+
+    #[test]
+    fn harmonize_tools2_issue() {
+        let progression = [
+            // "V",
+            "vi",
+            "I",
+            "ii",
+            "iii",
+            "IV",
+            "V",
+            "vi",
+            "IV",
+            "I",
+        ];
+
+        let parsed = progression.into_iter()
+            .map(|s| s.parse::<RomanChord>().expect("valid chords"))
+            .collect::<Vec<_>>();
+
+        let results = generate_voice_leadings(&parsed, Key::major(Pitch::C), None).expect("results exist");
+
+        let _ = results;
+    }
 }

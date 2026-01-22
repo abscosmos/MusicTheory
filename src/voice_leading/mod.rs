@@ -8,6 +8,8 @@ pub mod roman_chord;
 pub mod check;
 pub mod solve;
 
+pub mod debug;
+
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Voicing(pub [Note; 4]);
