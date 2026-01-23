@@ -119,11 +119,6 @@ pub fn score_window(v_first: Voicing, v_second: Voicing, c_first: RomanChord, c_
 
     invalid_motion::similar_into_unison(v_first, v_second).map_err(|(v1, v2)| Kind::SimilarIntoUnison(v1, v2))?;
 
-    // 8. eliminated fifths TODO: this error displays in the wrong place
-    if !voicing::eliminated_fifths(Some(c_first), c_second, v_second, key) {
-        return Err(Kind::IncompleteVoicing);
-    }
-
     // 9. scores
     let mut score = 0;
     
