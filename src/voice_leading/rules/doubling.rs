@@ -61,9 +61,7 @@ pub fn leading_tone_not_doubled(v: Voicing, chord: RomanChord, key: Key) -> bool
         "chord must be completely voiced for doubling check",
     );
 
-    let voicing_pitch_classes = v.iter()
-        .map(|n| n.pitch)
-        .collect::<Vec<_>>();
+    let voicing_pitch_classes = v.map(|n| n.pitch);
 
     let chord_pitches = chord.pitches(key);
 
@@ -71,7 +69,7 @@ pub fn leading_tone_not_doubled(v: Voicing, chord: RomanChord, key: Key) -> bool
 
     let chordal_seventh = chord.has_seventh().then(|| chord_pitches[3]);
 
-    for pc in voicing_pitch_classes.iter() {
+    for pc in &voicing_pitch_classes {
         let count = voicing_pitch_classes.iter().filter(|&p| p == pc).count();
 
         if count > 1 {
