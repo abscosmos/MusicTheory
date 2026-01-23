@@ -224,11 +224,9 @@ impl RomanChord {
     pub fn pitches(&self, key: Key) -> Vec<Pitch> {
         let root = self.root_in_key(key);
 
-        let mut pitches = self.intervals().into_iter()
+        self.intervals().into_iter()
             .map(|i| root.transpose(i))
-            .collect::<Vec<_>>();
-
-        pitches
+            .collect()
     }
 
     pub fn pitches_with_inversion(&self, key: Key) -> Vec<Pitch> {
