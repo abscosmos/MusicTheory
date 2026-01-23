@@ -2,7 +2,7 @@ use strum::IntoEnumIterator;
 use crate::harmony::Key;
 use crate::{harmony, Interval};
 use crate::interval::Number;
-use crate::voice_leading::roman_chord::{inversions, RomanChord, ScaleDegree};
+use crate::voice_leading::roman_chord::{RomanChord, ScaleDegree};
 use crate::voice_leading::{leading_tone, Voice, Voicing};
 use crate::voice_leading::rules::voicing::completely_voiced;
 
@@ -22,10 +22,10 @@ pub fn chordal_seventh_resolution(
         let first_note = first[voice];
         let second_note = second[voice];
 
-        if first_note.pitch.as_pitch_class() == seventh.as_pitch_class() {
+        if first_note.pitch == seventh {
             let dist = first_note.distance_to(second_note);
 
-            if dist != Interval::PERFECT_UNISON && !matches!(-dist.number(), Number::SECOND) {
+            if !matches!(-dist.number(), Number::SECOND) {
                 return Err(voice)
             }
         }
