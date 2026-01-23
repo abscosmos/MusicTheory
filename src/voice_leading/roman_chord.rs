@@ -228,6 +228,12 @@ impl RomanChord {
             .map(|i| root.transpose(i))
             .collect::<Vec<_>>();
 
+        pitches
+    }
+
+    pub fn pitches_with_inversion(&self, key: Key) -> Vec<Pitch> {
+        let mut pitches = self.pitches(key);
+
         pitches.rotate_left(self.inversion as _);
 
         pitches
