@@ -1,5 +1,5 @@
 use crate::harmony::Key;
-use crate::voice_leading::roman_chord::{RomanChord, ScaleDegree};
+use crate::voice_leading::roman_chord::{inversions, RomanChord, ScaleDegree};
 use crate::voice_leading::rules::voicing::{bass_note, completely_voiced};
 use crate::voice_leading::{leading_tone, Voicing};
 
@@ -11,7 +11,7 @@ pub fn root_position_doubling(voicing: Voicing, chord: RomanChord, key: Key) -> 
         "chord must be completely voiced for doubling check",
     );
 
-    if chord.inversion() != 0 || chord.has_seventh() {
+    if chord.inversion() != inversions::INV_ROOT || chord.has_seventh() {
         return true;
     }
 
@@ -41,7 +41,7 @@ pub fn six_four_doubling(v: Voicing, chord: RomanChord, key: Key) -> bool {
         "bass note must be correct for 6/4 doubling check",
     );
 
-    if chord.inversion() != 2 || chord.has_seventh() {
+    if chord.inversion() != inversions::INV_64 || chord.has_seventh() {
         return true;
     }
 
