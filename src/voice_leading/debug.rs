@@ -214,9 +214,12 @@ fn escape_js_string(s: &str) -> String {
 }
 
 fn generate_unique_id() -> String {
-    use std::sync::atomic::{AtomicU64, Ordering};
-    static COUNTER: AtomicU64 = AtomicU64::new(0);
-    format!("vexflow-debug-{}", COUNTER.fetch_add(1, Ordering::Relaxed))
+    use std::time::{SystemTime, UNIX_EPOCH};
+    let timestamp = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_millis();
+    format!("vexflow-{}", timestamp)
 }
 
 #[cfg(test)]
