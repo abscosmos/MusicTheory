@@ -110,7 +110,7 @@ pub fn score_window(v_first: Voicing, v_second: Voicing, c_first: RomanChord, c_
     invalid_motion::direct_fifths_octaves(v_first, v_second).map_err(Kind::DirectFifthsOrOctaves)?;
 
     // 6. resolution
-    resolution::leading_tone_resolution(v_first, v_second, c_second, key).map_err(Kind::LeadingToneNotResolved)?;
+    resolution::leading_tone_resolution(v_first, v_second, c_first, c_second, key).map_err(Kind::LeadingToneNotResolved)?;
 
     resolution::chordal_seventh_resolution(v_first, c_first, v_second, key).map_err(Kind::ChordalSeventhNotResolved)?;
 

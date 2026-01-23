@@ -1,8 +1,8 @@
 use strum::IntoEnumIterator;
 use crate::harmony::Key;
-use crate::Interval;
+use crate::{harmony, Interval};
 use crate::interval::Number;
-use crate::voice_leading::roman_chord::{RomanChord, ScaleDegree};
+use crate::voice_leading::roman_chord::{inversions, RomanChord, ScaleDegree};
 use crate::voice_leading::{leading_tone, Voice, Voicing};
 use crate::voice_leading::rules::voicing::completely_voiced;
 
@@ -37,6 +37,7 @@ pub fn chordal_seventh_resolution(
 pub fn leading_tone_resolution(
     first: Voicing,
     second: Voicing,
+    first_chord: RomanChord,
     second_chord: RomanChord,
     key: Key,
 ) -> Result<(), Voice> {
@@ -46,7 +47,9 @@ pub fn leading_tone_resolution(
         "second chord must be completely voiced for leading tone resolution check",
     );
 
-    if second_chord.degree != ScaleDegree::I {
+    if second_chord.degree != ScaleDegree::I
+        || !matches!(first_chord.degree, ScaleDegree::V | ScaleDegree::VII)
+    {
         return Ok(());
     }
 
@@ -61,20 +64,22 @@ pub fn leading_tone_resolution(
         let first_note = first[voice];
         let second_note = second[voice];
 
-        if first_note.pitch.as_pitch_class() == leading_tone.as_pitch_class() {
-            if second_note.pitch.as_pitch_class() != key.tonic.as_pitch_class() {
+        if first_note.pitch == leading_tone {
+            let resolves_stepwise = first_note.distance_to(second_note) == Interval::MINOR_SECOND;
+
+            let first_inv_exception = {
+                let is_vii_first_inv = first_chord.degree == ScaleDegree::VII && first_chord.inversion() == 1;
+
+                let ends_on_v = second_note.pitch == key.relative_pitch(harmony::ScaleDegree::V);
+
+                let descends = first_note > second_note;
+
+                voice == Voice::Soprano && is_vii_first_inv && ends_on_v && descends
+            };
+
+            if !first_inv_exception && !resolves_stepwise {
                 return Err(voice);
             }
-
-            if first_note.semitones_to(second_note) != Interval::MINOR_SECOND.semitones() {
-                return Err(voice);
-            }
-        }
-
-        if first_note.pitch.as_pitch_class() == leading_tone.as_pitch_class()
-            && second_note.pitch.as_pitch_class() != key.tonic.as_pitch_class()
-        {
-            return Err(voice);
         }
     }
 
