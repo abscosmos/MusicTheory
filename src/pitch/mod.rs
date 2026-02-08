@@ -46,8 +46,6 @@ use std::cmp::Ordering;
 use std::fmt;
 use std::ops::{Add, Sub};
 use std::str::FromStr;
-use std::sync::LazyLock;
-use regex::Regex;
 use crate::{Interval, Semitones, EnharmonicEq, EnharmonicOrd};
 use crate::enharmonic::{self, WithoutSpelling};
 use crate::interval::Quality;
@@ -710,13 +708,9 @@ impl FromStr for Pitch {
 
     /// Parses a pitch from a string.
     ///
-    /// Accepts pitch notation with optional accidentals using various formats:
-    /// - Sharp: `#`, `♯`, `sharp`, `+`
-    /// - Flat: `b`, `♭`, `flat`, `-`
-    /// - Double sharp: `##`, `♯♯`, `𝄪`, `double sharp`
-    /// - Double flat: `bb`, `♭♭`, `𝄫`, `double flat`
-    ///
-    /// The parsing is case-insensitive for letters and word-based accidentals.
+    /// Accepts pitch notation with optional accidentals using various formats.
+    /// The first character must be a letter (case-insensitive), followed by
+    /// an optional accidental. See [`AccidentalSign::from_str`] for how accidentals are parsed.
     ///
     /// # Errors
     ///
@@ -729,51 +723,26 @@ impl FromStr for Pitch {
     /// assert_eq!("C".parse::<Pitch>(), Ok(Pitch::C));
     /// assert_eq!("F#".parse::<Pitch>(), Ok(Pitch::F_SHARP));
     /// assert_eq!("Bb".parse::<Pitch>(), Ok(Pitch::B_FLAT));
-    /// assert_eq!("G sharp".parse::<Pitch>(), Ok(Pitch::G_SHARP));
     /// assert_eq!("E♭".parse::<Pitch>(), Ok(Pitch::E_FLAT));
     /// assert_eq!("C##".parse::<Pitch>(), Ok(Pitch::C_DOUBLE_SHARP));
-    /// assert_eq!("D double flat".parse::<Pitch>(), Ok(Pitch::D_DOUBLE_FLAT));
+    /// assert_eq!("Dx".parse::<Pitch>(), Ok(Pitch::D_DOUBLE_SHARP));
     ///
     /// // Case insensitive
     /// assert_eq!("c".parse::<Pitch>(), Ok(Pitch::C));
-    /// assert_eq!("Ab".parse::<Pitch>(), Ok(Pitch::A_FLAT));
     ///
     /// // Invalid inputs return errors
     /// assert!("H".parse::<Pitch>().is_err());
     /// assert!("C4".parse::<Pitch>().is_err()); // Octave numbers not allowed
     /// ```
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        // TODO: accept 'x' as double sharp
-        static REGEX: LazyLock<Regex> = LazyLock::new(||
-            Regex::new(r"(?i)^([A-G])\s?((?-i)b|(?-i)bb|(?i)sharp|♯|\+|\++|#|##|♯♯|𝄪|flat|♭|-|--|♭♭|𝄫|double\s?sharp|double\s?flat)?$")
-                .expect("valid regex")
-        );
+        let (letter, acc) = s.split_at_checked(1).ok_or(PitchFromStrError)?;
 
-        let caps = REGEX.captures(s)
-            .ok_or(PitchFromStrError)?;
+        let letter = letter.parse::<Letter>().map_err(|_| PitchFromStrError)?;
 
-        let letter = caps.get(1)
-            .ok_or(PitchFromStrError)?
-            .as_str()
-            .parse()
-            .map_err(|_| PitchFromStrError)?;
-
-        let accidental = caps.get(2);
-
-        let acc = match accidental {
-            None => AccidentalSign::NATURAL,
-            Some(acc) => match acc
-                .as_str()
-                .trim()
-                .to_lowercase()
-                .as_str()
-            {
-                "+" | "#" | "♯" | "sharp" => AccidentalSign::SHARP,
-                "-" | "b" | "♭" | "flat" => AccidentalSign::FLAT,
-                "++" | "##" | "♯♯" | "𝄪" | "double sharp" | "doublesharp" => AccidentalSign::DOUBLE_SHARP,
-                "--" | "bb" | "♭♭" | "𝄫" | "double flat" | "doubleflat" => AccidentalSign::DOUBLE_FLAT,
-                _ => unreachable!("all cases should be covered"),
-            }
+        let acc = if acc.is_empty() {
+            AccidentalSign::NATURAL
+        } else {
+            acc.parse::<AccidentalSign>().map_err(|_| PitchFromStrError)?
         };
 
         Ok(Self::from_letter_and_accidental(letter, acc))
