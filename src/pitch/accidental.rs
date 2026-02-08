@@ -228,7 +228,7 @@ impl fmt::Display for DisplayUnicode {
 
 /// Error returned when parsing an [`AccidentalSign`] from [`&str`](prim@str) fails.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, thiserror::Error)]
-#[error("The provided &str could not be converted into a AccidentalSign")]
+#[error("The provided &str could not be converted into an AccidentalSign")]
 pub struct ParseAccidentalError;
 
 impl FromStr for AccidentalSign {
