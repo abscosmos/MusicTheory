@@ -492,20 +492,22 @@ impl fmt::Debug for Pitch {
 }
 
 impl fmt::Display for Pitch {
-    /// Formats the pitch using Unicode musical symbols.
+    /// Formats the pitch using ASCII notation.
     ///
-    /// Uses standard notation with sharp (♯), flat (♭), double sharp (𝄪),
-    /// and double flat (𝄫) symbols.
+    /// Uses standard ASCII notation: # (sharp), b (flat), x (double sharp),
+    /// and bb (double flat).
+    ///
+    /// For Unicode symbols, use [`display_unicode`](Pitch::display_unicode).
     ///
     /// # Examples
     ///
     /// ```
     /// # use music_theory::Pitch;
     /// assert_eq!(Pitch::C.to_string(), "C");
-    /// assert_eq!(Pitch::F_SHARP.to_string(), "F♯");
-    /// assert_eq!(Pitch::B_FLAT.to_string(), "B♭");
-    /// assert_eq!(Pitch::G_DOUBLE_SHARP.to_string(), "G𝄪");
-    /// assert_eq!(Pitch::E_DOUBLE_FLAT.to_string(), "E𝄫");
+    /// assert_eq!(Pitch::F_SHARP.to_string(), "F#");
+    /// assert_eq!(Pitch::B_FLAT.to_string(), "Bb");
+    /// assert_eq!(Pitch::G_DOUBLE_SHARP.to_string(), "Gx");
+    /// assert_eq!(Pitch::E_DOUBLE_FLAT.to_string(), "Ebb");
     /// ```
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let letter = self.letter();
