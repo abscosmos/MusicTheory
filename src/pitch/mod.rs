@@ -53,17 +53,17 @@ use crate::enharmonic::{self, WithoutSpelling};
 use crate::interval::Quality;
 use crate::harmony::Key;
 
-mod class;
-pub use class::*;
+pub mod class;
+pub use class::PitchClass;
 
-mod letter;
-pub use letter::*;
+pub mod letter;
+pub use letter::Letter;
 
-mod accidental;
-pub use accidental::*;
+pub mod accidental;
+pub use accidental::AccidentalSign;
 
 mod spelling;
-pub use spelling::*;
+pub use spelling::Spelling;
 
 mod consts;
 
