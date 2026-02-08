@@ -263,9 +263,9 @@ impl FromStr for AccidentalSign {
 
         for c in s.chars() {
             match c {
-                '#' | '♯' if offset >= 0 => offset += 1,
+                '+' | '#' | '♯' if offset >= 0 => offset += 1,
                 'x' | '𝄪' if offset >= 0 => offset += 2,
-                'b' | '♭' if offset <= 0 => offset -= 1,
+                '-' | 'b' | '♭' if offset <= 0 => offset -= 1,
                 '𝄫' if offset <= 0 => offset -= 2,
                 _ => return Err(ParseAccidentalError),
             }
