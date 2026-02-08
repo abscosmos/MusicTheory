@@ -254,6 +254,19 @@ impl PitchClass {
 
         self.spell_with(key.spelling().unwrap_or_default())
     }
+
+    /// Returns a wrapper that formats the pitch class using Unicode musical symbols.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::PitchClass;
+    /// assert_eq!(format!("{}", PitchClass::Cs.display_unicode()), "C♯");
+    /// assert_eq!(format!("{}", PitchClass::Fs.display_unicode()), "F♯");
+    /// ```
+    pub fn display_unicode(self) -> DisplayUnicode {
+        DisplayUnicode(self)
+    }
 }
 
 impl WithoutSpelling for PitchClass {
@@ -358,6 +371,18 @@ impl fmt::Display for PitchClass {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let pitch = Pitch::from(*self);
         write!(f, "{pitch}")
+    }
+}
+
+/// Wrapper for formatting [`PitchClass`] using Unicode musical symbols.
+///
+/// Obtained via [`PitchClass::display_unicode`].
+pub struct DisplayUnicode(PitchClass);
+
+impl fmt::Display for DisplayUnicode {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let pitch = Pitch::from(self.0);
+        write!(f, "{}", pitch.display_unicode())
     }
 }
 
