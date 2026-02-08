@@ -1,3 +1,5 @@
+use std::fmt;
+use std::str::FromStr;
 use crate::scales::numeral::Numeral7 as ScaleDegreeExp;
 
 /// Enum of scale degrees in a heptatonic scale.
@@ -58,6 +60,48 @@ impl ScaleDegree {
 
     pub(crate) fn from_experimental(inner: ScaleDegreeExp) -> Self {
         Self::from_num(inner as _).expect("implementation should be exact copy")
+    }
+}
+
+/// Error returned when parsing a [`ScaleDegree`] from [`&str`](prim@str) fails.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, thiserror::Error)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[error("The provided &str could not be converted into a ScaleDegree")]
+pub struct ParseScaleDegreeError;
+
+impl FromStr for ScaleDegree {
+    type Err = ParseScaleDegreeError;
+
+    /// Parses a string into a `ScaleDegree`.
+    ///
+    /// Accepts Roman numerals (upper or lowercase), or Arabic numerals `[1, 7]`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::harmony::ScaleDegree;
+    /// assert_eq!("I".parse(), Ok(ScaleDegree::I));
+    /// assert_eq!("v".parse(), Ok(ScaleDegree::V));
+    /// assert_eq!("7".parse(), Ok(ScaleDegree::VII));
+    /// assert!("8".parse::<ScaleDegree>().is_err());
+    /// ```
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "I" | "i" | "1" => Ok(Self::I),
+            "II" | "ii" | "2" => Ok(Self::II),
+            "III" | "iii" | "3" => Ok(Self::III),
+            "IV" | "iv" | "4" => Ok(Self::IV),
+            "V" | "v" | "5" => Ok(Self::V),
+            "VI" | "vi" | "6" => Ok(Self::VI),
+            "VII" | "vii" | "7" => Ok(Self::VII),
+            _ => Err(ParseScaleDegreeError),
+        }
+    }
+}
+
+impl fmt::Display for ScaleDegree {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        fmt::Debug::fmt(self, f)
     }
 }
 

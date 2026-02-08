@@ -1,4 +1,4 @@
-mod note;
+pub mod note;
 pub mod enharmonic;
 pub mod interval;
 mod semitone;

@@ -1,10 +1,12 @@
+use std::fmt;
 use crate::{Pitch, Letter, AccidentalSign, Interval};
-use crate::pitch::Spelling;
+use crate::pitch::{accidental, Spelling};
 use crate::harmony::{ScaleDegree, DiatonicMode};
 use crate::scales::definition::heptatonic::{DiatonicMode as DiatonicModeExperimental, DiatonicScale};
 use crate::scales::rooted::RootedSizedScale;
 use crate::scales::ScaleMode as _;
 use crate::scales::sized_scale::SizedScale as _;
+use std::str::FromStr;
 
 /// A musical key with a tonic pitch and mode.
 ///
@@ -585,6 +587,85 @@ impl Key {
             
             RootedSizedScale { root, scale: DiatonicScale::new(mode) }
         })
+    }
+}
+
+/// Error returned when parsing a [`Key`] from [`&str`](prim@str) fails.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, thiserror::Error)]
+#[error("The provided &str could not be converted into a Key")]
+pub struct ParseKeyError;
+
+impl FromStr for Key {
+    type Err = ParseKeyError;
+
+    /// Parses a string into a `Key`.
+    ///
+    /// Accepts a pitch followed by an optional mode indicator.
+    /// - If no mode is specified, uses the case of the letter: uppercase = major, lowercase = minor
+    /// - Mode indicators: "m", "min", "minor", "maj", "major", or any mode name (case-insensitive)
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::harmony::Key;
+    /// # use music_theory::{Pitch, harmony::DiatonicMode};
+    /// // Case determines major/minor when no mode specified
+    /// assert_eq!("C".parse(), Ok(Key::major(Pitch::C)));
+    /// assert_eq!("c".parse(), Ok(Key::minor(Pitch::C)));
+    /// assert_eq!("bb".parse(), Ok(Key::minor(Pitch::B_FLAT)));
+    ///
+    /// // Explicit mode indicators
+    /// assert_eq!("Cm".parse(), Ok(Key::minor(Pitch::C)));
+    /// assert_eq!("cmaj".parse(), Ok(Key::major(Pitch::C)));
+    /// assert_eq!("D Dorian".parse(), Ok(Key::new(Pitch::D, DiatonicMode::Dorian)));
+    /// ```
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let s = s.trim();
+        if s.is_empty() {
+            return Err(ParseKeyError);
+        }
+        
+        let is_uppercase = s.chars()
+            .next()
+            .expect("at least one character must be present")
+            .is_uppercase();
+        
+        let pitch_end = s
+            .char_indices()
+            .skip(1)
+            .find(|&(_, c)| !accidental::is_accidental_char(c))
+            .map_or(s.len(), |(idx, _)| idx);
+
+        let (pitch_str, mode_str) = s.split_at_checked(pitch_end)
+            .expect("shouldn't be in the middle of codepoint, and should be in range");
+        
+        let pitch = pitch_str.parse::<Pitch>().map_err(|_| ParseKeyError)?;
+        
+        let mode = match mode_str.trim() {
+            "" if is_uppercase => DiatonicMode::MAJOR,
+            "" if !is_uppercase => DiatonicMode::NATURAL_MINOR,
+            "M" => DiatonicMode::MAJOR,
+            "m" => DiatonicMode::NATURAL_MINOR,
+            str => match str.to_ascii_lowercase().as_str() {
+                "min" | "minor" => DiatonicMode::NATURAL_MINOR,
+                "maj" | "major" => DiatonicMode::MAJOR,
+                str => str.parse::<DiatonicMode>().map_err(|_| ParseKeyError)?,
+            }
+        };
+
+        Ok(Key::new(pitch, mode))
+    }
+}
+
+impl fmt::Display for Key {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let tonic = self.tonic;
+
+        match self.mode {
+            DiatonicMode::Ionian => write!(f, "{tonic} Major"),
+            DiatonicMode::Aeolian => write!(f, "{tonic} Minor"),
+            mode => write!(f, "{tonic} {mode:?}"),
+        }
     }
 }
 

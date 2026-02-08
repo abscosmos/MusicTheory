@@ -147,7 +147,7 @@ impl fmt::Display for Letter {
 ///
 /// ```
 /// # use music_theory::Letter;
-/// # use music_theory::pitch::InvalidLetter;
+/// # use music_theory::pitch::letter::InvalidLetter;
 /// assert_eq!("C".parse::<Letter>(), Ok(Letter::C));
 /// assert_eq!("g".parse::<Letter>(), Ok(Letter::G));
 /// assert_eq!("H".parse::<Letter>(), Err(InvalidLetter));
@@ -173,7 +173,7 @@ impl FromStr for Letter {
     ///
     /// ```
     /// # use music_theory::Letter;
-    /// # use music_theory::pitch::InvalidLetter;
+    /// # use music_theory::pitch::letter::InvalidLetter;
     /// assert_eq!("F".parse::<Letter>(), Ok(Letter::F));
     /// assert_eq!("a".parse::<Letter>(), Ok(Letter::A));
     /// assert_eq!("Bb".parse::<Letter>(), Err(InvalidLetter));

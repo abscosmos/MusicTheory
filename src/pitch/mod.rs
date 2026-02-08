@@ -46,24 +46,22 @@ use std::cmp::Ordering;
 use std::fmt;
 use std::ops::{Add, Sub};
 use std::str::FromStr;
-use std::sync::LazyLock;
-use regex::Regex;
 use crate::{Interval, Semitones, EnharmonicEq, EnharmonicOrd};
 use crate::enharmonic::{self, WithoutSpelling};
 use crate::interval::Quality;
 use crate::harmony::Key;
 
-mod class;
-pub use class::*;
+pub mod class;
+pub use class::PitchClass;
 
-mod letter;
-pub use letter::*;
+pub mod letter;
+pub use letter::Letter;
 
-mod accidental;
-pub use accidental::*;
+pub mod accidental;
+pub use accidental::AccidentalSign;
 
 mod spelling;
-pub use spelling::*;
+pub use spelling::Spelling;
 
 mod consts;
 
@@ -463,6 +461,20 @@ impl Pitch {
 
         Self::from_fifths_from_c(curr + fifths)
     }
+
+    /// Returns a wrapper that formats the pitch using Unicode musical symbols.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::Pitch;
+    /// assert_eq!(format!("{}", Pitch::F_SHARP.display_unicode()), "F♯");
+    /// assert_eq!(format!("{}", Pitch::B_FLAT.display_unicode()), "B♭");
+    /// assert_eq!(format!("{}", Pitch::G_DOUBLE_SHARP.display_unicode()), "G𝄪");
+    /// ```
+    pub fn display_unicode(self) -> DisplayUnicode {
+        DisplayUnicode(self)
+    }
 }
 
 impl fmt::Debug for Pitch {
@@ -492,20 +504,22 @@ impl fmt::Debug for Pitch {
 }
 
 impl fmt::Display for Pitch {
-    /// Formats the pitch using Unicode musical symbols.
+    /// Formats the pitch using ASCII notation.
     ///
-    /// Uses standard notation with sharp (♯), flat (♭), double sharp (𝄪),
-    /// and double flat (𝄫) symbols.
+    /// Uses standard ASCII notation: # (sharp), b (flat), x (double sharp),
+    /// and bb (double flat).
+    ///
+    /// For Unicode symbols, use [`display_unicode`](Pitch::display_unicode).
     ///
     /// # Examples
     ///
     /// ```
     /// # use music_theory::Pitch;
     /// assert_eq!(Pitch::C.to_string(), "C");
-    /// assert_eq!(Pitch::F_SHARP.to_string(), "F♯");
-    /// assert_eq!(Pitch::B_FLAT.to_string(), "B♭");
-    /// assert_eq!(Pitch::G_DOUBLE_SHARP.to_string(), "G𝄪");
-    /// assert_eq!(Pitch::E_DOUBLE_FLAT.to_string(), "E𝄫");
+    /// assert_eq!(Pitch::F_SHARP.to_string(), "F#");
+    /// assert_eq!(Pitch::B_FLAT.to_string(), "Bb");
+    /// assert_eq!(Pitch::G_DOUBLE_SHARP.to_string(), "Gx");
+    /// assert_eq!(Pitch::E_DOUBLE_FLAT.to_string(), "Ebb");
     /// ```
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let letter = self.letter();
@@ -513,6 +527,23 @@ impl fmt::Display for Pitch {
 
         if accidental != AccidentalSign::NATURAL {
             write!(f, "{letter}{accidental}")
+        } else {
+            write!(f, "{letter}")
+        }
+    }
+}
+
+/// Wrapper for formatting [`Pitch`] using Unicode musical symbols.
+///
+/// Obtained via [`Pitch::display_unicode`].
+pub struct DisplayUnicode(Pitch);
+
+impl fmt::Display for DisplayUnicode {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let letter = self.0.letter();
+
+        if self.0.accidental() != AccidentalSign::NATURAL {
+            write!(f, "{letter}{}", self.0.accidental().display_unicode())
         } else {
             write!(f, "{letter}")
         }
@@ -676,13 +707,9 @@ impl FromStr for Pitch {
 
     /// Parses a pitch from a string.
     ///
-    /// Accepts pitch notation with optional accidentals using various formats:
-    /// - Sharp: `#`, `♯`, `sharp`, `+`
-    /// - Flat: `b`, `♭`, `flat`, `-`
-    /// - Double sharp: `##`, `♯♯`, `𝄪`, `double sharp`
-    /// - Double flat: `bb`, `♭♭`, `𝄫`, `double flat`
-    ///
-    /// The parsing is case-insensitive for letters and word-based accidentals.
+    /// Accepts pitch notation with optional accidentals using various formats.
+    /// The first character must be a letter (case-insensitive), followed by
+    /// an optional accidental. See [`AccidentalSign::from_str`] for how accidentals are parsed.
     ///
     /// # Errors
     ///
@@ -695,51 +722,26 @@ impl FromStr for Pitch {
     /// assert_eq!("C".parse::<Pitch>(), Ok(Pitch::C));
     /// assert_eq!("F#".parse::<Pitch>(), Ok(Pitch::F_SHARP));
     /// assert_eq!("Bb".parse::<Pitch>(), Ok(Pitch::B_FLAT));
-    /// assert_eq!("G sharp".parse::<Pitch>(), Ok(Pitch::G_SHARP));
     /// assert_eq!("E♭".parse::<Pitch>(), Ok(Pitch::E_FLAT));
     /// assert_eq!("C##".parse::<Pitch>(), Ok(Pitch::C_DOUBLE_SHARP));
-    /// assert_eq!("D double flat".parse::<Pitch>(), Ok(Pitch::D_DOUBLE_FLAT));
+    /// assert_eq!("Dx".parse::<Pitch>(), Ok(Pitch::D_DOUBLE_SHARP));
     ///
     /// // Case insensitive
     /// assert_eq!("c".parse::<Pitch>(), Ok(Pitch::C));
-    /// assert_eq!("Ab".parse::<Pitch>(), Ok(Pitch::A_FLAT));
     ///
     /// // Invalid inputs return errors
     /// assert!("H".parse::<Pitch>().is_err());
     /// assert!("C4".parse::<Pitch>().is_err()); // Octave numbers not allowed
     /// ```
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        // TODO: accept 'x' as double sharp
-        static REGEX: LazyLock<Regex> = LazyLock::new(||
-            Regex::new(r"(?i)^([A-G])\s?((?-i)b|(?-i)bb|(?i)sharp|♯|\+|\++|#|##|♯♯|𝄪|flat|♭|-|--|♭♭|𝄫|double\s?sharp|double\s?flat)?$")
-                .expect("valid regex")
-        );
+        let (letter, acc) = s.split_at_checked(1).ok_or(PitchFromStrError)?;
 
-        let caps = REGEX.captures(s)
-            .ok_or(PitchFromStrError)?;
+        let letter = letter.parse::<Letter>().map_err(|_| PitchFromStrError)?;
 
-        let letter = caps.get(1)
-            .ok_or(PitchFromStrError)?
-            .as_str()
-            .parse()
-            .map_err(|_| PitchFromStrError)?;
-
-        let accidental = caps.get(2);
-
-        let acc = match accidental {
-            None => AccidentalSign::NATURAL,
-            Some(acc) => match acc
-                .as_str()
-                .trim()
-                .to_lowercase()
-                .as_str()
-            {
-                "+" | "#" | "♯" | "sharp" => AccidentalSign::SHARP,
-                "-" | "b" | "♭" | "flat" => AccidentalSign::FLAT,
-                "++" | "##" | "♯♯" | "𝄪" | "double sharp" | "doublesharp" => AccidentalSign::DOUBLE_SHARP,
-                "--" | "bb" | "♭♭" | "𝄫" | "double flat" | "doubleflat" => AccidentalSign::DOUBLE_FLAT,
-                _ => unreachable!("all cases should be covered"),
-            }
+        let acc = if acc.is_empty() {
+            AccidentalSign::NATURAL
+        } else {
+            acc.parse::<AccidentalSign>().map_err(|_| PitchFromStrError)?
         };
 
         Ok(Self::from_letter_and_accidental(letter, acc))

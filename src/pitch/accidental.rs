@@ -1,4 +1,5 @@
 use std::fmt;
+use std::str::FromStr;
 use crate::Semitones;
 
 /// An accidental that modifies a pitch.
@@ -119,6 +120,54 @@ impl AccidentalSign {
     pub fn from_offset_semitones(offset: Semitones) -> Self {
         Self { offset: offset.0 }
     }
+
+    /// Returns a wrapper that formats the accidental using Unicode musical symbols.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::{AccidentalSign, Semitones};
+    /// assert_eq!(format!("{}", AccidentalSign::NATURAL.display_unicode()), "♮");
+    /// assert_eq!(format!("{}", AccidentalSign::SHARP.display_unicode()), "♯");
+    /// assert_eq!(format!("{}", AccidentalSign::DOUBLE_FLAT.display_unicode()), "𝄫");
+    ///
+    /// let triple_sharp = AccidentalSign::from_offset_semitones(Semitones(3));
+    /// assert_eq!(format!("{}", triple_sharp.display_unicode()), "♯𝄪");
+    /// ```
+    pub fn display_unicode(self) -> DisplayUnicode {
+        DisplayUnicode(self)
+    }
+
+    /// Helper function to implement [`fmt::Display`] with both ASCII and Unicode characters.
+    fn fmt_with_symbols(
+        &self,
+        f: &mut fmt::Formatter<'_>,
+        natural: &str,
+        sharp: &str,
+        flat: &str,
+        double_sharp: &str,
+        double_flat: &str,
+    ) -> fmt::Result {
+        let offset = self.offset;
+
+        if offset == 0 {
+            f.write_str(natural)
+        } else {
+            let num_double = offset.abs() / 2;
+            let add_single = offset.abs() % 2 == 1;
+
+            let (d, s) = if offset > 0 {
+                (double_sharp, sharp)
+            } else {
+                (double_flat, flat)
+            };
+
+            let single = if add_single { s } else { "" };
+            let double = d.repeat(num_double as _);
+
+            write!(f, "{single}{double}")
+        }
+    }
 }
 
 impl fmt::Debug for AccidentalSign {
@@ -144,47 +193,91 @@ impl fmt::Debug for AccidentalSign {
 }
 
 impl fmt::Display for AccidentalSign {
-    /// Formats the accidental using Unicode musical symbols.
+    /// Formats the accidental using ASCII symbols.
     ///
-    /// Uses the standard symbols: ♮ (natural), ♯ (sharp), ♭ (flat),
-    /// 𝄪 (double sharp), and 𝄫 (double flat). Multiple accidentals are
-    /// combined (e.g., triple sharp displays as "♯𝄪").
+    /// Uses standard ASCII notation. Multiple accidentals are combined,
+    /// like `#x` for a triple sharp.
+    ///
+    /// For Unicode symbols, use [`display_unicode`](AccidentalSign::display_unicode).
     ///
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::{AccidentalSign, Semitones};
-    /// assert_eq!(format!("{}", AccidentalSign::NATURAL), "♮");
-    /// assert_eq!(format!("{}", AccidentalSign::SHARP), "♯");
-    /// assert_eq!(format!("{}", AccidentalSign::FLAT), "♭");
-    /// assert_eq!(format!("{}", AccidentalSign::DOUBLE_SHARP), "𝄪");
-    /// assert_eq!(format!("{}", AccidentalSign::DOUBLE_FLAT), "𝄫");
-    ///
-    /// // Triple sharp
-    /// let triple_sharp = AccidentalSign::from_offset_semitones(Semitones(3));
-    /// assert_eq!(format!("{}", triple_sharp), "♯𝄪");
+    /// # use music_theory::AccidentalSign;
+    /// assert_eq!(format!("{}", AccidentalSign::NATURAL), "n");
+    /// assert_eq!(format!("{}", AccidentalSign::SHARP), "#");
+    /// assert_eq!(format!("{}", AccidentalSign::FLAT), "b");
+    /// assert_eq!(format!("{}", AccidentalSign::DOUBLE_SHARP), "x");
     /// ```
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let offset = self.offset;
-
-        if offset == 0 {
-            write!(f, "♮")
-        } else {
-            let num_double = offset.abs() / 2;
-            let add_single = offset.abs() % 2 == 1;
-
-            let (d, s) = if offset > 0 {
-                ("𝄪", "♯")
-            } else {
-                ("𝄫", "♭")
-            };
-
-            let single = if add_single { s } else { "" };
-            let double = d.repeat(num_double as _);
-
-            write!(f, "{single}{double}")
-        }
+        self.fmt_with_symbols(f, "n", "#", "b", "x", "bb")
     }
+}
+
+/// Wrapper for formatting [`AccidentalSign`] using Unicode musical symbols.
+///
+/// Obtained via [`AccidentalSign::display_unicode`].
+pub struct DisplayUnicode(AccidentalSign);
+
+impl fmt::Display for DisplayUnicode {
+    #[inline]
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        self.0.fmt_with_symbols(f, "♮", "♯", "♭", "𝄪", "𝄫")
+    }
+}
+
+/// Error returned when parsing an [`AccidentalSign`] from [`&str`](prim@str) fails.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, thiserror::Error)]
+#[error("The provided &str could not be converted into an AccidentalSign")]
+pub struct ParseAccidentalError;
+
+impl FromStr for AccidentalSign {
+    type Err = ParseAccidentalError;
+
+    /// Parses an accidental sign from a string.
+    ///
+    /// Accepts both ASCII (`n`, `#`, `+`, `b`, `-`, `x`, `bb`) and Unicode (`♮`, `♯`, `♭`, `𝄪`, `𝄫`) symbols.
+    /// Multiple accidentals can be combined. Mixing sharps and flats is not allowed.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::AccidentalSign;
+    /// assert_eq!("#".parse(), Ok(AccidentalSign::SHARP));
+    /// assert_eq!("♭".parse(), Ok(AccidentalSign::FLAT));
+    /// assert_eq!("bb".parse(), Ok(AccidentalSign::DOUBLE_FLAT));
+    ///
+    /// // Triple sharp
+    /// assert_eq!("#x".parse(), Ok(AccidentalSign { offset: 3 }));
+    /// ```
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        if s.is_empty() {
+            return Err(ParseAccidentalError);
+        }
+
+        if matches!(s, "n" | "♮") {
+            return Ok(Self::NATURAL);
+        }
+
+        let mut offset = 0i16;
+
+        for c in s.chars() {
+            match c {
+                '+' | '#' | '♯' if offset >= 0 => offset += 1,
+                'x' | '𝄪' if offset >= 0 => offset += 2,
+                '-' | 'b' | '♭' if offset <= 0 => offset -= 1,
+                '𝄫' if offset <= 0 => offset -= 2,
+                _ => return Err(ParseAccidentalError),
+            }
+        }
+
+        Ok(Self { offset })
+    }
+}
+
+/// Checks if this char can be parsed as an accidental
+pub(crate) fn is_accidental_char(c: char) -> bool {
+    matches!(c, '+' | '#' | '♯' | 'x' | '𝄪' | '-' | 'b' | '♭' | '𝄫')
 }
 
 impl From<Semitones> for AccidentalSign {

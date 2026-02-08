@@ -254,6 +254,19 @@ impl PitchClass {
 
         self.spell_with(key.spelling().unwrap_or_default())
     }
+
+    /// Returns a wrapper that formats the pitch class using Unicode musical symbols.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::PitchClass;
+    /// assert_eq!(format!("{}", PitchClass::Cs.display_unicode()), "C♯");
+    /// assert_eq!(format!("{}", PitchClass::Fs.display_unicode()), "F♯");
+    /// ```
+    pub fn display_unicode(self) -> DisplayUnicode {
+        DisplayUnicode(self)
+    }
 }
 
 impl WithoutSpelling for PitchClass {
@@ -340,23 +353,36 @@ impl FromStr for PitchClass {
 }
 
 impl fmt::Display for PitchClass {
-    /// Formats the pitch class using its default sharp spelling.
+    /// Formats the pitch class, defaulting to sharp spelling.
     ///
     /// Natural pitch classes display as their letter, chromatic pitch classes
-    /// display with a sharp symbol.
+    /// display with an ASCII sharp (`#`).
+    ///
+    /// For Unicode symbols, use [`display_unicode`](PitchClass::display_unicode).
     ///
     /// # Examples
     ///
     /// ```
     /// # use music_theory::PitchClass;
     /// assert_eq!(PitchClass::C.to_string(), "C");
-    /// assert_eq!(PitchClass::Cs.to_string(), "C♯");
-    /// assert_eq!(PitchClass::E.to_string(), "E");
-    /// assert_eq!(PitchClass::Fs.to_string(), "F♯");
+    /// assert_eq!(PitchClass::Cs.to_string(), "C#");
+    /// assert_eq!(PitchClass::Fs.to_string(), "F#");
     /// ```
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let pitch = Pitch::from(*self);
         write!(f, "{pitch}")
+    }
+}
+
+/// Wrapper for formatting [`PitchClass`] using Unicode musical symbols.
+///
+/// Obtained via [`PitchClass::display_unicode`].
+pub struct DisplayUnicode(PitchClass);
+
+impl fmt::Display for DisplayUnicode {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let pitch = Pitch::from(self.0);
+        write!(f, "{}", pitch.display_unicode())
     }
 }
 

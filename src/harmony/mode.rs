@@ -1,6 +1,8 @@
+use std::fmt;
 use crate::scales::definition::heptatonic::DiatonicMode as DiatonicModeExperimental;
 #[allow(unused_imports, reason = "used in documentation")]
 use crate::harmony::ScaleDegree;
+use std::str::FromStr;
 
 /// Diatonic modes, also known as the modes of the major scale.
 ///
@@ -44,5 +46,49 @@ impl DiatonicMode {
 
     pub(crate) fn from_experimental(inner: DiatonicModeExperimental) -> Self {
         Self::from_repr(inner as _).expect("implementation should be exact copy")
+    }
+}
+
+/// Error returned when parsing a [`DiatonicMode`] from [`&str`](prim@str) fails.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, thiserror::Error)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[error("The provided &str could not be converted into a DiatonicMode")]
+pub struct ParseDiatonicModeError;
+
+impl FromStr for DiatonicMode {
+    type Err = ParseDiatonicModeError;
+
+    /// Parses a string into a `DiatonicMode`.
+    ///
+    /// Accepts mode names in a case-insensitive manner.
+    /// Also accepts aliases "major" for Ionian and "minor" (or "natural minor") for Aeolian.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::harmony::DiatonicMode;
+    /// assert_eq!("Ionian".parse(), Ok(DiatonicMode::Ionian));
+    /// assert_eq!("major".parse(), Ok(DiatonicMode::MAJOR));
+    /// assert_eq!("dorian".parse(), Ok(DiatonicMode::Dorian));
+    /// assert_eq!("LYDIAN".parse(), Ok(DiatonicMode::Lydian));
+    /// assert!("invalid".parse::<DiatonicMode>().is_err());
+    /// ```
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_ascii_lowercase().as_str() {
+            "ionian" | "major" => Ok(Self::Ionian),
+            "dorian" => Ok(Self::Dorian),
+            "phrygian" => Ok(Self::Phrygian),
+            "lydian" => Ok(Self::Lydian),
+            "mixolydian" => Ok(Self::Mixolydian),
+            "aeolian" | "minor" | "natural minor" => Ok(Self::Aeolian),
+            "locrian" => Ok(Self::Locrian),
+            _ => Err(ParseDiatonicModeError),
+        }
+    }
+}
+
+impl fmt::Display for DiatonicMode {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        fmt::Debug::fmt(self, f)
     }
 }

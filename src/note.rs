@@ -13,6 +13,7 @@
 use std::cmp::Ordering;
 use std::fmt;
 use std::ops::{Add, Sub};
+use std::str::FromStr;
 use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
 use crate::harmony::Key;
 use crate::{Pitch, PitchClass, Interval, Semitones};
@@ -523,6 +524,19 @@ impl Note {
             .. unchecked
         }
     }
+
+    /// Returns a wrapper that formats the note using Unicode musical symbols.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::{Note, Pitch};
+    /// let fs4 = Note::new(Pitch::F_SHARP, 4);
+    /// assert_eq!(format!("{}", fs4.display_unicode()), "F♯4");
+    /// ```
+    pub fn display_unicode(self) -> DisplayUnicode {
+        DisplayUnicode(self)
+    }
 }
 
 impl PartialOrd for Note {
@@ -561,8 +575,74 @@ impl EnharmonicEq for Note {
 }
 
 impl fmt::Display for Note {
+    /// Formats the note using ASCII notation.
+    ///
+    /// For Unicode symbols, use [`display_unicode`](Note::display_unicode).
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::{Note, Pitch};
+    /// assert_eq!(format!("{}", Note::MIDDLE_C), "C4");
+    /// assert_eq!(format!("{}", Note::new(Pitch::F_SHARP, 3)), "F#3");
+    /// assert_eq!(format!("{}", Note::new(Pitch::B_FLAT, 5)), "Bb5");
+    /// ```
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}{}", self.pitch, self.octave)
+    }
+}
+
+/// Wrapper for formatting [`Note`] using Unicode musical symbols.
+///
+/// Obtained via [`Note::display_unicode`].
+pub struct DisplayUnicode(Note);
+
+impl fmt::Display for DisplayUnicode {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}{}", self.0.pitch.display_unicode(), self.0.octave)
+    }
+}
+
+/// Error returned when parsing a [`Note`] from [`&str`](prim@str) fails.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, thiserror::Error)]
+#[error("The provided &str could not be converted into a Note")]
+pub struct ParseNoteError;
+
+impl FromStr for Note {
+    type Err = ParseNoteError;
+
+    /// Parses a string into a `Note`.
+    ///
+    /// Accepts pitch notation followed by an octave number.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::{Note, Pitch};
+    /// assert_eq!("C4".parse(), Ok(Note::MIDDLE_C));
+    /// assert_eq!("F#3".parse(), Ok(Note::new(Pitch::F_SHARP, 3)));
+    /// assert_eq!("Bb5".parse(), Ok(Note::new(Pitch::B_FLAT, 5)));
+    /// assert_eq!("A4".parse(), Ok(Note::A4));
+    /// assert!("C".parse::<Note>().is_err()); // Missing octave
+    /// ```
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let s = s.trim();
+
+        // Find the end of the pitch portion using character indices to stay on UTF-8 boundaries
+        let pitch_split_index = s
+            .char_indices()
+            .rfind(|&(_, c)| c != '-' && !c.is_ascii_digit())
+            .map(|(i, c)| i + c.len_utf8())
+            .ok_or(ParseNoteError)?; // no pitch!
+
+        let (pitch_str, octave_str) = s
+            .split_at_checked(pitch_split_index)
+            .expect("should be valid UTF-8 boundary within string");
+
+        let pitch = pitch_str.parse().map_err(|_| ParseNoteError)?;
+        let octave = octave_str.parse().map_err(|_| ParseNoteError)?;
+
+        Ok(Note::new(pitch, octave))
     }
 }
 
