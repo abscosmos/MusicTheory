@@ -523,6 +523,19 @@ impl Note {
             .. unchecked
         }
     }
+
+    /// Returns a wrapper that formats the note using Unicode musical symbols.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::{Note, Pitch};
+    /// let fs4 = Note::new(Pitch::F_SHARP, 4);
+    /// assert_eq!(format!("{}", fs4.display_unicode()), "F♯4");
+    /// ```
+    pub fn display_unicode(self) -> DisplayUnicode {
+        DisplayUnicode(self)
+    }
 }
 
 impl PartialOrd for Note {
@@ -575,6 +588,17 @@ impl fmt::Display for Note {
     /// ```
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}{}", self.pitch, self.octave)
+    }
+}
+
+/// Wrapper for formatting [`Note`] using Unicode musical symbols.
+///
+/// Obtained via [`Note::display_unicode`].
+pub struct DisplayUnicode(Note);
+
+impl fmt::Display for DisplayUnicode {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}{}", self.0.pitch.display_unicode(), self.0.octave)
     }
 }
 
