@@ -463,6 +463,20 @@ impl Pitch {
 
         Self::from_fifths_from_c(curr + fifths)
     }
+
+    /// Returns a wrapper that formats the pitch using Unicode musical symbols.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::Pitch;
+    /// assert_eq!(format!("{}", Pitch::F_SHARP.display_unicode()), "F♯");
+    /// assert_eq!(format!("{}", Pitch::B_FLAT.display_unicode()), "B♭");
+    /// assert_eq!(format!("{}", Pitch::G_DOUBLE_SHARP.display_unicode()), "G𝄪");
+    /// ```
+    pub fn display_unicode(self) -> DisplayUnicode {
+        DisplayUnicode(self)
+    }
 }
 
 impl fmt::Debug for Pitch {
@@ -515,6 +529,24 @@ impl fmt::Display for Pitch {
 
         if accidental != AccidentalSign::NATURAL {
             write!(f, "{letter}{accidental}")
+        } else {
+            write!(f, "{letter}")
+        }
+    }
+}
+
+/// Wrapper for formatting [`Pitch`] using Unicode musical symbols.
+///
+/// Obtained via [`Pitch::display_unicode`].
+/// ```
+pub struct DisplayUnicode(Pitch);
+
+impl fmt::Display for DisplayUnicode {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let letter = self.0.letter();
+
+        if self.0.accidental() != AccidentalSign::NATURAL {
+            write!(f, "{letter}{}", self.0.accidental().display_unicode())
         } else {
             write!(f, "{letter}")
         }
