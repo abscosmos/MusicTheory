@@ -536,7 +536,6 @@ impl fmt::Display for Pitch {
 /// Wrapper for formatting [`Pitch`] using Unicode musical symbols.
 ///
 /// Obtained via [`Pitch::display_unicode`].
-/// ```
 pub struct DisplayUnicode(Pitch);
 
 impl fmt::Display for DisplayUnicode {
