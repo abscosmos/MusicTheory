@@ -267,7 +267,6 @@ impl FromStr for AccidentalSign {
                 'x' | '𝄪' if offset >= 0 => offset += 2,
                 '-' | 'b' | '♭' if offset <= 0 => offset -= 1,
                 '𝄫' if offset <= 0 => offset -= 2,
-                _ if is_accidental_char(c) => unreachable!("all accidental chars should be handled"),
                 _ => return Err(ParseAccidentalError),
             }
         }
