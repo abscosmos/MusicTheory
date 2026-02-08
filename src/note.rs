@@ -13,6 +13,7 @@
 use std::cmp::Ordering;
 use std::fmt;
 use std::ops::{Add, Sub};
+use std::str::FromStr;
 use crate::enharmonic::{EnharmonicEq, EnharmonicOrd};
 use crate::harmony::Key;
 use crate::{Pitch, PitchClass, Interval, Semitones};
@@ -599,6 +600,45 @@ pub struct DisplayUnicode(Note);
 impl fmt::Display for DisplayUnicode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}{}", self.0.pitch.display_unicode(), self.0.octave)
+    }
+}
+
+/// Error returned when parsing a [`Note`] from [`&str`](prim@str) fails.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, thiserror::Error)]
+#[error("The provided &str could not be converted into a Note")]
+pub struct ParseNoteError;
+
+impl FromStr for Note {
+    type Err = ParseNoteError;
+
+    /// Parses a string into a `Note`.
+    ///
+    /// Accepts pitch notation followed by an octave number.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::{Note, Pitch};
+    /// assert_eq!("C4".parse(), Ok(Note::MIDDLE_C));
+    /// assert_eq!("F#3".parse(), Ok(Note::new(Pitch::F_SHARP, 3)));
+    /// assert_eq!("Bb5".parse(), Ok(Note::new(Pitch::B_FLAT, 5)));
+    /// assert_eq!("A4".parse(), Ok(Note::A4));
+    /// assert!("C".parse::<Note>().is_err()); // Missing octave
+    /// ```
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let s = s.trim();
+
+        let pitch_end = s
+            .rfind(|c: char| c != '-' && !c.is_ascii_digit())
+            .ok_or(ParseNoteError)?; // no pitch!
+
+        let (pitch_str, octave_str) = s.split_at_checked(pitch_end + 1)
+            .expect("should be valid point in string, and at a boundary");
+
+        let pitch = pitch_str.parse().map_err(|_| ParseNoteError)?;
+        let octave = octave_str.parse().map_err(|_| ParseNoteError)?;
+
+        Ok(Note::new(pitch, octave))
     }
 }
 
