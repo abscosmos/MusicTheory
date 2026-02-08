@@ -1,4 +1,5 @@
 use std::fmt;
+use std::str::FromStr;
 use crate::Semitones;
 
 /// An accidental that modifies a pitch.
@@ -222,6 +223,55 @@ impl fmt::Display for DisplayUnicode {
     #[inline]
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         self.0.fmt_with_symbols(f, "♮", "♯", "♭", "𝄪", "𝄫")
+    }
+}
+
+/// Error returned when parsing an [`AccidentalSign`] from [`&str`](prim@str) fails.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, thiserror::Error)]
+#[error("The provided &str could not be converted into a AccidentalSign")]
+pub struct ParseAccidentalError;
+
+impl FromStr for AccidentalSign {
+    type Err = ParseAccidentalError;
+
+    /// Parses an accidental sign from a string.
+    ///
+    /// Accepts both ASCII (`n`, `#`, `b`, `x`, `bb`) and Unicode (`♮`, `♯`, `♭`, `𝄪`, `𝄫`) symbols.
+    /// Multiple accidentals can be combined. Mixing sharps and flats is not allowed.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::AccidentalSign;
+    /// assert_eq!("#".parse(), Ok(AccidentalSign::SHARP));
+    /// assert_eq!("♭".parse(), Ok(AccidentalSign::FLAT));
+    /// assert_eq!("bb".parse(), Ok(AccidentalSign::DOUBLE_FLAT));
+    ///
+    /// // Triple sharp
+    /// assert_eq!("#x".parse(), Ok(AccidentalSign { offset: 3 }));
+    /// ```
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        if s.is_empty() {
+            return Err(ParseAccidentalError);
+        }
+
+        if matches!(s, "n" | "♮") {
+            return Ok(Self::NATURAL);
+        }
+
+        let mut offset = 0i16;
+
+        for c in s.chars() {
+            match c {
+                '#' | '♯' if offset >= 0 => offset += 1,
+                'x' | '𝄪' if offset >= 0 => offset += 2,
+                'b' | '♭' if offset <= 0 => offset -= 1,
+                '𝄫' if offset <= 0 => offset -= 2,
+                _ => return Err(ParseAccidentalError),
+            }
+        }
+
+        Ok(Self { offset })
     }
 }
 
