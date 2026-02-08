@@ -175,46 +175,24 @@ impl fmt::Debug for AccidentalSign {
 }
 
 impl fmt::Display for AccidentalSign {
-    /// Formats the accidental using Unicode musical symbols.
+    /// Formats the accidental using ASCII symbols.
     ///
-    /// Uses the standard symbols: ♮ (natural), ♯ (sharp), ♭ (flat),
-    /// 𝄪 (double sharp), and 𝄫 (double flat). Multiple accidentals are
-    /// combined (e.g., triple sharp displays as "♯𝄪").
+    /// Uses standard ASCII notation. Multiple accidentals are combined,
+    /// like `#x` for a triple sharp.
+    ///
+    /// For Unicode symbols, use [`display_unicode`](AccidentalSign::display_unicode).
     ///
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::{AccidentalSign, Semitones};
-    /// assert_eq!(format!("{}", AccidentalSign::NATURAL), "♮");
-    /// assert_eq!(format!("{}", AccidentalSign::SHARP), "♯");
-    /// assert_eq!(format!("{}", AccidentalSign::FLAT), "♭");
-    /// assert_eq!(format!("{}", AccidentalSign::DOUBLE_SHARP), "𝄪");
-    /// assert_eq!(format!("{}", AccidentalSign::DOUBLE_FLAT), "𝄫");
-    ///
-    /// // Triple sharp
-    /// let triple_sharp = AccidentalSign::from_offset_semitones(Semitones(3));
-    /// assert_eq!(format!("{}", triple_sharp), "♯𝄪");
+    /// # use music_theory::AccidentalSign;
+    /// assert_eq!(format!("{}", AccidentalSign::NATURAL), "n");
+    /// assert_eq!(format!("{}", AccidentalSign::SHARP), "#");
+    /// assert_eq!(format!("{}", AccidentalSign::FLAT), "b");
+    /// assert_eq!(format!("{}", AccidentalSign::DOUBLE_SHARP), "x");
     /// ```
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let offset = self.offset;
-
-        if offset == 0 {
-            write!(f, "♮")
-        } else {
-            let num_double = offset.abs() / 2;
-            let add_single = offset.abs() % 2 == 1;
-
-            let (d, s) = if offset > 0 {
-                ("𝄪", "♯")
-            } else {
-                ("𝄫", "♭")
-            };
-
-            let single = if add_single { s } else { "" };
-            let double = d.repeat(num_double as _);
-
-            write!(f, "{single}{double}")
-        }
+        self.fmt_with_symbols(f, "n", "#", "b", "x", "bb")
     }
 }
 
