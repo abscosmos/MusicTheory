@@ -133,7 +133,7 @@ impl AccidentalSign {
         DisplayUnicode(self)
     }
 
-    /// Helper function to implement [`fmt::Display`] with both ASCII and unicode characters.
+    /// Helper function to implement [`fmt::Display`] with both ASCII and Unicode characters.
     fn fmt_with_symbols(
         &self,
         f: &mut fmt::Formatter<'_>,
