@@ -120,6 +120,19 @@ impl AccidentalSign {
         Self { offset: offset.0 }
     }
 
+    /// Returns a wrapper that formats the accidental using Unicode musical symbols.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::{AccidentalSign, Semitones};
+    /// assert_eq!(format!("{}", AccidentalSign::FLAT.display_unicode()), "♭");
+    /// assert_eq!(AccidentalSign::DOUBLE_SHARP.display_unicode().to_string(), "𝄪");
+    /// ```
+    pub fn display_unicode(self) -> DisplayUnicode {
+        DisplayUnicode(self)
+    }
+
     /// Helper function to implement [`fmt::Display`] with both ASCII and unicode characters.
     fn fmt_with_symbols(
         &self,
@@ -193,6 +206,30 @@ impl fmt::Display for AccidentalSign {
     /// ```
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         self.fmt_with_symbols(f, "n", "#", "b", "x", "bb")
+    }
+}
+
+/// Wrapper for formatting [`AccidentalSign`] using Unicode musical symbols.
+///
+/// Obtained via [`AccidentalSign::display_unicode`].
+///
+/// # Examples
+///
+/// ```
+/// # use music_theory::{AccidentalSign, Semitones};
+/// assert_eq!(format!("{}", AccidentalSign::NATURAL.display_unicode()), "♮");
+/// assert_eq!(format!("{}", AccidentalSign::SHARP.display_unicode()), "♯");
+/// assert_eq!(format!("{}", AccidentalSign::DOUBLE_FLAT.display_unicode()), "𝄫");
+///
+/// let triple_sharp = AccidentalSign::from_offset_semitones(Semitones(3));
+/// assert_eq!(format!("{}", triple_sharp.display_unicode()), "♯𝄪");
+/// ```
+pub struct DisplayUnicode(AccidentalSign);
+
+impl fmt::Display for DisplayUnicode {
+    #[inline]
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        self.0.fmt_with_symbols(f, "♮", "♯", "♭", "𝄪", "𝄫")
     }
 }
 
