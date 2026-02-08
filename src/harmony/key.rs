@@ -630,10 +630,11 @@ impl FromStr for Key {
             .expect("at least one character must be present")
             .is_uppercase();
         
-        let pitch_end = s[1..]
-            .find(|c| !accidental::is_accidental_char(c))
-            .map(|pos| pos + 1)
-            .unwrap_or(s.len());
+        let pitch_end = s
+            .char_indices()
+            .skip(1)
+            .find(|&(_, c)| !accidental::is_accidental_char(c))
+            .map_or(s.len(), |(idx, _)| idx);
 
         let (pitch_str, mode_str) = s.split_at_checked(pitch_end)
             .expect("shouldn't be in the middle of codepoint, and should be in range");
