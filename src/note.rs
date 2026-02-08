@@ -561,6 +561,18 @@ impl EnharmonicEq for Note {
 }
 
 impl fmt::Display for Note {
+    /// Formats the note using ASCII notation.
+    ///
+    /// For Unicode symbols, use [`display_unicode`](Note::display_unicode).
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::{Note, Pitch};
+    /// assert_eq!(format!("{}", Note::MIDDLE_C), "C4");
+    /// assert_eq!(format!("{}", Note::new(Pitch::F_SHARP, 3)), "F#3");
+    /// assert_eq!(format!("{}", Note::new(Pitch::B_FLAT, 5)), "Bb5");
+    /// ```
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}{}", self.pitch, self.octave)
     }
