@@ -52,7 +52,7 @@ impl Number {
     /// assert_eq!(Number::new(0), None);
     /// ```
     pub const fn new(number: i16) -> Option<Self> {
-        // TODO: Option::map and ? operator both aren't const yet
+        // TODO(const): Option::map and ? operator both aren't const yet
         match NonZeroI16::new(number) {
             Some(n) => Some(Self(n)),
             None => None,

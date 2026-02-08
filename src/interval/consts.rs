@@ -8,7 +8,8 @@ macro_rules! define_consts {
             paste::paste! { pub const [<$quality _ $num>]: Self = unsafe { Self::new_unchecked(Quality::$quality, Number::$num) }; }
         )*
         
-        pub const ALL_CONSTS: &[Self] = &[ // TODO: use count metavar when stabilized
+        // TODO(macro_metavar_expr): use count metavar when stabilized
+        pub const ALL_CONSTS: &[Self] = &[
             $(
                 paste::paste! { Self::[<$quality _ $num>] }
             ),*
