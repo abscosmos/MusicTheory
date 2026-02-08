@@ -267,12 +267,18 @@ impl FromStr for AccidentalSign {
                 'x' | '𝄪' if offset >= 0 => offset += 2,
                 '-' | 'b' | '♭' if offset <= 0 => offset -= 1,
                 '𝄫' if offset <= 0 => offset -= 2,
+                _ if is_accidental_char(c) => unreachable!("all accidental chars should be handled"),
                 _ => return Err(ParseAccidentalError),
             }
         }
 
         Ok(Self { offset })
     }
+}
+
+/// Checks if this char can be parsed as an accidental
+pub(crate) fn is_accidental_char(c: char) -> bool {
+    matches!(c, '+' | '#' | '♯' | 'x' | '𝄪' | '-' | 'b' | '♭' | '𝄫')
 }
 
 impl From<Semitones> for AccidentalSign {
