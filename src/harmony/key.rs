@@ -1,3 +1,4 @@
+use std::fmt;
 use crate::{Pitch, Letter, AccidentalSign, Interval};
 use crate::pitch::{accidental, Spelling};
 use crate::harmony::{ScaleDegree, DiatonicMode};
@@ -652,6 +653,18 @@ impl FromStr for Key {
         };
 
         Ok(Key::new(pitch, mode))
+    }
+}
+
+impl fmt::Display for Key {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let tonic = self.tonic;
+
+        match self.mode {
+            DiatonicMode::Ionian => write!(f, "{tonic} Major"),
+            DiatonicMode::Aeolian => write!(f, "{tonic} Minor"),
+            mode => write!(f, "{tonic} {mode:?}"),
+        }
     }
 }
 
