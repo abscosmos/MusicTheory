@@ -236,7 +236,7 @@ impl FromStr for AccidentalSign {
 
     /// Parses an accidental sign from a string.
     ///
-    /// Accepts both ASCII (`n`, `#`, `b`, `x`, `bb`) and Unicode (`♮`, `♯`, `♭`, `𝄪`, `𝄫`) symbols.
+    /// Accepts both ASCII (`n`, `#`, `+`, `b`, `-`, `x`, `bb`) and Unicode (`♮`, `♯`, `♭`, `𝄪`, `𝄫`) symbols.
     /// Multiple accidentals can be combined. Mixing sharps and flats is not allowed.
     ///
     /// # Examples
