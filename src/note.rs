@@ -628,12 +628,16 @@ impl FromStr for Note {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let s = s.trim();
 
-        let pitch_end = s
-            .rfind(|c: char| c != '-' && !c.is_ascii_digit())
+        // Find the end of the pitch portion using character indices to stay on UTF-8 boundaries
+        let pitch_split_index = s
+            .char_indices()
+            .rfind(|&(_, c)| c != '-' && !c.is_ascii_digit())
+            .map(|(i, c)| i + c.len_utf8())
             .ok_or(ParseNoteError)?; // no pitch!
 
-        let (pitch_str, octave_str) = s.split_at_checked(pitch_end + 1)
-            .expect("should be valid point in string, and at a boundary");
+        let (pitch_str, octave_str) = s
+            .split_at_checked(pitch_split_index)
+            .expect("should be valid UTF-8 boundary within string");
 
         let pitch = pitch_str.parse().map_err(|_| ParseNoteError)?;
         let octave = octave_str.parse().map_err(|_| ParseNoteError)?;
