@@ -119,6 +119,37 @@ impl AccidentalSign {
     pub fn from_offset_semitones(offset: Semitones) -> Self {
         Self { offset: offset.0 }
     }
+
+    /// Helper function to implement [`fmt::Display`] with both ASCII and unicode characters.
+    fn fmt_with_symbols(
+        &self,
+        f: &mut fmt::Formatter<'_>,
+        natural: &str,
+        sharp: &str,
+        flat: &str,
+        double_sharp: &str,
+        double_flat: &str,
+    ) -> fmt::Result {
+        let offset = self.offset;
+
+        if offset == 0 {
+            f.write_str(natural)
+        } else {
+            let num_double = offset.abs() / 2;
+            let add_single = offset.abs() % 2 == 1;
+
+            let (d, s) = if offset > 0 {
+                (double_sharp, sharp)
+            } else {
+                (double_flat, flat)
+            };
+
+            let single = if add_single { s } else { "" };
+            let double = d.repeat(num_double as _);
+
+            write!(f, "{single}{double}")
+        }
+    }
 }
 
 impl fmt::Debug for AccidentalSign {
