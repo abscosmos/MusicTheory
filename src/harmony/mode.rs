@@ -1,3 +1,4 @@
+use std::fmt;
 use crate::scales::definition::heptatonic::DiatonicMode as DiatonicModeExperimental;
 #[allow(unused_imports, reason = "used in documentation")]
 use crate::harmony::ScaleDegree;
@@ -83,5 +84,11 @@ impl FromStr for DiatonicMode {
             "locrian" => Ok(Self::Locrian),
             _ => Err(ParseDiatonicModeError),
         }
+    }
+}
+
+impl fmt::Display for DiatonicMode {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        fmt::Debug::fmt(self, f)
     }
 }
