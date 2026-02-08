@@ -1,3 +1,4 @@
+use std::fmt;
 use std::str::FromStr;
 use crate::scales::numeral::Numeral7 as ScaleDegreeExp;
 
@@ -95,6 +96,12 @@ impl FromStr for ScaleDegree {
             "VII" | "vii" | "7" => Ok(Self::VII),
             _ => Err(ParseScaleDegreeError),
         }
+    }
+}
+
+impl fmt::Display for ScaleDegree {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        fmt::Debug::fmt(self, f)
     }
 }
 
