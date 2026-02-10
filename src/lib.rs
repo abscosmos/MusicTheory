@@ -5,6 +5,7 @@ mod semitone;
 pub mod pitch;
 pub mod set;
 pub mod harmony;
+pub mod chord;
 
 
 // experimental features:
