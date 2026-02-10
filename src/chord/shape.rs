@@ -1,4 +1,5 @@
 use crate::Interval;
+use crate::interval::Number;
 
 pub struct ChordShape {
     intervals: Box<[Interval]>,
@@ -35,5 +36,24 @@ impl ChordShape {
         }
 
         Ok(Self { intervals: intervals.into_boxed_slice() })
+    }
+
+    pub fn intervals(&self) -> &[Interval] {
+        &self.intervals
+    }
+
+    pub fn len(&self) -> usize {
+        self.intervals.len()
+    }
+
+    pub fn interval_of(&self, num: Number) -> Option<Interval> {
+        if !num.is_ascending() {
+            return None;
+        }
+
+        self.intervals
+            .iter()
+            .find(|i| i.number() == num)
+            .copied()
     }
 }
