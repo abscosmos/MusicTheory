@@ -44,6 +44,7 @@ impl ChordShape {
         &self.intervals
     }
 
+    #[expect(clippy::len_without_is_empty, reason = "ChordShape cannot be empty")]
     pub fn len(&self) -> usize {
         self.intervals.len()
     }
