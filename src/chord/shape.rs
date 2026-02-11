@@ -46,6 +46,10 @@ impl ChordShape {
         self.intervals.len()
     }
 
+    pub fn has_interval(&self, interval: Interval) -> bool {
+        self.intervals.contains(&interval)
+    }
+
     pub fn interval_of(&self, num: Number) -> Option<Interval> {
         if !num.is_ascending() {
             return None;
@@ -55,5 +59,55 @@ impl ChordShape {
             .iter()
             .find(|i| i.number() == num)
             .copied()
+    }
+
+    pub fn is_triad(&self) -> bool {
+        self.len() == 3
+    }
+
+    pub fn is_seventh(&self) -> bool {
+        self.interval_of(Number::SEVENTH).is_some()
+    }
+
+    pub fn is_extended(&self) -> bool {
+        self.interval_of(Number::NINTH).is_some()
+            || self.interval_of(Number::ELEVENTH).is_some()
+            || self.interval_of(Number::THIRTEENTH).is_some()
+    }
+
+    pub fn contains_triad(&self) -> bool {
+        self.interval_of(Number::THIRD).is_some()
+            && self.interval_of(Number::FIFTH).is_some()
+    }
+
+    pub fn is_major(&self) -> bool {
+        self.has_interval(Interval::MAJOR_THIRD)
+            && self.has_interval(Interval::PERFECT_FIFTH)
+    }
+
+    pub fn is_minor(&self) -> bool {
+        self.has_interval(Interval::MINOR_THIRD)
+            && self.has_interval(Interval::PERFECT_FIFTH)
+    }
+
+    pub fn is_diminished(&self) -> bool {
+        self.has_interval(Interval::MINOR_THIRD)
+            && self.has_interval(Interval::DIMINISHED_FIFTH)
+    }
+
+    pub fn is_augmented(&self) -> bool {
+        self.has_interval(Interval::MAJOR_THIRD)
+            && self.has_interval(Interval::AUGMENTED_FIFTH)
+    }
+
+    pub fn is_suspended(&self) -> bool {
+        self.interval_of(Number::THIRD).is_none()
+            && (self.has_interval(Interval::MAJOR_SECOND)
+                || self.has_interval(Interval::PERFECT_FOURTH))
+    }
+
+    pub fn is_dominant(&self) -> bool {
+        self.has_interval(Interval::MAJOR_THIRD)
+            && self.has_interval(Interval::MINOR_SEVENTH)
     }
 }
