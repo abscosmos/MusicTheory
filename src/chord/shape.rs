@@ -1,6 +1,8 @@
 use crate::Interval;
 use crate::interval::{Number, Stability};
 
+#[derive(Debug, Clone, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ChordShape {
     intervals: Box<[Interval]>,
 }
