@@ -16,7 +16,8 @@ impl PitchChord {
     }
 
     pub fn with_inversion(root: Pitch, shape: ChordShape, inversion: u8) -> Option<Self> {
-        let bass = todo!("compute from inversion");
+        let bass_interval = *shape.intervals().get(inversion as usize)?;
+        let bass = root + bass_interval;
 
         Some(Self::with_bass(root, shape, bass))
     }
