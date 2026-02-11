@@ -1,5 +1,5 @@
 use crate::Interval;
-use crate::interval::Number;
+use crate::interval::{Number, Stability};
 
 pub struct ChordShape {
     intervals: Box<[Interval]>,
@@ -109,5 +109,18 @@ impl ChordShape {
     pub fn is_dominant(&self) -> bool {
         self.has_interval(Interval::MAJOR_THIRD)
             && self.has_interval(Interval::MINOR_SEVENTH)
+    }
+
+    pub fn is_consonant(&self) -> bool {
+        // TODO: test that this is equivalent checking that none of
+        //     all distances between pairs of notes are consonant
+
+        match self.intervals() {
+            [] => unreachable!("chord shape must have at least P1"),
+            [_p1] => true,
+            [_p1, ivl] => ivl.stability().is_some_and(Stability::is_consonant),
+            [_p1, _, _] => self.is_major() || self.is_minor(),
+            _ => false,
+        }
     }
 }
