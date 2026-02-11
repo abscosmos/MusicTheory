@@ -9,3 +9,21 @@ pub struct PitchChord {
     shape: ChordShape,
     bass: Option<Pitch>,
 }
+
+impl PitchChord {
+    pub fn new(root: Pitch, shape: ChordShape) -> Self {
+        Self::with_inversion(root, shape, 0).expect("root inversion is always allowed")
+    }
+
+    pub fn with_inversion(root: Pitch, shape: ChordShape, inversion: u8) -> Option<Self> {
+        todo!()
+    }
+
+    pub fn root(&self) -> Pitch {
+        self.root
+    }
+
+    pub fn shape(&self) -> &ChordShape {
+        &self.shape
+    }
+}
