@@ -1,1 +1,2 @@
-mod shape;
+pub mod shape;
+pub use shape::ChordShape;
