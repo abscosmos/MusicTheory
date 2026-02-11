@@ -7,5 +7,5 @@ pub struct PitchChord {
     // TODO: should the root & shape fields be public? What the invariant that must be held?
     root: Pitch,
     shape: ChordShape,
-    bass: Option<Interval>,
+    bass: Option<Pitch>,
 }
