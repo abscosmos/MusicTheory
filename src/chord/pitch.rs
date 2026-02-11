@@ -7,7 +7,7 @@ pub struct PitchChord {
     // TODO: should the root & shape fields be public? What the invariant that must be held?
     root: Pitch,
     shape: ChordShape,
-    bass: Option<Pitch>,
+    bass: Pitch,
 }
 
 impl PitchChord {
@@ -22,7 +22,7 @@ impl PitchChord {
     }
 
     pub fn with_bass(root: Pitch, shape: ChordShape, bass: Pitch) -> Self {
-        Self { root, shape, bass: Some(bass) }
+        Self { root, shape, bass }
     }
 
     pub fn root(&self) -> Pitch {
