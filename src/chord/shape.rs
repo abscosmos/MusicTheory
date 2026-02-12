@@ -1,4 +1,4 @@
-use crate::Interval;
+use crate::{EnharmonicEq, Interval};
 use crate::interval::{Number, Stability};
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
@@ -125,5 +125,18 @@ impl ChordShape {
             [_p1, _, _] => self.is_major() || self.is_minor(),
             _ => false,
         }
+    }
+}
+
+impl EnharmonicEq for ChordShape {
+    fn eq_enharmonic(&self, other: &Self) -> bool {
+        if self.len() != other.len() {
+            return false;
+        }
+
+        self.intervals()
+            .iter()
+            .zip(other.intervals())
+            .all(|(this, other)| this.eq_enharmonic(other))
     }
 }
