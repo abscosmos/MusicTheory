@@ -89,7 +89,7 @@ pub fn find_root(pitches: impl Iterator<Item=Pitch>) -> Option<Pitch> {
         }
     }
 
-    parncutt_1988(by_chroma.iter().copied())
+    Some(parncutt_1988(by_chroma.iter().copied()).expect("shouldn't be empty"))
 }
 
 /// [Parncutt 1988](https://doi.org/10.2307/40285416) root-support scoring
