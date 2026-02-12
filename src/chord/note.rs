@@ -2,11 +2,11 @@ use crate::chord::pitch::PitchChord;
 use crate::Note;
 
 pub struct NoteChord {
-    notes: Vec<Note>,
+    pub notes: Vec<Note>,
 }
 
 impl NoteChord {
-    // TODO: the existence of this method allows empty chords; is this valid?
+    // TODO: the existence of this method (and pub notes field) allows empty chords; is this valid?
     pub fn new(notes: impl IntoIterator<Item=Note>) -> Self {
         Self { notes: notes.into_iter().collect() }
     }
