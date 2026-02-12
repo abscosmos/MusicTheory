@@ -4,6 +4,7 @@ use crate::{Interval, Note, Pitch};
 use crate::interval::Number;
 use crate::harmony::Key;
 use crate::pitch::Spelling;
+use crate::set::{IntervalClassVector, PitchClassSet};
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -193,5 +194,13 @@ impl PitchChord {
 
     pub fn contains(&self, pitch: Pitch) -> bool {
         self.pitches_naive().any(|p| p == pitch)
+    }
+
+    pub fn pitch_class_set(&self) -> PitchClassSet {
+        self.pitches_naive().map(Pitch::as_pitch_class).collect()
+    }
+
+    pub fn interval_class_vector(&self) -> IntervalClassVector {
+        self.pitch_class_set().interval_class_vector()
     }
 }
