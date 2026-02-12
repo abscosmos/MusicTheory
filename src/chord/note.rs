@@ -1,6 +1,7 @@
 use crate::chord::pitch::PitchChord;
-use crate::{Note, Pitch};
+use crate::{Interval, Note, Pitch};
 use crate::chord::root;
+use crate::set::PitchClassSet;
 
 pub struct NoteChord {
     notes: Box<[Note]>,
@@ -58,5 +59,38 @@ impl NoteChord {
 
     pub fn root(&self) -> Pitch {
         self.root
+    }
+
+    pub fn bass(&self) -> Note {
+        *self.notes.first().expect("shouldn't be empty")
+    }
+
+    pub fn pitch_class_set(&self) -> PitchClassSet {
+        self.notes.iter()
+            .map(|n| n.pitch.as_pitch_class())
+            .collect()
+    }
+
+    pub fn contains_pitch(&self, pitch: Pitch) -> bool {
+        self.notes.iter().any(|n| n.pitch == pitch)
+    }
+
+    pub fn contains_note(&self, note: Note) -> bool {
+        self.notes.contains(&note)
+    }
+
+    pub fn transpose(&self, interval: Interval) -> Self {
+        let notes = self.notes.iter()
+            .map(|&n| n + interval)
+            .collect::<Box<[_]>>();
+
+        debug_assert!(
+            notes.is_sorted(),
+            "notes should remain sorted after transpose",
+        );
+
+        let root = self.root + interval;
+
+        Self { notes, root }
     }
 }
