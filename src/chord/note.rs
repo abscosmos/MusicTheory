@@ -9,8 +9,8 @@ pub struct NoteChord {
 
 impl NoteChord {
     pub fn new(notes: impl IntoIterator<Item=Note>) -> Option<Self> {
-        let notes = notes.into_iter().collect::<Box<[_]>>();
-        
+        let notes = Self::sort_dedup(notes);
+
         if notes.is_empty() {
             return None;
         }
@@ -22,13 +22,22 @@ impl NoteChord {
     }
 
     pub fn with_root(notes: impl IntoIterator<Item=Note>, root: Pitch) -> Option<Self> {
-        let notes = notes.into_iter().collect::<Box<[_]>>();
+        let notes = Self::sort_dedup(notes);
 
         if notes.iter().any(|n| n.pitch == root) {
             Some(Self { notes, root })
         } else {
             None
         }
+    }
+
+    fn sort_dedup(notes: impl IntoIterator<Item=Note>) -> Box<[Note]> {
+        let mut notes = notes.into_iter().collect::<Vec<_>>();
+
+        notes.sort();
+        notes.dedup();
+
+        notes.into_boxed_slice()
     }
 
     pub fn from_pitch_chord(chord: &PitchChord, bass_octave: i16) -> Self {
