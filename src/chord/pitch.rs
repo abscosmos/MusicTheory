@@ -1,3 +1,4 @@
+use std::iter;
 use crate::chord::ChordShape;
 use crate::{Interval, Note, Pitch};
 use crate::interval::Number;
@@ -183,11 +184,14 @@ impl PitchChord {
         self.shape.is_consonant()
     }
 
-    pub fn contains(&self, pitch: Pitch) -> bool {
-        let chord_tone = self.shape.intervals()
+    fn pitches_naive(&self) -> impl Iterator<Item=Pitch> + Clone {
+        self.shape.intervals()
             .iter()
-            .any(|&ivl| self.root + ivl == pitch);
+            .map(|&ivl| self.root + ivl)
+            .chain(iter::once(self.bass))
+    }
 
-        self.root == pitch || chord_tone
+    pub fn contains(&self, pitch: Pitch) -> bool {
+        self.pitches_naive().any(|p| p == pitch)
     }
 }
