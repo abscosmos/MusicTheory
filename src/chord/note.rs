@@ -35,11 +35,19 @@ impl NoteChord {
         Self::with_root(chord.notes(bass_octave), chord.root()).expect("can't be empty")
     }
 
+    pub fn notes(&self) -> &[Note] {
+        &self.notes
+    }
+
     pub fn len(&self) -> usize {
         self.notes.len()
     }
 
     pub fn is_empty(&self) -> bool {
         self.notes.is_empty()
+    }
+
+    pub fn root(&self) -> Pitch {
+        self.root
     }
 }
