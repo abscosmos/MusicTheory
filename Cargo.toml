@@ -17,6 +17,7 @@ strum_macros = "0.26.4"
 thiserror = "1.0.63"
 regex = "1.10.6"
 paste = "1.0.15"
+arrayvec = "0.7"
 mt_macros = { path = "mt_macros" }
 serde = { version = "1.0", features = ["derive"], optional = true }
 
