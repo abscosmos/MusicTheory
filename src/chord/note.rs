@@ -1,14 +1,24 @@
 use crate::chord::pitch::PitchChord;
-use crate::Note;
+use crate::{Note, Pitch};
+use crate::chord::root;
 
 pub struct NoteChord {
-    pub notes: Vec<Note>,
+    notes: Box<[Note]>,
+    root: Pitch,
 }
 
 impl NoteChord {
-    // TODO: the existence of this method (and pub notes field) allows empty chords; is this valid?
-    pub fn new(notes: impl IntoIterator<Item=Note>) -> Self {
-        Self { notes: notes.into_iter().collect() }
+    pub fn new(notes: impl IntoIterator<Item=Note>) -> Option<Self> {
+        let notes = notes.into_iter().collect::<Box<[_]>>();
+        
+        if notes.is_empty() {
+            return None;
+        }
+        
+        let root = root::find_root(notes.iter().map(|n| n.pitch))
+            .expect("not empty");
+        
+        Some(Self { notes, root })
     }
 
     pub fn from_pitch_chord(chord: &PitchChord, bass_octave: i16) -> Self {
