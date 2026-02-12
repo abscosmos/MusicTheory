@@ -105,6 +105,10 @@ impl PitchChord {
             .unwrap_or(0) as _
     }
 
+    pub fn in_inversion(&self) -> bool {
+        self.inversion() != 0
+    }
+
     pub fn is_slash(&self) -> bool {
         self.shape.intervals().iter().all(|&ivl| self.root + ivl != self.bass)
     }
