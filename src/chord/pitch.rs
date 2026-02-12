@@ -139,6 +139,50 @@ impl PitchChord {
         self.pitch_at(Number::THIRTEENTH)
     }
 
+    pub fn is_triad(&self) -> bool {
+        self.shape.is_triad()
+    }
+
+    pub fn is_seventh(&self) -> bool {
+        self.shape.is_seventh()
+    }
+
+    pub fn is_extended(&self) -> bool {
+        self.shape.is_extended()
+    }
+
+    pub fn contains_triad(&self) -> bool {
+        self.shape.contains_triad()
+    }
+
+    pub fn is_major(&self) -> bool {
+        self.shape.is_major()
+    }
+
+    pub fn is_minor(&self) -> bool {
+        self.shape.is_minor()
+    }
+
+    pub fn is_diminished(&self) -> bool {
+        self.shape.is_diminished()
+    }
+
+    pub fn is_augmented(&self) -> bool {
+        self.shape.is_augmented()
+    }
+
+    pub fn is_suspended(&self) -> bool {
+        self.shape.is_suspended()
+    }
+
+    pub fn is_dominant(&self) -> bool {
+        self.shape.is_dominant()
+    }
+
+    pub fn is_consonant(&self) -> bool {
+        self.shape.is_consonant()
+    }
+
     pub fn contains(&self, pitch: Pitch) -> bool {
         let chord_tone = self.shape.intervals()
             .iter()
