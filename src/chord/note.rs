@@ -21,8 +21,18 @@ impl NoteChord {
         Some(Self { notes, root })
     }
 
+    pub fn with_root(notes: impl IntoIterator<Item=Note>, root: Pitch) -> Option<Self> {
+        let notes = notes.into_iter().collect::<Box<[_]>>();
+
+        if notes.iter().any(|n| n.pitch == root) {
+            Some(Self { notes, root })
+        } else {
+            None
+        }
+    }
+
     pub fn from_pitch_chord(chord: &PitchChord, bass_octave: i16) -> Self {
-        Self::new(chord.notes(bass_octave))
+        Self::with_root(chord.notes(bass_octave), chord.root()).expect("can't be empty")
     }
 
     pub fn len(&self) -> usize {
