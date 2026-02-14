@@ -210,15 +210,13 @@ impl NoteChord {
         }
 
         // 2. find thirds
+        let mut last_letter = root.pitch.letter();
+        let mut last_octave = root.octave;
+
         loop {
             if letters_added == LetterSet::FULL {
                 break;
             }
-
-            let last = closed.last()
-                .expect("should be at least one elem");
-
-            let last_letter = last.pitch.letter();
 
             let third_letter = Letter::from_step((last_letter.step() + 2) % 7)
                 .expect("should be valid letter");
@@ -228,8 +226,8 @@ impl NoteChord {
             );
 
             let octave = match last_letter.cmp(&third_letter) {
-                Ordering::Less => last.octave,
-                Ordering::Greater => last.octave + 1,
+                Ordering::Less => last_octave,
+                Ordering::Greater => last_octave + 1,
                 Ordering::Equal => unreachable!("letter should be two steps away"),
             };
 
@@ -245,6 +243,8 @@ impl NoteChord {
 
             if has_any {
                 letters_added = letters_added.with_set(third_letter);
+                last_letter = third_letter;
+                last_octave = octave;
             } else {
                 break;
             }
