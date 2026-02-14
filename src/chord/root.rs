@@ -1,28 +1,7 @@
 use arrayvec::ArrayVec;
 use crate::Pitch;
-use crate::pitch::Letter;
+use super::letter_set::LetterSet;
 use crate::set::PitchClassSet;
-
-/// A 7-bit set of [`Letter`] values (C through B).
-#[derive(Copy, Clone, Eq, PartialEq, Default)]
-struct LetterSet(u8);
-
-impl LetterSet {
-    const EMPTY: Self = Self(0);
-
-    pub const fn is_set(self, letter: Letter) -> bool {
-        self.0 & Self::index(letter) != 0
-    }
-
-    pub const fn with_set(self, letter: Letter) -> Self {
-        Self(self.0 | Self::index(letter))
-    }
-
-    #[inline(always)]
-    const fn index(letter: Letter) -> u8 {
-        1 << letter.step()
-    }
-}
 
 /// Interval-number patterns to help identify chord root.
 /// Each entry is a bitmask, bit N corresponds to a specific
