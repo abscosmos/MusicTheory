@@ -120,58 +120,43 @@ impl NoteChord {
 
         let wrap_start = notes.len() - n;
 
-        let prev_last = notes[wrap_start - 1];
-        let root = notes[wrap_start];
-
-        let bump = match (prev_last.pitch.letter().cmp(&root.pitch.letter()), separate_steps) {
-            (Ordering::Less, _) | (Ordering::Equal, false) => prev_last.octave - root.octave,
-            (Ordering::Greater, _) | (Ordering::Equal, true) => prev_last.octave - root.octave + 1,
-        };
-
-        assert!(
-            !bump.is_negative(),
-            "should always bump octave strictly positive amount"
-        );
+        // bump wrapped notes up one octave
+        let bass = notes[0];
 
         for note in &mut notes[wrap_start..] {
-            note.octave += bump;
+            note.octave += 1;
+
+            if *note < bass {
+                note.octave += 1;
+
+                debug_assert!(
+                    *note >= bass,
+                    "note should now be in correct place",
+                );
+            }
         }
 
-        let root = notes[wrap_start];
+        notes.sort_unstable();
 
-        if !separate_steps
-            && prev_last.pitch.letter() == root.pitch.letter()
-            && prev_last.pitch.accidental() >= root.pitch.accidental()
-        {
-            assert_eq!(
-                prev_last.octave, root.octave,
-                "octave should be the same",
-            );
+        // fix multiple notes with same letter at same octave
+        if separate_steps {
+            for letter in Letter::iter() {
+                let mut pitches = notes.iter_mut()
+                    .filter(|n| n.pitch.letter() == letter);
 
-            debug_assert!(
-                notes[..=wrap_start].is_sorted_by_key(|n| (n.pitch.letter(), n.octave)),
-                "sorting should only reorder accidentals",
-            );
+                if let Some(lowest) = pitches.next().copied() {
+                    for (i, note) in pitches.enumerate() {
+                        note.octave = lowest.octave + i as i16 + 1;
+                    }
+                }
+            }
 
-            notes[..=wrap_start].sort();
-
-            // there's a chance there's a duplicate now
-            // TODO: can also check that it's deduped? or better, only sort / dedup in needed range
-            let mut notes_dedup = notes[..=wrap_start].to_vec();
-            notes_dedup.dedup();
-            notes_dedup.extend_from_slice(&notes[(wrap_start + 1)..]);
-
-            assert!(
-                notes.len() - notes_dedup.len() <= 1,
-                "at most should've removed one element",
-            );
-
-            notes = notes_dedup.into_boxed_slice()
+            notes.sort_unstable();
         }
 
-        assert!(
+        debug_assert!(
             notes.windows(2).all(|w| w[0] < w[1]),
-            "should still be sorted & deduplicated after inverting",
+            "should be sorted & deduplicated after inversion",
         );
 
         Some(Self { notes, root: self.root })
