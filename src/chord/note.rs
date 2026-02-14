@@ -1,10 +1,14 @@
 use std::cmp::Ordering;
+use std::collections::HashSet;
+use std::hash::Hash;
+use rustc_hash::FxBuildHasher;
 use crate::chord::pitch::PitchChord;
 use crate::{Interval, Letter, Note, Pitch};
 use crate::chord::root;
 use crate::chord::letter_set::LetterSet;
 use crate::set::PitchClassSet;
 
+#[derive(Clone)]
 pub struct NoteChord {
     notes: Box<[Note]>,
     root: Pitch,
@@ -79,6 +83,22 @@ impl NoteChord {
 
     pub fn contains_note(&self, note: Note) -> bool {
         self.notes.contains(&note)
+    }
+
+    fn dedup_by<K: Eq + Hash>(&self, mut key: impl FnMut(Note) -> K) -> Self {
+        let mut seen = HashSet::with_capacity_and_hasher(self.len(), FxBuildHasher);
+
+        let notes = self.notes.iter()
+            .filter(|n| seen.insert(key(**n)))
+            .copied()
+            .collect();
+
+        Self { notes, root: self.root }
+    }
+
+    #[inline]
+    pub fn dedup_by_pitch(&self) -> Self {
+        self.dedup_by(|n| n.pitch)
     }
 
     pub fn closed_position(&self, separate_steps: bool) -> Self {
