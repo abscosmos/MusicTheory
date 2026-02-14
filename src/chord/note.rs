@@ -4,8 +4,9 @@ use std::hash::Hash;
 use rustc_hash::FxBuildHasher;
 use crate::chord::pitch::PitchChord;
 use crate::{Interval, Letter, Note, Pitch};
-use crate::chord::root;
+use crate::chord::{root, ChordShape};
 use crate::chord::letter_set::LetterSet;
+use crate::interval::Number;
 use crate::set::PitchClassSet;
 
 #[derive(Clone)]
@@ -99,6 +100,81 @@ impl NoteChord {
     #[inline]
     pub fn dedup_by_pitch(&self) -> Self {
         self.dedup_by(|n| n.pitch)
+    }
+
+    // if not deduped by pitch, and root and
+    // also, need method to undo this? after that this method can be public
+    // check what the current n is, and go off of that? like find how much to rotate by
+    fn with_inversion(&self, n: usize, separate_steps: bool) -> Option<Self> {
+        if n == 0 {
+            return Some(self.clone())
+        }
+
+        if n >= self.len() {
+            return None;
+        }
+
+        let mut notes = self.notes.clone();
+
+        notes.rotate_left(n);
+
+        let wrap_start = notes.len() - n;
+
+        let prev_last = notes[wrap_start - 1];
+        let root = notes[wrap_start];
+
+        let bump = match (prev_last.pitch.letter().cmp(&root.pitch.letter()), separate_steps) {
+            (Ordering::Less, _) | (Ordering::Equal, false) => prev_last.octave - root.octave,
+            (Ordering::Greater, _) | (Ordering::Equal, true) => prev_last.octave - root.octave + 1,
+        };
+
+        assert!(
+            !bump.is_negative(),
+            "should always bump octave strictly positive amount"
+        );
+
+        for note in &mut notes[wrap_start..] {
+            note.octave += bump;
+        }
+
+        let root = notes[wrap_start];
+
+        if !separate_steps
+            && prev_last.pitch.letter() == root.pitch.letter()
+            && prev_last.pitch.accidental() >= root.pitch.accidental()
+        {
+            assert_eq!(
+                prev_last.octave, root.octave,
+                "octave should be the same",
+            );
+
+            debug_assert!(
+                notes[..=wrap_start].is_sorted_by_key(|n| (n.pitch.letter(), n.octave)),
+                "sorting should only reorder accidentals",
+            );
+
+            notes[..=wrap_start].sort();
+
+            // there's a chance there's a duplicate now
+            // TODO: can also check that it's deduped? or better, only sort / dedup in needed range
+            let mut notes_dedup = notes[..=wrap_start].to_vec();
+            notes_dedup.dedup();
+            notes_dedup.extend_from_slice(&notes[(wrap_start + 1)..]);
+
+            assert!(
+                notes.len() - notes_dedup.len() <= 1,
+                "at most should've removed one element",
+            );
+
+            notes = notes_dedup.into_boxed_slice()
+        }
+
+        assert!(
+            notes.windows(2).all(|w| w[0] < w[1]),
+            "should still be sorted & deduplicated after inverting",
+        );
+
+        Some(Self { notes, root: self.root })
     }
 
     pub fn closed_position(&self, separate_steps: bool) -> Self {
