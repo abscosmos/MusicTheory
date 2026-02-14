@@ -335,16 +335,16 @@ impl NoteChord {
 
         let mut with_inversion = closed_root.with_inversion(bass_idx, separate_steps).expect("valid inversion");
 
-        assert_eq!(
-            with_inversion.bass(), self.bass(),
-            "bass note should be correct",
-        );
-
         let octave_diff = self.bass().octave - with_inversion.bass().octave;
 
         for note in &mut with_inversion.notes {
             note.octave += octave_diff;
         }
+
+        assert_eq!(
+            with_inversion.bass(), self.bass(),
+            "bass note should match after octave adjustment",
+        );
 
         with_inversion
     }
