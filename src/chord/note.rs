@@ -291,7 +291,7 @@ impl NoteChord {
             }
         }
 
-        closed.sort();
+        closed.sort_unstable();
 
         assert!(
             closed.windows(2).all(|w| w[0] < w[1]),
