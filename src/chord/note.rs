@@ -290,10 +290,9 @@ impl NoteChord {
         let closed_root = self.closed_root_position(separate_steps);
 
         if self.root == self.bass().pitch {
-            return closed_root
+            return closed_root;
         }
 
-        // 4. inversion
         // ensure state is right before reordering
         if cfg!(debug_assertions) {
             let bass_letter = self.bass().pitch.letter();
@@ -308,7 +307,6 @@ impl NoteChord {
         }
 
         let bass = self.bass();
-
         let bass_idx = closed_root.notes.iter()
             .position(|n| n.pitch == bass.pitch)
             .expect("bass pitch must be in closed voicing");
