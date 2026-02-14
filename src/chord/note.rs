@@ -2,11 +2,11 @@ use std::cmp::Ordering;
 use std::collections::HashSet;
 use std::hash::Hash;
 use rustc_hash::FxBuildHasher;
+use strum::IntoEnumIterator;
 use crate::chord::pitch::PitchChord;
 use crate::{Interval, Letter, Note, Pitch};
 use crate::chord::{root, ChordShape};
 use crate::chord::letter_set::LetterSet;
-use crate::interval::Number;
 use crate::set::PitchClassSet;
 
 #[derive(Clone)]
