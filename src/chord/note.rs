@@ -332,6 +332,35 @@ impl NoteChord {
         with_inversion
     }
 
+    pub fn compact_position(&self, separate_steps: bool) -> Self {
+        let mut deduped = self.dedup_by_pitch();
+
+        let bass_letter = deduped.bass().pitch.letter();
+        let bass_octave = deduped.bass().octave;
+
+        for letter in Letter::iter() {
+            for (i, note) in deduped.notes.iter_mut()
+                .filter(|n| n.pitch.letter() == letter)
+                .enumerate()
+            {
+                let octave = match bass_letter.cmp(&letter) {
+                    Ordering::Less | Ordering::Equal => bass_octave,
+                    Ordering::Greater => bass_octave + 1,
+                };
+
+                if separate_steps {
+                    note.octave = octave + i as i16;
+                } else {
+                    note.octave = octave;
+                }
+            }
+        }
+
+        deduped.notes.sort_unstable();
+
+        deduped
+    }
+
     pub fn transpose(&self, interval: Interval) -> Self {
         let notes = self.notes.iter()
             .map(|&n| n + interval)
