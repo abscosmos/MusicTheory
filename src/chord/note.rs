@@ -154,41 +154,39 @@ impl NoteChord {
         Some(Self { notes, root: self.root })
     }
 
-    fn closed_root_position(&self, separate_steps: bool) -> Self {
-        let deduped = self.dedup_by_pitch();
+    fn closed_root_position_inner(root: Pitch, notes: &[Note], separate_steps: bool) -> Box<[Note]> {
+        let mut notes = dedup_by::<_, _, Vec<_>>(notes.iter().copied(), |n| n.pitch);
 
-        let mut notes = deduped.notes.to_vec();
-
-        let mut closed = Vec::with_capacity(deduped.len());
+        let mut closed = Vec::with_capacity(notes.len());
 
         let mut letters_added = LetterSet::EMPTY;
 
         // 1. add root(s)
-        let root = {
+        let root_note = {
             let root_pos = notes.iter()
-                .position(|n| n.pitch == deduped.root)
+                .position(|n| n.pitch == root)
                 .expect("root should exist in chord");
 
             notes.remove(root_pos)
         };
 
-        closed.push(root);
-        letters_added = letters_added.with_set(root.pitch.letter());
+        closed.push(root_note);
+        letters_added = letters_added.with_set(root_note.pitch.letter());
 
         let roots = notes.extract_if(.., |n|
-            n.pitch.letter() == deduped.root.letter()
+            n.pitch.letter() == root.letter()
         );
 
         for (i, note) in roots.enumerate() {
-            let octave = root.octave + 1;
+            let octave = root_note.octave + 1;
             let new_octave = if separate_steps { octave + i as i16 } else { octave };
 
             closed.push(Note::new(note.pitch, new_octave));
         }
 
         // 2. find thirds
-        let mut last_letter = root.pitch.letter();
-        let mut last_octave = root.octave;
+        let mut last_letter = root_note.pitch.letter();
+        let mut last_octave = root_note.octave;
 
         loop {
             if letters_added == LetterSet::FULL {
@@ -240,7 +238,7 @@ impl NoteChord {
             let bass = *closed.first().expect("must have at least one note");
 
             assert_eq!(
-                bass.pitch, deduped.root,
+                bass.pitch, root,
                 "before reordering, the bass should be the root",
             );
 
@@ -275,11 +273,15 @@ impl NoteChord {
             "should be sorted & deduplicated",
         );
 
-        Self { notes: closed.into_boxed_slice(), root: deduped.root }
+        closed.into_boxed_slice()
     }
 
     pub fn closed_position(&self, separate_steps: bool) -> Self {
-        let closed_root = self.closed_root_position(separate_steps);
+        let closed_root = {
+            let notes = Self::closed_root_position_inner(self.root, &self.notes, separate_steps);
+
+            Self { notes, root: self.root }
+        };
 
         if self.root == self.bass().pitch {
             return closed_root;
