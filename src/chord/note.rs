@@ -1,7 +1,7 @@
 use std::cmp::Ordering;
 use std::collections::HashSet;
 use std::hash::Hash;
-use rustc_hash::FxBuildHasher;
+use rustc_hash::FxHashSet;
 use strum::IntoEnumIterator;
 use crate::chord::pitch::PitchChord;
 use crate::{Interval, Letter, Note, Pitch};
@@ -86,20 +86,12 @@ impl NoteChord {
         self.notes.contains(&note)
     }
 
-    fn dedup_by<K: Eq + Hash>(&self, mut key: impl FnMut(Note) -> K) -> Self {
-        let mut seen = HashSet::with_capacity_and_hasher(self.len(), FxBuildHasher);
-
-        let notes = self.notes.iter()
-            .filter(|n| seen.insert(key(**n)))
-            .copied()
-            .collect();
-
-        Self { notes, root: self.root }
-    }
-
     #[inline]
     pub fn dedup_by_pitch(&self) -> Self {
-        self.dedup_by(|n| n.pitch)
+        Self {
+            notes: dedup_by(self.notes.iter().copied(), |n| n.pitch),
+            root: self.root,
+        }
     }
 
     // if not deduped by pitch, and root and
@@ -375,4 +367,12 @@ impl NoteChord {
 
         Self { notes, root }
     }
+}
+
+fn dedup_by<T, K: Eq + Hash, C: FromIterator<T>>(collection: impl IntoIterator<Item=T>, mut key: impl FnMut(&T) -> K) -> C {
+    let mut seen = FxHashSet::default();
+
+    collection.into_iter()
+        .filter(|elem| seen.insert(key(elem)))
+        .collect()
 }
