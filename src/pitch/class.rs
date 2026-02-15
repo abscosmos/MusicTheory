@@ -167,7 +167,7 @@ impl PitchClass {
     /// assert_eq!(PitchClass::Cs.chroma(), 1);
     /// assert_eq!(PitchClass::B.chroma(), 11);
     /// ```
-    pub fn chroma(self) -> u8 {
+    pub const fn chroma(self) -> u8 {
         self as u8
     }
 
