@@ -425,6 +425,14 @@ impl NoteChord {
 
         Self { notes, pitch_chord: self.pitch_chord.transpose(interval) }
     }
+
+    pub fn as_pitch_chord(&self) -> &PitchChord {
+        &self.pitch_chord
+    }
+
+    pub fn inversion(&self) -> u8 {
+        self.as_pitch_chord().inversion()
+    }
 }
 
 fn dedup_by<T, K: Eq + Hash, C: FromIterator<T>>(collection: impl IntoIterator<Item=T>, mut key: impl FnMut(&T) -> K) -> C {
