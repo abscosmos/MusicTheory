@@ -1,5 +1,4 @@
 use std::cmp::Ordering;
-use std::collections::HashSet;
 use std::hash::Hash;
 use rustc_hash::FxHashSet;
 use strum::IntoEnumIterator;
