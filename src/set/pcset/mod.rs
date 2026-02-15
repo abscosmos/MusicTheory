@@ -76,6 +76,7 @@ pub use into_iter::*;
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct PitchClassSet(u16);
 
+// TODO: make these methods const
 impl PitchClassSet {
     /// An empty pitch class set containing no pitch classes.
     ///
@@ -129,7 +130,7 @@ impl PitchClassSet {
     /// assert_eq!(set, PitchClassSet::CHROMATIC_AGGREGATE);
     /// ```
     #[inline(always)]
-    pub fn from_bits_masked(set: u16) -> Self {
+    pub const fn from_bits_masked(set: u16) -> Self {
         Self(set & Self::MASK)
     }
 
@@ -184,7 +185,7 @@ impl PitchClassSet {
     }
     
     #[inline(always)]
-    fn index(pc: PitchClass) -> u8 {
+    const fn index(pc: PitchClass) -> u8 {
         11 - pc.chroma()
     }
 
@@ -268,7 +269,7 @@ impl PitchClassSet {
     /// assert!(seventh.is_set(PitchClass::B));
     /// ```
     #[must_use = "This method returns a new PitchClassSet instead of mutating the original"]
-    pub fn with_set(self, pc: PitchClass) -> Self {
+    pub const fn with_set(self, pc: PitchClass) -> Self {
         Self(self.0 | (1 << Self::index(pc)))
     }
 
