@@ -12,7 +12,7 @@ use crate::set::PitchClassSet;
 #[derive(Clone)]
 pub struct NoteChord {
     notes: Box<[Note]>,
-    root: Pitch,
+    pitch_chord: PitchChord,
 }
 
 impl NoteChord {
@@ -25,15 +25,19 @@ impl NoteChord {
         
         let root = root::find_root(notes.iter().map(|n| n.pitch))
             .expect("not empty");
-        
-        Some(Self { notes, root })
+
+        let pitch_chord = Self::make_pitch_chord_inner(&notes, root);
+
+        Some(Self { notes, pitch_chord })
     }
 
     pub fn with_root(notes: impl IntoIterator<Item=Note>, root: Pitch) -> Option<Self> {
         let notes = Self::sort_dedup(notes);
 
         if notes.iter().any(|n| n.pitch == root) {
-            Some(Self { notes, root })
+            let pitch_chord = Self::make_pitch_chord_inner(&notes, root);
+
+            Some(Self { notes, pitch_chord })
         } else {
             None
         }
@@ -65,7 +69,7 @@ impl NoteChord {
     }
 
     pub fn root(&self) -> Pitch {
-        self.root
+        self.pitch_chord.root()
     }
 
     pub fn bass(&self) -> Note {
@@ -90,7 +94,8 @@ impl NoteChord {
     pub fn dedup_by_pitch(&self) -> Self {
         Self {
             notes: dedup_by(self.notes.iter().copied(), |n| n.pitch),
-            root: self.root,
+            // removing duplicate pitches does not affect the underlying pitch chord
+            pitch_chord: self.pitch_chord.clone(),
         }
     }
 
@@ -151,7 +156,13 @@ impl NoteChord {
             "should be sorted & deduplicated after inversion",
         );
 
-        Some(Self { notes, root: self.root })
+        let pitch_chord = PitchChord::with_bass(
+            self.root(),
+            self.pitch_chord.shape().clone(),
+            bass.pitch,
+        );
+
+        Some(Self { notes, pitch_chord })
     }
 
     fn closed_root_position_inner(root: Pitch, notes: &[Note], separate_steps: bool) -> Box<[Note]> {
@@ -276,14 +287,61 @@ impl NoteChord {
         closed.into_boxed_slice()
     }
 
-    pub fn closed_position(&self, separate_steps: bool) -> Self {
-        let closed_root = {
-            let notes = Self::closed_root_position_inner(self.root, &self.notes, separate_steps);
+    fn make_pitch_chord_inner(notes: &[Note], root: Pitch) -> PitchChord {
+        assert!(
+            !notes.is_empty(),
+            "notes can't be empty!"
+        );
 
-            Self { notes, root: self.root }
+        debug_assert!(
+            notes.iter().any(|n| n.pitch == root),
+            "should contain at least one pitch that's root"
+        );
+
+        let closed = Self::closed_root_position_inner(root, notes, true);
+
+        let root_note = closed[0];
+
+        assert_eq!(
+            root, closed[0].pitch,
+            "root should have correct pitch",
+        );
+
+        let ivls = closed.into_iter()
+            .map(|n| root_note.distance_to(n));
+
+        let shape = ChordShape::from_intervals(ivls)
+            .expect("should be sorted, deduped, and start with P1");
+
+        PitchChord::with_bass(root, shape, notes[0].pitch)
+    }
+
+    pub fn closed_position(&self, separate_steps: bool) -> Self {
+        // TODO: there are unnecessary clones since 'with_inversion' requires a NoteChord
+        let closed_root = {
+            let root = *self.notes.iter()
+                .find(|n| n.pitch == self.root())
+                .expect("root should exist in chord");
+
+            let notes = self.pitch_chord
+                .shape()
+                .intervals()
+                .iter()
+                .map(|ivl| root + *ivl)
+                .collect::<Box<[_]>>();
+
+            if cfg!(debug_assertions) {
+                assert_eq!(
+                    notes,
+                    Self::closed_root_position_inner(self.root(), &self.notes, separate_steps),
+                    "should be able to get notes from the chord shape",
+                )
+            }
+
+            Self { notes, pitch_chord: self.pitch_chord.clone() }
         };
 
-        if self.root == self.bass().pitch {
+        if self.root() == self.bass().pitch {
             return closed_root;
         }
 
@@ -365,9 +423,7 @@ impl NoteChord {
             "notes should remain sorted after transpose",
         );
 
-        let root = self.root + interval;
-
-        Self { notes, root }
+        Self { notes, pitch_chord: self.pitch_chord.transpose(interval) }
     }
 }
 
