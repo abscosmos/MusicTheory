@@ -2,6 +2,7 @@ use std::num::NonZeroU8;
 use crate::PitchClass;
 use crate::set::PitchClassSet;
 
+#[derive(Copy, Clone, Eq, PartialEq, Debug)]
 struct Entry {
     cardinality: u8,
     index: u8,
