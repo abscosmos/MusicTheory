@@ -1,5 +1,6 @@
 use std::fmt;
 use std::num::NonZeroU8;
+use crate::set::PitchClassSet;
 use super::tables;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
@@ -65,6 +66,11 @@ impl SetClass {
         };
 
         Some(z_related)
+    }
+
+    #[inline]
+    pub const fn prime_form(&self) -> PitchClassSet {
+        tables::lookup(self.cardinality, self.index.get()).prime_form
     }
 
     pub(super) const fn max_index(cardinality: u8) -> Option<u8> {
