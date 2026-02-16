@@ -300,3 +300,23 @@ const TABLE: [Entry; 224] = [
     // cardinality 12
     entry(12, 1, &[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]),
 ];
+
+const OFFSET: [usize; 13] = const {
+    let mut offsets = [0; 13];
+
+    let mut next_cardinality = 0;
+    let mut i = 0;
+
+    while next_cardinality <= 12 {
+        if TABLE[i].cardinality == next_cardinality {
+            offsets[next_cardinality as usize] = i;
+            next_cardinality += 1;
+        }
+
+        i += 1;
+    }
+
+    offsets
+};
+
+// try every set
