@@ -40,6 +40,32 @@ impl SetClass {
         Ok(Self { cardinality, index, z_index })
     }
 
+    #[inline]
+    pub const fn cardinality(self) -> u8 {
+        self.cardinality
+    }
+
+    #[inline]
+    pub const fn index(self) -> u8 {
+        self.index.get()
+    }
+
+    #[inline]
+    pub const fn z_related(self) -> Option<Self> {
+        // FIXME(const)
+        let Some(index) = self.z_index else {
+            return None;
+        };
+
+        let z_related = Self {
+            cardinality: self.cardinality,
+            index,
+            z_index: Some(self.index),
+        };
+
+        Some(z_related)
+    }
+
     pub(super) const fn max_index(cardinality: u8) -> Option<u8> {
         let max = match cardinality {
             0 | 1 | 11 | 12 => 1,
