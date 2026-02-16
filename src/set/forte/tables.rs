@@ -1,9 +1,10 @@
 use std::num::NonZeroU8;
 use crate::PitchClass;
+use crate::set::forte::SetClass;
 use crate::set::PitchClassSet;
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
-struct Entry {
+pub struct Entry {
     cardinality: u8,
     index: u8,
     z_related: Option<NonZeroU8>,
@@ -60,6 +61,33 @@ const fn entry_z(cardinality: u8, index: u8, z_index: u8, prime_form: &[u8]) -> 
         z_related: Some(NonZeroU8::new(z_index).expect("z_index must be non-zero")),
         prime_form: pcset_from_prime(prime_form),
     }
+}
+
+pub const fn lookup(cardinality: u8, index: u8) -> Entry {
+    assert!(
+        cardinality <= 12 && 0 < index && index <= SetClass::max_index(cardinality).expect("valid cardinality"),
+        "lookup should be with valid cardinality and index",
+    );
+
+    let mut i = OFFSET[cardinality as usize];
+    let next_first = OFFSET[cardinality as usize + 1];
+
+    while i < next_first {
+        let entry = TABLE[i];
+
+        debug_assert!(
+            entry.cardinality == cardinality,
+            "should be indexing in the right place",
+        );
+
+        if entry.index == index {
+            return entry;
+        }
+
+        i += 1;
+    }
+
+    panic!("unreachable!: lookup should've found entry");
 }
 
 const TABLE: [Entry; 224] = [
