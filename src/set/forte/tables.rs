@@ -302,8 +302,8 @@ const TABLE: [Entry; 224] = [
     entry(12, 1, &[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]),
 ];
 
-const OFFSET: [usize; 13] = const {
-    let mut offsets = [0; 13];
+const OFFSET: [usize; 14] = const {
+    let mut offsets = [0; 14];
 
     let mut next_cardinality = 0;
     let mut i = 0;
@@ -316,6 +316,8 @@ const OFFSET: [usize; 13] = const {
 
         i += 1;
     }
+
+    offsets[13] = TABLE.len();
 
     offsets
 };
