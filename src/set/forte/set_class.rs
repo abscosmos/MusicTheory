@@ -1,11 +1,12 @@
+use std::num::NonZeroU8;
 use super::tables;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub struct SetClass {
     // TODO: compress this into a u16 eventually
     cardinality: u8,
-    index: u8,
-    has_z_relation: bool,
+    index: NonZeroU8,
+    z_index: Option<NonZeroU8>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, thiserror::Error)]
@@ -32,9 +33,11 @@ impl SetClass {
             return Err(NewSetClassError::InvalidIndex { cardinality, index, max: max_index });
         }
 
-        let has_z_relation = tables::lookup(cardinality, index).z_related.is_some();
+        let index = NonZeroU8::new(index).expect("should've checked for zero");
 
-        Ok(Self { cardinality, index, has_z_relation })
+        let z_index = tables::lookup(cardinality, index.get()).z_related;
+
+        Ok(Self { cardinality, index, z_index })
     }
 
     pub(super) const fn max_index(cardinality: u8) -> Option<u8> {
