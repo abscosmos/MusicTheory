@@ -1,5 +1,6 @@
 use super::tables;
 
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub struct SetClass {
     // TODO: compress this into a u16 eventually
     cardinality: u8,
