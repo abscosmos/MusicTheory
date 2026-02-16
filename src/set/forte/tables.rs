@@ -5,7 +5,7 @@ use crate::set::PitchClassSet;
 struct Entry {
     cardinality: u8,
     index: u8,
-    z_related: Option<(NonZeroU8)>,
+    z_related: Option<NonZeroU8>,
     prime_form: PitchClassSet,
 }
 
