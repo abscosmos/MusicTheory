@@ -1,3 +1,5 @@
+use super::tables;
+
 pub struct SetClass {
     // TODO: compress this into a u16 eventually
     cardinality: u8,
@@ -29,7 +31,9 @@ impl SetClass {
             return Err(NewSetClassError::InvalidIndex { cardinality, index, max: max_index });
         }
 
-        Ok(Self { cardinality, index, has_z_relation: todo!() })
+        let has_z_relation = tables::lookup(cardinality, index).z_related.is_some();
+
+        Ok(Self { cardinality, index, has_z_relation })
     }
 
     pub(super) const fn max_index(cardinality: u8) -> Option<u8> {
