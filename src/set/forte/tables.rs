@@ -5,10 +5,10 @@ use crate::set::PitchClassSet;
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub struct Entry {
-    cardinality: u8,
-    index: u8,
-    z_related: Option<NonZeroU8>,
-    prime_form: PitchClassSet,
+    pub cardinality: u8,
+    pub index: u8,
+    pub z_related: Option<NonZeroU8>,
+    pub prime_form: PitchClassSet,
 }
 
 const fn pcset_from_prime(prime_form: &[u8]) -> PitchClassSet {
