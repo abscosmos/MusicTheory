@@ -63,6 +63,7 @@ const fn entry_z(cardinality: u8, index: u8, z_index: u8, prime_form: &[u8]) -> 
     }
 }
 
+// TODO(const): ideally this becomes a 'binary_search_by' call, but it's not a big deal at all
 pub const fn lookup(cardinality: u8, index: u8) -> Entry {
     assert!(
         cardinality <= 12 && 0 < index && index <= SetClass::max_index(cardinality).expect("valid cardinality"),
