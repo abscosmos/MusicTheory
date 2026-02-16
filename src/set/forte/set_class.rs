@@ -1,3 +1,4 @@
+use std::fmt;
 use std::num::NonZeroU8;
 use super::tables;
 
@@ -78,5 +79,15 @@ impl SetClass {
         };
 
         Some(max)
+    }
+}
+
+impl fmt::Display for SetClass {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        if self.z_index.is_some() {
+            write!(f, "{}-Z{}", self.cardinality, self.index.get())
+        } else {
+            write!(f, "{}-{}", self.cardinality, self.index.get())
+        }
     }
 }
