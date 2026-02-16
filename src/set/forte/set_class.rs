@@ -19,7 +19,7 @@ pub enum NewSetClassError {
 
 impl SetClass {
     pub const fn new(cardinality: u8, index: u8) -> Result<Self, NewSetClassError> {
-        if 1 > cardinality || cardinality > 12 {
+        if cardinality > 12 {
             return Err(NewSetClassError::InvalidCardinality);
         }
 
@@ -32,9 +32,9 @@ impl SetClass {
         Ok(Self { cardinality, index, has_z_relation: todo!() })
     }
 
-    const fn max_index(cardinality: u8) -> Option<u8> {
+    pub(super) const fn max_index(cardinality: u8) -> Option<u8> {
         let max = match cardinality {
-            1 | 11 | 12 => 1,
+            0 | 1 | 11 | 12 => 1,
             2 | 10 => 6,
             3 | 9=> 12,
             4 | 8 => 29,
