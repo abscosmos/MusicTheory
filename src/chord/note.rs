@@ -72,7 +72,14 @@ impl NoteChord {
     }
 
     pub fn bass(&self) -> Note {
-        *self.notes.first().expect("shouldn't be empty")
+        let bass_note = *self.notes.first().expect("shouldn't be empty");
+
+        assert_eq!(
+            bass_note.pitch, self.pitch_chord.bass(),
+            "bass note should match pitch chord",
+        );
+
+        bass_note
     }
 
     pub fn pitch_class_set(&self) -> PitchClassSet {
