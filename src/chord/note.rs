@@ -183,16 +183,11 @@ impl NoteChord {
         closed.push(root_note);
         letters_added = letters_added.with_set(root_note.pitch.letter());
 
-        let roots = notes.extract_if(.., |n|
-            n.pitch.letter() == root.letter()
+        closed.extend(
+            notes
+                .extract_if(.., |n| n.pitch.letter() == root.letter())
+                .map(|n| Note::new(n.pitch, root_note.octave + 1))
         );
-
-        for (i, note) in roots.enumerate() {
-            let octave = root_note.octave + 1;
-            let new_octave = if separate_steps { octave + i as i16 } else { octave };
-
-            closed.push(Note::new(note.pitch, new_octave));
-        }
 
         // 2. find thirds
         let mut last_letter = root_note.pitch.letter();
@@ -206,27 +201,25 @@ impl NoteChord {
             let third_letter = Letter::from_step((last_letter.step() + 2) % 7)
                 .expect("should be valid letter");
 
-            let thirds = notes.extract_if(.., |n|
-                n.pitch.letter() == third_letter
-            );
-
             let octave = match last_letter.cmp(&third_letter) {
                 Ordering::Less => last_octave,
                 Ordering::Greater => last_octave + 1,
                 Ordering::Equal => unreachable!("letter should be two steps away"),
             };
 
-            let mut has_any = false;
+            let added_any = {
+                let before_size = closed.len();
 
-            for (i, note) in thirds.enumerate() {
-                has_any = true;
+                closed.extend(
+                    notes
+                        .extract_if(.., |n| n.pitch.letter() == third_letter)
+                        .map(|n| Note::new(n.pitch, octave))
+                );
 
-                let octave = if separate_steps { octave + i as i16 } else { octave };
+                closed.len() != before_size
+            };
 
-                closed.push(Note::new(note.pitch, octave));
-            }
-
-            if has_any {
+            if added_any {
                 letters_added = letters_added.with_set(third_letter);
                 last_letter = third_letter;
                 last_octave = octave;
@@ -269,10 +262,30 @@ impl NoteChord {
                 Ordering::Equal => unreachable!("letter should be root"),
             };
 
-            for (i, note) in notes.iter().enumerate() {
-                let octave = if separate_steps { octave + i as i16 } else { octave };
+            closed.extend(
+                notes.iter().map(|n| Note::new(n.pitch, octave))
+            );
+        }
 
-                closed.push(Note::new(note.pitch, octave));
+        if separate_steps {
+            for letter in Letter::iter() {
+                let mut iter = closed
+                    .iter_mut()
+                    .filter(|n| n.pitch.letter() == letter);
+
+                let Some(first) = iter.next() else {
+                    continue;
+                };
+
+                let next_octave = first.octave + 1;
+
+                for (i, note) in iter.enumerate() {
+                    if separate_steps {
+                        note.octave = next_octave + i as i16;
+                    } else {
+                        note.octave = next_octave;
+                    }
+                }
             }
         }
 
