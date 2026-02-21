@@ -441,3 +441,81 @@ fn dedup_by<T, K: Eq + Hash, C: FromIterator<T>>(collection: impl IntoIterator<I
         .filter(|elem| seen.insert(key(elem)))
         .collect()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn parse_chord(chord: &str) -> NoteChord {
+        use std::str::FromStr;
+
+        let notes = chord.split(' ')
+            .map(|note| Note::from_str(note).expect("valid note str"));
+
+        NoteChord::new(notes).expect("valid chord")
+    }
+
+    #[test]
+    fn closed_position_separate_steps() {
+        let cases = [
+            ("C4 E4 G4", "C4 E4 G4"),
+            ("C3 G4 E6", "C3 E3 G3"),
+            ("C4 E4 G4 C5", "C4 E4 G4"),
+            ("C4 D4 E4 G4 Bb4", "C4 E4 G4 Bb4 D5"),
+            ("E3 G3 C4", "E3 G3 C4"),
+            ("C4 E5 G5 Bb5 D6", "C4 E4 G4 Bb4 D5"),
+            ("E2 Bb3 D4 G4 C5", "E2 G2 Bb2 C3 D3"),
+            ("G4 C5 E6 Bb6 D7", "G4 Bb4 C5 D5 E5"),
+            ("Bb4 C6 E6 D7 G7", "Bb4 C5 D5 E5 G5"),
+            ("D4 E5 Bb5 G6 C7", "D4 E4 G4 Bb4 C5"),
+            ("C4 E4 G4 Bb4 Eb5", "C4 E4 G4 Bb4 Eb5"),
+            ("C4 Eb4 G4 E5", "C4 Eb4 G4 E5"),
+            ("G3 C4 Eb4 E4 Bb4", "G3 Bb3 C4 Eb4 E5"),
+        ];
+
+        for (input, closed) in cases {
+            let input = parse_chord(input);
+            let exp = parse_chord(closed);
+
+            assert_eq!(
+                input.closed_position(true), exp,
+                "failed",
+            );
+        }
+    }
+
+    #[test]
+    fn closed_position_no_separate_steps() {
+        let cases = [
+            ("C4 E4 G4 Bb4 Eb5", "C4 Eb4 E4 G4 Bb4"),
+        ];
+
+        for (input, closed) in cases {
+            let input = parse_chord(input);
+            let exp = parse_chord(closed);
+
+            assert_eq!(
+                input.closed_position(false), exp,
+                "failed",
+            );
+        }
+    }
+
+    #[test]
+    fn closed_root_position() {
+        let cases = [
+            ("E3 G3 C4", "C4 E4 G4"),
+        ];
+
+        for (input, closed) in cases {
+            let input = parse_chord(input);
+            let exp = parse_chord(closed);
+
+            assert_eq!(
+                NoteChord::closed_root_position_inner(input.root(), input.notes(), true).as_ref(),
+                exp.notes(),
+                "failed",
+            );
+        }
+    }
+}
