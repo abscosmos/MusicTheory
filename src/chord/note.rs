@@ -164,7 +164,7 @@ impl NoteChord {
         Some(Self { notes, pitch_chord })
     }
 
-    fn closed_root_position_inner(root: Pitch, notes: &[Note], separate_steps: bool) -> Box<[Note]> {
+    fn closed_root_position_inner(root: Pitch, notes: &[Note]) -> Box<[Note]> {
         let mut notes = dedup_by::<_, _, Vec<_>>(notes.iter().copied(), |n| n.pitch);
 
         let mut closed = Vec::with_capacity(notes.len());
@@ -267,36 +267,30 @@ impl NoteChord {
             );
         }
 
-        if separate_steps {
-            for letter in Letter::iter() {
-                let mut iter = closed
-                    .iter_mut()
-                    .filter(|n| n.pitch.letter() == letter);
+        closed.into_boxed_slice()
+    }
 
-                let Some(first) = iter.next() else {
-                    continue;
-                };
+    fn separate_same_letter_by_octave(notes: &mut [Note]) {
+        for letter in Letter::iter() {
+            let mut iter = notes
+                .iter_mut()
+                .filter(|n| n.pitch.letter() == letter);
 
-                let next_octave = first.octave + 1;
+            let Some(first) = iter.next() else {
+                continue;
+            };
 
-                for (i, note) in iter.enumerate() {
-                    if separate_steps {
-                        note.octave = next_octave + i as i16;
-                    } else {
-                        note.octave = next_octave;
-                    }
-                }
+            for (i, note) in iter.enumerate() {
+                note.octave = first.octave + i as i16 + 1;
             }
         }
 
-        closed.sort_unstable();
+        notes.sort_unstable();
 
         assert!(
-            closed.windows(2).all(|w| w[0] < w[1]),
+            notes.windows(2).all(|w| w[0] < w[1]),
             "should be sorted & deduplicated",
         );
-
-        closed.into_boxed_slice()
     }
 
     fn make_pitch_chord_inner(notes: &[Note], root: Pitch) -> PitchChord {
@@ -310,7 +304,8 @@ impl NoteChord {
             "should contain at least one pitch that's root"
         );
 
-        let closed = Self::closed_root_position_inner(root, notes, true);
+        let mut closed = Self::closed_root_position_inner(root, notes);
+        Self::separate_same_letter_by_octave(&mut closed);
 
         let root_note = closed[0];
 
@@ -348,7 +343,14 @@ impl NoteChord {
         // );
         // Self { notes, pitch_chord: self.pitch_chord.clone() }
         let closed_root = {
-            let notes = Self::closed_root_position_inner(self.root(), &self.notes, separate_steps);
+            let mut notes = Self::closed_root_position_inner(self.root(), &self.notes);
+
+            if separate_steps {
+                Self::separate_same_letter_by_octave(&mut notes);
+            } else {
+                notes.sort_unstable();
+            }
+
             let pitch_chord = Self::make_pitch_chord_inner(&notes, self.root());
             Self { notes, pitch_chord }
         };
@@ -516,8 +518,11 @@ mod tests {
             ("E3 G3 C4", "C4 E4 G4"),
         ];
 
-        test_by(&cases, |nc|
-            NoteChord::closed_root_position_inner(nc.root(), nc.notes(), true)
-        );
+        test_by(&cases, |nc| {
+            let mut notes = NoteChord::closed_root_position_inner(nc.root(), nc.notes());
+            notes.sort_unstable();
+
+            notes
+        });
     }
 }
