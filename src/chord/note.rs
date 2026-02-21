@@ -134,6 +134,11 @@ impl NoteChord {
             "should match explicitly calculating",
         );
 
+        debug_assert!(
+            Self::is_sorted_dedup(&closed),
+            "should be sorted & deduplicated",
+        );
+
         if self.root() == self.bass().pitch {
             return Self { notes: closed, pitch_chord: self.pitch_chord.clone() };
         }
@@ -168,6 +173,11 @@ impl NoteChord {
         assert_eq!(
             closed.bass(), self.bass(),
             "bass note should match after octave adjustment",
+        );
+
+        assert!(
+            Self::is_sorted_dedup(&closed.notes),
+            "should be sorted & deduplicated",
         );
 
         closed
@@ -264,11 +274,6 @@ impl NoteChord {
         if separate_steps {
             Self::separate_same_letter_by_octave(notes);
         }
-
-        debug_assert!(
-            notes.windows(2).all(|w| w[0] < w[1]),
-            "should be sorted & deduplicated after inversion",
-        );
     }
 
     fn closed_root_position_inner(root: Pitch, notes: &[Note]) -> Box<[Note]> {
@@ -393,11 +398,6 @@ impl NoteChord {
         }
 
         notes.sort_unstable();
-
-        assert!(
-            notes.windows(2).all(|w| w[0] < w[1]),
-            "should be sorted & deduplicated",
-        );
     }
 
     fn collapse_same_letter(notes: &mut [Note]) {
@@ -416,11 +416,6 @@ impl NoteChord {
         }
 
         notes.sort_unstable();
-
-        assert!(
-            notes.windows(2).all(|w| w[0] < w[1]),
-            "should be sorted & deduplicated",
-        );
     }
 
     fn make_pitch_chord_inner(notes: &[Note], root: Pitch) -> PitchChord {
@@ -451,6 +446,10 @@ impl NoteChord {
             .expect("should be sorted, deduped, and start with P1");
 
         PitchChord::with_bass(root, shape, notes[0].pitch)
+    }
+
+    fn is_sorted_dedup(notes: &[Note]) -> bool {
+        notes.windows(2).all(|w| w[0] < w[1])
     }
 }
 
