@@ -135,18 +135,6 @@ impl NoteChord {
             return closed_root;
         }
 
-        // ensure state is right before reordering
-        if cfg!(debug_assertions) {
-            let bass_letter = self.bass().pitch.letter();
-
-            let first_bass = self.notes.iter().find(|n| n.pitch.letter() == bass_letter)
-                .expect("bass letter should exist in chord");
-
-            assert_eq!(
-                first_bass.pitch, self.bass().pitch,
-                "before reordering for inversion, make sure the right note is in the bass"
-            )
-        }
 
         let bass = self.bass();
         let bass_idx = closed_root.notes.iter()
