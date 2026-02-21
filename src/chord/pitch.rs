@@ -185,6 +185,18 @@ impl PitchChord {
         self.shape.is_dominant()
     }
 
+    pub fn is_dominant_seventh(&self) -> bool {
+        self.shape.is_dominant_seventh()
+    }
+
+    pub fn is_half_diminished(&self) -> bool {
+        self.shape.is_half_diminished()
+    }
+
+    pub fn is_diminished_seventh(&self) -> bool {
+        self.shape.is_diminished_seventh()
+    }
+
     pub fn is_consonant(&self) -> bool {
         self.shape.is_consonant()
     }

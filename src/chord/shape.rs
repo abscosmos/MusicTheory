@@ -114,6 +114,24 @@ impl ChordShape {
             && self.has_interval(Interval::MINOR_SEVENTH)
     }
 
+    pub fn is_dominant_seventh(&self) -> bool {
+        self.has_interval(Interval::MAJOR_THIRD)
+            && self.has_interval(Interval::PERFECT_FIFTH)
+            && self.has_interval(Interval::MINOR_SEVENTH)
+    }
+
+    pub fn is_half_diminished(&self) -> bool {
+        self.has_interval(Interval::MINOR_THIRD)
+            && self.has_interval(Interval::DIMINISHED_FIFTH)
+            && self.has_interval(Interval::MINOR_SEVENTH)
+    }
+
+    pub fn is_diminished_seventh(&self) -> bool {
+        self.has_interval(Interval::MINOR_THIRD)
+            && self.has_interval(Interval::DIMINISHED_FIFTH)
+            && self.has_interval(Interval::DIMINISHED_SEVENTH)
+    }
+
     pub fn is_consonant(&self) -> bool {
         // TODO: test that this is equivalent checking that none of
         //     all distances between pairs of notes are consonant
