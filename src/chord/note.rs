@@ -317,27 +317,27 @@ impl NoteChord {
 
     pub fn closed_position(&self, separate_steps: bool) -> Self {
         // TODO: there are unnecessary clones since 'with_inversion' requires a NoteChord
+
+        // TODO: restore this optimization (uses cached shape, avoids recomputing root position)
+        // once separate_steps=false is properly handled — currently the shape is always
+        // computed with separate_steps=true, so it diverges when separate_steps=false
+        // and there are same-letter conflicts.
+        //
+        // let root = *self.notes.iter()
+        //     .find(|n| n.pitch == self.root())
+        //     .expect("root should exist in chord");
+        // let notes = self.pitch_chord.shape().intervals().iter()
+        //     .map(|ivl| root + *ivl)
+        //     .collect::<Box<[_]>>();
+        // debug_assert_eq!(
+        //     notes,
+        //     Self::closed_root_position_inner(self.root(), &self.notes, true),
+        // );
+        // Self { notes, pitch_chord: self.pitch_chord.clone() }
         let closed_root = {
-            let root = *self.notes.iter()
-                .find(|n| n.pitch == self.root())
-                .expect("root should exist in chord");
-
-            let notes = self.pitch_chord
-                .shape()
-                .intervals()
-                .iter()
-                .map(|ivl| root + *ivl)
-                .collect::<Box<[_]>>();
-
-            if cfg!(debug_assertions) {
-                assert_eq!(
-                    notes,
-                    Self::closed_root_position_inner(self.root(), &self.notes, separate_steps),
-                    "should be able to get notes from the chord shape",
-                )
-            }
-
-            Self { notes, pitch_chord: self.pitch_chord.clone() }
+            let notes = Self::closed_root_position_inner(self.root(), &self.notes, separate_steps);
+            let pitch_chord = Self::make_pitch_chord_inner(&notes, self.root());
+            Self { notes, pitch_chord }
         };
 
         if self.root() == self.bass().pitch {
