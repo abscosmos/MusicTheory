@@ -98,6 +98,134 @@ impl NoteChord {
         }
     }
 
+    pub fn closed_position(&self, separate_steps: bool) -> Self {
+        // TODO: there are unnecessary clones since 'with_inversion' requires a NoteChord
+        let closed_root = {
+            let root = *self.notes.iter()
+                .find(|n| n.pitch == self.root())
+                .expect("root should exist in chord");
+
+            let mut notes = self.pitch_chord.shape().intervals().iter()
+                .map(|ivl| root + *ivl)
+                .collect::<Box<[_]>>();
+
+            if !separate_steps {
+                Self::collapse_same_letter(&mut notes);
+            }
+
+            debug_assert_eq!(
+                notes,
+                {
+                    let mut notes_exp = Self::closed_root_position_inner(self.root(), &self.notes);
+
+                    if separate_steps {
+                        Self::separate_same_letter_by_octave(&mut notes_exp)
+                    } else {
+                        notes_exp.sort_unstable()
+                    }
+
+                    notes_exp
+                },
+            );
+
+            Self { notes, pitch_chord: self.pitch_chord.clone() }
+        };
+
+        if self.root() == self.bass().pitch {
+            return closed_root;
+        }
+
+        // ensure state is right before reordering
+        if cfg!(debug_assertions) {
+            let bass_letter = self.bass().pitch.letter();
+
+            let first_bass = self.notes.iter().find(|n| n.pitch.letter() == bass_letter)
+                .expect("bass letter should exist in chord");
+
+            assert_eq!(
+                first_bass.pitch, self.bass().pitch,
+                "before reordering for inversion, make sure the right note is in the bass"
+            )
+        }
+
+        let bass = self.bass();
+        let bass_idx = closed_root.notes.iter()
+            .position(|n| n.pitch == bass.pitch)
+            .expect("bass pitch must be in closed voicing");
+
+        assert_ne!(
+            bass_idx, 0,
+            "bass shouldn't be root",
+        );
+
+        let mut with_inversion = closed_root.with_inversion(bass_idx, separate_steps).expect("valid inversion");
+
+        let octave_diff = self.bass().octave - with_inversion.bass().octave;
+
+        for note in &mut with_inversion.notes {
+            note.octave += octave_diff;
+        }
+
+        assert_eq!(
+            with_inversion.bass(), self.bass(),
+            "bass note should match after octave adjustment",
+        );
+
+        with_inversion
+    }
+
+    pub fn compact_position(&self, separate_steps: bool) -> Self {
+        let mut deduped = self.dedup_by_pitch();
+
+        let bass_letter = deduped.bass().pitch.letter();
+        let bass_octave = deduped.bass().octave;
+
+        for letter in Letter::iter() {
+            for (i, note) in deduped.notes.iter_mut()
+                .filter(|n| n.pitch.letter() == letter)
+                .enumerate()
+            {
+                let octave = match bass_letter.cmp(&letter) {
+                    Ordering::Less | Ordering::Equal => bass_octave,
+                    Ordering::Greater => bass_octave + 1,
+                };
+
+                if separate_steps {
+                    note.octave = octave + i as i16;
+                } else {
+                    note.octave = octave;
+                }
+            }
+        }
+
+        deduped.notes.sort_unstable();
+
+        deduped
+    }
+
+    pub fn transpose(&self, interval: Interval) -> Self {
+        let notes = self.notes.iter()
+            .map(|&n| n + interval)
+            .collect::<Box<[_]>>();
+
+        debug_assert!(
+            notes.is_sorted(),
+            "notes should remain sorted after transpose",
+        );
+
+        Self { notes, pitch_chord: self.pitch_chord.transpose(interval) }
+    }
+
+    pub fn as_pitch_chord(&self) -> &PitchChord {
+        &self.pitch_chord
+    }
+
+    pub fn inversion(&self) -> u8 {
+        self.as_pitch_chord().inversion()
+    }
+
+    // internal methods
+
     // if not deduped by pitch, and root and
     // also, need method to undo this? after that this method can be public
     // check what the current n is, and go off of that? like find how much to rotate by
@@ -333,132 +461,6 @@ impl NoteChord {
             .expect("should be sorted, deduped, and start with P1");
 
         PitchChord::with_bass(root, shape, notes[0].pitch)
-    }
-
-    pub fn closed_position(&self, separate_steps: bool) -> Self {
-        // TODO: there are unnecessary clones since 'with_inversion' requires a NoteChord
-        let closed_root = {
-            let root = *self.notes.iter()
-                .find(|n| n.pitch == self.root())
-                .expect("root should exist in chord");
-
-            let mut notes = self.pitch_chord.shape().intervals().iter()
-                .map(|ivl| root + *ivl)
-                .collect::<Box<[_]>>();
-
-            if !separate_steps {
-                Self::collapse_same_letter(&mut notes);
-            }
-
-            debug_assert_eq!(
-                notes,
-                {
-                    let mut notes_exp = Self::closed_root_position_inner(self.root(), &self.notes);
-
-                    if separate_steps {
-                        Self::separate_same_letter_by_octave(&mut notes_exp)
-                    } else {
-                        notes_exp.sort_unstable()
-                    }
-
-                    notes_exp
-                },
-            );
-
-            Self { notes, pitch_chord: self.pitch_chord.clone() }
-        };
-
-        if self.root() == self.bass().pitch {
-            return closed_root;
-        }
-
-        // ensure state is right before reordering
-        if cfg!(debug_assertions) {
-            let bass_letter = self.bass().pitch.letter();
-
-            let first_bass = self.notes.iter().find(|n| n.pitch.letter() == bass_letter)
-                .expect("bass letter should exist in chord");
-
-            assert_eq!(
-                first_bass.pitch, self.bass().pitch,
-                "before reordering for inversion, make sure the right note is in the bass"
-            )
-        }
-
-        let bass = self.bass();
-        let bass_idx = closed_root.notes.iter()
-            .position(|n| n.pitch == bass.pitch)
-            .expect("bass pitch must be in closed voicing");
-
-        assert_ne!(
-            bass_idx, 0,
-            "bass shouldn't be root",
-        );
-
-        let mut with_inversion = closed_root.with_inversion(bass_idx, separate_steps).expect("valid inversion");
-
-        let octave_diff = self.bass().octave - with_inversion.bass().octave;
-
-        for note in &mut with_inversion.notes {
-            note.octave += octave_diff;
-        }
-
-        assert_eq!(
-            with_inversion.bass(), self.bass(),
-            "bass note should match after octave adjustment",
-        );
-
-        with_inversion
-    }
-
-    pub fn compact_position(&self, separate_steps: bool) -> Self {
-        let mut deduped = self.dedup_by_pitch();
-
-        let bass_letter = deduped.bass().pitch.letter();
-        let bass_octave = deduped.bass().octave;
-
-        for letter in Letter::iter() {
-            for (i, note) in deduped.notes.iter_mut()
-                .filter(|n| n.pitch.letter() == letter)
-                .enumerate()
-            {
-                let octave = match bass_letter.cmp(&letter) {
-                    Ordering::Less | Ordering::Equal => bass_octave,
-                    Ordering::Greater => bass_octave + 1,
-                };
-
-                if separate_steps {
-                    note.octave = octave + i as i16;
-                } else {
-                    note.octave = octave;
-                }
-            }
-        }
-
-        deduped.notes.sort_unstable();
-
-        deduped
-    }
-
-    pub fn transpose(&self, interval: Interval) -> Self {
-        let notes = self.notes.iter()
-            .map(|&n| n + interval)
-            .collect::<Box<[_]>>();
-
-        debug_assert!(
-            notes.is_sorted(),
-            "notes should remain sorted after transpose",
-        );
-
-        Self { notes, pitch_chord: self.pitch_chord.transpose(interval) }
-    }
-
-    pub fn as_pitch_chord(&self) -> &PitchChord {
-        &self.pitch_chord
-    }
-
-    pub fn inversion(&self) -> u8 {
-        self.as_pitch_chord().inversion()
     }
 }
 
