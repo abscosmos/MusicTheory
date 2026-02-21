@@ -293,6 +293,29 @@ impl NoteChord {
         );
     }
 
+    fn collapse_same_letter(notes: &mut [Note]) {
+        for letter in Letter::iter() {
+            let mut iter = notes
+                .iter_mut()
+                .filter(|n| n.pitch.letter() == letter);
+
+            let Some(first) = iter.next().copied() else {
+                continue;
+            };
+
+            for note in iter {
+                note.octave = first.octave;
+            }
+        }
+
+        notes.sort_unstable();
+
+        assert!(
+            notes.windows(2).all(|w| w[0] < w[1]),
+            "should be sorted & deduplicated",
+        );
+    }
+
     fn make_pitch_chord_inner(notes: &[Note], root: Pitch) -> PitchChord {
         assert!(
             !notes.is_empty(),
