@@ -136,18 +136,7 @@ impl NoteChord {
 
         // fix multiple notes with same letter at same octave
         if separate_steps {
-            for letter in Letter::iter() {
-                let mut pitches = notes.iter_mut()
-                    .filter(|n| n.pitch.letter() == letter);
-
-                if let Some(lowest) = pitches.next().copied() {
-                    for (i, note) in pitches.enumerate() {
-                        note.octave = lowest.octave + i as i16 + 1;
-                    }
-                }
-            }
-
-            notes.sort_unstable();
+            Self::separate_same_letter_by_octave(&mut notes);
         }
 
         debug_assert!(
