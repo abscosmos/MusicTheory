@@ -8,7 +8,7 @@ use crate::chord::{root, ChordShape};
 use crate::chord::letter_set::LetterSet;
 use crate::set::PitchClassSet;
 
-#[derive(Clone)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub struct NoteChord {
     notes: Box<[Note]>,
     pitch_chord: PitchChord,
