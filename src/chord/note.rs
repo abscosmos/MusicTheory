@@ -99,45 +99,40 @@ impl NoteChord {
     }
 
     pub fn closed_position(&self, separate_steps: bool) -> Self {
-        // TODO: there are unnecessary clones since 'with_inversion' requires a NoteChord
-        let closed_root = {
-            let root = *self.notes.iter()
-                .find(|n| n.pitch == self.root())
-                .expect("root should exist in chord");
+        let root_note = *self.notes.iter()
+            .find(|n| n.pitch == self.root())
+            .expect("root should exist in chord");
 
-            let mut notes = self.pitch_chord.shape().intervals().iter()
-                .map(|ivl| root + *ivl)
-                .collect::<Box<[_]>>();
+        let mut closed = self.pitch_chord.shape().intervals().iter()
+            .map(|ivl| root_note + *ivl)
+            .collect::<Box<[_]>>();
 
-            if !separate_steps {
-                Self::collapse_same_letter(&mut notes);
-            }
-
-            debug_assert_eq!(
-                notes,
-                {
-                    let mut notes_exp = Self::closed_root_position_inner(self.root(), &self.notes);
-
-                    if separate_steps {
-                        Self::separate_same_letter_by_octave(&mut notes_exp)
-                    } else {
-                        notes_exp.sort_unstable()
-                    }
-
-                    notes_exp
-                },
-            );
-
-            Self { notes, pitch_chord: self.pitch_chord.clone() }
-        };
-
-        if self.root() == self.bass().pitch {
-            return closed_root;
+        if !separate_steps {
+            Self::collapse_same_letter(&mut closed);
         }
 
+        debug_assert_eq!(
+            closed,
+            {
+                let mut notes_exp = Self::closed_root_position_inner(self.root(), &self.notes);
+
+                if separate_steps {
+                    Self::separate_same_letter_by_octave(&mut notes_exp)
+                } else {
+                    notes_exp.sort_unstable()
+                }
+
+                notes_exp
+            },
+            "should match explicitly calculating",
+        );
+
+        if self.root() == self.bass().pitch {
+            return Self { notes: closed, pitch_chord: self.pitch_chord.clone() };
+        }
 
         let bass = self.bass();
-        let bass_idx = closed_root.notes.iter()
+        let bass_idx = closed.iter()
             .position(|n| n.pitch == bass.pitch)
             .expect("bass pitch must be in closed voicing");
 
@@ -146,20 +141,29 @@ impl NoteChord {
             "bass shouldn't be root",
         );
 
-        let mut with_inversion = closed_root.with_inversion(bass_idx, separate_steps).expect("valid inversion");
+        Self::invert_inner(&mut closed, bass_idx, separate_steps);
 
-        let octave_diff = self.bass().octave - with_inversion.bass().octave;
+        let octave_diff = self.bass().octave - closed[0].octave;
 
-        for note in &mut with_inversion.notes {
+        for note in &mut closed {
             note.octave += octave_diff;
         }
 
+        let closed = Self {
+            notes: closed,
+            pitch_chord: PitchChord::with_bass(
+                self.root(),
+                self.pitch_chord.shape().clone(),
+                bass.pitch
+            ),
+        };
+
         assert_eq!(
-            with_inversion.bass(), self.bass(),
+            closed.bass(), self.bass(),
             "bass note should match after octave adjustment",
         );
 
-        with_inversion
+        closed
     }
 
     pub fn compact_position(&self, separate_steps: bool) -> Self {
@@ -217,16 +221,15 @@ impl NoteChord {
     // if not deduped by pitch, and root and
     // also, need method to undo this? after that this method can be public
     // check what the current n is, and go off of that? like find how much to rotate by
-    fn with_inversion(&self, n: usize, separate_steps: bool) -> Option<Self> {
+    fn invert_inner(notes: &mut [Note], n: usize, separate_steps: bool) {
         if n == 0 {
-            return Some(self.clone())
+            return;
         }
 
-        if n >= self.len() {
-            return None;
-        }
-
-        let mut notes = self.notes.clone();
+        assert!(
+            n < notes.len(),
+            "invalid inversion number"
+        );
 
         notes.rotate_left(n);
 
@@ -252,21 +255,13 @@ impl NoteChord {
 
         // fix multiple notes with same letter at same octave
         if separate_steps {
-            Self::separate_same_letter_by_octave(&mut notes);
+            Self::separate_same_letter_by_octave(notes);
         }
 
         debug_assert!(
             notes.windows(2).all(|w| w[0] < w[1]),
             "should be sorted & deduplicated after inversion",
         );
-
-        let pitch_chord = PitchChord::with_bass(
-            self.root(),
-            self.pitch_chord.shape().clone(),
-            bass.pitch,
-        );
-
-        Some(Self { notes, pitch_chord })
     }
 
     fn closed_root_position_inner(root: Pitch, notes: &[Note]) -> Box<[Note]> {
