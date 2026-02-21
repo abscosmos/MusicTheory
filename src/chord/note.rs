@@ -276,7 +276,7 @@ impl NoteChord {
                 .iter_mut()
                 .filter(|n| n.pitch.letter() == letter);
 
-            let Some(first) = iter.next() else {
+            let Some(first) = iter.next().copied() else {
                 continue;
             };
 
