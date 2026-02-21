@@ -468,6 +468,18 @@ mod tests {
         NoteChord::new(notes).expect("valid chord")
     }
 
+    fn test_by(cases: &[(&str, &str)], test: impl Fn(NoteChord) -> Box<[Note]>) {
+        for (input_str, closed_str) in cases {
+            let input = parse_chord(input_str);
+            let exp = parse_chord(closed_str);
+
+            assert_eq!(
+                test(input).as_ref(), exp.notes(),
+                "failed for input {input_str}, expected: {closed_str}",
+            );
+        }
+    }
+
     #[test]
     fn closed_position_separate_steps() {
         let cases = [
@@ -486,15 +498,7 @@ mod tests {
             ("G3 C4 Eb4 E4 Bb4", "G3 Bb3 C4 Eb4 E5"),
         ];
 
-        for (input, closed) in cases {
-            let input = parse_chord(input);
-            let exp = parse_chord(closed);
-
-            assert_eq!(
-                input.closed_position(true), exp,
-                "failed",
-            );
-        }
+        test_by(&cases, |nc| nc.closed_position(true).notes);
     }
 
     #[test]
@@ -503,15 +507,7 @@ mod tests {
             ("C4 E4 G4 Bb4 Eb5", "C4 Eb4 E4 G4 Bb4"),
         ];
 
-        for (input, closed) in cases {
-            let input = parse_chord(input);
-            let exp = parse_chord(closed);
-
-            assert_eq!(
-                input.closed_position(false), exp,
-                "failed",
-            );
-        }
+        test_by(&cases, |nc| nc.closed_position(false).notes);
     }
 
     #[test]
@@ -520,15 +516,8 @@ mod tests {
             ("E3 G3 C4", "C4 E4 G4"),
         ];
 
-        for (input, closed) in cases {
-            let input = parse_chord(input);
-            let exp = parse_chord(closed);
-
-            assert_eq!(
-                NoteChord::closed_root_position_inner(input.root(), input.notes(), true).as_ref(),
-                exp.notes(),
-                "failed",
-            );
-        }
+        test_by(&cases, |nc|
+            NoteChord::closed_root_position_inner(nc.root(), nc.notes(), true)
+        );
     }
 }
