@@ -12,7 +12,7 @@ pub struct PitchChord {
     // TODO: should the root & shape fields be public? What the invariant that must be held?
     root: Pitch,
     shape: ChordShape,
-    bass: Pitch,
+    pub(super) bass: Pitch,
 }
 
 impl PitchChord {
