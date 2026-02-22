@@ -64,6 +64,37 @@ impl ChordShape {
             .copied()
     }
 
+    /// Returns a new shape with `interval` added.
+    ///
+    /// Returns `None` if `interval` is already present or is descending.
+    pub fn with_interval(&self, interval: Interval) -> Option<Self> {
+        if !interval.is_ascending() || self.has_interval(interval) {
+            return None;
+        }
+
+        let mut intervals = self.intervals.to_vec();
+        let pos = intervals.partition_point(|&i| i < interval);
+        intervals.insert(pos, interval);
+
+        Some(Self { intervals: intervals.into_boxed_slice() })
+    }
+
+    /// Returns a new shape with the interval at `number` removed.
+    ///
+    /// Returns `None` if the degree doesn't exist in this shape, or if `number` is a unison.
+    /// (P1 cannot be removed).
+    pub fn without_degree(&self, number: Number) -> Option<Self> {
+        if number == Number::UNISON {
+            return None;
+        }
+
+        let pos = self.intervals.iter().position(|i| i.number() == number)?;
+        let mut intervals = self.intervals.to_vec();
+        intervals.remove(pos);
+
+        Some(Self { intervals: intervals.into_boxed_slice() })
+    }
+
     pub fn is_triad(&self) -> bool {
         self.len() == 3
     }
