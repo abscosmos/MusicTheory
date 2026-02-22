@@ -31,7 +31,7 @@
 
 use std::cmp::Ordering;
 use crate::{PitchClass, Semitones};
-use crate::set::IntervalClassVector;
+use crate::set::{forte::SetClass, IntervalClassVector};
 #[expect(unused_imports, reason = "used in documentation")]
 use std::ops::{Add, BitAnd, BitOr, BitXor, Not};
 
@@ -254,6 +254,11 @@ impl PitchClassSet {
         }
 
         IntervalClassVector::new(icv).expect("all pcsets should be valid icvs")
+    }
+
+    #[inline]
+    pub fn set_class(self) -> SetClass {
+        SetClass::from(self)
     }
 
     /// Returns `true` if the given pitch class is in the set.
