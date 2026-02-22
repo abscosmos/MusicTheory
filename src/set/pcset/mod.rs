@@ -148,7 +148,7 @@ impl PitchClassSet {
     /// assert_eq!(set.bits(), 0b101000000000);
     /// ```
     #[inline(always)]
-    pub fn bits(self) -> u16 {
+    pub const fn bits(self) -> u16 {
         self.0
     }
 
@@ -181,7 +181,7 @@ impl PitchClassSet {
     /// ```
     #[doc(alias = "cardinality")]
     #[inline(always)]
-    pub fn len(self) -> u8 {
+    pub const fn len(self) -> u8 {
         self.0.count_ones() as _
     }
 
