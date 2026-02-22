@@ -617,6 +617,31 @@ impl PitchClassSet {
         Self::from_bits_masked(!self.0)
     }
 
+    /// Returns an iterator over all cyclic rotations of this set, each transposed to start on C.
+    ///
+    /// For a set with `n` pitch classes, yields `n` items. Each item is the set transposed
+    /// so that a different one of its pitch classes lands on C.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::PitchClass;
+    /// # use music_theory::set::PitchClassSet;
+    /// let triad = PitchClassSet::from_iter([PitchClass::C, PitchClass::E, PitchClass::G]);
+    ///
+    /// // one rotation per pitch class in the set
+    /// assert_eq!(triad.rotations().count(), 3);
+    ///
+    /// // every rotation starts on C
+    /// assert!(triad.rotations().all(|r| r.is_set(PitchClass::C)));
+    /// ```
+    pub fn rotations(self) -> impl Iterator<Item = PitchClassSet> + Clone {
+        self.into_iter()
+            .map(move |start_pc|
+                self.transpose(-Semitones(start_pc.chroma() as i16))
+            )
+    }
+
     /// Returns the normalized (prime) form of this pitch class set.
     ///
     /// Provides a canonical representation for comparing sets in pitch-class set theory.
