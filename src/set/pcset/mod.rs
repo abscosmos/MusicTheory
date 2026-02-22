@@ -642,12 +642,12 @@ impl PitchClassSet {
             )
     }
 
-    /// Returns the normalized (prime) form of this pitch class set.
+    /// Returns the canonical representative of this set's transposition equivalence class (Tn class).
     ///
-    /// Provides a canonical representation for comparing sets in pitch-class set theory.
-    /// If the set is not empty, [`PitchClass::C`] is guaranteed to be set.
+    /// Two sets share the same Tn canonical form if and only if one is a transposition of the other.
+    /// If the set is not empty, [`PitchClass::C`] is guaranteed to be set (the canonical form always starts on C).
     ///
-    /// If you're comparing normalized pitch class sets, consider [`Self::is_transposition_of`].
+    /// To test transposition equivalence directly, use [`Self::is_transposition_of`].
     ///
     /// # Examples
     ///
@@ -666,15 +666,12 @@ impl PitchClassSet {
     ///     PitchClass::A,
     /// ]);
     ///
-    /// // The D and C major pcsets normalize to the same thing,
-    /// // as they're transpositions of each other
-    /// assert_eq!(c_major.normalized(), d_major.normalized());
+    /// // C and D major are transpositions, so they share the same Tn canonical form
+    /// assert_eq!(c_major.tn_canonical(), d_major.tn_canonical());
     /// ```
     #[must_use = "This method returns a new PitchClassSet instead of mutating the original"]
-    pub fn normalized(self) -> Self {
-        (0..12)
-            .map(|s| self + Semitones(s))
-            .filter(|pcset| pcset.is_set(PitchClass::C))
+    pub fn tn_canonical(self) -> Self {
+        self.rotations()
             .min_by_key(|pcset| pcset.bits())
             .unwrap_or_default()
     }
@@ -715,7 +712,7 @@ impl PitchClassSet {
     /// assert!(!c_major.is_transposition_of(c_minor));
     /// ```
     pub fn is_transposition_of(self, other: Self) -> bool {
-        self.normalized() == other.normalized()
+        self.tn_canonical() == other.tn_canonical()
     }
 
     /// Returns a helper type that displays pitch classes as their chroma values.
