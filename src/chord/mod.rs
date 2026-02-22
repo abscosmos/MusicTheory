@@ -5,3 +5,4 @@ mod note;
 
 pub(crate) mod root;
 mod letter_set;
+mod known;
