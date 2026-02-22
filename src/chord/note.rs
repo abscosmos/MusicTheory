@@ -105,6 +105,22 @@ impl NoteChord {
         }
     }
 
+    /// Returns a new chord with enharmonically equivalent notes removed, keeping the first
+    /// (lowest) spelling of each pitch class.
+    ///
+    /// Unlike [`dedup_by_pitch`](Self::dedup_by_pitch), this treats enharmonic spellings as
+    /// duplicates: e.g. C♯ and D♭ in the same chord would be collapsed to whichever appears
+    /// first in sorted order. Because this may remove a `Pitch` that was structurally distinct
+    /// in the original chord (different spelling, same semitone), the pitch chord is recomputed.
+    pub fn dedup_by_pitch_class(&self) -> Self {
+        let notes = dedup_by::<_, _, Box<[_]>>(self.notes.iter().copied(), |n| n.pitch.as_pitch_class());
+        let root = self.root();
+
+        Self::with_root(notes.iter().copied(), root)
+            .or_else(|| Self::new(notes.iter().copied()))
+            .expect("deduplication cannot produce an empty chord")
+    }
+
     pub fn closed_position(&self, separate_steps: bool) -> Self {
         let root_note = *self.notes.iter()
             .find(|n| n.pitch == self.root())
