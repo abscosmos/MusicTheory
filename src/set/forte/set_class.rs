@@ -77,7 +77,7 @@ impl SetClass {
         let max = match cardinality {
             0 | 1 | 11 | 12 => 1,
             2 | 10 => 6,
-            3 | 9=> 12,
+            3 | 9 => 12,
             4 | 8 => 29,
             5 | 7 => 38,
             6 => 50,
