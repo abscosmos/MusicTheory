@@ -6,7 +6,7 @@ use crate::set::PitchClassSet;
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub struct Entry {
     pub cardinality: u8,
-    pub index: u8,
+    pub index: NonZeroU8,
     pub z_related: Option<NonZeroU8>,
     pub prime_form: PitchClassSet,
 }
@@ -48,7 +48,7 @@ const fn pcset_from_prime(prime_form: &[u8]) -> PitchClassSet {
 const fn entry(cardinality: u8, index: u8, prime_form: &[u8]) -> Entry {
     Entry {
         cardinality,
-        index,
+        index: NonZeroU8::new(index).expect("index can't be zero"),
         z_related: None,
         prime_form: pcset_from_prime(prime_form),
     }
@@ -57,7 +57,7 @@ const fn entry(cardinality: u8, index: u8, prime_form: &[u8]) -> Entry {
 const fn entry_z(cardinality: u8, index: u8, z_index: u8, prime_form: &[u8]) -> Entry {
     Entry {
         cardinality,
-        index,
+        index: NonZeroU8::new(index).expect("index can't be zero"),
         z_related: Some(NonZeroU8::new(z_index).expect("z_index must be non-zero")),
         prime_form: pcset_from_prime(prime_form),
     }
@@ -81,7 +81,7 @@ pub const fn lookup(cardinality: u8, index: u8) -> Entry {
             "should be indexing in the right place",
         );
 
-        if entry.index == index {
+        if entry.index.get() == index {
             return entry;
         }
 
