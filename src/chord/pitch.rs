@@ -201,6 +201,14 @@ impl PitchChord {
         self.shape.is_consonant()
     }
 
+    pub fn has_repeated_chord_step(&self, number: Number) -> bool {
+        self.shape.has_repeated_chord_step(number)
+    }
+
+    pub fn has_any_repeated_diatonic_note(&self) -> bool {
+        self.shape.has_any_repeated_diatonic_note()
+    }
+
     fn pitches_naive(&self) -> impl Iterator<Item=Pitch> + Clone {
         self.shape.intervals()
             .iter()

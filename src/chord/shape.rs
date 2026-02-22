@@ -64,6 +64,25 @@ impl ChordShape {
             .copied()
     }
 
+    /// Returns `true` if the given chord degree appears more than once in this shape.
+    ///
+    /// A degree is repeated when two intervals share the same [`Number`] but differ in quality
+    /// (e.g. both M3 and m3 present). Always returns `false` for descending numbers.
+    pub fn has_repeated_chord_step(&self, number: Number) -> bool {
+        if !number.is_ascending() {
+            return false;
+        }
+
+        self.intervals.windows(2).any(|w|
+            w[0].number() == number && w[1].number() == number
+        )
+    }
+
+    /// Returns `true` if any chord degree appears more than once in this shape.
+    pub fn has_any_repeated_diatonic_note(&self) -> bool {
+        self.intervals.windows(2).any(|w| w[0].number() == w[1].number())
+    }
+
     /// Returns a new shape with `interval` added.
     ///
     /// Returns `None` if `interval` is already present or is descending.
