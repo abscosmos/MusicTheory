@@ -703,6 +703,43 @@ impl PitchClassSet {
             .unwrap_or_default()
     }
 
+    /// Returns the normal order of this pitch class set.
+    ///
+    /// Normal order is the most compact rotation — the one with the smallest span
+    /// (distance from first to last pitch class). Ties are broken by comparing inner
+    /// intervals from left to right (Rahn's algorithm).
+    ///
+    /// The result always starts on C (chroma 0) if the set is non-empty.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::PitchClass;
+    /// # use music_theory::set::PitchClassSet;
+    /// let c_major = PitchClassSet::from_iter([PitchClass::C, PitchClass::E, PitchClass::G]);
+    /// let d_major = PitchClassSet::from_iter([PitchClass::D, PitchClass::Fs, PitchClass::A]);
+    ///
+    /// assert!(d_major.normal_order().is_set(PitchClass::C));
+    /// assert_eq!(c_major.normal_order(), d_major.normal_order());
+    /// ```
+    #[must_use = "This method returns a new PitchClassSet instead of mutating the original"]
+    pub fn normal_order(self) -> Self {
+        /// Returns an iterator over the chromas of all pitch classes except the lowest and highest.
+        fn inner_chromas(pcset: PitchClassSet) -> impl Iterator<Item = u8> {
+            let n = pcset.len() as usize;
+            pcset.into_iter().skip(1).take(n.saturating_sub(2)).map(|pc| pc.chroma())
+        }
+
+        self.rotations()
+            .min_by(|&a, &b| {
+                let a_span = a.span().expect("rotations are non-empty");
+                let b_span = b.span().expect("rotations are non-empty");
+
+                a_span.cmp(&b_span).then_with(|| inner_chromas(a).cmp(inner_chromas(b)))
+            })
+            .unwrap_or_default()
+    }
+
     /// Returns `true` if this set is a transposition of the other set.
     ///
     /// Two pitch class sets are transpositions of each other if one can be obtained
