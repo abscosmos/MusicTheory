@@ -361,3 +361,55 @@ pub fn lookup_prime_form(prime_form: PitchClassSet) -> Option<Entry> {
         .find(|ent| ent.prime_form == prime_form)
         .copied()
 }
+
+#[cfg(test)]
+mod tests {
+    use std::collections::HashSet;
+    use super::*;
+
+    fn all_pcsets() -> impl Iterator<Item=PitchClassSet> + Clone {
+        (0..=0xfff).map(PitchClassSet::from_bits_masked)
+    }
+
+    #[test]
+    fn offsets_valid() {
+        for cardinality in 0..=12 {
+            let start = OFFSET[cardinality];
+            let end = OFFSET[cardinality + 1];
+
+            assert!(
+                TABLE[start..end].iter().all(|ent| ent.cardinality == cardinality as u8),
+                "offsets misaligned"
+            );
+        }
+    }
+
+    #[test]
+    fn prime_forms() {
+        let mut prime_forms = HashSet::with_capacity(TABLE.len());
+
+        for pcset in all_pcsets() {
+            prime_forms.insert(pcset.prime_form());
+        }
+
+        assert_eq!(
+            prime_forms.len(), TABLE.len(),
+            "table should cover exactly all prime forms",
+        );
+
+        for prime_form in prime_forms {
+            let lookup = lookup_prime_form(prime_form);
+
+            assert_eq!(
+                lookup,
+                TABLE.iter().find(|ent| ent.prime_form == prime_form).copied(),
+                "lookup prime form optimization should find all values"
+            );
+
+            assert!(
+                lookup.is_some(),
+                "lookup failed for {}", prime_form.display_chromas()
+            );
+        }
+    }
+}
