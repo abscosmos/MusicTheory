@@ -183,7 +183,34 @@ impl PitchClassSet {
     pub fn len(self) -> u8 {
         self.0.count_ones() as _
     }
-    
+
+    /// Returns the span, the semitone distance from its lowest to highest pitch class.
+    ///
+    /// Returns `None` if the set is empty. Returns `Some(0)` for single-element sets.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::PitchClass;
+    /// # use music_theory::set::PitchClassSet;
+    /// let triad = PitchClassSet::from_iter([
+    ///     PitchClass::C,
+    ///     PitchClass::E,
+    ///     PitchClass::G,
+    /// ]);
+    ///
+    /// assert_eq!(triad.span(), Some(7));
+    ///
+    /// assert_eq!(PitchClassSet::EMPTY.span(), None);
+    /// assert_eq!(PitchClassSet::from_iter([PitchClass::C]).span(), Some(0));
+    /// ```
+    pub fn span(self) -> Option<u8> {
+        let mut iter = self.into_iter();
+        let first = iter.next()?;
+        let last = iter.last().unwrap_or(first);
+        Some(last.chroma() - first.chroma())
+    }
+
     #[inline(always)]
     const fn index(pc: PitchClass) -> u8 {
         11 - pc.chroma()
