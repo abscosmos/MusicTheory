@@ -12,8 +12,6 @@ pub struct Entry {
 }
 
 const fn pcset_from_prime(prime_form: &[u8]) -> PitchClassSet {
-    let mut pcset = PitchClassSet::EMPTY;
-
     if prime_form.is_empty() {
         return PitchClassSet::EMPTY;
     }
@@ -21,6 +19,9 @@ const fn pcset_from_prime(prime_form: &[u8]) -> PitchClassSet {
     if prime_form[0] != 0 {
         panic!("Prime form must start with 0");
     }
+
+    let mut pcset = PitchClassSet::EMPTY;
+    pcset = pcset.with_set(PitchClass::C);
 
     let mut last = 0;
 
