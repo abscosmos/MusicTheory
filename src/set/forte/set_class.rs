@@ -97,3 +97,16 @@ impl fmt::Display for SetClass {
         }
     }
 }
+
+impl From<PitchClassSet> for SetClass {
+    fn from(pcset: PitchClassSet) -> Self {
+        let entry = tables::lookup_prime_form(pcset.prime_form())
+            .expect("all prime form pcsets should be covered");
+
+        Self {
+            cardinality: entry.cardinality,
+            index: entry.index,
+            z_index: entry.z_related,
+        }
+    }
+}
