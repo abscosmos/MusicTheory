@@ -73,7 +73,7 @@ pub use into_iter::*;
 /// let transposed = major_triad + Semitones(7);
 /// let inverted = major_triad.invert_around(PitchClass::C);
 /// ```
-#[derive(Copy, Clone, Eq, PartialEq, Default)]
+#[derive(Copy, Clone, Eq, PartialEq, Default, Hash)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct PitchClassSet(u16);
 
