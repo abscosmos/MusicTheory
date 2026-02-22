@@ -29,6 +29,7 @@
 //! );
 //! ```
 
+use std::cmp::Ordering;
 use crate::{PitchClass, Semitones};
 use crate::set::IntervalClassVector;
 #[expect(unused_imports, reason = "used in documentation")]
@@ -728,7 +729,7 @@ impl PitchClassSet {
         fn inner_chromas(pcset: PitchClassSet) -> impl Iterator<Item = u8> {
             let n = pcset.len() as usize;
             pcset.into_iter().skip(1).take(n.saturating_sub(2)).map(|pc| pc.chroma())
-        }
+        }   
 
         self.rotations()
             .min_by(|&a, &b| {
@@ -738,6 +739,36 @@ impl PitchClassSet {
                 a_span.cmp(&b_span).then_with(|| inner_chromas(a).cmp(inner_chromas(b)))
             })
             .unwrap_or_default()
+    }
+
+    /// Returns the prime form of this pitch class set.
+    ///
+    /// Prime form is the most compact representation of a set's equivalence class under
+    /// both transposition (Tn) and inversion (TnI). It is the lexicographically smaller
+    /// of the normal order and the normal order of the inversion.
+    ///
+    /// The result always starts on C (chroma 0) if the set is non-empty.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::PitchClass;
+    /// # use music_theory::set::PitchClassSet;
+    /// // C major and C minor have the same prime form [0, 3, 7]
+    /// let c_major = PitchClassSet::from_iter([PitchClass::C, PitchClass::E, PitchClass::G]);
+    /// let c_minor = PitchClassSet::from_iter([PitchClass::C, PitchClass::Ds, PitchClass::G]);
+    ///
+    /// assert_eq!(c_major.prime_form(), c_minor);
+    /// ```
+    #[must_use = "This method returns a new PitchClassSet instead of mutating the original"]
+    pub fn prime_form(self) -> Self {
+        let normal = self.normal_order();
+        let inverted = self.invert_around(PitchClass::C).normal_order();
+
+        match normal.into_iter().cmp(inverted.into_iter()) {
+            Ordering::Equal | Ordering::Less => normal,
+            Ordering::Greater => inverted,
+        }
     }
 
     /// Returns `true` if this set is a transposition of the other set.
