@@ -357,7 +357,7 @@ pub fn lookup_prime_form(prime_form: PitchClassSet) -> Option<Entry> {
     let start = OFFSET[cardinality as usize];
     let end = OFFSET[cardinality as usize + 1];
 
-    TABLE[start..=end].iter()
+    TABLE[start..end].iter()
         .find(|ent| ent.prime_form == prime_form)
         .copied()
 }
