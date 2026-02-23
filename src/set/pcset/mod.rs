@@ -746,6 +746,10 @@ impl PitchClassSet {
             .unwrap_or_default()
     }
 
+    pub fn cmp_lexicographically(self, other: Self) -> Ordering {
+        self.into_iter().cmp(other.into_iter())
+    }
+
     /// Returns the prime form of this pitch class set.
     ///
     /// Prime form is the most compact representation of a set's equivalence class under
@@ -770,9 +774,10 @@ impl PitchClassSet {
         let normal = self.normal_order();
         let inverted = self.invert_around(PitchClass::C).normal_order();
 
-        match normal.into_iter().cmp(inverted.into_iter()) {
-            Ordering::Equal | Ordering::Less => normal,
-            Ordering::Greater => inverted,
+        if self.cmp_lexicographically(inverted).is_le() {
+            normal
+        } else {
+            inverted
         }
     }
 
