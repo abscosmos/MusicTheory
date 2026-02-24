@@ -28,10 +28,7 @@ impl SetClassForm {
             Err(err) => return Err(NewSetClassFormError::InvalidSetClass(err))
         };
 
-        // TODO: this is a second lookup
-        let prime_form = set_class.prime_form();
-
-        if inversion.is_none() != prime_form.is_inversionally_symmetric() {
+        if inversion.is_none() != set_class.is_inversionally_symmetric() {
             return Err(NewSetClassFormError::InvalidInversion);
         }
 
