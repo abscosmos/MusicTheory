@@ -411,6 +411,11 @@ impl PitchClassSet {
         Self(result).transpose(Semitones(2 * axis.chroma() as i16))
     }
 
+    pub const fn inversionally_symmetric(self) -> bool {
+        // FIXME(const): comparing by bits
+        self.invert_around(PitchClass::C).bits() == self.bits()
+    }
+
     /// Returns `true` if this set is a superset of the other set.
     ///
     /// A set is a superset of another if it contains all pitch classes in the other set.
