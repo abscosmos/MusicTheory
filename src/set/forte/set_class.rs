@@ -7,9 +7,9 @@ use super::tables;
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub struct SetClass {
     // TODO: compress this into a u16 eventually
-    cardinality: u8,
-    index: NonZeroU8,
-    z_index: Option<NonZeroU8>,
+    pub(super) cardinality: u8,
+    pub(super) index: NonZeroU8,
+    pub(super) z_index: Option<NonZeroU8>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, thiserror::Error)]
