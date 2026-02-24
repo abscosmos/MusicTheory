@@ -919,6 +919,19 @@ mod tests {
             inverted,
         );
     }
+
+    #[test]
+    fn set_class() {
+        for pcset in (0..=PitchClassSet::MASK).map(PitchClassSet::from_bits_masked) {
+            let set_class = pcset.set_class();
+            let prime_form = pcset.prime_form();
+
+            assert_eq!(
+                prime_form, set_class.prime_form(),
+                "should return the same prime form {prime_form}",
+            );
+        }
+    }
     
     #[test]
     fn set_ops() {
