@@ -74,6 +74,12 @@ impl SetClass {
         tables::lookup(self.cardinality, self.index.get()).prime_form
     }
 
+    pub fn is_inversionally_symmetric(self) -> bool {
+        let prime_form = self.prime_form();
+
+        prime_form.invert_around(PitchClass::C).normal_order() == prime_form
+    }
+
     pub(super) const fn max_index(cardinality: u8) -> Option<u8> {
         let max = match cardinality {
             0 | 1 | 11 | 12 => 1,
