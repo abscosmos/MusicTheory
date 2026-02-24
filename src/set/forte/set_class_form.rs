@@ -34,6 +34,40 @@ impl SetClassForm {
         Ok(Self { set_class, inversion })
     }
 
+    #[inline]
+    pub const fn cardinality(self) -> u8 {
+        self.set_class.cardinality
+    }
+
+    #[inline]
+    pub const fn index(self) -> u8 {
+        self.set_class.index.get()
+    }
+
+    #[inline]
+    pub const fn z_related(self) -> Option<Self> {
+        let Some(set_class) = self.set_class.z_related() else {
+            return None;
+        };
+
+        Some(Self { set_class, inversion: self.inversion })
+    }
+
+    #[inline]
+    pub const fn prime_form(self) -> PitchClassSet {
+        self.set_class.prime_form()
+    }
+
+    pub fn normal_form(self) -> PitchClassSet {
+        if self.inversion.is_none_or(|inv| inv == InversionForm::A) {
+            self.prime_form()
+        } else {
+            self.prime_form()
+                .invert_around(PitchClass::C)
+                .normal_order()
+        }
+    }
+
     pub fn is_inversionally_symmetric(self) -> bool {
         self.inversion.is_none()
     }
