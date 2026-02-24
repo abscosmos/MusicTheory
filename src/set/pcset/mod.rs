@@ -411,6 +411,7 @@ impl PitchClassSet {
         Self(result).transpose(Semitones(2 * axis.chroma() as i16))
     }
 
+    #[inline]
     pub const fn is_inversionally_symmetric(self) -> bool {
         // FIXME(const): comparing by bits
         self.invert_around(PitchClass::C).bits() == self.bits()
