@@ -21,12 +21,8 @@ pub enum NewSetClassFormError {
 }
 
 impl SetClassForm {
-    pub const fn new(cardinality: u8, index: u8, inversion: Option<InversionForm>) -> Result<Self, NewSetClassFormError> {
-        // FIXME(const)
-        let set_class = match SetClass::new(cardinality, index) {
-            Ok(set_class) => set_class,
-            Err(err) => return Err(NewSetClassFormError::InvalidSetClass(err))
-        };
+    pub fn new(cardinality: u8, index: u8, inversion: Option<InversionForm>) -> Result<Self, NewSetClassFormError> {
+        let set_class = SetClass::new(cardinality, index)?;
 
         if inversion.is_none() != set_class.is_inversionally_symmetric() {
             return Err(NewSetClassFormError::InvalidInversion);
