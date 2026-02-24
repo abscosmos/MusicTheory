@@ -36,6 +36,10 @@ impl SetClassForm {
 
         Ok(Self { set_class, inversion })
     }
+    
+    pub fn inversionally_symmetric(self) -> bool {
+        self.inversion.is_none()
+    }
 
     #[inline]
     pub const fn set_class(self) -> SetClass {
