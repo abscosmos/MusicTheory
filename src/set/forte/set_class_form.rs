@@ -31,14 +31,14 @@ impl SetClassForm {
         // TODO: this is a second lookup
         let prime_form = set_class.prime_form();
 
-        if inversion.is_none() != prime_form.inversionally_symmetric() {
+        if inversion.is_none() != prime_form.is_inversionally_symmetric() {
             return Err(NewSetClassFormError::InvalidInversion);
         }
 
         Ok(Self { set_class, inversion })
     }
-    
-    pub fn inversionally_symmetric(self) -> bool {
+
+    pub fn is_inversionally_symmetric(self) -> bool {
         self.inversion.is_none()
     }
 
