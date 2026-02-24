@@ -791,6 +791,16 @@ impl PitchClassSet {
         }
     }
 
+    #[inline]
+    pub fn set_class(self) -> SetClass {
+        SetClass::from(self)
+    }
+
+    #[inline]
+    pub fn set_class_form(self) -> SetClassForm {
+        SetClassForm::from(self)
+    }
+
     /// Returns `true` if this set is a transposition of the other set.
     ///
     /// Two pitch class sets are transpositions of each other if one can be obtained
