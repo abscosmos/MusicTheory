@@ -45,6 +45,11 @@ impl SetClassForm {
     }
 
     #[inline]
+    pub const fn inversion(self) -> Option<InversionForm> {
+        self.inversion
+    }
+
+    #[inline]
     pub const fn z_related(self) -> Option<Self> {
         let Some(set_class) = self.set_class.z_related() else {
             return None;
