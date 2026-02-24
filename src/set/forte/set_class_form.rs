@@ -1,4 +1,7 @@
-use crate::set::forte::{NewSetClassError, SetClass};
+use std::cmp::Ordering;
+use crate::PitchClass;
+use crate::set::forte::{tables, NewSetClassError, SetClass};
+use crate::set::PitchClassSet;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub enum InversionForm {
@@ -38,5 +41,31 @@ impl SetClassForm {
     #[inline]
     pub const fn set_class(self) -> SetClass {
         self.set_class
+    }
+}
+
+impl From<PitchClassSet> for SetClassForm {
+    fn from(pcset: PitchClassSet) -> Self {
+        use InversionForm as Form;
+
+        let norm = pcset.normal_order();
+        let inv_norm = norm.invert_around(PitchClass::C).normal_order();
+
+        let (inversion, prime) = match norm.cmp_lexicographically(inv_norm) {
+            Ordering::Less => (Some(Form::A), norm),
+            Ordering::Equal => (None, norm),
+            Ordering::Greater => (Some(Form::B), inv_norm),
+        };
+
+        let entry = tables::lookup_prime_form(prime).expect("must be prime form");
+
+        Self {
+            set_class: SetClass {
+                cardinality: entry.cardinality,
+                index: entry.index,
+                z_index: entry.z_related,
+            },
+            inversion,
+        }
     }
 }
