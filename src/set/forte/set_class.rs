@@ -1,5 +1,6 @@
 use std::fmt;
 use std::num::NonZeroU8;
+use crate::PitchClass;
 use crate::set::forte::set_class_form::SetClassForm;
 use crate::set::PitchClassSet;
 use super::tables;
