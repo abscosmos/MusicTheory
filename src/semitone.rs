@@ -45,7 +45,7 @@ impl Semitones {
     /// assert_eq!(Semitones(-1).normalize(), Semitones(11));
     /// assert_eq!(Semitones(-13).normalize(), Semitones(11));
     /// ```
-    pub fn normalize(self) -> Self {
+    pub const fn normalize(self) -> Self {
         Self(self.0.rem_euclid(12))
     }
 

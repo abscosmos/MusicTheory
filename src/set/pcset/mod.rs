@@ -357,7 +357,7 @@ impl PitchClassSet {
     /// );
     /// ```
     #[must_use = "This method returns a new PitchClassSet instead of mutating the original"]
-    pub fn transpose(self, semitones: Semitones) -> Self {
+    pub const fn transpose(self, semitones: Semitones) -> Self {
         let shift = semitones.normalize().0 as u32;
 
         // Rotate bits (accounting for 12-bit width, not 16)
@@ -393,14 +393,18 @@ impl PitchClassSet {
     /// );
     /// ```
     #[must_use = "This method returns a new PitchClassSet instead of mutating the original"]
-    pub fn invert_around(self, axis: PitchClass) -> Self {
+    pub const fn invert_around(self, axis: PitchClass) -> Self {
         let mut result = 0u16;
 
-        for i in 0..12 {
+        // FIXME(const)
+        let mut i = 0;
+        while i < 12 {
             if self.0 & (1 << i) != 0 {
                 let new_bit = (10i32 - i).rem_euclid(12) as u32;
                 result |= 1 << new_bit;
             }
+
+            i += 1;
         }
 
         // Then transpose by 2×axis (T_2a I formula)
