@@ -1,11 +1,12 @@
 use crate::set::forte::{NewSetClassError, SetClass};
 
-#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub enum InversionForm {
     A,
     B
 }
 
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub struct SetClassForm {
     set_class: SetClass,
     inversion: Option<InversionForm>,
