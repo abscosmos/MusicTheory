@@ -36,4 +36,9 @@ impl SetClassForm {
 
         Ok(Self { set_class, inversion })
     }
+
+    #[inline]
+    pub const fn set_class(self) -> SetClass {
+        self.set_class
+    }
 }

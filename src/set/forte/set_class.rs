@@ -1,5 +1,6 @@
 use std::fmt;
 use std::num::NonZeroU8;
+use crate::set::forte::set_class_form::SetClassForm;
 use crate::set::PitchClassSet;
 use super::tables;
 
@@ -95,6 +96,13 @@ impl fmt::Display for SetClass {
         } else {
             write!(f, "{}-{}", self.cardinality, self.index.get())
         }
+    }
+}
+
+impl From<SetClassForm> for SetClass {
+    #[inline]
+    fn from(form: SetClassForm) -> Self {
+        form.set_class()
     }
 }
 
