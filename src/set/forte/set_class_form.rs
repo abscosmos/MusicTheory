@@ -135,3 +135,13 @@ impl fmt::Display for SetClassForm {
         }
     }
 }
+
+impl From<SetClass> for SetClassForm {
+    fn from(set_class: SetClass) -> Self {
+        if set_class.is_inversionally_symmetric() {
+            Self { set_class, inversion: None }
+        } else {
+            Self { set_class, inversion: Some(InversionForm::A) }
+        }
+    }
+}
