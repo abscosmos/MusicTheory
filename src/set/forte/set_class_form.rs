@@ -45,8 +45,18 @@ impl SetClassForm {
     }
 
     #[inline]
-    pub const fn inversion(self) -> Option<InversionForm> {
+    pub const fn inversion_form(self) -> Option<InversionForm> {
         self.inversion
+    }
+
+    pub const fn inversion(self) -> Self {
+        let inv = match self.inversion {
+            None => None,
+            Some(InversionForm::A) => Some(InversionForm::B),
+            Some(InversionForm::B) => Some(InversionForm::A),
+        };
+
+        Self { set_class: self.set_class, inversion: inv }
     }
 
     #[inline]
