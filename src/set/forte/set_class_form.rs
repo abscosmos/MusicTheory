@@ -1,3 +1,4 @@
+use std::fmt;
 use std::cmp::Ordering;
 use crate::PitchClass;
 use crate::set::forte::{tables, NewSetClassError, SetClass};
@@ -115,6 +116,22 @@ impl From<PitchClassSet> for SetClassForm {
                 z_index: entry.z_related,
             },
             inversion,
+        }
+    }
+}
+
+impl fmt::Display for InversionForm {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        fmt::Debug::fmt(self, f)
+    }
+}
+
+impl fmt::Display for SetClassForm {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        if let Some(inv) = self.inversion {
+            write!(f, "{}{}", self.set_class, inv)
+        } else {
+            fmt::Display::fmt(&self.set_class, f)
         }
     }
 }
