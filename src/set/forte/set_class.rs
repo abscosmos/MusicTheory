@@ -2,7 +2,7 @@ use std::fmt;
 use std::num::NonZeroU8;
 use crate::PitchClass;
 use crate::set::forte::set_class_form::SetClassForm;
-use crate::set::PitchClassSet;
+use crate::set::{IntervalClassVector, PitchClassSet};
 use super::tables;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
@@ -73,6 +73,11 @@ impl SetClass {
     #[inline]
     pub const fn prime_form(&self) -> PitchClassSet {
         tables::lookup(self.cardinality, self.index.get()).prime_form
+    }
+
+    #[inline]
+    pub fn interval_class_vector(self) -> IntervalClassVector {
+        self.prime_form().interval_class_vector()
     }
 
     pub fn is_inversionally_symmetric(self) -> bool {
