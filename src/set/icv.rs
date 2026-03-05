@@ -697,6 +697,18 @@ impl FromStr for IntervalClassVector {
     }
 }
 
+pub(crate) fn check_triangular(n: u16) -> Option<u16> {
+    let radicand = 8 * n + 1;
+
+    let sqrt = radicand.isqrt();
+
+    if sqrt * sqrt == radicand {
+        Some((sqrt - 1) / 2)
+    } else {
+        None
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
