@@ -2,7 +2,7 @@ use std::fmt;
 use std::num::NonZeroU8;
 use crate::PitchClass;
 use crate::set::forte::set_class_form::SetClassForm;
-use crate::set::{IntervalClassVector, PitchClassSet};
+use crate::set::{check_triangular, IntervalClassVector, PitchClassSet};
 use super::tables;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
@@ -42,6 +42,28 @@ impl SetClass {
         let z_index = tables::lookup(cardinality, index.get()).z_related;
 
         Ok(Self { cardinality, index, z_index })
+    }
+
+    pub fn from_icv_first(icv: IntervalClassVector) -> Option<Self> {
+        let total = icv.total();
+
+        let cardinality = if total != 0 {
+            check_triangular(total as _)? as u8 + 1
+        } else {
+            0
+        };
+
+        let entry = tables::lookup_entries_cardinality(cardinality)
+            .into_iter()
+            .find(|e| e.prime_form.interval_class_vector() == icv)?;
+
+        let set_class = Self {
+            cardinality: entry.cardinality,
+            index: entry.index,
+            z_index: entry.z_related,
+        };
+
+        Some(set_class)
     }
 
     #[inline]
@@ -123,5 +145,38 @@ impl From<PitchClassSet> for SetClass {
     #[inline]
     fn from(pcset: PitchClassSet) -> Self {
         SetClassForm::from(pcset).set_class()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::set::forte::SetClass;
+    use crate::set::{IntervalClassVector, PitchClassSet};
+
+    #[test]
+    fn round_trip_icv() {
+        for pcset in (0..=0xfff).map(PitchClassSet::from_bits_masked) {
+            let set_class = pcset.set_class();
+            let icv = pcset.interval_class_vector();
+
+            assert_eq!(
+                set_class.interval_class_vector(), icv,
+                "calculating icv should be correct",
+            );
+
+            if icv == IntervalClassVector::EMPTY {
+                assert_eq!(
+                    SetClass::from_icv_first(icv), Some(SetClass::new(0, 1).expect("valid set class")),
+                    "both 0-1 and 1-1 map to <0,0,0,0,0,0>, so this should return the first",
+                );
+            } else {
+                let from_icv = SetClass::from_icv_first(icv);
+
+                assert!(
+                   from_icv == Some(set_class) || from_icv == set_class.z_related(),
+                    "should be able to get the set class back from it, {icv}, from_icv: {from_icv:?}, original: {set_class:?}",
+                );
+            }
+        }
     }
 }
