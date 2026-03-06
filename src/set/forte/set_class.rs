@@ -76,6 +76,7 @@ impl SetClass {
     }
 
     #[inline]
+    #[doc(alias = "icv")]
     pub fn interval_class_vector(self) -> IntervalClassVector {
         self.prime_form().interval_class_vector()
     }

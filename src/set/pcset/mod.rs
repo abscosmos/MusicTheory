@@ -238,6 +238,7 @@ impl PitchClassSet {
     ///     IntervalClassVector::new([0, 0, 1, 1, 1, 0]).unwrap(),
     /// )
     /// ```
+    #[doc(alias = "icv")]
     pub fn interval_class_vector(self) -> IntervalClassVector {
         let mut icv = [0u8; 6];
 

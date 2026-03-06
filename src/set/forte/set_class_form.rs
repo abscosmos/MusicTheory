@@ -2,7 +2,7 @@ use std::fmt;
 use std::cmp::Ordering;
 use crate::PitchClass;
 use crate::set::forte::{tables, NewSetClassError, SetClass};
-use crate::set::PitchClassSet;
+use crate::set::{IntervalClassVector, PitchClassSet};
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub enum InversionForm {
@@ -82,6 +82,12 @@ impl SetClassForm {
                 .invert_around(PitchClass::C)
                 .normal_order()
         }
+    }
+
+    #[inline]
+    #[doc(alias = "icv")]
+    pub fn interval_class_vector(self) -> IntervalClassVector {
+        self.prime_form().interval_class_vector()
     }
 
     pub fn is_inversionally_symmetric(self) -> bool {
