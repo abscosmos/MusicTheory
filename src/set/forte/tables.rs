@@ -92,6 +92,18 @@ pub const fn lookup(cardinality: u8, index: u8) -> Entry {
     panic!("unreachable!: lookup should've found entry");
 }
 
+pub fn lookup_entries_cardinality(cardinality: u8) -> &'static [Entry] {
+    assert!(
+        cardinality <=  12,
+        "invalid cardinality",
+    );
+
+    let start = OFFSET[cardinality as usize];
+    let end = OFFSET[cardinality as usize + 1];
+
+    &TABLE[start..end]
+}
+
 const TABLE: [Entry; 224] = [
     // cardinality 0
     entry(0, 1, &[]),
