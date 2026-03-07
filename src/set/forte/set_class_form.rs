@@ -4,13 +4,13 @@ use crate::PitchClass;
 use crate::set::forte::{tables, NewSetClassError, SetClass};
 use crate::set::{IntervalClassVector, PitchClassSet};
 
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, Ord, PartialOrd)]
 pub enum InversionForm {
     A,
     B
 }
 
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, PartialOrd, Ord)]
 pub struct SetClassForm {
     set_class: SetClass,
     inversion: Option<InversionForm>,
