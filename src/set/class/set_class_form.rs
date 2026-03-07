@@ -26,8 +26,8 @@ pub enum NewSetClassFormError {
 }
 
 impl SetClassForm {
-    const COMPLEMENT_FORM_PRESERVING: [(u8, u8); 6] = [
-        (4, 12), (4, 14), (5, 11), (5, 26), (5, 28), (6, 14),
+    const COMPLEMENT_FORM_PRESERVING: [(u8, u8); 8] = [
+        (4, 12), (4, 14), (5, 11), (5, 26), (5, 28), (6, 14), (6, 10), (6, 39)
     ];
 
     pub fn new(cardinality: u8, index: u8, inversion: Option<InversionForm>) -> Result<Self, NewSetClassFormError> {
@@ -92,23 +92,23 @@ impl SetClassForm {
     pub fn complement(self) -> Self {
         let new_cardinality = 12 - self.cardinality();
 
-        if self.cardinality() == 6 && self.z_related().is_some() {
-            let pc_complement = self.normal_form().complement();
-
-            Self::from(pc_complement)
+        let index = if self.cardinality() == 6 && self.z_related().is_some() {
+            self.z_related().unwrap_or(self).index()
         } else {
-            let check_form = (cmp::min(self.cardinality(), new_cardinality), self.index());
+            self.index()
+        };
 
-            let inv = if self.is_inversionally_symmetric()
-                || Self::COMPLEMENT_FORM_PRESERVING.contains(&check_form)
-            {
-                self.inversion
-            } else {
-                self.inversion().inversion
-            };
+        let check_form = (cmp::min(self.cardinality(), new_cardinality), self.index());
 
-            Self::new(new_cardinality, self.index(), inv).expect("must be a valid index and inversion")
-        }
+        let inv = if self.is_inversionally_symmetric()
+            || Self::COMPLEMENT_FORM_PRESERVING.contains(&check_form)
+        {
+            self.inversion
+        } else {
+            self.inversion().inversion
+        };
+
+        Self::new(new_cardinality, index, inv).expect("must be a valid index and inversion")
     }
 
     #[inline]
