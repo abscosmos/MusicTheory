@@ -781,7 +781,7 @@ impl PitchClassSet {
         let normal = self.normal_order();
         let inverted = self.invert_around(PitchClass::C).normal_order();
 
-        if self.cmp_lexicographically(inverted).is_le() {
+        if normal.cmp_lexicographically(inverted).is_le() {
             normal
         } else {
             inverted
