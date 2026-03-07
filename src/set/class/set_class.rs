@@ -1,5 +1,5 @@
 use std::cmp::Ordering;
-use std::{cmp, fmt};
+use std::fmt;
 use std::num::NonZeroU8;
 use crate::PitchClass;
 use crate::set::class::set_class_form::SetClassForm;
