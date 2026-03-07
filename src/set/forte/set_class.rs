@@ -94,7 +94,7 @@ impl SetClass {
     }
 
     #[inline]
-    pub const fn prime_form(&self) -> PitchClassSet {
+    pub const fn prime_form(self) -> PitchClassSet {
         tables::lookup(self.cardinality, self.index.get()).prime_form
     }
 
