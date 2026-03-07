@@ -75,7 +75,7 @@ impl SetClass {
     /// assert_eq!(SetClass::new(13, 1), Err(NewSetClassError::InvalidCardinality));
     /// assert!(matches!(
     ///     SetClass::new(3, 99),
-    ///     Err(NewSetClassError::InvalidIndex { ... }),
+    ///     Err(NewSetClassError::InvalidIndex { .. }),
     /// ));
     /// ```
     pub const fn new(cardinality: u8, index: u8) -> Result<Self, NewSetClassError> {
