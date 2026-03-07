@@ -1,7 +1,7 @@
 use std::{cmp, fmt};
 use std::cmp::Ordering;
 use crate::PitchClass;
-use crate::set::forte::{tables, NewSetClassError, SetClass};
+use crate::set::class::{tables, NewSetClassError, SetClass};
 use crate::set::{IntervalClassVector, PitchClassSet};
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, Ord, PartialOrd)]
@@ -180,7 +180,7 @@ impl From<SetClass> for SetClassForm {
 
 #[cfg(test)]
 mod tests {
-    use crate::set::forte::SetClassForm;
+    use crate::set::class::SetClassForm;
     use crate::set::PitchClassSet;
 
     #[test]

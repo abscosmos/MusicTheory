@@ -32,7 +32,7 @@
 use std::cmp::Ordering;
 use crate::{PitchClass, Semitones};
 use crate::set::IntervalClassVector;
-use crate::set::forte::{SetClass, SetClassForm};
+use crate::set::class::{SetClass, SetClassForm};
 #[expect(unused_imports, reason = "used in documentation")]
 use std::ops::{Add, BitAnd, BitOr, BitXor, Not};
 

@@ -4,4 +4,4 @@ pub use pcset::PitchClassSet;
 mod icv;
 pub use icv::*;
 
-mod forte;
+mod class;

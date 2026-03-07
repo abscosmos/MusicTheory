@@ -2,7 +2,7 @@ use std::cmp::Ordering;
 use std::fmt;
 use std::num::NonZeroU8;
 use crate::PitchClass;
-use crate::set::forte::set_class_form::SetClassForm;
+use crate::set::class::set_class_form::SetClassForm;
 use crate::set::{check_triangular, IntervalClassVector, PitchClassSet};
 use super::tables;
 
@@ -167,7 +167,7 @@ impl From<PitchClassSet> for SetClass {
 
 #[cfg(test)]
 mod tests {
-    use crate::set::forte::SetClass;
+    use crate::set::class::SetClass;
     use crate::set::{IntervalClassVector, PitchClassSet};
 
     #[test]
