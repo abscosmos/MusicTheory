@@ -11,6 +11,7 @@ pub enum InversionForm {
 }
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, PartialOrd, Ord)]
+#[doc(alias = "Forte")]
 pub struct SetClassForm {
     set_class: SetClass,
     inversion: Option<InversionForm>,

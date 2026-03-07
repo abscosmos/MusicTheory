@@ -7,6 +7,7 @@ use crate::set::{check_triangular, IntervalClassVector, PitchClassSet};
 use super::tables;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
+#[doc(alias = "Forte")]
 pub struct SetClass {
     // TODO: compress this into a u16 eventually
     pub(super) cardinality: u8,
