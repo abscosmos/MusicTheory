@@ -2,7 +2,7 @@ use std::cmp::Ordering;
 use std::fmt;
 use std::num::NonZeroU8;
 use crate::PitchClass;
-use crate::set::class::set_class_form::SetClassForm;
+use crate::set::forte::set_class_form::SetClassForm;
 use crate::set::{check_triangular, IntervalClassVector, PitchClassSet};
 use super::tables;
 
@@ -68,7 +68,7 @@ impl SetClass {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::set::{SetClass, class::NewSetClassError};
+    /// # use music_theory::set::{SetClass, forte::NewSetClassError};
     /// let triad = SetClass::new(3, 11).unwrap();
     /// assert_eq!(triad.to_string(), "3-11");
     ///
@@ -390,7 +390,7 @@ impl From<PitchClassSet> for SetClass {
 
 #[cfg(test)]
 mod tests {
-    use crate::set::class::SetClass;
+    use crate::set::forte::SetClass;
     use crate::set::{IntervalClassVector, PitchClassSet};
 
     #[test]

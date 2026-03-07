@@ -1,7 +1,7 @@
 use std::{cmp, fmt};
 use std::cmp::Ordering;
 use crate::PitchClass;
-use crate::set::class::{tables, NewSetClassError, SetClass};
+use crate::set::forte::{tables, NewSetClassError, SetClass};
 use crate::set::{IntervalClassVector, PitchClassSet};
 
 /// The inversion form of a [`SetClassForm`]: prime (A) or inverted (B).
@@ -78,7 +78,7 @@ impl SetClassForm {
     /// # Examples
     ///
     /// ```
-    /// # use music_theory::set::{class::NewSetClassFormError, InversionForm, SetClassForm};
+    /// # use music_theory::set::{forte::NewSetClassFormError, InversionForm, SetClassForm};
     /// // Minor triad is 3-11A
     /// let minor = SetClassForm::new(3, 11, Some(InversionForm::A)).unwrap();
     /// assert_eq!(minor.to_string(), "3-11A");
@@ -500,7 +500,7 @@ impl From<SetClass> for SetClassForm {
 
 #[cfg(test)]
 mod tests {
-    use crate::set::class::SetClassForm;
+    use crate::set::forte::SetClassForm;
     use crate::set::PitchClassSet;
 
     #[test]

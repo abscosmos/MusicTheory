@@ -1,6 +1,6 @@
 use std::num::NonZeroU8;
 use crate::PitchClass;
-use crate::set::class::SetClass;
+use crate::set::forte::SetClass;
 use crate::set::PitchClassSet;
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
