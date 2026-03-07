@@ -25,6 +25,10 @@ pub enum NewSetClassFormError {
 }
 
 impl SetClassForm {
+    const COMPLEMENT_FORM_PRESERVING: [(u8, u8); 6] = [
+        (4, 12), (4, 14), (5, 11), (5, 26), (5, 28), (6, 14),
+    ];
+
     pub fn new(cardinality: u8, index: u8, inversion: Option<InversionForm>) -> Result<Self, NewSetClassFormError> {
         let set_class = SetClass::new(cardinality, index)?;
 
