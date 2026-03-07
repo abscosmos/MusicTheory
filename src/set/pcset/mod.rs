@@ -408,6 +408,29 @@ impl PitchClassSet {
         Self(result).transpose(Semitones(2 * axis.chroma() as i16))
     }
 
+    /// Returns `true` if this set is equal to itself when inverted around C.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::PitchClass;
+    /// # use music_theory::set::PitchClassSet;
+    /// // Augmented triad is inversionally symmetric
+    /// let aug = PitchClassSet::from_iter([
+    ///     PitchClass::C,
+    ///     PitchClass::E,
+    ///     PitchClass::Gs
+    /// ]);
+    /// assert!(aug.is_inversionally_symmetric());
+    ///
+    /// // Major triad inverts to a minor triad, so it's not inversionally symmetric
+    /// let major_triad = PitchClassSet::from_iter([
+    ///     PitchClass::C,
+    ///     PitchClass::E,
+    ///     PitchClass::G
+    /// ]);
+    /// assert!(!major_triad.is_inversionally_symmetric());
+    /// ```
     #[inline]
     pub const fn is_inversionally_symmetric(self) -> bool {
         // FIXME(const): comparing by bits
