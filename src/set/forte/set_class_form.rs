@@ -1,4 +1,4 @@
-use std::fmt;
+use std::{cmp, fmt};
 use std::cmp::Ordering;
 use crate::PitchClass;
 use crate::set::forte::{tables, NewSetClassError, SetClass};
@@ -85,6 +85,28 @@ impl SetClassForm {
             self.prime_form()
                 .invert_around(PitchClass::C)
                 .normal_order()
+        }
+    }
+
+    pub fn complement(self) -> Self {
+        let new_cardinality = 12 - self.cardinality();
+
+        if self.cardinality() == 6 && self.z_related().is_some() {
+            let pc_complement = self.normal_form().complement();
+
+            Self::from(pc_complement)
+        } else {
+            let check_form = (cmp::min(self.cardinality(), new_cardinality), self.index());
+
+            let inv = if self.is_inversionally_symmetric()
+                || Self::COMPLEMENT_FORM_PRESERVING.contains(&check_form)
+            {
+                self.inversion
+            } else {
+                self.inversion().inversion
+            };
+
+            Self::new(new_cardinality, self.index(), inv).expect("must be a valid index and inversion")
         }
     }
 
