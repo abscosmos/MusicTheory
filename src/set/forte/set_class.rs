@@ -31,7 +31,7 @@ use super::tables;
 /// assert_eq!(c_major.set_class().to_string(), "3-11");
 /// ```
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
-#[doc(alias = "Forte")]
+#[doc(alias = "ForteNumberTnI")]
 pub struct SetClass {
     // TODO: compress this into a u16 eventually
     pub(super) cardinality: u8,

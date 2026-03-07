@@ -41,7 +41,7 @@ pub enum InversionForm {
 /// assert_eq!(minor.set_class_form().to_string(), "3-11A");
 /// assert_eq!(major.set_class_form().to_string(), "3-11B");
 /// ```
-#[doc(alias = "Forte")]
+#[doc(alias = "ForteNumberTn")]
 pub struct SetClassForm {
     set_class: SetClass,
     inversion: Option<InversionForm>,
