@@ -98,6 +98,10 @@ impl SetClass {
         tables::lookup(self.cardinality, self.index.get()).prime_form
     }
 
+    pub fn complement(self) -> Self {
+        SetClassForm::from(self).complement().set_class()
+    }
+
     #[inline]
     #[doc(alias = "icv")]
     pub fn interval_class_vector(self) -> IntervalClassVector {
