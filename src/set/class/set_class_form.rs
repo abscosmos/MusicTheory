@@ -33,11 +33,15 @@ impl SetClassForm {
     pub fn new(cardinality: u8, index: u8, inversion: Option<InversionForm>) -> Result<Self, NewSetClassFormError> {
         let set_class = SetClass::new(cardinality, index)?;
 
-        if inversion.is_none() != set_class.is_inversionally_symmetric() {
-            return Err(NewSetClassFormError::InvalidInversion);
-        }
+        Self::with_set_class(set_class, inversion).ok_or(NewSetClassFormError::InvalidInversion)
+    }
 
-        Ok(Self { set_class, inversion })
+    pub fn with_set_class(set_class: SetClass, inversion: Option<InversionForm>) -> Option<Self> {
+        if inversion.is_none() == set_class.is_inversionally_symmetric() {
+            Some(Self { set_class, inversion })
+        } else {
+            None
+        }
     }
 
     #[inline]
