@@ -1,5 +1,5 @@
 use std::cmp::Ordering;
-use std::fmt;
+use std::{cmp, fmt};
 use std::num::NonZeroU8;
 use crate::PitchClass;
 use crate::set::class::set_class_form::SetClassForm;
@@ -100,7 +100,15 @@ impl SetClass {
     }
 
     pub fn complement(self) -> Self {
-        SetClassForm::from(self).complement().set_class()
+        let new_cardinality = 12 - self.cardinality();
+
+        let index = if self.cardinality() == 6 && self.z_related().is_some() {
+            self.z_related().unwrap_or(self).index()
+        } else {
+            self.index()
+        };
+
+        Self::new(new_cardinality, index).expect("must be a valid index and inversion")
     }
 
     #[inline]

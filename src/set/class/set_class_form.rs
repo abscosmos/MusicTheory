@@ -90,25 +90,17 @@ impl SetClassForm {
     }
 
     pub fn complement(self) -> Self {
-        let new_cardinality = 12 - self.cardinality();
+        let mut base = Self::from(self.set_class.complement());
 
-        let index = if self.cardinality() == 6 && self.z_related().is_some() {
-            self.z_related().unwrap_or(self).index()
+        let check_form = (cmp::min(self.cardinality(), base.cardinality()), self.index());
+
+        if self.is_inversionally_symmetric() || Self::COMPLEMENT_FORM_PRESERVING.contains(&check_form) {
+            base.inversion = self.inversion;
         } else {
-            self.index()
-        };
-
-        let check_form = (cmp::min(self.cardinality(), new_cardinality), self.index());
-
-        let inv = if self.is_inversionally_symmetric()
-            || Self::COMPLEMENT_FORM_PRESERVING.contains(&check_form)
-        {
-            self.inversion
-        } else {
-            self.inversion().inversion
-        };
-
-        Self::new(new_cardinality, index, inv).expect("must be a valid index and inversion")
+            base.inversion = self.inversion().inversion;
+        }
+        
+        base
     }
 
     #[inline]
