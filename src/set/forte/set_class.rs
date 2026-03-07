@@ -1,3 +1,4 @@
+use std::cmp::Ordering;
 use std::fmt;
 use std::num::NonZeroU8;
 use crate::PitchClass;
@@ -131,6 +132,18 @@ impl fmt::Display for SetClass {
         } else {
             write!(f, "{}-{}", self.cardinality, self.index.get())
         }
+    }
+}
+
+impl Ord for SetClass {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.cardinality.cmp(&other.cardinality).then(self.index.cmp(&other.index))
+    }
+}
+
+impl PartialOrd for SetClass {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
     }
 }
 
