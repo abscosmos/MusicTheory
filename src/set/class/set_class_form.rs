@@ -284,7 +284,7 @@ impl SetClassForm {
     ///     major.normal_form(),
     ///     PitchClassSet::from_iter([
     ///         PitchClass::C,
-    ///         PitchClass::Ds,
+    ///         PitchClass::E,
     ///         PitchClass::G
     ///     ]),
     /// );
