@@ -123,7 +123,7 @@ impl SetClass {
         };
 
         let entry = tables::lookup_entries_cardinality(cardinality)
-            .into_iter()
+            .iter()
             .find(|e| e.prime_form.interval_class_vector() == icv)?;
 
         let set_class = Self {

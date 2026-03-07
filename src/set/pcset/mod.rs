@@ -754,7 +754,7 @@ impl PitchClassSet {
     }
 
     pub fn cmp_lexicographically(self, other: Self) -> Ordering {
-        self.into_iter().cmp(other.into_iter())
+        self.into_iter().cmp(other)
     }
 
     /// Returns the prime form of this pitch class set.
