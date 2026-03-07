@@ -177,3 +177,29 @@ impl From<SetClass> for SetClassForm {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::set::forte::SetClassForm;
+    use crate::set::PitchClassSet;
+
+    #[test]
+    fn complement() {
+        for pcset in (0..=0xfff).map(PitchClassSet::from_bits_masked) {
+            let set_class = SetClassForm::from(pcset);
+
+            let complement = set_class.complement();
+            let of_complement = SetClassForm::from(pcset.complement());
+
+            assert_eq!(
+                complement, of_complement,
+                "complement should match set class form from complement of pcset; {set_class}",
+            );
+
+            assert_eq!(
+                complement.complement(), set_class,
+                "complement of complement should be original set class form"
+            );
+        }
+    }
+}
