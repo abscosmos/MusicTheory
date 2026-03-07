@@ -43,7 +43,7 @@ pub struct SetClass {
 #[derive(Clone, Debug, Eq, PartialEq, thiserror::Error)]
 pub enum NewSetClassError {
     /// The cardinality was greater than 12.
-    #[error("Cardinality must be in [1, 12]")]
+    #[error("Cardinality must be in [0, 12]")]
     InvalidCardinality,
     /// The index was out of range for the given cardinality.
     #[error("Index {index} out of range for SetClass with cardinality {cardinality}. Expected [1, {max}]")]
