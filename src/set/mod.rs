@@ -4,4 +4,5 @@ pub use pcset::PitchClassSet;
 mod icv;
 pub use icv::*;
 
-mod class;
+pub mod class;
+pub use class::{SetClass, SetClassForm, InversionForm};
