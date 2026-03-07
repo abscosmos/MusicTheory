@@ -79,7 +79,7 @@ impl SetClass {
 
     #[inline]
     pub const fn z_related(self) -> Option<Self> {
-        // FIXME(const)
+        // FIXME(const): use Try
         let Some(index) = self.z_index else {
             return None;
         };
