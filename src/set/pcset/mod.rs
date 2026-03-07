@@ -29,8 +29,10 @@
 //! );
 //! ```
 
+use std::cmp::Ordering;
 use crate::{PitchClass, Semitones};
 use crate::set::IntervalClassVector;
+use crate::set::forte::{SetClass, SetClassForm};
 #[expect(unused_imports, reason = "used in documentation")]
 use std::ops::{Add, BitAnd, BitOr, BitXor, Not};
 
@@ -72,10 +74,11 @@ pub use into_iter::*;
 /// let transposed = major_triad + Semitones(7);
 /// let inverted = major_triad.invert_around(PitchClass::C);
 /// ```
-#[derive(Copy, Clone, Eq, PartialEq, Default)]
+#[derive(Copy, Clone, Eq, PartialEq, Default, Hash)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct PitchClassSet(u16);
 
+// TODO: make these methods const
 impl PitchClassSet {
     /// An empty pitch class set containing no pitch classes.
     ///
@@ -129,7 +132,7 @@ impl PitchClassSet {
     /// assert_eq!(set, PitchClassSet::CHROMATIC_AGGREGATE);
     /// ```
     #[inline(always)]
-    pub fn from_bits_masked(set: u16) -> Self {
+    pub const fn from_bits_masked(set: u16) -> Self {
         Self(set & Self::MASK)
     }
 
@@ -146,7 +149,7 @@ impl PitchClassSet {
     /// assert_eq!(set.bits(), 0b101000000000);
     /// ```
     #[inline(always)]
-    pub fn bits(self) -> u16 {
+    pub const fn bits(self) -> u16 {
         self.0
     }
 
@@ -179,12 +182,39 @@ impl PitchClassSet {
     /// ```
     #[doc(alias = "cardinality")]
     #[inline(always)]
-    pub fn len(self) -> u8 {
+    pub const fn len(self) -> u8 {
         self.0.count_ones() as _
     }
-    
+
+    /// Returns the span, the semitone distance from its lowest to highest pitch class.
+    ///
+    /// Returns `None` if the set is empty. Returns `Some(0)` for single-element sets.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::PitchClass;
+    /// # use music_theory::set::PitchClassSet;
+    /// let triad = PitchClassSet::from_iter([
+    ///     PitchClass::C,
+    ///     PitchClass::E,
+    ///     PitchClass::G,
+    /// ]);
+    ///
+    /// assert_eq!(triad.span(), Some(7));
+    ///
+    /// assert_eq!(PitchClassSet::EMPTY.span(), None);
+    /// assert_eq!(PitchClassSet::from_iter([PitchClass::C]).span(), Some(0));
+    /// ```
+    pub fn span(self) -> Option<u8> {
+        let mut iter = self.into_iter();
+        let first = iter.next()?;
+        let last = iter.last().unwrap_or(first);
+        Some(last.chroma() - first.chroma())
+    }
+
     #[inline(always)]
-    fn index(pc: PitchClass) -> u8 {
+    const fn index(pc: PitchClass) -> u8 {
         11 - pc.chroma()
     }
 
@@ -208,6 +238,7 @@ impl PitchClassSet {
     ///     IntervalClassVector::new([0, 0, 1, 1, 1, 0]).unwrap(),
     /// )
     /// ```
+    #[doc(alias = "icv")]
     pub fn interval_class_vector(self) -> IntervalClassVector {
         let mut icv = [0u8; 6];
 
@@ -268,7 +299,7 @@ impl PitchClassSet {
     /// assert!(seventh.is_set(PitchClass::B));
     /// ```
     #[must_use = "This method returns a new PitchClassSet instead of mutating the original"]
-    pub fn with_set(self, pc: PitchClass) -> Self {
+    pub const fn with_set(self, pc: PitchClass) -> Self {
         Self(self.0 | (1 << Self::index(pc)))
     }
 
@@ -323,7 +354,7 @@ impl PitchClassSet {
     /// );
     /// ```
     #[must_use = "This method returns a new PitchClassSet instead of mutating the original"]
-    pub fn transpose(self, semitones: Semitones) -> Self {
+    pub const fn transpose(self, semitones: Semitones) -> Self {
         let shift = semitones.normalize().0 as u32;
 
         // Rotate bits (accounting for 12-bit width, not 16)
@@ -359,18 +390,51 @@ impl PitchClassSet {
     /// );
     /// ```
     #[must_use = "This method returns a new PitchClassSet instead of mutating the original"]
-    pub fn invert_around(self, axis: PitchClass) -> Self {
+    pub const fn invert_around(self, axis: PitchClass) -> Self {
         let mut result = 0u16;
 
-        for i in 0..12 {
+        // FIXME(const)
+        let mut i = 0;
+        while i < 12 {
             if self.0 & (1 << i) != 0 {
                 let new_bit = (10i32 - i).rem_euclid(12) as u32;
                 result |= 1 << new_bit;
             }
+
+            i += 1;
         }
 
         // Then transpose by 2×axis (T_2a I formula)
         Self(result).transpose(Semitones(2 * axis.chroma() as i16))
+    }
+
+    /// Returns `true` if this set is equal to itself when inverted around C.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::PitchClass;
+    /// # use music_theory::set::PitchClassSet;
+    /// // Augmented triad is inversionally symmetric
+    /// let aug = PitchClassSet::from_iter([
+    ///     PitchClass::C,
+    ///     PitchClass::E,
+    ///     PitchClass::Gs
+    /// ]);
+    /// assert!(aug.is_inversionally_symmetric());
+    ///
+    /// // Major triad inverts to a minor triad, so it's not inversionally symmetric
+    /// let major_triad = PitchClassSet::from_iter([
+    ///     PitchClass::C,
+    ///     PitchClass::E,
+    ///     PitchClass::G
+    /// ]);
+    /// assert!(!major_triad.is_inversionally_symmetric());
+    /// ```
+    #[inline]
+    pub const fn is_inversionally_symmetric(self) -> bool {
+        // FIXME(const): comparing by bits
+        self.invert_around(PitchClass::C).bits() == self.bits()
     }
 
     /// Returns `true` if this set is a superset of the other set.
@@ -616,12 +680,37 @@ impl PitchClassSet {
         Self::from_bits_masked(!self.0)
     }
 
-    /// Returns the normalized (prime) form of this pitch class set.
+    /// Returns an iterator over all cyclic rotations of this set, each transposed to start on C.
     ///
-    /// Provides a canonical representation for comparing sets in pitch-class set theory.
-    /// If the set is not empty, [`PitchClass::C`] is guaranteed to be set.
+    /// For a set with `n` pitch classes, yields `n` items. Each item is the set transposed
+    /// so that a different one of its pitch classes lands on C.
     ///
-    /// If you're comparing normalized pitch class sets, consider [`Self::is_transposition_of`].
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::PitchClass;
+    /// # use music_theory::set::PitchClassSet;
+    /// let triad = PitchClassSet::from_iter([PitchClass::C, PitchClass::E, PitchClass::G]);
+    ///
+    /// // one rotation per pitch class in the set
+    /// assert_eq!(triad.rotations().count(), 3);
+    ///
+    /// // every rotation starts on C
+    /// assert!(triad.rotations().all(|r| r.is_set(PitchClass::C)));
+    /// ```
+    pub fn rotations(self) -> impl Iterator<Item = PitchClassSet> + Clone {
+        self.into_iter()
+            .map(move |start_pc|
+                self.transpose(-Semitones(start_pc.chroma() as i16))
+            )
+    }
+
+    /// Returns the canonical representative of this set's transposition equivalence class (Tn class).
+    ///
+    /// Two sets share the same Tn canonical form if and only if one is a transposition of the other.
+    /// If the set is not empty, [`PitchClass::C`] is guaranteed to be set (the canonical form always starts on C).
+    ///
+    /// To test transposition equivalence directly, use [`Self::is_transposition_of`].
     ///
     /// # Examples
     ///
@@ -640,17 +729,96 @@ impl PitchClassSet {
     ///     PitchClass::A,
     /// ]);
     ///
-    /// // The D and C major pcsets normalize to the same thing,
-    /// // as they're transpositions of each other
-    /// assert_eq!(c_major.normalized(), d_major.normalized());
+    /// // C and D major are transpositions, so they share the same Tn canonical form
+    /// assert_eq!(c_major.tn_canonical(), d_major.tn_canonical());
     /// ```
     #[must_use = "This method returns a new PitchClassSet instead of mutating the original"]
-    pub fn normalized(self) -> Self {
-        (0..12)
-            .map(|s| self + Semitones(s))
-            .filter(|pcset| pcset.is_set(PitchClass::C))
+    pub fn tn_canonical(self) -> Self {
+        self.rotations()
             .min_by_key(|pcset| pcset.bits())
             .unwrap_or_default()
+    }
+
+    /// Returns the normal order of this pitch class set.
+    ///
+    /// Normal order is the most compact rotation — the one with the smallest span
+    /// (distance from first to last pitch class). Ties are broken by comparing inner
+    /// intervals from left to right (Rahn's algorithm).
+    ///
+    /// The result always starts on C (chroma 0) if the set is non-empty.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::PitchClass;
+    /// # use music_theory::set::PitchClassSet;
+    /// let c_major = PitchClassSet::from_iter([PitchClass::C, PitchClass::E, PitchClass::G]);
+    /// let d_major = PitchClassSet::from_iter([PitchClass::D, PitchClass::Fs, PitchClass::A]);
+    ///
+    /// assert!(d_major.normal_order().is_set(PitchClass::C));
+    /// assert_eq!(c_major.normal_order(), d_major.normal_order());
+    /// ```
+    #[must_use = "This method returns a new PitchClassSet instead of mutating the original"]
+    pub fn normal_order(self) -> Self {
+        /// Returns an iterator over the chromas of all pitch classes except the lowest and highest.
+        fn inner_chromas(pcset: PitchClassSet) -> impl Iterator<Item = u8> {
+            let n = pcset.len() as usize;
+            pcset.into_iter().skip(1).take(n.saturating_sub(2)).map(|pc| pc.chroma())
+        }   
+
+        self.rotations()
+            .min_by(|&a, &b| {
+                let a_span = a.span().expect("rotations are non-empty");
+                let b_span = b.span().expect("rotations are non-empty");
+
+                a_span.cmp(&b_span).then_with(|| inner_chromas(a).cmp(inner_chromas(b)))
+            })
+            .unwrap_or_default()
+    }
+
+    pub fn cmp_lexicographically(self, other: Self) -> Ordering {
+        self.into_iter().cmp(other)
+    }
+
+    /// Returns the prime form of this pitch class set.
+    ///
+    /// Prime form is the most compact representation of a set's equivalence class under
+    /// both transposition (Tn) and inversion (TnI). It is the lexicographically smaller
+    /// of the normal order and the normal order of the inversion.
+    ///
+    /// The result always starts on C (chroma 0) if the set is non-empty.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use music_theory::PitchClass;
+    /// # use music_theory::set::PitchClassSet;
+    /// // C major and C minor have the same prime form [0, 3, 7]
+    /// let c_major = PitchClassSet::from_iter([PitchClass::C, PitchClass::E, PitchClass::G]);
+    /// let c_minor = PitchClassSet::from_iter([PitchClass::C, PitchClass::Ds, PitchClass::G]);
+    ///
+    /// assert_eq!(c_major.prime_form(), c_minor);
+    /// ```
+    #[must_use = "This method returns a new PitchClassSet instead of mutating the original"]
+    pub fn prime_form(self) -> Self {
+        let normal = self.normal_order();
+        let inverted = self.invert_around(PitchClass::C).normal_order();
+
+        if normal.cmp_lexicographically(inverted).is_le() {
+            normal
+        } else {
+            inverted
+        }
+    }
+
+    #[inline]
+    pub fn set_class(self) -> SetClass {
+        SetClass::from(self)
+    }
+
+    #[inline]
+    pub fn set_class_form(self) -> SetClassForm {
+        SetClassForm::from(self)
     }
 
     /// Returns `true` if this set is a transposition of the other set.
@@ -689,7 +857,7 @@ impl PitchClassSet {
     /// assert!(!c_major.is_transposition_of(c_minor));
     /// ```
     pub fn is_transposition_of(self, other: Self) -> bool {
-        self.normalized() == other.normalized()
+        self.tn_canonical() == other.tn_canonical()
     }
 
     /// Returns a helper type that displays pitch classes as their chroma values.
@@ -781,6 +949,19 @@ mod tests {
             pcset.invert_around(PitchClass::C),
             inverted,
         );
+    }
+
+    #[test]
+    fn set_class() {
+        for pcset in (0..=PitchClassSet::MASK).map(PitchClassSet::from_bits_masked) {
+            let set_class = pcset.set_class();
+            let prime_form = pcset.prime_form();
+
+            assert_eq!(
+                prime_form, set_class.prime_form(),
+                "should return the same prime form {prime_form}",
+            );
+        }
     }
     
     #[test]

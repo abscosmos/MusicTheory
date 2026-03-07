@@ -136,8 +136,13 @@ impl IntervalClassVector {
     /// assert!(!invalid.came_from_pitch_class_set());
     /// ```
     pub fn came_from_pitch_class_set(self) -> bool {
-        // TODO: before checking all possible pcsets, check if total() is a triangular number; might be faster on average, bench
+        if check_triangular(self.total() as _).is_none() {
+            return false;
+        }
+
         // TODO: could also check that n = pcset.len(), nC2 == icv.total()
+        // TODO: filter out pcsets that aren't the correct len
+        // TODO: add tests for this
 
         (0..=PitchClassSet::CHROMATIC_AGGREGATE.bits())
             .map(|set| PitchClassSet::from_bits_masked(set).interval_class_vector())
@@ -694,6 +699,18 @@ impl FromStr for IntervalClassVector {
         }
 
         Self::new(arr).ok_or(ParseIcvError::InvalidIcv)
+    }
+}
+
+pub(crate) fn check_triangular(n: u16) -> Option<u16> {
+    let radicand = 8 * n + 1;
+
+    let sqrt = radicand.isqrt();
+
+    if sqrt * sqrt == radicand {
+        Some((sqrt - 1) / 2)
+    } else {
+        None
     }
 }
 
