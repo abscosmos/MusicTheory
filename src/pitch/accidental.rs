@@ -23,7 +23,7 @@ use crate::Semitones;
 /// let double_sharp = AccidentalSign::from_offset_semitones(Semitones(2));
 /// assert_eq!(double_sharp, AccidentalSign::DOUBLE_SHARP);
 /// ```
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash, Ord, PartialOrd)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct AccidentalSign {
     /// The semitone offset of this accidental.

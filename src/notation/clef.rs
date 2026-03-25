@@ -4,7 +4,7 @@ use std::ops::RangeInclusive;
 use crate::Letter;
 use crate::notation::{OctaveLetter, StemDirection, GetStemDirectionParams};
 
-#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct PitchClef {
     // assuming there are only G, C, and F clefs

@@ -2,7 +2,7 @@ use std::cmp::Ordering;
 use std::fmt;
 use crate::{Note, Letter};
 
-#[derive(Copy, Clone, Eq, PartialEq, Debug)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct OctaveLetter {
     pub letter: Letter,
