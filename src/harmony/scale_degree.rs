@@ -9,7 +9,7 @@ use crate::scales::numeral::Numeral7 as ScaleDegreeExp;
 ///
 /// [exp]: crate::scales::numeral::Numeral7
 #[repr(u8)]
-#[derive(Copy, Clone, Eq, PartialEq, Default, Debug, Ord, PartialOrd, strum_macros::FromRepr)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash, Default, Debug, Ord, PartialOrd, strum_macros::FromRepr)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum ScaleDegree {
     /// Scale degree I: The tonic.
@@ -64,7 +64,7 @@ impl ScaleDegree {
 }
 
 /// Error returned when parsing a [`ScaleDegree`] from [`&str`](prim@str) fails.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, thiserror::Error)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, thiserror::Error)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[error("The provided &str could not be converted into a ScaleDegree")]
 pub struct ParseScaleDegreeError;

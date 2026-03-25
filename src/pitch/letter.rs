@@ -24,7 +24,7 @@ use crate::Pitch;
 /// assert_eq!(Letter::C.offset_between(Letter::E), 2);
 /// ```
 #[repr(u8)]
-#[derive(Copy, Clone, Eq, PartialEq, Debug, EnumIter, FromRepr, Ord, PartialOrd)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash, Debug, EnumIter, FromRepr, Ord, PartialOrd)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Letter {
     /// C
