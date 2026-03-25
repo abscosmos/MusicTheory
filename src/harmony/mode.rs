@@ -13,7 +13,7 @@ use std::str::FromStr;
 /// Intended to be used until a stable version on scales is released.
 ///
 /// [exp]: crate::scales::definition::heptatonic::DiatonicMode
-#[derive(Copy, Clone, Eq, PartialEq, Default, Debug, Ord, PartialOrd, strum_macros::FromRepr)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash, Default, Debug, Ord, PartialOrd, strum_macros::FromRepr)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum DiatonicMode {
     #[default]
