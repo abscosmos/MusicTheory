@@ -1,3 +1,5 @@
+use std::fmt;
+
 use crate::Interval;
 use Interval as I;
 
@@ -77,5 +79,11 @@ impl KnownChord {
 
     pub const fn intervals(self) -> &'static [Interval] {
         self.data().intervals
+    }
+}
+
+impl fmt::Display for KnownChord {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(self.name())
     }
 }
