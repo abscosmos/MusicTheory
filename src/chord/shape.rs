@@ -1,4 +1,6 @@
 use crate::{EnharmonicEq, Interval};
+use crate::chord::known;
+use crate::chord::known::KnownChord;
 use crate::interval::{Number, Stability};
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
@@ -193,6 +195,11 @@ impl ChordShape {
             [_p1, _, _] => self.is_major() || self.is_minor(),
             _ => false,
         }
+    }
+
+    #[inline]
+    pub fn known(&self) -> Option<KnownChord> {
+        known::find_known(&self.intervals)
     }
 }
 
