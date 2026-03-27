@@ -10,7 +10,7 @@ struct KnownChordData {
 
 macro_rules! define_known_chords {
     ($( $variant:ident { name: $name:expr, intervals: [$($ivl:expr),+ $(,)?] } ),* $(,)?) => {
-        #[derive(Copy, Clone, Eq, PartialEq, Debug, Hash)]
+        #[derive(Copy, Clone, Eq, PartialEq, Debug, Hash, strum_macros::FromRepr)]
         #[non_exhaustive]
         #[repr(u16)]
         pub enum KnownChord { $($variant),* }
