@@ -215,3 +215,9 @@ impl EnharmonicEq for ChordShape {
             .all(|(this, other)| this.eq_enharmonic(other))
     }
 }
+
+impl From<KnownChord> for ChordShape {
+    fn from(known: KnownChord) -> Self {
+        Self { intervals: known.intervals().into() }
+    }
+}

@@ -2,6 +2,7 @@ use std::fmt;
 
 use crate::Interval;
 use Interval as I;
+use crate::chord::ChordShape;
 
 struct KnownChordData {
     name: &'static str,
@@ -85,6 +86,10 @@ impl KnownChord {
 
     pub const fn intervals(self) -> &'static [Interval] {
         self.data().intervals
+    }
+
+    pub fn shape(self) -> ChordShape {
+        ChordShape::from(self)
     }
 }
 
