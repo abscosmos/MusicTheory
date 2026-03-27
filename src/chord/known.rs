@@ -75,7 +75,7 @@ impl KnownChord {
         self.data().name
     }
 
-    pub(super) const fn intervals(self) -> &'static [Interval] {
+    pub const fn intervals(self) -> &'static [Interval] {
         self.data().intervals
     }
 }
