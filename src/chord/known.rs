@@ -68,6 +68,12 @@ define_known_chords! {
     MinorThirteenth { name: "minor thirteenth", intervals: [I::PERFECT_UNISON, I::MINOR_THIRD, I::PERFECT_FIFTH, I::MINOR_SEVENTH, I::MAJOR_NINTH, I::PERFECT_ELEVENTH, I::MAJOR_THIRTEENTH] },
 }
 
+pub(super) fn find_known(intervals: &[Interval]) -> Option<KnownChord> {
+    let discriminant = CHORD_DATA.iter().position(|d| d.intervals == intervals)?;
+
+    Some(KnownChord::from_repr(discriminant as _).expect("should be valid"))
+}
+
 impl KnownChord {
     const fn data(self) -> &'static KnownChordData {
         &CHORD_DATA[self as usize]
