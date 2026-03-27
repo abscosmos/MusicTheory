@@ -97,6 +97,10 @@ impl NoteChord {
         self.notes.contains(&note)
     }
 
+    pub fn pitch_chord(&self) -> &PitchChord {
+        &self.pitch_chord
+    }
+
     pub fn known(&self) -> Option<KnownChord> {
         self.pitch_chord.shape().known()
     }
