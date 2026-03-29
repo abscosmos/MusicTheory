@@ -229,6 +229,28 @@ impl PitchChord {
         self.pitch_class_set().interval_class_vector()
     }
 
+    pub fn intervals_from_root(&self) -> Vec<Interval> {
+        if self.root == self.bass {
+            return self.shape.intervals().to_vec();
+        }
+
+        let mut intervals = self.shape.intervals().to_vec();
+
+        if let Some(bass_idx) = intervals.iter().position(|&ivl| self.root + ivl == self.bass) {
+            // inversion: all chord tones at index >= bass_idx are voiced below root
+            for ivl in &mut intervals[bass_idx..] {
+                let pitch = self.root + *ivl;
+                *ivl = -pitch.distance_to(self.root);
+            }
+        } else {
+            // slash chord: bass is not a chord tone, append its descending interval
+            intervals.push(-self.bass.distance_to(self.root));
+        }
+
+        intervals.sort();
+        intervals
+    }
+
     pub fn known(&self) -> Option<KnownChord> {
         self.shape.known()
     }
@@ -239,6 +261,113 @@ impl PitchChord {
 
     pub fn set_class_form(&self) -> SetClassForm {
         self.pitch_class_set().set_class_form()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::chord::known::KnownChord;
+    use Interval as I;
+
+    fn major_triad_root() -> PitchChord {
+        PitchChord::new(Pitch::C, KnownChord::MajorTriad.shape())
+    }
+
+    fn major_triad_first_inv() -> PitchChord {
+        PitchChord::with_inversion(Pitch::C, KnownChord::MajorTriad.shape(), 1).unwrap()
+    }
+
+    fn major_triad_second_inv() -> PitchChord {
+        PitchChord::with_inversion(Pitch::C, KnownChord::MajorTriad.shape(), 2).unwrap()
+    }
+
+    fn major_seventh_first_inv() -> PitchChord {
+        PitchChord::with_inversion(Pitch::C, KnownChord::MajorSeventh.shape(), 1).unwrap()
+    }
+
+    fn slash_chord() -> PitchChord {
+        // Cmaj / F# — F# is not a chord tone
+        PitchChord::with_bass(Pitch::C, KnownChord::MajorTriad.shape(), Pitch::F_SHARP)
+    }
+
+    #[test]
+    fn root_position_unchanged() {
+        assert_eq!(
+            major_triad_root().intervals_from_root(),
+            vec![I::PERFECT_UNISON, I::MAJOR_THIRD, I::PERFECT_FIFTH],
+        );
+    }
+
+    #[test]
+    fn first_inversion_bass_negative() {
+        // C/E voicing E–G–C: E and G are both below root C
+        // E→C = m6, G→C = P4
+        assert_eq!(
+            major_triad_first_inv().intervals_from_root(),
+            vec![-I::MINOR_SIXTH, -I::PERFECT_FOURTH, I::PERFECT_UNISON],
+        );
+    }
+
+    #[test]
+    fn second_inversion_bass_negative() {
+        // C/G: G voiced below root C → descending P4 (G up to C = P4); E remains M3
+        assert_eq!(
+            major_triad_second_inv().intervals_from_root(),
+            vec![-I::PERFECT_FOURTH, I::PERFECT_UNISON, I::MAJOR_THIRD],
+        );
+    }
+
+    #[test]
+    fn seventh_first_inversion() {
+        // Cmaj7/E voicing E–G–B–C: E, G, B all below root C
+        // E→C = m6, G→C = P4, B→C = m2
+        assert_eq!(
+            major_seventh_first_inv().intervals_from_root(),
+            vec![-I::MINOR_SIXTH, -I::PERFECT_FOURTH, -I::MINOR_SECOND, I::PERFECT_UNISON],
+        );
+    }
+
+    #[test]
+    fn seventh_second_inversion() {
+        // Cmaj7/G voicing G–B–C–E: G and B below root C, E above
+        // G→C = P4, B→C = m2
+        let chord = PitchChord::with_inversion(Pitch::C, KnownChord::MajorSeventh.shape(), 2).unwrap();
+        assert_eq!(
+            chord.intervals_from_root(),
+            vec![-I::PERFECT_FOURTH, -I::MINOR_SECOND, I::PERFECT_UNISON, I::MAJOR_THIRD],
+        );
+    }
+
+    #[test]
+    fn intervals_from_root_consistent_with_pitches() {
+        let cases = [
+            major_triad_root(),
+            major_triad_first_inv(),
+            major_triad_second_inv(),
+            major_seventh_first_inv(),
+            slash_chord(),
+        ];
+
+        for chord in &cases {
+            let pitches: std::collections::HashSet<Pitch> = chord.pitches().into_iter().collect();
+            for ivl in chord.intervals_from_root() {
+                let computed = chord.root() + ivl;
+                assert!(
+                    pitches.contains(&computed),
+                    "{chord:?}: root + {ivl:?} = {computed:?}, not in pitches {pitches:?}",
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn slash_chord_bass_not_chord_tone() {
+        // Cmaj/F#: F# is not in the triad, voiced below root → descending d5 (F# up to C = d5)
+        assert_eq!(
+            slash_chord().intervals_from_root(),
+            vec![-I::DIMINISHED_FIFTH, I::PERFECT_UNISON, I::MAJOR_THIRD, I::PERFECT_FIFTH],
+        );
     }
 }
 
