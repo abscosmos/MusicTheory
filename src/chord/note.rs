@@ -7,7 +7,7 @@ use crate::{Interval, Letter, Note, Pitch};
 use crate::chord::{root, ChordShape};
 use crate::chord::known::KnownChord;
 use crate::chord::letter_set::LetterSet;
-use crate::set::PitchClassSet;
+use crate::set::{PitchClassSet, SetClass, SetClassForm};
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct NoteChord {
@@ -475,6 +475,14 @@ impl NoteChord {
 
     fn is_sorted_dedup(notes: &[Note]) -> bool {
         notes.windows(2).all(|w| w[0] < w[1])
+    }
+
+    pub fn set_class(&self) -> SetClass {
+        self.pitch_class_set().set_class()
+    }
+
+    pub fn set_class_form(&self) -> SetClassForm {
+        self.pitch_class_set().set_class_form()
     }
 }
 

@@ -5,7 +5,7 @@ use crate::chord::known::KnownChord;
 use crate::interval::Number;
 use crate::harmony::Key;
 use crate::pitch::Spelling;
-use crate::set::{IntervalClassVector, PitchClassSet};
+use crate::set::{IntervalClassVector, PitchClassSet, SetClass, SetClassForm};
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -231,6 +231,14 @@ impl PitchChord {
 
     pub fn known(&self) -> Option<KnownChord> {
         self.shape.known()
+    }
+
+    pub fn set_class(&self) -> SetClass {
+        self.pitch_class_set().set_class()
+    }
+
+    pub fn set_class_form(&self) -> SetClassForm {
+        self.pitch_class_set().set_class_form()
     }
 }
 
