@@ -208,6 +208,10 @@ impl ChordShape {
             .map(|&ivl| PitchClass::C + ivl)
             .collect()
     }
+
+    pub fn interval_class_vector(&self) -> IntervalClassVector {
+        self.pitch_class_set().interval_class_vector()
+    }
 }
 
 impl EnharmonicEq for ChordShape {
