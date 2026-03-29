@@ -19,6 +19,10 @@ macro_rules! define_known_chords {
         static CHORD_DATA: &[KnownChordData] = &[
             $( KnownChordData { name: $name, intervals: &[$($ivl),+] } ),*
         ];
+
+        impl KnownChord {
+            pub(super) const ALL: &'static [Self] = &[ $( Self::$variant ),* ];
+        }
     };
 }
 
