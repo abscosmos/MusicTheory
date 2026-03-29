@@ -71,6 +71,31 @@ define_known_chords! {
     MajorThirteenth { name: "major thirteenth", intervals: [I::PERFECT_UNISON, I::MAJOR_THIRD, I::PERFECT_FIFTH, I::MAJOR_SEVENTH, I::MAJOR_NINTH, I::PERFECT_ELEVENTH, I::MAJOR_THIRTEENTH] },
     DominantThirteenth { name: "dominant thirteenth", intervals: [I::PERFECT_UNISON, I::MAJOR_THIRD, I::PERFECT_FIFTH, I::MINOR_SEVENTH, I::MAJOR_NINTH, I::PERFECT_ELEVENTH, I::MAJOR_THIRTEENTH] },
     MinorThirteenth { name: "minor thirteenth", intervals: [I::PERFECT_UNISON, I::MINOR_THIRD, I::PERFECT_FIFTH, I::MINOR_SEVENTH, I::MAJOR_NINTH, I::PERFECT_ELEVENTH, I::MAJOR_THIRTEENTH] },
+
+    // Suspended extensions
+    SuspendedSecondFourth { name: "suspended 2nd 4th", intervals: [I::PERFECT_UNISON, I::MAJOR_SECOND, I::PERFECT_FOURTH, I::PERFECT_FIFTH] },
+    MajorSeventhSuspendedFourth { name: "major seventh suspended 4th", intervals: [I::PERFECT_UNISON, I::PERFECT_FOURTH, I::PERFECT_FIFTH, I::MAJOR_SEVENTH] },
+    NinthSuspendedFourth { name: "ninth suspended 4th", intervals: [I::PERFECT_UNISON, I::PERFECT_FOURTH, I::PERFECT_FIFTH, I::MINOR_SEVENTH, I::MAJOR_NINTH] },
+    ThirteenthSuspendedFourth { name: "thirteenth suspended 4th", intervals: [I::PERFECT_UNISON, I::PERFECT_FOURTH, I::PERFECT_FIFTH, I::MINOR_SEVENTH, I::MAJOR_NINTH, I::MAJOR_THIRTEENTH] },
+
+    // Minor add chords
+    MinorAddedNinth { name: "minor added ninth", intervals: [I::PERFECT_UNISON, I::MINOR_THIRD, I::PERFECT_FIFTH, I::MAJOR_NINTH] },
+    MinorAddedFourth { name: "minor added fourth", intervals: [I::PERFECT_UNISON, I::MINOR_THIRD, I::PERFECT_FOURTH, I::PERFECT_FIFTH] },
+
+    // No-fifth voicings
+    DominantSeventhNoFifth { name: "dominant seventh no fifth", intervals: [I::PERFECT_UNISON, I::MAJOR_THIRD, I::MINOR_SEVENTH] },
+    MajorSeventhNoFifth { name: "major seventh no fifth", intervals: [I::PERFECT_UNISON, I::MAJOR_THIRD, I::MAJOR_SEVENTH] },
+    DominantNinthNoFifth { name: "dominant ninth no fifth", intervals: [I::PERFECT_UNISON, I::MAJOR_THIRD, I::MINOR_SEVENTH, I::MAJOR_NINTH] },
+    MajorNinthNoFifth { name: "major ninth no fifth", intervals: [I::PERFECT_UNISON, I::MAJOR_THIRD, I::MAJOR_SEVENTH, I::MAJOR_NINTH] },
+
+    // Altered dominants
+    DominantFlatNinthSharpEleventh { name: "dominant flat ninth sharp eleventh", intervals: [I::PERFECT_UNISON, I::MAJOR_THIRD, I::PERFECT_FIFTH, I::MINOR_SEVENTH, I::MINOR_NINTH, I::AUGMENTED_ELEVENTH] },
+    DominantSharpNinthSharpEleventh { name: "dominant sharp ninth sharp eleventh", intervals: [I::PERFECT_UNISON, I::MAJOR_THIRD, I::PERFECT_FIFTH, I::MINOR_SEVENTH, I::AUGMENTED_NINTH, I::AUGMENTED_ELEVENTH] },
+    DominantFlatNinthFlatThirteenth { name: "dominant flat ninth flat thirteenth", intervals: [I::PERFECT_UNISON, I::MAJOR_THIRD, I::PERFECT_FIFTH, I::MINOR_SEVENTH, I::MINOR_NINTH, I::MINOR_THIRTEENTH] },
+    DominantSharpNinthFlatThirteenth { name: "dominant sharp ninth flat thirteenth", intervals: [I::PERFECT_UNISON, I::MAJOR_THIRD, I::PERFECT_FIFTH, I::MINOR_SEVENTH, I::AUGMENTED_NINTH, I::MINOR_THIRTEENTH] },
+    DominantThirteenthFlatNinth { name: "dominant thirteenth flat ninth", intervals: [I::PERFECT_UNISON, I::MAJOR_THIRD, I::PERFECT_FIFTH, I::MINOR_SEVENTH, I::MINOR_NINTH, I::MAJOR_THIRTEENTH] },
+    DominantThirteenthSharpEleventh { name: "dominant thirteenth sharp eleventh", intervals: [I::PERFECT_UNISON, I::MAJOR_THIRD, I::PERFECT_FIFTH, I::MINOR_SEVENTH, I::MAJOR_NINTH, I::AUGMENTED_ELEVENTH, I::MAJOR_THIRTEENTH] },
+    DominantThirteenthFlatNinthSharpEleventh { name: "dominant thirteenth flat ninth sharp eleventh", intervals: [I::PERFECT_UNISON, I::MAJOR_THIRD, I::PERFECT_FIFTH, I::MINOR_SEVENTH, I::MINOR_NINTH, I::AUGMENTED_ELEVENTH, I::MAJOR_THIRTEENTH] },
 }
 
 pub(super) fn find_known(intervals: &[Interval]) -> Option<KnownChord> {
