@@ -212,6 +212,30 @@ impl ChordShape {
     pub fn interval_class_vector(&self) -> IntervalClassVector {
         self.pitch_class_set().interval_class_vector()
     }
+
+    pub fn extended(&self) -> Vec<KnownChord> {
+        let self_pcset = self.pitch_class_set();
+
+        KnownChord::ALL.iter()
+            .filter(|kc| {
+                let kc_pcset = kc.shape().pitch_class_set();
+                kc_pcset != self_pcset && kc_pcset.is_superset_of(self_pcset)
+            })
+            .copied()
+            .collect()
+    }
+
+    pub fn reduced(&self) -> Vec<KnownChord> {
+        let self_pcset = self.pitch_class_set();
+
+        KnownChord::ALL.iter()
+            .filter(|kc| {
+                let kc_pcset = kc.shape().pitch_class_set();
+                kc_pcset != self_pcset && kc_pcset.is_subset_of(self_pcset)
+            })
+            .copied()
+            .collect()
+    }
 }
 
 impl EnharmonicEq for ChordShape {
