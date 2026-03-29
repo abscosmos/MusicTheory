@@ -1,6 +1,7 @@
 use std::iter;
 use crate::chord::ChordShape;
 use crate::{EnharmonicEq, Interval, Note, Pitch};
+use crate::chord::known::KnownChord;
 use crate::interval::Number;
 use crate::harmony::Key;
 use crate::pitch::Spelling;
@@ -226,6 +227,10 @@ impl PitchChord {
 
     pub fn interval_class_vector(&self) -> IntervalClassVector {
         self.pitch_class_set().interval_class_vector()
+    }
+
+    pub fn known(&self) -> Option<KnownChord> {
+        self.shape.known()
     }
 }
 

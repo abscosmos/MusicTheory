@@ -1,5 +1,8 @@
-use crate::{EnharmonicEq, Interval};
+use crate::{EnharmonicEq, Interval, PitchClass};
+use crate::chord::known;
+use crate::chord::known::KnownChord;
 use crate::interval::{Number, Stability};
+use crate::set::{IntervalClassVector, PitchClassSet};
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -194,6 +197,45 @@ impl ChordShape {
             _ => false,
         }
     }
+
+    #[inline]
+    pub fn known(&self) -> Option<KnownChord> {
+        known::find_known(&self.intervals)
+    }
+
+    fn pitch_class_set(&self) -> PitchClassSet {
+        self.intervals.iter()
+            .map(|&ivl| PitchClass::C + ivl)
+            .collect()
+    }
+
+    pub fn interval_class_vector(&self) -> IntervalClassVector {
+        self.pitch_class_set().interval_class_vector()
+    }
+
+    pub fn extended(&self) -> Vec<KnownChord> {
+        let self_pcset = self.pitch_class_set();
+
+        KnownChord::ALL.iter()
+            .filter(|kc| {
+                let kc_pcset = kc.shape().pitch_class_set();
+                kc_pcset != self_pcset && kc_pcset.is_superset_of(self_pcset)
+            })
+            .copied()
+            .collect()
+    }
+
+    pub fn reduced(&self) -> Vec<KnownChord> {
+        let self_pcset = self.pitch_class_set();
+
+        KnownChord::ALL.iter()
+            .filter(|kc| {
+                let kc_pcset = kc.shape().pitch_class_set();
+                kc_pcset != self_pcset && kc_pcset.is_subset_of(self_pcset)
+            })
+            .copied()
+            .collect()
+    }
 }
 
 impl EnharmonicEq for ChordShape {
@@ -206,5 +248,11 @@ impl EnharmonicEq for ChordShape {
             .iter()
             .zip(other.intervals())
             .all(|(this, other)| this.eq_enharmonic(other))
+    }
+}
+
+impl From<KnownChord> for ChordShape {
+    fn from(known: KnownChord) -> Self {
+        Self { intervals: known.intervals().into() }
     }
 }

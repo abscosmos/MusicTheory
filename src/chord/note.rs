@@ -5,6 +5,7 @@ use strum::IntoEnumIterator;
 use crate::chord::pitch::PitchChord;
 use crate::{Interval, Letter, Note, Pitch};
 use crate::chord::{root, ChordShape};
+use crate::chord::known::KnownChord;
 use crate::chord::letter_set::LetterSet;
 use crate::set::PitchClassSet;
 
@@ -94,6 +95,14 @@ impl NoteChord {
 
     pub fn contains_note(&self, note: Note) -> bool {
         self.notes.contains(&note)
+    }
+
+    pub fn pitch_chord(&self) -> &PitchChord {
+        &self.pitch_chord
+    }
+
+    pub fn known(&self) -> Option<KnownChord> {
+        self.pitch_chord.shape().known()
     }
 
     #[inline]
