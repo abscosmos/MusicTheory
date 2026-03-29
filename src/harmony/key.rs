@@ -80,7 +80,7 @@ use std::str::FromStr;
 /// assert_eq!(c_minor, Key::minor(Pitch::C));
 /// assert_eq!(c_major.tonic, c_minor.tonic);
 /// ```
-#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Key {
     /// The tonic (root) pitch of the key.

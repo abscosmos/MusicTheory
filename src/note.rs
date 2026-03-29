@@ -53,7 +53,7 @@ use crate::pitch::Spelling;
 ///
 /// [`Letter`]: crate::pitch::Letter
 /// [`AccidentalSign`]: crate::pitch::AccidentalSign
-#[derive(Copy, Clone, Eq, PartialEq, Debug)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Note {
     /// The pitch (has [letter](crate::pitch::Letter) and [accidental](crate::pitch::AccidentalSign)).

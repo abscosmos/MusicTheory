@@ -338,7 +338,7 @@ impl Interval {
     pub fn stability(self) -> Option<Stability> {
         match self.quality {
             Quality::Diminished(_) | Quality::Augmented(_) => Some(Stability::Dissonance),
-            _ => match self.number.as_simple() {
+            _ => match self.number.as_simple().abs() {
                 Number::UNISON | Number::FIFTH | Number::OCTAVE => Some(Stability::PerfectConsonance),
                 Number::THIRD | Number::SIXTH => Some(Stability::ImperfectConsonance),
                 Number::SECOND | Number::SEVENTH => Some(Stability::Dissonance),
