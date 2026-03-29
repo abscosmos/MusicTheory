@@ -95,6 +95,16 @@ impl KnownChord {
     pub fn shape(self) -> ChordShape {
         ChordShape::from(self)
     }
+
+    #[inline]
+    pub fn extended(self) -> Vec<Self> {
+        self.shape().extended()
+    }
+
+    #[inline]
+    pub fn reduced(self) -> Vec<Self> {
+        self.shape().reduced()
+    }
 }
 
 impl fmt::Display for KnownChord {
