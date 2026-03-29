@@ -1,7 +1,8 @@
-use crate::{EnharmonicEq, Interval};
+use crate::{EnharmonicEq, Interval, PitchClass};
 use crate::chord::known;
 use crate::chord::known::KnownChord;
 use crate::interval::{Number, Stability};
+use crate::set::{IntervalClassVector, PitchClassSet};
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -200,6 +201,12 @@ impl ChordShape {
     #[inline]
     pub fn known(&self) -> Option<KnownChord> {
         known::find_known(&self.intervals)
+    }
+
+    fn pitch_class_set(&self) -> PitchClassSet {
+        self.intervals.iter()
+            .map(|&ivl| PitchClass::C + ivl)
+            .collect()
     }
 }
 
